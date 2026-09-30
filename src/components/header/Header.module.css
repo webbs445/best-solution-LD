@@ -1,0 +1,228 @@
+/* Floating header matched to best-solution.ae. The outer layer is click-through so only the bar itself catches input. */
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100;
+  padding-top: env(safe-area-inset-top, 0px);
+  pointer-events: none;
+}
+
+.inner {
+  max-width: 1600px;
+  margin-inline: auto;
+  padding: 10px 32px 0;
+}
+
+.bar {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: var(--header-h);
+  padding: 0 24px 0 32px;
+  border: 1px solid rgba(204, 134, 103, 0.1);
+  border-radius: 16px;
+  background: linear-gradient(#fff, #f5e8e2);
+  box-shadow: 0 10px 30px rgba(20, 37, 62, 0.06);
+  transition: box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.scrolled .bar {
+  background: linear-gradient(rgba(255, 255, 255, 0.96), rgba(245, 232, 226, 0.96));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 14px 40px rgba(20, 37, 62, 0.12);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  flex: none;
+  transition: transform 0.2s ease;
+}
+
+.logo:hover {
+  transform: scale(1.02);
+}
+
+.logo img {
+  display: block;
+  height: 44px;
+  width: auto;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+}
+
+.nav a {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font: 600 14px/1.2 var(--font);
+  color: var(--navy);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nav a:hover {
+  background: rgba(204, 134, 103, 0.1);
+  color: #a86b52;
+}
+
+.navDiv {
+  width: 1px;
+  height: 20px;
+  margin: 0 8px;
+  background: rgba(20, 37, 62, 0.1);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.cta svg,
+.menuPhone svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: linear-gradient(to right bottom, #cc8667, #a86b52);
+  color: #fff;
+  font: 600 13px/1 var(--font);
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(204, 134, 103, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(204, 134, 103, 0.38);
+}
+
+.burger {
+  display: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.burger:hover {
+  background: rgba(204, 134, 103, 0.1);
+}
+
+.burger svg {
+  width: 22px;
+  height: 22px;
+}
+
+.menu {
+  pointer-events: auto;
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid rgba(204, 134, 103, 0.12);
+  border-radius: 16px;
+  background: linear-gradient(#fff, #f5e8e2);
+  box-shadow: 0 18px 40px rgba(20, 37, 62, 0.14);
+  /* Landscape phones: keep the whole menu reachable. */
+  max-height: calc(100dvh - var(--header-h) - 28px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: menuIn 0.2s ease;
+}
+
+.menu > a:not(.cta) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font: 600 15px/1.2 var(--font);
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.menu > a:not(.cta):hover {
+  background: rgba(204, 134, 103, 0.1);
+}
+
+.menuPhone {
+  color: var(--copper-ink) !important;
+}
+
+.menu .cta {
+  margin-top: 6px;
+  min-height: 48px;
+  font-size: 15px;
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@media (max-width: 1020px) {
+  .nav {
+    display: none;
+  }
+
+  .burger {
+    display: grid;
+  }
+}
+
+@media (max-width: 640px) {
+  .inner {
+    padding: 8px 8px 0;
+  }
+
+  .bar {
+    min-height: 60px;
+    padding: 0 8px 0 16px;
+    border-radius: 14px;
+  }
+
+  .logo img {
+    height: 36px;
+  }
+
+  /* On phones the sticky bottom bar carries the call to action; the menu still offers it. */
+  .ctaBar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+}

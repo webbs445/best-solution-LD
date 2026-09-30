@@ -1,0 +1,285 @@
+/* How it works: a compact navy band. Photo and intro on the left, a scroll-filled timeline on the right. */
+
+.process {
+  position: relative;
+  overflow: hidden;
+  padding-block: 80px;
+  background:
+    radial-gradient(60% 70% at 100% 0%, rgba(204, 134, 103, 0.18), transparent 60%),
+    linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 60%, #0b1629 100%);
+  color: #fff;
+}
+
+.process :global(.section-kicker) {
+  border-color: rgba(204, 134, 103, 0.4);
+  background: rgba(204, 134, 103, 0.1);
+  color: #e6b6a2;
+}
+
+.process h2 {
+  color: #fff;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 64px;
+  align-items: center;
+}
+
+.intro {
+  max-width: 26rem;
+  margin-top: 14px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 16.5px;
+  line-height: 1.6;
+}
+
+.photo {
+  position: relative;
+  margin: 28px 0 0;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(15, 31, 61, 0.75));
+}
+
+.photo figcaption {
+  position: absolute;
+  z-index: 1;
+  left: 22px;
+  bottom: 20px;
+  color: #fff;
+}
+
+.photo figcaption b {
+  display: block;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.photo figcaption span {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ---------- Timeline ---------- */
+
+.tl {
+  position: relative;
+}
+
+.tl ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rail {
+  position: absolute;
+  left: 21px;
+  top: 22px;
+  bottom: 22px;
+  width: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.rail i {
+  display: block;
+  width: 100%;
+  border-radius: 2px;
+  background: linear-gradient(#e7b39b, var(--copper), #a86b52);
+  transition: height 0.15s linear;
+}
+
+.tl li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 22px;
+}
+
+.tl li + li {
+  margin-top: 34px;
+}
+
+.dot {
+  position: relative;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  margin-top: 14px;
+  border-radius: 50%;
+  background: var(--navy-deep);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dot::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.on .dot {
+  border-color: var(--copper);
+  box-shadow: 0 0 0 6px rgba(204, 134, 103, 0.16);
+}
+
+.on .dot::after {
+  background: var(--copper);
+}
+
+.num {
+  position: absolute;
+  right: 18px;
+  top: 10px;
+  font: 800 54px/1 var(--font);
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(231, 179, 155, 0.28);
+  pointer-events: none;
+  transition: -webkit-text-stroke-color 0.3s ease;
+}
+
+.on .num {
+  -webkit-text-stroke-color: rgba(231, 179, 155, 0.55);
+}
+
+.body {
+  padding: 18px 22px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.on .body {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(204, 134, 103, 0.35);
+}
+
+.label {
+  font: 800 11px/1 var(--font);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--copper);
+}
+
+.body h3 {
+  margin-top: 8px;
+  color: #fff;
+  font-size: 22px;
+  letter-spacing: -0.035em;
+}
+
+.text {
+  max-width: 26rem;
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(204, 134, 103, 0.12);
+  border: 1px solid rgba(204, 134, 103, 0.28);
+  font-size: 12px;
+  font-weight: 600;
+  color: #f0c7b4;
+}
+
+.meta svg {
+  width: 14px;
+  height: 14px;
+  color: #e6b6a2;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 28px 0 0 66px;
+}
+
+.cta span {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+}
+
+@media (max-width: 1020px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+  }
+
+  .photo {
+    aspect-ratio: 16 / 8;
+  }
+}
+
+@media (max-width: 640px) {
+  .process {
+    padding-block: 60px;
+  }
+
+  .tl li {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .dot {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dot::after {
+    inset: 10px;
+  }
+
+  .rail {
+    left: 17px;
+  }
+
+  .body {
+    padding: 16px;
+  }
+
+  .num {
+    font-size: 40px;
+  }
+
+  .cta {
+    margin-left: 0;
+  }
+
+  .cta :global(.btn) {
+    flex: 1 1 100%;
+  }
+}

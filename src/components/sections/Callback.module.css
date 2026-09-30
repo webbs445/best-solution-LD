@@ -1,0 +1,280 @@
+/* Callback popup: a centred card on desktop, a bottom sheet on phones. */
+
+.locked {
+  overflow: hidden;
+}
+
+.dialog {
+  width: min(100% - 40px, 540px);
+  max-width: none;
+  max-height: calc(100dvh - 40px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  color: #fff;
+  overflow: visible;
+}
+
+.dialog::backdrop {
+  background: rgba(6, 12, 22, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.dialog[open] {
+  animation: up 0.35s var(--ease-out);
+}
+
+.dialog[open]::backdrop {
+  animation: fade 0.25s ease;
+}
+
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.card {
+  position: relative;
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  padding: 32px;
+  border-radius: 24px;
+  background:
+    radial-gradient(90% 60% at 100% 0%, rgba(204, 134, 103, 0.2), transparent 60%),
+    linear-gradient(160deg, #172b48, var(--navy-deep));
+  border: 1px solid rgba(204, 134, 103, 0.4);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+}
+
+.close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 800 10.5px/1 var(--font);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #e6b6a2;
+}
+
+.live i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: live 1.8s ease-out infinite;
+}
+
+@keyframes live {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 9px rgba(74, 222, 128, 0);
+  }
+}
+
+.card h3 {
+  margin-top: 14px;
+  font-size: 26px;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.lede {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 15px;
+}
+
+.form {
+  margin-top: 22px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.form label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.row input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 20, 33, 0.55);
+  color: #fff;
+  font: 500 15.5px var(--font);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.row input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.row input:focus {
+  outline: none;
+  border-color: var(--copper);
+  box-shadow: 0 0 0 4px rgba(204, 134, 103, 0.18);
+}
+
+.row input[aria-invalid="true"] {
+  border-color: #ff8a80;
+}
+
+.err {
+  margin-top: 5px;
+  color: #ffb4ab;
+  font-size: 12.5px;
+}
+
+.pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.pick legend {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.form .pick label {
+  margin: 0;
+  cursor: pointer;
+}
+
+.pick input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pick span {
+  display: inline-block;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 20, 33, 0.45);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pick label:hover span {
+  border-color: var(--copper);
+}
+
+.pick input:checked + span {
+  background: linear-gradient(135deg, #e7b39b, var(--copper) 55%, #a86b52);
+  border-color: transparent;
+  color: #fff;
+}
+
+.pick input:focus-visible + span {
+  outline: 2px solid var(--copper);
+  outline-offset: 2px;
+}
+
+.form :global(.btn) {
+  margin-top: 22px;
+}
+
+.micro {
+  margin-top: 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.micro a {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.status {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .dialog {
+    width: 100%;
+    margin: auto 0 0;
+    border-radius: 22px 22px 0 0;
+  }
+
+  .card {
+    padding: 26px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    border-radius: 22px 22px 0 0;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open],
+  .dialog[open]::backdrop,
+  .live i {
+    animation: none;
+  }
+}
