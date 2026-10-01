@@ -57,6 +57,8 @@ export function Closing() {
                 width={1100}
                 height={677}
                 sizes="(max-width: 1020px) 100vw, 500px"
+                // Small (about 25 KB) and the largest image when the page reloads scrolled to this card, so load it straight away.
+                loading="eager"
               />
               <figcaption>
                 <i aria-hidden="true" />
