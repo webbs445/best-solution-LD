@@ -45,6 +45,7 @@ export async function POST(request: Request) {
     utm_content: str(body.utm_content, 200),
     utm_term: str(body.utm_term, 200),
     click_id: str(body.click_id, 500),
+    event_id: str(body.event_id, 60),
     landing_page: str(body.landing_page, 1000),
     form_id: FORM_ID,
     submission_timestamp: str(body.submission_timestamp, 40) || new Date().toISOString(),

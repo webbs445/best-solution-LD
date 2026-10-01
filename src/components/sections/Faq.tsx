@@ -12,7 +12,8 @@ export function Faq() {
         </div>
         <div className={styles.faq} data-reveal="">
           {FAQS.map((f, i) => (
-            <details key={f.q} open={i === 0}>
+            // data-faq-question feeds the faq_expand event (see AnalyticsInit).
+            <details key={f.q} open={i === 0} data-faq-question={f.q}>
               <summary>
                 {f.q}
                 <i aria-hidden="true" />

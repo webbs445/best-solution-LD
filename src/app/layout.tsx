@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import { SITE } from "@/content/site";
+import { AnalyticsInit } from "@/components/analytics/AnalyticsInit";
+import { ConsentInit, PageContextInit } from "@/components/analytics/ConsentInit";
+import { CookieConsentBanner } from "@/components/analytics/CookieConsentBanner";
+import { GoogleTagManager, GtmNoScript } from "@/components/analytics/GoogleTagManager";
 import "./globals.css";
 
 const inter = Inter({
@@ -45,32 +48,28 @@ export const viewport: Viewport = {
   themeColor: "#14253e",
 };
 
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
-
+/*
+  Tracking matches best-solution.ae (shared container GTM-MLFW9XR). Order matters: page context and
+  Consent Mode defaults in <head> first, then the Stape GTM loader after hydration.
+*/
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={inter.variable} data-scroll-behavior="smooth">
+    // suppressHydrationWarning: GTM Preview's Tag Assistant adds data-tag-assistant-* attributes to <html>
+    // before React hydrates. This applies to this one element only, not to the page inside it.
+    <html lang="en" className={inter.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <PageContextInit />
+        <ConsentInit />
+      </head>
       <body>
-        {GTM_ID ? (
-          <>
-            <Script id="gtm" strategy="afterInteractive">
-              {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`}
-            </Script>
-            <noscript>
-              <iframe
-                src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-                height="0"
-                width="0"
-                style={{ display: "none", visibility: "hidden" }}
-                title="Google Tag Manager"
-              />
-            </noscript>
-          </>
-        ) : null}
+        <GtmNoScript />
         <a className="skip-link" href="#calculator">
           Skip to the cost calculator
         </a>
         {children}
+        <CookieConsentBanner />
+        <AnalyticsInit />
+        <GoogleTagManager />
       </body>
     </html>
   );

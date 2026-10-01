@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { FOOTER_COLUMNS, MAPS_URL, SITE, SOCIAL } from "@/content/site";
 import { CtaLink } from "@/components/ui/CtaLink";
+import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
 import {
   ArrowIcon,
   CheckIcon,
@@ -31,10 +32,10 @@ export function Closing() {
             </h2>
             <p className={styles.lede}>Obtain your estimate today and speak with a consultant at a time that suits you.</p>
             <div className={styles.actions}>
-              <CtaLink className="btn btn-primary" href="#calculator">
+              <CtaLink className="btn btn-primary" href="#calculator" location="LP Closing — Calculate Cost">
                 Calculate Your Setup Cost <ArrowIcon />
               </CtaLink>
-              <CtaLink className={styles.ghost} href={SITE.whatsapp}>
+              <CtaLink className={styles.ghost} href={SITE.whatsapp} location="LP Closing — Speak to a Consultant">
                 <WhatsAppIcon />
                 <span>Speak to a Consultant</span>
               </CtaLink>
@@ -211,6 +212,7 @@ export function Footer() {
             <a href={SITE.terms} target="_blank" rel="noopener">
               Terms of Service
             </a>
+            <CookieSettingsButton />
           </nav>
         </div>
       </div>

@@ -3,7 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import { SITE } from "@/content/site";
 import { ArrowIcon } from "@/components/ui/Icons";
-import { track } from "@/lib/analytics";
+import { genEventId, getClid, jurisdictionLabel, pushFormSubmit } from "@/lib/analytics";
 import { FORM_ID, LEAD_ERRORS, LEAD_RULES, type LeadField } from "@/lib/lead";
 import type { Answers, Estimate } from "@/lib/pricing";
 import styles from "./Calculator.module.css";
@@ -40,7 +40,6 @@ export function LeadForm({
   const [errors, setErrors] = useState<Partial<Record<LeadField, boolean>>>({});
   const [status, setStatus] = useState(lead.sent ? "Thank you. Your consultant will send your written estimate within 24 hours." : "");
   const [sending, setSending] = useState(false);
-  const started = useRef(false);
   const inputs = useRef<Partial<Record<LeadField, HTMLInputElement | null>>>({});
   const honeypot = useRef<HTMLInputElement>(null);
 
@@ -66,6 +65,9 @@ export function LeadForm({
     }
 
     const qs = new URLSearchParams(window.location.search);
+    // One id for the dataLayer conversion and the ERP lead, so offline conversions can be matched later.
+    const eventId = genEventId();
+    const [firstName, ...rest] = lead.values.lead_name.trim().split(/\s+/);
     setSending(true);
     setStatus("Sending your details...");
 
@@ -82,7 +84,9 @@ export function LeadForm({
           utm_campaign: qs.get("utm_campaign") || "",
           utm_content: qs.get("utm_content") || "",
           utm_term: qs.get("utm_term") || "",
-          click_id: qs.get("gclid") || qs.get("fbclid") || qs.get("msclkid") || "",
+          // Consent-gated click-id cookies, as on the main site (gclid > fbclid > li_fat_id).
+          click_id: getClid(),
+          event_id: eventId,
           landing_page: window.location.href.split("#")[0],
           form_id: FORM_ID,
           submission_timestamp: new Date().toISOString(),
@@ -99,7 +103,16 @@ export function LeadForm({
       }
       if (!res.ok) throw new Error("Request failed");
 
-      track("generate_lead", { form_id: FORM_ID, jurisdiction: answers.jurisdiction, setup: result.name, total: result.total });
+      pushFormSubmit({
+        formId: FORM_ID,
+        formType: "calculator",
+        serviceInterest: jurisdictionLabel(answers.jurisdiction),
+        email: lead.values.email_id,
+        phone: lead.values.mobile_no,
+        firstName,
+        lastName: rest.join(" "),
+        eventId,
+      });
       if (THANK_YOU_URL) {
         window.location.href = THANK_YOU_URL;
         return;
@@ -116,14 +129,9 @@ export function LeadForm({
     <form
       className={styles.lead}
       id="leadForm"
+      data-track={FORM_ID}
       noValidate
       onSubmit={onSubmit}
-      onFocus={() => {
-        if (!started.current) {
-          started.current = true;
-          track("form_start", { form_id: FORM_ID });
-        }
-      }}
     >
       <h4>Receive this estimate in writing</h4>
       <div className={styles.fields}>

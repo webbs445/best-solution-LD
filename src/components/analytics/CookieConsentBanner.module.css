@@ -1,0 +1,222 @@
+/* Cookie banner matched to the best-solution.ae one: navy card, copper accent, bottom of the screen. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(20, 37, 62, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.wrap {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 9999;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  animation: rise 0.35s var(--ease-out);
+}
+
+.card {
+  max-width: 768px;
+  max-height: calc(100dvh - 32px);
+  margin-inline: auto;
+  overflow-y: auto;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: linear-gradient(var(--navy), var(--navy-deep));
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  color: var(--on-navy);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(204, 134, 103, 0.15);
+  color: var(--copper);
+}
+
+.icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.head h2 {
+  color: var(--on-navy);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.head p {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.head a {
+  color: var(--copper);
+  text-underline-offset: 2px;
+}
+
+.prefs {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.row p {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.row small {
+  display: block;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+}
+
+.always {
+  margin-top: 2px;
+  color: rgba(204, 134, 103, 0.8);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.switch {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  width: 44px;
+  height: 24px;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.switch span {
+  width: 20px;
+  height: 20px;
+  margin-left: 2px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.switch[aria-checked="true"] {
+  background: var(--copper);
+}
+
+.switch[aria-checked="true"] span {
+  transform: translateX(20px);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.actions button {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font: 600 14px/1 var(--font);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.secondary {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.secondary:first-child {
+  margin-right: auto;
+}
+
+.secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.accept {
+  border: 0;
+  background: var(--copper);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(204, 134, 103, 0.2);
+}
+
+.accept:hover {
+  background: var(--copper-dark);
+}
+
+.switch:focus-visible,
+.actions button:focus-visible,
+.head a:focus-visible {
+  outline: 2px solid var(--copper);
+  outline-offset: 2px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+}
+
+@media (max-width: 640px) {
+  .head .icon {
+    display: none;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .secondary:first-child {
+    margin-right: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .wrap {
+    animation: none;
+  }
+}

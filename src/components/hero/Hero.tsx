@@ -24,10 +24,10 @@ export function Hero() {
             recommends the right structure for your business.
           </p>
           <div className={`cta-row ${styles.ctaRow}`}>
-            <CtaLink className="btn btn-primary" href="#calculator">
+            <CtaLink className="btn btn-primary" href="#calculator" location="LP Hero — Calculate Cost">
               Calculate Your Setup Cost <ArrowIcon />
             </CtaLink>
-            <CtaLink className="btn btn-outline" href={SITE.whatsapp}>
+            <CtaLink className="btn btn-outline" href={SITE.whatsapp} location="LP Hero — Speak to a Consultant">
               Speak to a Consultant
             </CtaLink>
           </div>

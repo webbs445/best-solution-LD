@@ -15,7 +15,7 @@ const input: LeadInput = {
   utm_term: "adset-1",
   click_id: "gclid-123",
   landing_page: "https://example.com/",
-  form_id: "bs_setup_cost_calculator",
+  form_id: "LP Cost Calculator",
   submission_timestamp: "2026-09-30T10:00:00.000Z",
   answers,
   estimate: estimate(answers),

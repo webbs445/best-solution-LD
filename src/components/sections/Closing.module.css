@@ -699,14 +699,20 @@
   gap: 20px;
 }
 
-.bin nav a {
+.bin nav a,
+.bin nav button {
+  padding: 0;
+  border: 0;
+  background: none;
   font: 500 14px/1 var(--font);
   color: #8a93a3;
   text-decoration: none;
+  cursor: pointer;
   transition: color 0.15s ease;
 }
 
-.bin nav a:hover {
+.bin nav a:hover,
+.bin nav button:hover {
   color: var(--copper);
 }
 

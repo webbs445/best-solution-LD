@@ -1,21 +1,11 @@
-"use client";
-
 import type { AnchorHTMLAttributes } from "react";
-import { track } from "@/lib/analytics";
 
-/** An anchor that reports `cta_click` to the dataLayer, as the original `.js-cta` links did. */
-export function CtaLink({ onClick, children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) {
+/**
+ * A call-to-action link. `location` becomes `data-cta-location`, which the delegated tracker in
+ * AnalyticsInit reports as `consultation_cta_click`, the same convention best-solution.ae uses.
+ * Use a fixed English literal ("LP Hero — Calculate Cost"), never the visible label.
+ */
+export function CtaLink({ location, ...props }: AnchorHTMLAttributes<HTMLAnchorElement> & { location: string }) {
   const external = typeof props.href === "string" && /^https?:/.test(props.href);
-  return (
-    <a
-      {...(external ? { target: "_blank", rel: "noopener" } : null)}
-      {...props}
-      onClick={(e) => {
-        track("cta_click", { cta_text: e.currentTarget.textContent?.trim(), cta_target: props.href });
-        onClick?.(e);
-      }}
-    >
-      {children}
-    </a>
-  );
+  return <a {...(external ? { target: "_blank", rel: "noopener" } : null)} data-cta-location={location} {...props} />;
 }

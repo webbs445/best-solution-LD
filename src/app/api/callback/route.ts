@@ -1,4 +1,4 @@
-import { LEAD_RULES } from "@/lib/lead";
+import { CALLBACK_FORM_ID, LEAD_RULES } from "@/lib/lead";
 import { createErpLead } from "@/lib/erp";
 import type { JurisdictionChoice } from "@/lib/pricing";
 
@@ -48,8 +48,9 @@ export async function POST(request: Request) {
     utm_content: str(body.utm_content, 200),
     utm_term: str(body.utm_term, 200),
     click_id: str(body.click_id, 500),
+    event_id: str(body.event_id, 60),
     landing_page: str(body.landing_page, 1000),
-    form_id: "bs_footer_callback",
+    form_id: CALLBACK_FORM_ID,
     form_name: "Callback Request",
     button_name: "Request a Callback",
     submission_timestamp: new Date().toISOString(),

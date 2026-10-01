@@ -63,7 +63,7 @@ export function Header() {
           </nav>
 
           <div className={styles.actions}>
-            <CtaLink className={`${styles.cta} ${styles.ctaBar}`} href="#calculator">
+            <CtaLink className={`${styles.cta} ${styles.ctaBar}`} href="#calculator" location="LP Header — Free Consultation">
               <PhoneIcon />
               <span>Free Consultation</span>
             </CtaLink>
@@ -96,7 +96,7 @@ export function Header() {
             <PhoneIcon />
             {SITE.phone.display}
           </a>
-          <CtaLink className={styles.cta} href="#calculator">
+          <CtaLink className={styles.cta} href="#calculator" location="LP Header Menu — Free Consultation">
             <PhoneIcon />
             <span>Free Consultation</span>
           </CtaLink>

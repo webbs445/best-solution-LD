@@ -14,7 +14,11 @@ export function MobileBar() {
         <span>{result ? (result.from ? "Your estimate, from" : "Your estimate") : "Setup cost estimate"}</span>
         <b>{result ? `AED ${formatAED(result.total)}` : "A few short questions"}</b>
       </div>
-      <CtaLink className="btn btn-primary btn-sm" href={result ? "#leadForm" : "#calculator"}>
+      <CtaLink
+        className="btn btn-primary btn-sm"
+        href={result ? "#leadForm" : "#calculator"}
+        location={result ? "LP Mobile Bar — Get It in Writing" : "LP Mobile Bar — Start"}
+      >
         {result ? "Get it in writing" : "Start"}
       </CtaLink>
     </div>

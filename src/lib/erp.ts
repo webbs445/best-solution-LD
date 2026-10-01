@@ -17,6 +17,8 @@ export interface LeadInput {
   utm_content: string;
   utm_term: string;
   click_id: string;
+  /** The dataLayer form_submit event_id, kept on the lead to match offline conversion uploads. */
+  event_id?: string;
   landing_page: string;
   form_id: string;
   submission_timestamp: string;
@@ -85,8 +87,9 @@ function requirementHtml(input: LeadInput): string {
   const tracking = [
     ["Landing page", input.landing_page],
     ["UTM medium", input.utm_medium],
+    ["Event ID", input.event_id],
     ["Submitted", input.submission_timestamp],
-  ].filter(([, v]) => v);
+  ].filter((row): row is [string, string] => !!row[1]);
   parts.push(`<p>${tracking.map(([k, v]) => `${k}: ${esc(v)}`).join("<br>")}</p>`);
   return parts.join("");
 }

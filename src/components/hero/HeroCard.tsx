@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
 import { cheapest, DATA, formatAED, type Jurisdiction } from "@/lib/pricing";
-import { track } from "@/lib/analytics";
+import { jurisdictionLabel, trackJurisdictionInterest } from "@/lib/analytics";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 import { useCalculator } from "@/components/calculator/CalculatorProvider";
 import { ArrowIcon } from "@/components/ui/Icons";
@@ -71,7 +71,7 @@ function QuickCheck() {
 
   const choose = (o: (typeof OPTIONS)[number]) => {
     setPicked(o);
-    track("hero_quick_check", { answer: o.key });
+    trackJurisdictionInterest(jurisdictionLabel(o.j) as string, "compare", { source: "hero_quick_check" });
   };
 
   const seeCost = () => {

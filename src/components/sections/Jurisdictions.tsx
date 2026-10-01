@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { JURIS } from "@/content/site";
 import { cheapest, DATA, formatAED, type Jurisdiction } from "@/lib/pricing";
-import { track } from "@/lib/analytics";
+import { jurisdictionLabel, trackJurisdictionInterest } from "@/lib/analytics";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 import { useCalculator } from "@/components/calculator/CalculatorProvider";
 import { ArrowIcon } from "@/components/ui/Icons";
@@ -21,7 +21,7 @@ export function Jurisdictions() {
   const select = (key: Jurisdiction, focus = false) => {
     setActive(key);
     if (focus) tabRefs.current[key]?.focus();
-    track("jurisdiction_view", { jurisdiction: key });
+    trackJurisdictionInterest(jurisdictionLabel(key) as string, "compare", { source: "jurisdiction_tabs" });
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {

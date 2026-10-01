@@ -31,7 +31,7 @@ export function Process() {
         <div data-reveal="">
           <Timeline />
           <div className={styles.cta}>
-            <CtaLink className="btn btn-primary" href="#calculator">
+            <CtaLink className="btn btn-primary" href="#calculator" location="LP Process — Start with Step 1">
               Start with Step 1 <ArrowIcon />
             </CtaLink>
             <span>No obligation.</span>

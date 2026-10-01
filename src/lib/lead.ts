@@ -14,4 +14,10 @@ export const LEAD_ERRORS: Record<LeadField, string> = {
   mobile_no: "Please include your country code, for example +971.",
 };
 
-export const FORM_ID = "bs_setup_cost_calculator";
+/*
+  Form and calculator ids in the dataLayer (form_data.form_id, calculator_data.calculator_id) and on
+  each form's data-track attribute. Human-readable like the main site's ("Cost Calculator"), with an
+  "LP" prefix so landing-page leads are separable from best-solution.ae leads in GA4 and Ads.
+*/
+export const FORM_ID = "LP Cost Calculator";
+export const CALLBACK_FORM_ID = "LP Callback Request";

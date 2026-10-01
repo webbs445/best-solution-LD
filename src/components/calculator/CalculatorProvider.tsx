@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
 import { estimate, stepOrder, type Answers, type Estimate, type JurisdictionChoice, type StepId } from "@/lib/pricing";
-import { track } from "@/lib/analytics";
+import { jurisdictionLabel, trackCalculatorComplete, trackCalculatorStart, trackCalculatorStep, trackJurisdictionInterest } from "@/lib/analytics";
+import { FORM_ID } from "@/lib/lead";
 
 interface State {
   answers: Answers;
@@ -90,26 +91,46 @@ export function CalculatorProvider({ children }: { children: ReactNode }) {
   const order = useMemo(() => stepOrder(state.answers), [state.answers]);
   const result = useMemo(() => (state.view === "result" ? estimate(state.answers) : null), [state.view, state.answers]);
 
-  const answer = useCallback((id: StepId, value: Answers[StepId]) => {
-    track("calculator_step", { step_id: id, answer: String(value) });
-    dispatch({ type: "answer", id, value });
+  // calculator_start once per page view, on the first answer from any entry point.
+  const started = useRef(false);
+  const start = useCallback(() => {
+    if (started.current) return;
+    started.current = true;
+    trackCalculatorStart(FORM_ID);
   }, []);
+
+  const answer = useCallback(
+    (id: StepId, value: Answers[StepId]) => {
+      start();
+      trackCalculatorStep(FORM_ID, id, String(id === "jurisdiction" ? jurisdictionLabel(String(value)) : value));
+      dispatch({ type: "answer", id, value });
+    },
+    [start],
+  );
 
   const goTo = useCallback((id: StepId) => dispatch({ type: "goto", id }), []);
   const setEmirate = useCallback((emirate: string) => dispatch({ type: "emirate", emirate }), []);
 
-  const startWithJurisdiction = useCallback((jurisdiction: JurisdictionChoice, source = "jurisdiction_panel") => {
-    track("calculator_step", { step_id: "jurisdiction", answer: jurisdiction, source });
-    dispatch({ type: "useJurisdiction", jurisdiction });
-  }, []);
+  // Entry from the hero quick check or the jurisdictions panel: an "establish" intent signal, then the
+  // jurisdiction step answered on the visitor's behalf.
+  const startWithJurisdiction = useCallback(
+    (jurisdiction: JurisdictionChoice, source = "jurisdiction_panel") => {
+      const j = jurisdictionLabel(jurisdiction) as string;
+      trackJurisdictionInterest(j, "establish", { source });
+      start();
+      trackCalculatorStep(FORM_ID, "jurisdiction", j);
+      dispatch({ type: "useJurisdiction", jurisdiction });
+    },
+    [start],
+  );
 
   useEffect(() => {
     if (!result || state.resultKey === 0) return;
-    track("calculator_complete", {
-      jurisdiction: state.answers.jurisdiction,
-      setup: result.name,
-      total: result.total,
-      renewal: result.renewal,
+    trackCalculatorComplete({
+      calculatorId: FORM_ID,
+      jurisdiction: jurisdictionLabel(state.answers.jurisdiction),
+      visaCount: state.answers.jurisdiction === "offshore" ? undefined : state.answers.residency,
+      estimatedCost: result.total,
     });
     // Fire once per shown result, not on unrelated re-renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps

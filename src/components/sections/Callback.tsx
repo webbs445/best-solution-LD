@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
-import { LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
+import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
 import { SITE } from "@/content/site";
-import { track } from "@/lib/analytics";
+import { genEventId, getClid, jurisdictionLabel, pushFormSubmit } from "@/lib/analytics";
 import { ArrowIcon } from "@/components/ui/Icons";
 import styles from "./Callback.module.css";
 
@@ -29,7 +29,6 @@ export function CallbackButton({ className, children }: { className: string; chi
   const open = () => {
     dialog.current?.showModal();
     document.documentElement.classList.add(styles.locked);
-    track("callback_open");
   };
 
   const close = () => dialog.current?.close();
@@ -57,6 +56,9 @@ export function CallbackButton({ className, children }: { className: string; chi
 
     const interest = (new FormData(form).get("interest") as string) || "not_sure";
     const qs = new URLSearchParams(window.location.search);
+    // One id for the dataLayer conversion and the ERP lead, so offline conversions can be matched later.
+    const eventId = genEventId();
+    const [firstName, ...rest] = name.split(/\s+/);
     setStatus({ kind: "sending" });
     try {
       const res = await fetch("/api/callback", {
@@ -72,14 +74,25 @@ export function CallbackButton({ className, children }: { className: string; chi
           utm_campaign: qs.get("utm_campaign") || "",
           utm_content: qs.get("utm_content") || "",
           utm_term: qs.get("utm_term") || "",
-          click_id: qs.get("gclid") || qs.get("fbclid") || qs.get("msclkid") || "",
+          // Consent-gated click-id cookies, as on the main site (gclid > fbclid > li_fat_id).
+          click_id: getClid(),
+          event_id: eventId,
           landing_page: window.location.href.split("#")[0],
           website: honeypot.current?.value || "",
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
       setStatus({ kind: "sent" });
-      track("generate_lead", { form_id: "bs_footer_callback", interest });
+      pushFormSubmit({
+        formId: CALLBACK_FORM_ID,
+        formType: "callback",
+        serviceInterest: interest === "not_sure" ? undefined : jurisdictionLabel(interest),
+        email,
+        phone,
+        firstName,
+        lastName: rest.join(" "),
+        eventId,
+      });
     } catch {
       setStatus({
         kind: "error",
@@ -90,7 +103,7 @@ export function CallbackButton({ className, children }: { className: string; chi
 
   return (
     <>
-      <button type="button" className={className} onClick={open}>
+      <button type="button" className={className} onClick={open} data-cta-location="LP Footer — Book a Callback">
         {children}
       </button>
 
@@ -116,7 +129,7 @@ export function CallbackButton({ className, children }: { className: string; chi
             Leave your number and a consultant will call you back within one business day.
           </p>
 
-          <form className={styles.form} onSubmit={submit} noValidate>
+          <form className={styles.form} onSubmit={submit} noValidate data-track={CALLBACK_FORM_ID}>
             <div className={styles.row}>
               <div>
                 <label htmlFor="cb-name">Full name</label>
