@@ -73,7 +73,17 @@ export function saveConsent(choices: ConsentChoices): void {
 /** Push the choice to Consent Mode and emit `consent_update` so GTM/Stape triggers react at once. */
 export function applyConsent(choices: ConsentChoices): void {
   if (typeof window === "undefined") return;
-  const w = window as typeof window & { gtag?: (...args: unknown[]) => void; dataLayer?: unknown[] };
+  const w = window as typeof window & {
+    gtag?: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
+    clarity?: (...args: unknown[]) => void;
+    __bsReleaseClarity?: () => void;
+  };
+  // Clarity ignores Consent Mode; its own consent API lifts the cookie block set in ConsentInit.
+  const g = (v: boolean) => (v ? "granted" : "denied");
+  w.clarity?.("consentv2", { ad_Storage: g(choices.marketing), analytics_Storage: g(choices.analytics) });
+  // Let the parked Clarity script load now that analytics is allowed (see ConsentInit).
+  if (choices.analytics) w.__bsReleaseClarity?.();
   w.dataLayer = w.dataLayer || [];
   if (typeof w.gtag === "function") {
     w.gtag("consent", "update", toConsentSignals(choices));

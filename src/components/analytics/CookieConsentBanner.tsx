@@ -28,11 +28,12 @@ export function CookieSettingsButton({ className }: { className?: string }) {
 export function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
-  // EU/EEA/UK/CH visitors get a real reject option; elsewhere the main site's accept-to-enter wall.
+  // EU/EEA/UK/CH visitors also get a "Reject all" button. Everyone gets the same non-blocking bottom banner:
+  // the page stays readable and usable, and tags wait on Consent Mode (denied by default), not on this banner.
   const [isEU, setIsEU] = useState(false);
   const [choices, setChoices] = useState<ConsentChoices>(ALL_DENIED);
 
-  // Wait for geo before showing, so EU visitors never flash the wall and vice versa. Unknown geo => EU.
+  // Wait for geo before showing, so the right buttons appear from the start. Unknown geo => EU.
   useEffect(() => {
     const saved = readConsent();
     let cancelled = false;
@@ -73,8 +74,7 @@ export function CookieConsentBanner() {
 
   return (
     <>
-      {!isEU && <div className={styles.backdrop} aria-hidden="true" />}
-      <div className={styles.wrap} role="dialog" aria-modal={!isEU} aria-label="Cookie consent">
+      <div className={styles.wrap} role="region" aria-label="Cookie consent">
         <div className={styles.card}>
           <div className={styles.head}>
             <span className={styles.icon} aria-hidden="true">

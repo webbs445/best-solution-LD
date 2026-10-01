@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
 import { SITE } from "@/content/site";
 import { genEventId, getClid, jurisdictionLabel, pushFormSubmit } from "@/lib/analytics";
@@ -15,6 +15,9 @@ const INTERESTS = [
 ] as const;
 
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent" } | { kind: "error"; text: string };
+
+/** Dispatch this on window to open the callback popup from anywhere (e.g. the /consultation sitelink). */
+export const OPEN_CALLBACK = "open-callback";
 
 /* "Book a Callback" button plus its popup. A native <dialog> gives focus trapping, Escape to close and the top layer. */
 export function CallbackButton({ className, children }: { className: string; children: ReactNode }) {
@@ -32,6 +35,16 @@ export function CallbackButton({ className, children }: { className: string; chi
   };
 
   const close = () => dialog.current?.close();
+
+  useEffect(() => {
+    const openFromEvent = () => {
+      if (!dialog.current || dialog.current.open) return;
+      dialog.current.showModal();
+      document.documentElement.classList.add(styles.locked);
+    };
+    window.addEventListener(OPEN_CALLBACK, openFromEvent);
+    return () => window.removeEventListener(OPEN_CALLBACK, openFromEvent);
+  }, []);
 
   // Clicks on the dialog element itself land on the backdrop; clicks on the card land on its children.
   const onDialogClick = (e: MouseEvent<HTMLDialogElement>) => {
@@ -103,12 +116,13 @@ export function CallbackButton({ className, children }: { className: string; chi
 
   return (
     <>
-      <button type="button" className={className} onClick={open} data-cta-location="LP Footer — Book a Callback">
+      <button type="button" className={className} onClick={open} aria-controls="cbModal" data-cta-location="LP Footer — Book a Callback">
         {children}
       </button>
 
       <dialog
         ref={dialog}
+        id="cbModal"
         className={styles.dialog}
         aria-labelledby="cb-title"
         onClick={onDialogClick}

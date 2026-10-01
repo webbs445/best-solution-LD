@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   robots: {
     index: false,
   },
+  // The sitelink paths (/mainland, /reviews, ...) serve this same page; they all point back to its root.
+  // Absolute, because metadataBase is the main www site.
+  alternates: { canonical: "https://business.best-solution.ae/" },
   openGraph: {
     type: "website",
     siteName: SITE.name,

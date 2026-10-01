@@ -13,6 +13,7 @@ import { Reviews } from "@/components/sections/Reviews";
 import { Faq } from "@/components/sections/Faq";
 import { Closing, Footer } from "@/components/sections/Closing";
 import { RevealObserver } from "@/components/ui/RevealObserver";
+import { SectionDeepLink } from "@/components/ui/SectionDeepLink";
 
 const faqSchema = {
   "@context": "https://schema.org",
@@ -47,6 +48,7 @@ export default function Home() {
       <Footer />
       <MobileBar />
       <RevealObserver />
+      <SectionDeepLink />
     </CalculatorProvider>
   );
 }
