@@ -1,4 +1,4 @@
-import { FAQS } from "@/content/site";
+import { FAQS, SITE } from "@/content/site";
 import styles from "./Faq.module.css";
 
 export function Faq() {
@@ -8,7 +8,7 @@ export function Faq() {
         <div data-reveal="">
           <p className="section-kicker">Questions</p>
           <h2 id="faq-title">Frequently asked questions</h2>
-          <p className="lede">Prefer to ask directly? A consultant is available Monday to Friday, 9am to 6pm.</p>
+          <p className="lede">Prefer to ask directly? A consultant is available {SITE.hours.long}.</p>
         </div>
         <div className={styles.faq} data-reveal="">
           {FAQS.map((f, i) => (

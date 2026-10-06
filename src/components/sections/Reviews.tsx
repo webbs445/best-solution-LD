@@ -42,7 +42,7 @@ export function Reviews() {
         <div>
           <p className="section-kicker">Client reviews</p>
           <h2 id="reviews-title">Trusted by business owners from more than 80 countries</h2>
-          <p className="lede">Verified Google reviews from real clients and real businesses.</p>
+          <p className="lede">Google reviews from our clients.</p>
         </div>
         <div className={styles.score}>
           <b>4.8</b>

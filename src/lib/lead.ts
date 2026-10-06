@@ -21,3 +21,5 @@ export const LEAD_ERRORS: Record<LeadField, string> = {
 */
 export const FORM_ID = "LP Cost Calculator";
 export const CALLBACK_FORM_ID = "LP Callback Request";
+/** The /freezone page's planner ("Request My Estimate"). */
+export const FZ_FORM_ID = "LP Free Zone Planner";

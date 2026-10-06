@@ -3,7 +3,8 @@
   landing page sends the exact event names and payload shapes the shared container GTM-MLFW9XR expects.
 
   Differences from the main site, all deliberate:
-  - Single English page: locale is always "en" and canonical_path equals the path.
+  - English only: locale is always "en". canonical_path equals the path, except the /freezone sitelink
+    routes (/freezone/planner, ...), which report their page's canonical /freezone.
   - No interest-scoring engine (it is built around the main site's page map).
   - After a conversion, `user_data` and `form_data` are cleared from GTM's data model (just before
     the next event, Google's recommended pattern) so later events' tags can't read the email and phone.
@@ -131,6 +132,11 @@ export function setVisitorGeo(geo: VisitorGeo | null | undefined): void {
 
 /* ─── Nested category builders ─── */
 
+/** The page's canonical path: /freezone/<sitelink view> is the /freezone page opened at a section. */
+export function canonicalPath(path: string): string {
+  return /^\/freezone\/[^/]+\/?$/.test(path) ? "/freezone" : path;
+}
+
 function pagePath(): string {
   return typeof window !== "undefined" ? window.location.pathname : "";
 }
@@ -141,7 +147,7 @@ function pageData(path?: string) {
   return {
     page_data: {
       page_location: p,
-      canonical_path: p,
+      canonical_path: canonicalPath(p),
       content_group: getContentGroup(),
       // Language of the PAGE, not the browser. Map to a GA4 parameter such as page_language.
       language: LOCALE,
@@ -162,7 +168,7 @@ export function pushPageContext(path?: string): void {
     locale: LOCALE,
     language: document.documentElement.lang || LOCALE,
     dir: document.documentElement.dir || "ltr",
-    canonical_path: p,
+    canonical_path: canonicalPath(p),
     page_path: p,
   });
 }
@@ -285,6 +291,11 @@ export function trackFaqExpand(question: string): void {
 
 export function trackConsultationCta(ctaLocation: string): void {
   pushEvent("consultation_cta_click", { cta_location: ctaLocation, ...pageData() });
+}
+
+/** A page-specific event (e.g. the /freezone explorer's zone_select) with the standard page_data attached. */
+export function trackEvent(event: string, payload: Record<string, unknown> = {}): void {
+  pushEvent(event, { ...payload, ...pageData() });
 }
 
 /* ─── Engagement ─── */

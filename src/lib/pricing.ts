@@ -2,7 +2,7 @@
    RATE CARD: copied from best-solution.ae/pricing on 30 Sep 2026.
    Update here when the rate card changes.
    price = the published "from" price.
-   exact = published year-one package totals by number of residency visas.
+   exact = published year-one package totals by number of people needing residency.
    ============================================================ */
 
 export type Jurisdiction = "mainland" | "freezone" | "offshore";
@@ -52,7 +52,7 @@ export const DATA: Record<Jurisdiction, SetupOption[]> = {
     { id: "m0", name: "Dubai Mainland, LLC (DET)", price: 13000, desc: "", emirate: "Dubai" },
     { id: "m1", name: "Dubai Mainland, Professional / Civil", price: 9000, desc: "Sole establishment or civil company for service professionals", emirate: "Dubai" },
     { id: "m2", name: "Dubai Mainland, General Trading", price: 28000, desc: "Broad import / export and trading scope", emirate: "Dubai" },
-    { id: "m3", name: "Dubai Mainland, Instant setup", price: 11500, desc: "Fast-track setup, no immediate lease", emirate: "Dubai" },
+    { id: "m3", name: "Dubai Mainland, Lease-flexible setup", price: 11500, desc: "No immediate lease required", emirate: "Dubai" },
     { id: "m4", name: "Dubai Mainland, E-Trader", price: 1500, desc: "Home-based or online sole trader", emirate: "Dubai" },
     { id: "m5", name: "Abu Dhabi Mainland", price: 18000, desc: "", emirate: "Abu Dhabi" },
     { id: "m6", name: "Sharjah Mainland (SEDD)", price: 20000, desc: "", emirate: "Sharjah" },
@@ -63,7 +63,7 @@ export const DATA: Record<Jurisdiction, SetupOption[]> = {
   ],
   freezone: [
     { id: "f0", name: "IFZA (Dubai)", price: 12900, desc: "Low-cost, flexible", emirate: "Dubai", exact: { "0": 12900, "1": 17680, "2": 24210, "3": 30740, "4": 37270 } },
-    { id: "f1", name: "Meydan Free Zone", price: 12520, desc: "Central Dubai address; fast e-commerce and consultancy", emirate: "Dubai", exact: { "0": 12520, "1": 22710, "2": 30880 } },
+    { id: "f1", name: "Meydan Free Zone", price: 12520, desc: "Central Dubai address for e-commerce and consultancy", emirate: "Dubai", exact: { "0": 12520, "1": 22710, "2": 30880 } },
     { id: "f2", name: "DMCC", price: 35484, desc: "Premium commodities and trade hub, JLT", emirate: "Dubai" },
     { id: "f3", name: "JAFZA (Jebel Ali)", price: 45000, desc: "Trading, logistics, industrial; port access", emirate: "Dubai" },
     { id: "f4", name: "Dubai Silicon Oasis / DIEZ", price: 12000, desc: "Tech, trading and services; integrated zone", emirate: "Dubai" },
@@ -80,11 +80,11 @@ export const DATA: Record<Jurisdiction, SetupOption[]> = {
     { id: "f15", name: "SHAMS (Sharjah Media City)", price: 6885, desc: "Low-cost media, creative and services packages", emirate: "Sharjah", exact: { "0": 6885, "1": 15645, "2": 21485, "3": 27325 } },
     { id: "f16", name: "SAIF Zone", price: 12000, desc: "Airport-linked trading, logistics and light industry", emirate: "Sharjah" },
     { id: "f17", name: "Hamriyah Free Zone (HFZA)", price: 11000, desc: "Industrial, manufacturing and trading; port access", emirate: "Sharjah" },
-    { id: "f18", name: "SPC Free Zone", price: 6885, desc: "Publishing, media and 1,500+ activities, fast setup", emirate: "Sharjah", exact: { "0": 6885, "1": 15030, "2": 20245, "3": 25460, "4": 30675 } },
+    { id: "f18", name: "SPC Free Zone", price: 6885, desc: "Publishing, media and 1,500+ activities", emirate: "Sharjah", exact: { "0": 6885, "1": 15030, "2": 20245, "3": 25460, "4": 30675 } },
     { id: "f19", name: "SRTIP", price: 5510, desc: "Research, technology and innovation", emirate: "Sharjah", exact: { "0": 5510, "1": 15120, "2": 19575 } },
     { id: "f20", name: "Ajman Free Zone (AFZ)", price: 5555, desc: "Low-cost trading, services and industrial", emirate: "Northern Emirates" },
     { id: "f21", name: "Ajman Nu Venture Free Zone", price: 4888, desc: "Budget media and services packages", emirate: "Northern Emirates", exact: { "0": 4898, "1": 11460, "2": 17510, "3": 22660, "4": 27810 } },
-    { id: "f22", name: "RAKEZ", price: 6010, desc: "One of the most cost-effective; trading, services, industrial", emirate: "Northern Emirates", exact: { "0": 9110, "1": 14482.5, "2": 18955, "3": 23427.5, "4": 27900 } },
+    { id: "f22", name: "RAKEZ", price: 6010, desc: "Cost-efficient trading, services and industrial packages", emirate: "Northern Emirates", exact: { "0": 9110, "1": 14482.5, "2": 18955, "3": 23427.5, "4": 27900 } },
     { id: "f23", name: "RAK Maritime City", price: 18000, desc: "Maritime, industrial and trading", emirate: "Northern Emirates" },
     { id: "f24", name: "Innovation City", price: 6600, desc: "Digital assets and Web3 companies", emirate: "Northern Emirates" },
     { id: "f25", name: "Fujairah Free Zone (FFZ)", price: 21500, desc: "Trading, logistics and industry; East-coast port", emirate: "Northern Emirates" },
@@ -186,13 +186,13 @@ export function estimate(a: Answers): Estimate {
     workspace = off ? 0 : RATES.workspace[a.workspace ?? "none"] || 0;
   }
 
-  lines.push({ label: "Company formation and authority fees", amount: base });
+  lines.push({ label: "Setup package", amount: base });
 
   if (off) lines.push({ label: "Residency", text: "Not applicable" });
   else if (n)
     lines.push({
       label: "Residency for " + n + (n === 1 ? " person" : " people"),
-      note: pack ? "" : "Two-year residency, including the establishment card",
+      note: pack ? "" : "Two-year residency costs",
       amount: residency,
     });
   else lines.push({ label: "Residency", text: "None selected" });

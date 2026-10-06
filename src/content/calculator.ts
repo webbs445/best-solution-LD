@@ -15,7 +15,7 @@ export interface StepDef {
 
 export const STEPS: Record<StepId, StepDef> = {
   profile: {
-    q: "Which best describes you?",
+    q: "What describes you most closely?",
     two: true,
     options: [
       ["first_time", "First-time entrepreneur"],

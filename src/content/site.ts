@@ -13,6 +13,10 @@ export const SITE = {
   mainPhoto: "/images/main.webp",
   logo: "/brand/logo.webp",
   mark: "/brand/mark.webp",
+  /** Opening hours, shared by the home page and /freezone. */
+  hours: { long: "Monday to Friday, 9am to 6pm", short: "Mon to Fri, 9AM to 6PM" },
+  /** Founding year, shared by the home page and /freezone. */
+  founded: 2014,
 };
 
 /* Free zone and authority logos shown in the "jurisdictions we advise on" marquee. */
@@ -117,7 +121,7 @@ export const JURIS: Record<Jurisdiction, JurisdictionCopy> = {
     owner: "100% foreign ownership",
     office: "No office required",
     tax: "Depends on structure and UAE corporate tax rules",
-    photo: "/images/offshore-companies-registration.webp",
+    photo: "/images/offshore-company-structure.webp",
     photoPosition: "85% center",
   },
 };
@@ -160,15 +164,6 @@ export const REVIEW_ROWS: Review[][] = [
       company: "Prism Advertising",
       photo: "chandra-mohan",
       logo: "prism-advertising",
-    }),
-    review({
-      title: "Smooth, Hassle-Free Setup",
-      quote: "Our mainland license process was smooth and transparent. Vipin guided us through every step. Highly recommended.",
-      name: "Harris Maheen",
-      role: "Chief Executive Officer",
-      company: "Abzter",
-      photo: "harris-maheen",
-      logo: "abzter",
     }),
     review({
       title: "Reliable and Stress-Free Support",
@@ -226,6 +221,6 @@ export const FAQS = [
   { q: "Who will handle my enquiry?", a: "A dedicated consultant from our Business Bay office." },
   {
     q: "Is Best Solution a government entity?",
-    a: "No. Best Solution is a private consultancy. Licences and visas are issued solely by the relevant UAE authorities.",
+    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Licences and residency approvals are issued solely by the relevant UAE authorities.",
   },
 ];
