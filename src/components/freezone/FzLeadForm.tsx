@@ -20,7 +20,10 @@ const FIELDS: { name: LeadField; id: string; label: string; type: string; autoCo
 
 const THANK_YOU_URL = process.env.NEXT_PUBLIC_THANK_YOU_URL || "";
 
-export const FzLeadForm = forwardRef<HTMLInputElement, { planner: PlannerInput }>(function FzLeadForm({ planner }, firstInput) {
+export const FzLeadForm = forwardRef<HTMLInputElement, { planner: PlannerInput; idPrefix?: string }>(function FzLeadForm(
+  { planner, idPrefix = "" },
+  firstInput,
+) {
   const [values, setValues] = useState<Record<LeadField, string>>({ lead_name: "", email_id: "", mobile_no: "" });
   const [errors, setErrors] = useState<Partial<Record<LeadField, boolean>>>({});
   const [status, setStatus] = useState("");
@@ -109,14 +112,15 @@ export const FzLeadForm = forwardRef<HTMLInputElement, { planner: PlannerInput }
   };
 
   return (
-    <form className="fz-form" id="leadForm" data-track={FZ_FORM_ID} noValidate onSubmit={onSubmit}>
+    <form className="fz-form" id={`${idPrefix}leadForm`} data-track={FZ_FORM_ID} noValidate onSubmit={onSubmit}>
       <div className="fz-form-row">
         {FIELDS.map((f, i) => {
           const invalid = !!errors[f.name];
-          const errId = `${f.id}-error`;
+          const fid = `${idPrefix}${f.id}`;
+          const errId = `${fid}-error`;
           return (
             <div key={f.name}>
-              <label htmlFor={f.id}>{f.label}</label>
+              <label htmlFor={fid}>{f.label}</label>
               <input
                 ref={(el) => {
                   inputs.current[f.name] = el;
@@ -125,7 +129,7 @@ export const FzLeadForm = forwardRef<HTMLInputElement, { planner: PlannerInput }
                     else firstInput.current = el;
                   }
                 }}
-                id={f.id}
+                id={fid}
                 name={f.name}
                 type={f.type}
                 autoComplete={f.autoComplete}
@@ -151,8 +155,8 @@ export const FzLeadForm = forwardRef<HTMLInputElement, { planner: PlannerInput }
 
       {/* Spam trap: invisible to people, tempting to bots. */}
       <div className="sr-only" aria-hidden="true">
-        <label htmlFor="leadWebsite">Website</label>
-        <input ref={honeypot} id="leadWebsite" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <label htmlFor={`${idPrefix}leadWebsite`}>Website</label>
+        <input ref={honeypot} id={`${idPrefix}leadWebsite`} name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
       {!sent && (

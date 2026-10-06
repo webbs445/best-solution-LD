@@ -1,0 +1,279 @@
+/* Zone estimate popup: a compact centred card on desktop, a bottom sheet on phones.
+   Sized to fit without scrolling; on very short screens it still scrolls, with the bar hidden. */
+
+.locked {
+  overflow: hidden;
+}
+
+.dialog {
+  width: min(100% - 32px, 560px);
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  color: var(--ink);
+  overflow: visible;
+}
+
+/* The dialog itself takes focus on open; the copper focus ring belongs on its controls, not around it. */
+.dialog:focus,
+.dialog:focus-visible {
+  outline: none;
+}
+
+.dialog::backdrop {
+  background: rgba(6, 12, 22, 0.62);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.dialog[open] {
+  animation: up 0.3s var(--ease-out);
+}
+
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+}
+
+.card {
+  position: relative;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 24px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+}
+
+.card::-webkit-scrollbar {
+  display: none;
+}
+
+.close {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  background: #fff;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--ground);
+}
+
+.close svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Header: small logo, title, zone name. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 44px;
+}
+
+.head h3 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.head p {
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+/* People + total in one navy panel. */
+.summary {
+  margin-top: 18px;
+  border-radius: 16px;
+  background: var(--navy-deep);
+  color: var(--on-navy);
+  overflow: hidden;
+}
+
+.people {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 14px;
+  color: var(--on-navy-soft);
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.stepper button {
+  width: 38px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: 600 19px/1 var(--font);
+  cursor: pointer;
+}
+
+.stepper button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.stepper button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepper output {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 16px;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.total {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  padding: 14px 16px 16px;
+}
+
+.total span {
+  font-size: 14px;
+  color: var(--on-navy-soft);
+}
+
+.total b {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.total small {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: var(--on-navy-soft);
+}
+
+/* The shared lead form, compact: two columns, the button beside the WhatsApp field. */
+.card :global(form.fz-form) {
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 0;
+  background: none;
+}
+
+.card :global(form.fz-form .fz-form-row) {
+  display: contents;
+}
+
+.card :global(form.fz-form label) {
+  margin-bottom: 4px;
+  font-size: 12.5px;
+}
+
+.card :global(form.fz-form input) {
+  height: 44px;
+}
+
+.card :global(form.fz-form .btn) {
+  align-self: end;
+  width: 100%;
+  min-height: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0 16px;
+  font-size: 15px;
+}
+
+.card :global(form.fz-form .fz-micro),
+.card :global(form.fz-form .fz-status) {
+  grid-column: 1 / -1;
+}
+
+.card :global(form.fz-form .fz-micro) {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.planner {
+  display: block;
+  margin: 12px auto 0;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  font: 600 13.5px/1.4 var(--font);
+  color: var(--copper-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.planner:hover {
+  color: var(--navy);
+}
+
+/* Phones: a bottom sheet, one column. */
+@media (max-width: 640px) {
+  .dialog {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    margin: auto 0 0;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .card {
+    max-height: calc(100dvh - 16px);
+    padding: 20px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-radius: 20px 20px 0 0;
+  }
+
+  .head h3 {
+    font-size: 18px;
+  }
+
+  .total b {
+    font-size: 22px;
+  }
+
+  .card :global(form.fz-form) {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open] {
+    animation: none;
+  }
+}

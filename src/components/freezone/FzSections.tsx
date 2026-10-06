@@ -145,19 +145,22 @@ export function FzWhyUs() {
           </ul>
         </div>
         <div className="wy-mosaic">
-          {PHOTOS.map((p) => (
+          {PHOTOS.map((p, i) => (
             <figure key={p.src}>
-              <Image src={p.src} alt={p.alt} width={p.w} height={p.h} sizes="(max-width: 640px) 50vw, 400px" />
+              <Image src={p.src} alt={p.alt} width={p.w} height={p.h} sizes={i === 0 || i === 3 ? "(max-width: 920px) 100vw, 560px" : "(max-width: 920px) 50vw, 320px"} />
+              {/* The glass quote sits on the large lead photo, over its darkened lower edge, clear of faces. */}
+              {i === 0 && (
+                <figcaption className="wy-quote">
+                  <span>Best Solution</span>
+                  <strong>
+                    One consultant.{" "}
+                    <br />
+                    One clear path.
+                  </strong>
+                </figcaption>
+              )}
             </figure>
           ))}
-          <div className="wy-quote">
-            <span>Best Solution</span>
-            <strong>
-              One consultant.
-              <br />
-              One clear path.
-            </strong>
-          </div>
         </div>
         <div className="wy-cards">
           {WHY_CARDS.map((w, i) => (

@@ -714,9 +714,14 @@
 .fz-page .wy-mosaic img {width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease);will-change:transform}
 .fz-page .wy-mosaic figure:hover img {transform:scale(1.07)}
 .fz-page .wy-mosaic figure::after {content:"";position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(15,31,61,.55))}
-.fz-page .wy-quote {position:absolute;right:24px;bottom:24px;z-index:2;background:var(--copper-grad);border-radius:18px;padding:16px 20px;box-shadow:0 20px 40px rgba(0,0,0,.3)}
-.fz-page .wy-quote span {font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
-.fz-page .wy-quote strong {display:block;font-size:20px;line-height:1.2;margin-top:4px}
+/* "One consultant. One clear path.": frosted glass on the lead photo's darkened lower-left corner, clear of faces. */
+.fz-page .wy-mosaic figure:first-child::after {background:linear-gradient(180deg,transparent 38%,rgba(10,22,42,.42) 68%,rgba(10,22,42,.78) 100%)}
+.fz-page .wy-quote {position:absolute;left:18px;bottom:18px;z-index:2;max-width:calc(100% - 36px);padding:16px 20px 17px;border-radius:18px;color:#fff;background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.06));-webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%);border:1px solid rgba(255,255,255,.28);box-shadow:0 18px 40px rgba(6,12,22,.35),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .4s var(--ease),background .4s}
+.fz-page .wy-mosaic figure:first-child:hover .wy-quote {transform:translateY(-3px);background:linear-gradient(135deg,rgba(255,255,255,.24),rgba(255,255,255,.08))}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {.fz-page .wy-quote {background:rgba(15,31,61,.82)}}
+.fz-page .wy-quote span {display:inline-flex;align-items:center;gap:8px;font:700 10.5px/1 var(--font);letter-spacing:.14em;text-transform:uppercase;color:#f6d3c2}
+.fz-page .wy-quote span::before {content:"";width:6px;height:6px;border-radius:50%;background:var(--copper);box-shadow:0 0 0 3px rgba(204,134,103,.3)}
+.fz-page .wy-quote strong {display:block;margin-top:8px;font:800 21px/1.18 var(--font);letter-spacing:-.02em;text-shadow:0 1px 2px rgba(0,0,0,.25)}
 .fz-page .wy-cards {display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
 .fz-page .wy-cards article {position:relative;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:22px;transition:all .35s var(--ease);overflow:hidden}
 .fz-page .wy-cards article::after {content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--copper-grad);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
@@ -760,10 +765,16 @@
   .fz-page .pl-drawer .fz-form-row {grid-template-columns:1fr}
   .fz-page .hw-grid,.fz-page .wy-top,.fz-page .fq-grid {grid-template-columns:1fr}
   .fz-page .hw-side {position:static}
-  .fz-page .wy-mosaic {grid-template-columns:1fr 1fr;grid-template-rows:180px 180px 180px}
+  .fz-page .wy-mosaic {grid-template-columns:1fr 1fr;grid-template-rows:260px 180px 200px}
   .fz-page .wy-mosaic figure:first-child {grid-row:span 1;grid-column:span 2}
-  .fz-page .wy-mosaic figure:nth-child(4) {grid-column:span 1}
+  .fz-page .wy-mosaic figure:nth-child(4) {grid-column:span 2}
+  /* Tablets and phones: the quote becomes a slim one-line glass strip along the lead photo's bottom edge. */
+  .fz-page .wy-quote {left:12px;right:12px;bottom:12px;max-width:none;padding:11px 16px;border-radius:14px;text-align:center}
+  .fz-page .wy-quote span {display:none}
+  .fz-page .wy-quote strong {font-size:17px;margin-top:0}
+  .fz-page .wy-quote strong br {display:none}
   .fz-page .wy-cards {grid-template-columns:1fr 1fr}
+  .fz-page .wy-cards article:last-child:nth-child(odd) {grid-column:span 2}
 }
 @media (max-width:640px) {
   .fz-page .hx-visual {height:380px}
@@ -778,7 +789,10 @@
   .fz-page .hw-card {grid-template-columns:auto 1fr;padding:22px}
   .fz-page .hw-n {display:none}
   .fz-page .wy-cards {grid-template-columns:1fr}
-  .fz-page .wy-quote {right:12px;bottom:12px}
+  .fz-page .wy-mosaic {grid-template-rows:230px 150px 170px}
+  .fz-page .wy-quote {left:10px;right:10px;bottom:10px;padding:10px 14px;border-radius:13px}
+  .fz-page .wy-quote strong {font-size:15.5px}
+  .fz-page .wy-cards article:last-child:nth-child(odd) {grid-column:auto}
   .fz-page .fq-grid details p {padding:0 20px 20px 20px}
   .fz-page .fq-tabs {border-radius:16px}
   .fz-page .zx-tray {bottom:84px}
@@ -866,8 +880,9 @@
 .fz-page .zd-facts dd {margin:0;font-weight:700;text-align:right}
 .fz-page .zd-tags {display:flex;flex-wrap:wrap;gap:6px}
 .fz-page .zd-tags span {font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.08);color:#dfe5ef}
-.fz-page .zd-actions {display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-top:22px}
-.fz-page .zd-actions .btn {margin:0;min-height:50px;padding:0 16px;font-size:15px}
+.fz-page .zd-actions {display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+.fz-page .zd-actions .btn {margin:0;min-height:50px;padding:0 16px;font-size:15px;white-space:nowrap}
+.fz-page .zd-actions .zd-cmp {white-space:nowrap}
 .fz-page .zd-cmp {min-height:50px;border-radius:var(--r);border:1.5px solid rgba(255,255,255,.25);background:none;color:#fff;font:600 14.5px var(--font);cursor:pointer;transition:all .2s}
 .fz-page .zd-cmp:hover {border-color:var(--copper)}
 .fz-page .zd-cmp[aria-pressed="true"] {background:rgba(204,134,103,.22);border-color:var(--copper)}

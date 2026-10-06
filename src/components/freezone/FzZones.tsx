@@ -33,8 +33,8 @@ import { formatAED } from "@/lib/pricing";
 import { trackEvent, trackJurisdictionInterest } from "@/lib/analytics";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 import { CallbackTrigger } from "./CallbackTrigger";
-import { usePlanner } from "./PlannerProvider";
 import { ZoneLogo } from "./ZoneLogo";
+import { FzZoneEstimate } from "./FzZoneEstimate";
 
 type Group = "all" | ZoneGroup;
 type Sort = "price" | "name";
@@ -207,7 +207,8 @@ function ZoneDetail({
               <span key={y}>
                 <small>{y} years</small>
                 <b>AED {formatAED(total)}</b>
-                <em>AED {formatAED(total / y)}/yr</em>
+                {/* Show a multi-year saving only when it is meaningful (2%+), not rounding-level differences. */}
+                {base * y - total >= base * y * 0.02 && <em>Save AED {formatAED(base * y - total)}</em>}
               </span>
             ))}
           </div>
@@ -228,7 +229,7 @@ function ZoneDetail({
       </div>
       <div className="zd-actions">
         <button type="button" className="btn btn-primary" onClick={onEstimate}>
-          Estimate My Cost
+          Get My Estimate
         </button>
         <button type="button" className="zd-cmp" aria-pressed={inCmp} onClick={onCompare}>
           {inCmp ? "Added to compare" : "Add to compare"}
@@ -297,7 +298,7 @@ function CompareModal({ ids, onClose, onEstimate }: { ids: string[]; onClose: ()
       (zn) => (
         <span>
           <button type="button" onClick={() => onEstimate(zn.id)}>
-            Estimate this zone
+            Get this estimate
           </button>
         </span>
       ),
@@ -335,7 +336,6 @@ function CompareModal({ ids, onClose, onEstimate }: { ids: string[]; onClose: ()
 /* ---------- The explorer ---------- */
 
 export function FzZones() {
-  const { goPlanner } = usePlanner();
   const [group, setGroup] = useState<Group>("all");
   const [input, setInput] = useState("");
   const [q, setQ] = useState("");
@@ -349,6 +349,8 @@ export function FzZones() {
   const [sugPop, setSugPop] = useState(0);
   const [hi, setHi] = useState(-1);
   const [modal, setModal] = useState(false);
+  const [estimateId, setEstimateId] = useState<string | null>(null);
+  const closeEstimate = useCallback(() => setEstimateId(null), []);
   const [away, setAway] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -529,9 +531,10 @@ export function FzZones() {
   };
   const closeCmp = useCallback(() => setModal(false), []);
 
-  const estimate = (id: string) => {
-    track("zone_card_click", { zone: ZONE_BY_ID[id].name });
-    goPlanner(id);
+  // "Get This Estimate in Writing": the request opens right here, with the zone filled in.
+  const estimate = (id: string, source: "zone_card" | "compare") => {
+    track("zone_card_click", { zone: ZONE_BY_ID[id].name, source });
+    setEstimateId(id);
   };
 
   const zonesCovering = act ? list.length : 0;
@@ -775,7 +778,7 @@ export function FzZones() {
                 act={act}
                 inCmp={cmp.includes(current.id)}
                 onCompare={() => toggleCmp(current.id)}
-                onEstimate={() => estimate(current.id)}
+                onEstimate={() => estimate(current.id, "zone_card")}
               />
             )}
           </aside>
@@ -802,10 +805,11 @@ export function FzZones() {
           onClose={closeCmp}
           onEstimate={(id) => {
             closeCmp();
-            goPlanner(id);
+            estimate(id, "compare");
           }}
         />
       )}
+      <FzZoneEstimate key={estimateId ?? "closed"} zoneId={estimateId} onClose={closeEstimate} />
     </section>
   );
 }

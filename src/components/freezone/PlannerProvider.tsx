@@ -31,7 +31,8 @@ type Action =
   | { type: "priority"; v: Priority }
   | { type: "count"; key: "res" | "sh" | "na"; delta: 1 | -1 }
   | { type: "zone"; id: string }
-  | { type: "bank"; on: boolean };
+  | { type: "bank"; on: boolean }
+  | { type: "res"; n: number };
 
 const BOUNDS = { res: [0, 12], sh: [1, MAX_SHAREHOLDERS], na: [1, MAX_ACTIVITIES] } as const;
 
@@ -64,6 +65,8 @@ function reducer(s: State, a: Action): State {
       return ZONE_BY_ID[a.id] ? clampRes({ ...s, zone: a.id, manual: true }) : s;
     case "bank":
       return { ...s, bank: a.on };
+    case "res":
+      return clampRes({ ...s, res: Math.max(0, Math.round(a.n)) });
   }
 }
 
@@ -81,10 +84,12 @@ interface PlannerContextValue {
   step: (key: "res" | "sh" | "na", delta: 1 | -1) => void;
   chooseZone: (id: string, source: "match" | "list" | "explorer") => void;
   setBank: (on: boolean) => void;
-  /** Select a zone and scroll the planner into view (from the zone explorer). */
-  goPlanner: (id: string) => void;
-  /** The visitor asked for the estimate in writing: the calculator is complete. */
-  complete: () => void;
+  /** Select a zone (and optionally the residency count) and scroll the planner into view. */
+  goPlanner: (id: string, res?: number) => void;
+  /** The visitor asked for the estimate in writing. Defaults to the planner's own figure; the zone popup passes its own. */
+  complete: (input?: PlannerInput, est?: Estimate, source?: string) => void;
+  /** Report a calculator_step (and calculator_start the first time) from outside the planner. */
+  trackStep: (step: string, value: string) => void;
 }
 
 const PlannerContext = createContext<PlannerContextValue | null>(null);
@@ -145,8 +150,9 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
   );
 
   const goPlanner = useCallback(
-    (id: string) => {
+    (id: string, res?: number) => {
       chooseZone(id, "explorer");
+      if (res != null) dispatch({ type: "res", n: res });
       document.getElementById("planner")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
     },
     [chooseZone],
@@ -154,23 +160,28 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
 
   // calculator_complete once per distinct estimate, so repeat clicks on the same figure don't recount.
   const completed = useRef("");
-  const complete = useCallback(() => {
-    const key = `${state.zone}|${estimate.total}`;
+  const complete = useCallback(
+    (input?: PlannerInput, est?: Estimate, source = "fz_planner") => {
+    const i = input ?? state;
+    const e = est ?? estimate;
+    const key = `${i.zone}|${e.total}`;
     if (completed.current === key) return;
-    if (!completed.current) trackJurisdictionInterest("free_zone", "establish", { source: "fz_planner" });
+    if (!completed.current) trackJurisdictionInterest("free_zone", "establish", { source });
     completed.current = key;
     trackCalculatorComplete({
       calculatorId: FZ_FORM_ID,
       jurisdiction: "free_zone",
-      activity: state.acts.map((a) => ACT_LABEL[a]).join(", ") || undefined,
-      visaCount: estimate.residents,
-      estimatedCost: estimate.total,
+      activity: i.acts.map((a) => ACT_LABEL[a]).join(", ") || undefined,
+      visaCount: e.residents,
+      estimatedCost: e.total,
     });
-  }, [state.acts, state.zone, estimate]);
+    },
+    [state, estimate],
+  );
 
   const value = useMemo(
-    () => ({ state, matches, estimate, toggleAct, setPriority, step, chooseZone, setBank, goPlanner, complete }),
-    [state, matches, estimate, toggleAct, setPriority, step, chooseZone, setBank, goPlanner, complete],
+    () => ({ state, matches, estimate, toggleAct, setPriority, step, chooseZone, setBank, goPlanner, complete, trackStep: track }),
+    [state, matches, estimate, toggleAct, setPriority, step, chooseZone, setBank, goPlanner, complete, track],
   );
 
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>;
