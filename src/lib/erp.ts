@@ -27,6 +27,8 @@ export interface LeadInput {
   /** Which website form sent the lead. Defaults to the calculator. */
   form_name?: string;
   button_name?: string;
+  /** Extra label/value rows for the requirement, e.g. the free zone planner's choices. */
+  details?: [string, string][];
 }
 
 export type LeadResult = { ok: true; name?: string } | { ok: false; reason: "not_configured" | "upstream_failed" | "upstream_unreachable" };
@@ -69,7 +71,7 @@ function requirementHtml(input: LeadInput): string {
   const { answers, estimate: est } = input;
   const li = (items: string[]) => `<ul>${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
   const parts = [`<p><strong>${esc(input.form_name ?? FORM_NAME)} enquiry</strong></p>`];
-  parts.push(li(answerRows(answers).map(([k, v]) => `${esc(k)}: ${esc(v)}`)));
+  parts.push(li([...answerRows(answers), ...(input.details ?? [])].map(([k, v]) => `${esc(k)}: ${esc(v)}`)));
   if (est) {
     parts.push(`<p><strong>Estimate: ${esc(est.name)}</strong>${est.basis ? `<br>${esc(est.basis)}` : ""}</p>`);
     parts.push(

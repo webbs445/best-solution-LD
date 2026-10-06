@@ -12,6 +12,10 @@ import styles from "./Jurisdictions.module.css";
 
 const KEYS: Jurisdiction[] = ["mainland", "freezone", "offshore"];
 
+/* "Setup cost from": mainland headlines the Dubai Mainland LLC (m0); the AED 1,500 E-Trader stays inside the calculator. */
+const headlinePrice = (j: Jurisdiction) =>
+  j === "mainland" ? (DATA.mainland.find((o) => o.id === "m0") ?? cheapest(DATA.mainland)).price : cheapest(DATA[j]).price;
+
 export function Jurisdictions() {
   const { startWithJurisdiction } = useCalculator();
   const [active, setActive] = useState<Jurisdiction>("mainland");
@@ -124,7 +128,7 @@ export function Jurisdictions() {
                   </div>
                   <div>
                     <dt>Setup cost from</dt>
-                    <dd>AED {formatAED(cheapest(DATA[active]).price)}</dd>
+                    <dd>AED {formatAED(headlinePrice(active))}</dd>
                   </div>
                 </dl>
               </div>

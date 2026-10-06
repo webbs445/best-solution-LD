@@ -26,9 +26,7 @@ export const metadata: Metadata = {
   robots: {
     index: false,
   },
-  // The sitelink paths (/mainland, /reviews, ...) serve this same page; they all point back to its root.
-  // Absolute, because metadataBase is the main www site.
-  alternates: { canonical: "https://business.best-solution.ae/" },
+  // Each page sets its own canonical (alternates) in its metadata.
   openGraph: {
     type: "website",
     siteName: SITE.name,
@@ -66,9 +64,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <GtmNoScript />
-        <a className="skip-link" href="#calculator">
-          Skip to the cost calculator
-        </a>
         {children}
         <CookieConsentBanner />
         <AnalyticsInit />

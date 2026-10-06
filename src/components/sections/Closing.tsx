@@ -88,7 +88,7 @@ export function Closing() {
               </a>
               <p className={styles.hours}>
                 <i aria-hidden="true" />
-                Monday to Friday, 9am to 6pm
+                {SITE.hours.long}
               </p>
             </div>
           </div>
@@ -106,7 +106,7 @@ const SOCIAL_LINKS = [
 ];
 
 const CONTACTS = [
-  { href: SITE.phone.href, icon: <PhoneIcon />, title: SITE.phone.display, note: "Mon to Fri, 9AM to 6PM" },
+  { href: SITE.phone.href, icon: <PhoneIcon />, title: SITE.phone.display, note: SITE.hours.short },
   { href: `mailto:${SITE.email}`, icon: <MailIcon />, title: SITE.email, note: "Reply within 24 hrs" },
   { href: MAPS_URL, icon: <PinIcon />, title: "Business Bay, Dubai", note: "View on Google Maps", external: true },
 ];
@@ -195,8 +195,9 @@ export function Footer() {
 
         <p className={styles.disclaimer}>
           Best Solution® is a private business consultancy based in Business Bay, Dubai, and is not affiliated with any
-          government entity. All licences, permits and visas are issued solely by the relevant UAE authorities. All costs
-          shown are estimates and are confirmed in writing before any engagement.
+          government entity or free zone authority. All licences, permits and residency approvals are issued solely by the
+          relevant UAE authorities. Free zone names and logos identify the zones we advise on and do not imply affiliation.
+          All costs shown are estimates and are confirmed in writing before any engagement.
         </p>
       </div>
 

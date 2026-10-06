@@ -20,7 +20,18 @@ type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent" } | { kind
 export const OPEN_CALLBACK = "open-callback";
 
 /* "Book a Callback" button plus its popup. A native <dialog> gives focus trapping, Escape to close and the top layer. */
-export function CallbackButton({ className, children }: { className: string; children: ReactNode }) {
+export function CallbackButton({
+  className,
+  children,
+  defaultInterest = "not_sure",
+  ctaLocation = "LP Footer — Book a Callback",
+}: {
+  className: string;
+  children: ReactNode;
+  /** The interest preselected in the popup, e.g. "freezone" on the free zone page. */
+  defaultInterest?: (typeof INTERESTS)[number][0];
+  ctaLocation?: string;
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
@@ -116,7 +127,7 @@ export function CallbackButton({ className, children }: { className: string; chi
 
   return (
     <>
-      <button type="button" className={className} onClick={open} aria-controls="cbModal" data-cta-location="LP Footer — Book a Callback">
+      <button type="button" className={className} onClick={open} aria-controls="cbModal" data-cta-location={ctaLocation}>
         {children}
       </button>
 
@@ -207,7 +218,7 @@ export function CallbackButton({ className, children }: { className: string; chi
               <legend>I&apos;m interested in</legend>
               {INTERESTS.map(([value, label]) => (
                 <label key={value}>
-                  <input type="radio" name="interest" value={value} defaultChecked={value === "not_sure"} />
+                  <input type="radio" name="interest" value={value} defaultChecked={value === defaultInterest} />
                   <span>{label}</span>
                 </label>
               ))}

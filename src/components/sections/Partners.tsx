@@ -7,7 +7,10 @@ export function Partners() {
   return (
     <section className={styles.partners} aria-labelledby="partners-title">
       <div className={`wrap ${styles.head}`} data-reveal="">
-        <h2 id="partners-title">Free zones and jurisdictions we advise on</h2>
+        <div>
+          <h2 id="partners-title">Free zones and jurisdictions we advise on</h2>
+          <p className={styles.note}>Logos identify the zones we advise on. We are not affiliated with them.</p>
+        </div>
         <p>Mainland, free zone and offshore structures across all seven emirates.</p>
       </div>
       <Marquee speed={55}>

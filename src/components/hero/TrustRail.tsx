@@ -1,6 +1,6 @@
 "use client";
 
-import { TRUST } from "@/content/site";
+import { SITE, TRUST } from "@/content/site";
 import { formatAED } from "@/lib/pricing";
 import { useCountUp } from "@/components/ui/useCountUp";
 import styles from "./Hero.module.css";
@@ -24,7 +24,7 @@ export function TrustRail() {
       <div className={styles.railIntro}>
         <span>Best Solution</span>
         <b>Built for clarity.</b>
-        <small>Dubai · UAE · Since 2014</small>
+        <small>Dubai · UAE · Since {SITE.founded}</small>
       </div>
       <ul className={styles.trust}>
         {TRUST.map((t) => (

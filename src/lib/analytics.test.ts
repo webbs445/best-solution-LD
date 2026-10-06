@@ -100,6 +100,22 @@ describe("pushFormSubmit", () => {
   });
 });
 
+describe("page paths", () => {
+  it("reports /freezone as the canonical path of its sitelink routes", async () => {
+    const { canonicalPath } = (await load()).analytics;
+    expect(canonicalPath("/freezone/planner")).toBe("/freezone");
+    expect(canonicalPath("/freezone/")).toBe("/freezone/");
+    expect(canonicalPath("/freezone")).toBe("/freezone");
+    expect(canonicalPath("/mainland")).toBe("/mainland");
+  });
+
+  it("trackEvent attaches page_data", async () => {
+    const { trackEvent } = (await load()).analytics;
+    trackEvent("zone_select", { zone: "RAKEZ" });
+    expect(dataLayer[0]).toMatchObject({ event: "zone_select", zone: "RAKEZ", page_data: { canonical_path: "/" } });
+  });
+});
+
 describe("calculator events", () => {
   it("nest under calculator_data, and calculator_complete carries an event_id", async () => {
     const { trackCalculatorStart, trackCalculatorStep, trackCalculatorComplete } = (await load()).analytics;

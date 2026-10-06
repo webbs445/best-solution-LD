@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
+import { SITE } from "@/content/site";
 import { cheapest, DATA, formatAED, type Jurisdiction } from "@/lib/pricing";
 import { jurisdictionLabel, trackJurisdictionInterest } from "@/lib/analytics";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
@@ -156,7 +157,7 @@ export function HeroCard() {
       </div>
       <div className={styles.top}>
         <span>BEST SOLUTION · DUBAI</span>
-        <span>EST. 2014</span>
+        <span>EST. {SITE.founded}</span>
       </div>
       <div className={styles.copy}>
         <p className={styles.kicker}>THE FIRST DECISION</p>

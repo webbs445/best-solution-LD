@@ -33,3 +33,12 @@ dataLayer events keep the original names: `calculator_step`, `calculator_complet
 - `src/content/calculator.ts`: calculator questions and answer options.
 - `src/components/*`: one folder per section; each has a CSS Module next to it. Design tokens are in `src/app/globals.css`.
 - `src/app/api/lead/route.ts`: lead validation and forwarding (with a honeypot spam trap).
+
+### `/freezone` (free zone planner landing page)
+
+- `src/app/freezone/page.tsx`: the page, its metadata and FAQ schema. `freezone.css` holds its styles, all scoped under `.fz-page`.
+- `src/content/freezone.ts`: **free zone rate card** (28 zones, package tables, package terms in `PK`), the activity search index and the page's FAQs. Update free zone prices here.
+- `src/content/activity-icons.json`: icons for the activity search.
+- `src/lib/freezone.ts`: the planner's pure estimate, ranking and search logic (tested in `freezone.test.ts`). `/api/lead` uses it to re-price planner leads on the server.
+- `src/components/freezone/*`: the page's sections. The header and footer are this page's own; GTM, consent, the cookie banner and the callback popup are shared with the home page.
+- `public/zones/`: free zone logos for the planner and zone explorer.

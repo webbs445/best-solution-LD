@@ -46,6 +46,11 @@
   font-size: 15px;
 }
 
+.head .note {
+  margin-top: 6px;
+  font-size: 12.5px;
+}
+
 .row {
   display: flex;
   gap: 18px;

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { FAQS } from "@/content/site";
 import { Header } from "@/components/header/Header";
 import { Hero } from "@/components/hero/Hero";
@@ -15,6 +16,12 @@ import { Closing, Footer } from "@/components/sections/Closing";
 import { RevealObserver } from "@/components/ui/RevealObserver";
 import { SectionDeepLink } from "@/components/ui/SectionDeepLink";
 
+export const metadata: Metadata = {
+  // The sitelink paths (/mainland, /reviews, ...) serve this same page; they all point back to its root.
+  // Absolute, because metadataBase is the main www site.
+  alternates: { canonical: "https://business.best-solution.ae/" },
+};
+
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -28,6 +35,9 @@ const faqSchema = {
 export default function Home() {
   return (
     <CalculatorProvider>
+      <a className="skip-link" href="#calculator">
+        Skip to the cost calculator
+      </a>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }}
