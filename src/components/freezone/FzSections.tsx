@@ -210,7 +210,6 @@ export function FzReviews() {
       <div className="wrap t-head">
         <div>
           <p className="section-kicker">
-            <i />
             Client reviews
           </p>
           <h2 id="revTitle">Trusted by business owners from more than 80 countries</h2>

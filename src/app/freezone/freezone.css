@@ -289,8 +289,9 @@
 .fz-page .bs-fbin p {margin:0;font-size:14px;color:#6b7280}
 .fz-page .bs-fbin strong {color:#fff;font-weight:600}
 .fz-page .bs-fbin nav {display:flex;gap:20px;flex-wrap:wrap}
-.fz-page .bs-fbin nav a {font:500 14px/1 var(--font);color:#6b7280;text-decoration:none;transition:color .15s ease}
-.fz-page .bs-fbin nav a:hover {color:#cc8667}
+.fz-page .bs-fbin nav a,.fz-page .bs-fbin nav button {font:500 14px/1 var(--font);color:#6b7280;text-decoration:none;transition:color .15s ease}
+.fz-page .bs-fbin nav button {padding:0;border:0;background:none;cursor:pointer}
+.fz-page .bs-fbin nav a:hover,.fz-page .bs-fbin nav button:hover {color:#cc8667}
 @media (max-width:640px) {
   .fz-page .bs-fin {padding:52px 20px 28px}
   .fz-page .bs-fbin {padding:18px 20px calc(92px + env(safe-area-inset-bottom,0px));justify-content:center;text-align:center}
@@ -512,10 +513,11 @@
 .fz-page .spot {position:relative;isolation:isolate}
 .fz-page .spot::before {content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(204,134,103,.16),transparent 45%);opacity:0;transition:opacity .3s;z-index:-1;pointer-events:none}
 .fz-page .spot:hover::before {opacity:1}
-.fz-page .fz-filter {position:relative;background:var(--ground);border:1px solid var(--rule);padding:6px;border-radius:999px;display:inline-flex;gap:2px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.fz-page .fz-filter {position:relative;background:var(--ground);border:1px solid var(--rule);padding:6px;border-radius:999px;display:inline-flex;flex-wrap:nowrap;gap:2px;max-width:100%;overflow-x:auto;scrollbar-width:none}
 .fz-page .fz-filter::-webkit-scrollbar {display:none}
 .fz-page .fz-filter button {border:0;background:transparent;position:relative;z-index:1;white-space:nowrap;transition:color .3s}
 .fz-page .fz-filter button[aria-pressed="true"] {background:transparent;color:#fff}
+.fz-page .fz-filter button {flex:none}
 .fz-page .fz-pill {position:absolute;top:6px;bottom:6px;left:0;border-radius:999px;background:var(--navy);transition:transform .45s var(--ease),width .45s var(--ease);z-index:0}
 @keyframes fzcard {from{opacity:0;transform:translateY(14px) scale(.98)}}
 .fz-page .fz-receipt {background:radial-gradient(120% 80% at 100% 0%,rgba(204,134,103,.22),transparent 55%),var(--navy);border:1px solid rgba(255,255,255,.08)}
