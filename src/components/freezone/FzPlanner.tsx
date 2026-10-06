@@ -388,7 +388,11 @@ export function FzPlanner() {
                 {state.na} activit{state.na > 1 ? "ies" : "y"}, estimated first-year cost AED {formatAED(estimate.total)}.
               </p>
             </div>
-            <FzLeadForm ref={nameInput} planner={state} />
+            <FzLeadForm
+              ref={nameInput}
+              planner={state}
+              summary={`${zone.name} · ${state.res} ${state.res === 1 ? "person" : "people"} with residency · AED ${formatAED(estimate.total)}`}
+            />
           </div>
         </div>
       </div>

@@ -20,6 +20,7 @@ export function FzZoneEstimate({ zoneId, onClose }: { zoneId: string | null; onC
   const zone = zoneId ? ZONE_BY_ID[zoneId] : null;
   // Mounted per zone (keyed by the parent), so this starts from the planner's residency count each time.
   const [res, setRes] = useState(() => (zone ? Math.min(state.res, maxResidents(zone)) : 0));
+  const [sent, setSent] = useState(false);
 
   const input = useMemo(() => (zone ? cleanPlanner({ ...state, zone: zone.id, res }) : null), [state, zone, res]);
   const est = useMemo(() => (input ? plannerEstimate(input) : null), [input]);
@@ -73,40 +74,54 @@ export function FzZoneEstimate({ zoneId, onClose }: { zoneId: string | null; onC
             </svg>
           </button>
 
-          <div className={styles.head}>
-            <ZoneLogo zone={zone} size="zl-sug" />
-            <div>
-              <h3 id="ze-title">Get your estimate in writing</h3>
-              <p>{zone.name}</p>
-            </div>
-          </div>
-
-          <div className={styles.summary}>
-            <div className={styles.people}>
-              <span>People needing residency</span>
-              <div className={styles.stepper} role="group" aria-label="People needing residency">
-                <button type="button" aria-label="Fewer people" disabled={res <= 0} onClick={() => stepRes(-1)}>
-                  &minus;
-                </button>
-                <output aria-live="polite">{res}</output>
-                <button type="button" aria-label="More people" disabled={res >= mx} onClick={() => stepRes(1)}>
-                  +
-                </button>
+          {/* Once sent, the success card (inside FzLeadForm) replaces the header and the estimate panel. */}
+          {!sent && (
+            <>
+              <div className={styles.head}>
+                <ZoneLogo zone={zone} size="zl-sug" />
+                <div>
+                  <h3 id="ze-title">Get your estimate in writing</h3>
+                  <p>{zone.name}</p>
+                </div>
               </div>
-            </div>
-            <div className={styles.total}>
-              <span>Estimated first-year cost</span>
-              <b aria-live="polite">AED {formatAED(est.total)}</b>
-              <small>Indicative · flexi-desk included · year two about AED {formatAED(est.renewal)}</small>
-            </div>
-          </div>
+
+              <div className={styles.summary}>
+                <div className={styles.people}>
+                  <span>People needing residency</span>
+                  <div className={styles.stepper} role="group" aria-label="People needing residency">
+                    <button type="button" aria-label="Fewer people" disabled={res <= 0} onClick={() => stepRes(-1)}>
+                      &minus;
+                    </button>
+                    <output aria-live="polite">{res}</output>
+                    <button type="button" aria-label="More people" disabled={res >= mx} onClick={() => stepRes(1)}>
+                      +
+                    </button>
+                  </div>
+                </div>
+                <div className={styles.total}>
+                  <span>Estimated first-year cost</span>
+                  <b aria-live="polite">AED {formatAED(est.total)}</b>
+                  <small>Indicative · flexi-desk included · year two about AED {formatAED(est.renewal)}</small>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Re-keyed per zone so a request for one zone never shows another zone's "sent" state. */}
-          <FzLeadForm key={zone.id} planner={input} idPrefix="ze-" />
+          <FzLeadForm
+            key={zone.id}
+            planner={input}
+            idPrefix="ze-"
+            summary={`${zone.name} · ${res} ${res === 1 ? "person" : "people"} with residency · AED ${formatAED(est.total)}`}
+            onSent={() => setSent(true)}
+            onDone={() => dialog.current?.close()}
+          />
 
-          <button type="button" className={styles.planner} onClick={openPlanner}>
-            Adjust activities or shareholders in the full planner
-          </button>
+          {!sent && (
+            <button type="button" className={styles.planner} onClick={openPlanner}>
+              Adjust activities or shareholders in the full planner
+            </button>
+          )}
         </div>
       )}
     </dialog>
