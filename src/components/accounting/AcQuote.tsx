@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AC_OFFER_EXTRA, AC_WHATSAPP, BOOK_STATES, SERVICE_NAMES, SERVICE_OPTIONS, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
 import { SITE } from "@/content/site";
-import { genEventId, getClid, pushFormSubmit, trackEvent } from "@/lib/analytics";
-import { captureClickIds, getClickIdsForVisit } from "@/lib/clickIds";
+import { genEventId, pushFormSubmit, trackEvent } from "@/lib/analytics";
+import { attributionFields } from "@/lib/attribution";
 import { AC_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
 import { LeadSuccess } from "@/components/ui/LeadSuccess";
 import f from "@/components/ui/LeadForm.module.css";
@@ -74,9 +74,7 @@ export function AcQuote() {
   }, [step]);
 
   // [data-service] links anywhere on the page pre-select their service; keep the health check result.
-  // Also keep this visit's Google click IDs from the landing URL (sessionStorage, no cookies).
   useEffect(() => {
-    captureClickIds();
     const onClick = (e: MouseEvent) => {
       const el = (e.target as Element | null)?.closest?.("[data-service]");
       const v = el?.getAttribute("data-service");
@@ -121,9 +119,7 @@ export function AcQuote() {
       inputs.current[fails[0]]?.focus();
       return;
     }
-    const qs = new URLSearchParams(window.location.search);
     const eventId = genEventId();
-    const ids = getClickIdsForVisit();
     const [firstName, ...rest] = values.name.trim().split(/\s+/);
     setPhase({ kind: "sending" });
     try {
@@ -140,16 +136,8 @@ export function AcQuote() {
             software,
             books_state: state,
             health_check: health.current?.summary ?? "",
-            utm_source: qs.get("utm_source") || "",
-            utm_medium: qs.get("utm_medium") || "",
-            utm_campaign: qs.get("utm_campaign") || "",
-            utm_content: qs.get("utm_content") || "",
-            utm_term: qs.get("utm_term") || "",
-            // Google click ID from this visit's landing URL; the consented ad cookies only as a fallback.
-            click_id: ids.gclid || ids.gbraid || ids.wbraid || getClid(),
-            gclid: ids.gclid,
-            gbraid: ids.gbraid,
-            wbraid: ids.wbraid,
+            // First-touch UTMs and Google click IDs for the visit (lib/attribution); click_id falls back to the consented ad cookies.
+            ...attributionFields(),
             event_id: eventId,
             landing_page: window.location.href.split("#")[0],
             website: honeypot.current?.value || "",

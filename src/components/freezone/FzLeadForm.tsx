@@ -4,7 +4,8 @@ import { forwardRef, useRef, useState, type FormEvent } from "react";
 import { SITE } from "@/content/site";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { LeadSuccess } from "@/components/ui/LeadSuccess";
-import { genEventId, getClid, pushFormSubmit } from "@/lib/analytics";
+import { genEventId, pushFormSubmit } from "@/lib/analytics";
+import { attributionFields } from "@/lib/attribution";
 import { FZ_FORM_ID, LEAD_ERRORS, LEAD_RULES, type LeadField } from "@/lib/lead";
 import type { PlannerInput } from "@/lib/freezone";
 import styles from "@/components/ui/LeadForm.module.css";
@@ -77,7 +78,6 @@ export const FzLeadForm = forwardRef<HTMLInputElement, FzLeadFormProps>(function
       return;
     }
 
-    const qs = new URLSearchParams(window.location.search);
     // One id for the dataLayer conversion and the ERP lead, so offline conversions can be matched later.
     const eventId = genEventId();
     const [firstName, ...rest] = values.lead_name.trim().split(/\s+/);
@@ -92,13 +92,8 @@ export const FzLeadForm = forwardRef<HTMLInputElement, FzLeadFormProps>(function
             lead_name: values.lead_name.trim(),
             email_id: values.email_id.trim(),
             mobile_no: values.mobile_no.trim(),
-            utm_source: qs.get("utm_source") || "",
-            utm_medium: qs.get("utm_medium") || "",
-            utm_campaign: qs.get("utm_campaign") || "",
-            utm_content: qs.get("utm_content") || "",
-            utm_term: qs.get("utm_term") || "",
-            // Consent-gated click-id cookies, as on the main site (gclid > fbclid > li_fat_id).
-            click_id: getClid(),
+            // First-touch UTMs and Google click IDs for the visit (lib/attribution); click_id falls back to the consented ad cookies.
+            ...attributionFields(),
             event_id: eventId,
             landing_page: window.location.href.split("#")[0],
             submission_timestamp: new Date().toISOString(),

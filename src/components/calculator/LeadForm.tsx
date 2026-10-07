@@ -3,7 +3,8 @@
 import { useRef, useState, type FormEvent } from "react";
 import { SITE } from "@/content/site";
 import { ArrowIcon } from "@/components/ui/Icons";
-import { genEventId, getClid, jurisdictionLabel, pushFormSubmit } from "@/lib/analytics";
+import { genEventId, jurisdictionLabel, pushFormSubmit } from "@/lib/analytics";
+import { attributionFields } from "@/lib/attribution";
 import { FORM_ID, LEAD_ERRORS, LEAD_RULES, type LeadField } from "@/lib/lead";
 import type { Answers, Estimate } from "@/lib/pricing";
 import styles from "./Calculator.module.css";
@@ -64,7 +65,6 @@ export function LeadForm({
       return;
     }
 
-    const qs = new URLSearchParams(window.location.search);
     // One id for the dataLayer conversion and the ERP lead, so offline conversions can be matched later.
     const eventId = genEventId();
     const [firstName, ...rest] = lead.values.lead_name.trim().split(/\s+/);
@@ -79,13 +79,8 @@ export function LeadForm({
           lead_name: lead.values.lead_name.trim(),
           email_id: lead.values.email_id.trim(),
           mobile_no: lead.values.mobile_no.trim(),
-          utm_source: qs.get("utm_source") || "",
-          utm_medium: qs.get("utm_medium") || "",
-          utm_campaign: qs.get("utm_campaign") || "",
-          utm_content: qs.get("utm_content") || "",
-          utm_term: qs.get("utm_term") || "",
-          // Consent-gated click-id cookies, as on the main site (gclid > fbclid > li_fat_id).
-          click_id: getClid(),
+          // First-touch UTMs and Google click IDs for the visit (lib/attribution); click_id falls back to the consented ad cookies.
+          ...attributionFields(),
           event_id: eventId,
           landing_page: window.location.href.split("#")[0],
           form_id: FORM_ID,

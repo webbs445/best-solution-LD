@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
 import { SITE } from "@/content/site";
-import { genEventId, getClid, jurisdictionLabel, pushFormSubmit } from "@/lib/analytics";
+import { genEventId, jurisdictionLabel, pushFormSubmit } from "@/lib/analytics";
+import { attributionFields } from "@/lib/attribution";
 import { ArrowIcon } from "@/components/ui/Icons";
 import styles from "./Callback.module.css";
 
@@ -79,7 +80,6 @@ export function CallbackButton({
     if (next.email) return emailRef.current?.focus();
 
     const interest = (new FormData(form).get("interest") as string) || "not_sure";
-    const qs = new URLSearchParams(window.location.search);
     // One id for the dataLayer conversion and the ERP lead, so offline conversions can be matched later.
     const eventId = genEventId();
     const [firstName, ...rest] = name.split(/\s+/);
@@ -93,13 +93,8 @@ export function CallbackButton({
           mobile_no: phone,
           email_id: email,
           interest,
-          utm_source: qs.get("utm_source") || "",
-          utm_medium: qs.get("utm_medium") || "",
-          utm_campaign: qs.get("utm_campaign") || "",
-          utm_content: qs.get("utm_content") || "",
-          utm_term: qs.get("utm_term") || "",
-          // Consent-gated click-id cookies, as on the main site (gclid > fbclid > li_fat_id).
-          click_id: getClid(),
+          // First-touch UTMs and Google click IDs for the visit (lib/attribution); click_id falls back to the consented ad cookies.
+          ...attributionFields(),
           event_id: eventId,
           landing_page: window.location.href.split("#")[0],
           website: honeypot.current?.value || "",

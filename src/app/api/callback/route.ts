@@ -1,4 +1,4 @@
-import { CALLBACK_FORM_ID, LEAD_RULES } from "@/lib/lead";
+import { CALLBACK_FORM_ID, LEAD_RULES, clickIdRows } from "@/lib/lead";
 import { createErpLead } from "@/lib/erp";
 import type { JurisdictionChoice } from "@/lib/pricing";
 
@@ -56,6 +56,7 @@ export async function POST(request: Request) {
     submission_timestamp: new Date().toISOString(),
     answers: { jurisdiction: INTERESTS[str(body.interest, 20)] ?? "undecided" },
     estimate: null,
+    details: clickIdRows(body),
   });
 
   if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
