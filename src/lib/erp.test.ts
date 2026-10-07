@@ -73,6 +73,13 @@ describe("createErpLead", () => {
     expect(body.custom_client_profile_and_requirement).toContain("First-year estimate");
   });
 
+  it("uses the Service Enquired option a form passes, e.g. accounting", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(Response.json({ data: {} }));
+    vi.stubGlobal("fetch", fetchMock);
+    await createErpLead({ ...input, service_enquired: "Accounting & Bookkeeping Services" });
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).custom_service_enquired).toBe("Accounting & Bookkeeping Services");
+  });
+
   it("escapes visitor-supplied text in the HTML summary", async () => {
     const fetchMock = vi.fn().mockResolvedValue(Response.json({ data: {} }));
     vi.stubGlobal("fetch", fetchMock);

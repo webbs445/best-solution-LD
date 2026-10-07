@@ -25,3 +25,5 @@ export const CALLBACK_FORM_ID = "LP Callback Request";
 export const FZ_FORM_ID = "LP Free Zone Planner";
 /** The /accounting page's quote builder ("Send my quote request"). */
 export const AC_FORM_ID = "LP Accounting Quote";
+/** The ERP "Service Enquired" option for every /accounting lead (an exact Select option in the ERP). */
+export const AC_SERVICE_ENQUIRED = "Accounting & Bookkeeping Services";

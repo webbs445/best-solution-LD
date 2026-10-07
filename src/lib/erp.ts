@@ -26,6 +26,8 @@ export interface LeadInput {
   estimate: Estimate | null;
   /** Which website form sent the lead. Defaults to the calculator. */
   form_name?: string;
+  /** The ERP's "Service Enquired" option; must match one of its Select options exactly. Defaults to Business Setup. */
+  service_enquired?: string;
   button_name?: string;
   /** Extra label/value rows for the requirement, e.g. the free zone planner's choices. */
   details?: [string, string][];
@@ -115,7 +117,7 @@ function toLead(input: LeadInput) {
     mobile_no: input.mobile_no,
     whatsapp_no: input.mobile_no,
     source: process.env.ERPNEXT_LEAD_SOURCE || DEFAULT_SOURCE,
-    custom_service_enquired: SERVICE_ENQUIRED,
+    custom_service_enquired: input.service_enquired ?? SERVICE_ENQUIRED,
     custom_preferred_contact_method: PREFERRED_CONTACT,
     custom_client_profile_and_requirement: requirementHtml(input),
     custom_remarks: remarks(input),

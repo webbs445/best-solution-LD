@@ -1,4 +1,4 @@
-import { AC_FORM_ID, LEAD_RULES } from "@/lib/lead";
+import { AC_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES } from "@/lib/lead";
 import { createErpLead } from "@/lib/erp";
 import { BOOK_STATES, SERVICE_NAMES, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
 
@@ -6,8 +6,7 @@ import { BOOK_STATES, SERVICE_NAMES, SOFTWARE, VOLUMES, type ServiceKey } from "
   Receives the /accounting page's quote request and creates a Lead in the ERP.
   Same validation and honeypot as /api/lead and /api/callback. The visitor's answers (service,
   volume, software, how up to date the books are, health check result) go into the lead's
-  requirement notes. The ERP's "Service enquired" stays the site default (see erp.ts) until an
-  accounting option is confirmed in the ERP.
+  requirement notes. "Service Enquired" is the ERP's accounting option (AC_SERVICE_ENQUIRED).
 */
 
 const str = (v: unknown, max = 500) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -69,6 +68,7 @@ export async function POST(request: Request) {
     landing_page: str(body.landing_page, 1000),
     form_id: AC_FORM_ID,
     form_name: "Accounting Quote",
+    service_enquired: AC_SERVICE_ENQUIRED,
     button_name: "Send my quote request",
     submission_timestamp: new Date().toISOString(),
     answers: {},
