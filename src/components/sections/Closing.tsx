@@ -30,7 +30,7 @@ export function Closing() {
             <h2 id="close-title">
               Begin with <span>clarity on cost</span>
             </h2>
-            <p className={styles.lede}>Obtain your estimate today and speak with a consultant at a time that suits you.</p>
+            <p className={styles.lede}>Get a written estimate and speak with a consultant at a time that suits you.</p>
             <div className={styles.actions}>
               <CtaLink className="btn btn-primary" href="#calculator" location="LP Closing — Calculate Cost">
                 Calculate Your Company Cost <ArrowIcon />
