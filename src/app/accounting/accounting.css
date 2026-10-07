@@ -170,7 +170,7 @@
 .ac-page .statement span.on {color:var(--navy)}
 .ac-page .statement span.c.on {color:var(--copper-dark)}
 .ac-page #services {padding:0}
-.ac-page .pin {position:relative;height:420vh}
+.ac-page .pin {position:relative;height:480vh}
 .ac-page .pin-sticky {position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;padding:100px 0 20px}
 .ac-page .svc-head {display:flex;justify-content:space-between;align-items:flex-end;gap:32px;margin-bottom:30px}
 .ac-page .svc-head h2 {margin-top:14px;max-width:620px}
@@ -185,8 +185,8 @@
 @keyframes nudge {50%{transform:translateX(5px)}}
 /* 100% (not 100vw, which includes the scrollbar) so the first card lines up with the heading. */
 .ac-page .track {display:flex;gap:28px;padding-left:max(24px,calc((100% - var(--wrap))/2 + 24px));padding-right:max(24px,calc((100% - var(--wrap))/2 + 24px));will-change:transform}
-.ac-page .sc {position:relative;flex:none;width:min(440px,78vw);height:auto;border-radius:32px;padding:32px;display:flex;flex-direction:column;overflow:hidden;transform-origin:center;transition:transform .5s var(--ease),opacity .5s var(--ease),box-shadow .5s;box-shadow:var(--shadow);opacity:.92;transform:scale(.94) rotate(-1deg)}
-.ac-page .sc.act {opacity:1;transform:none;box-shadow:var(--shadow-lg)}
+.ac-page .sc {position:relative;flex:none;width:min(440px,78vw);height:auto;border-radius:32px;padding:32px;display:flex;flex-direction:column;overflow:hidden;transform-origin:center;transition:transform .5s var(--ease),opacity .5s var(--ease),box-shadow .5s;box-shadow:var(--shadow);opacity:calc(.5 + .5 * var(--f,1));transform:perspective(1400px) rotateY(calc(var(--side,0) * (1 - var(--f,1)) * 24deg)) scale(calc(.8 + .2 * var(--f,1)));filter:blur(calc((1 - var(--f,1)) * 6px)) saturate(calc(.45 + .55 * var(--f,1)));transition:box-shadow .5s,opacity .12s linear,transform .12s linear,filter .12s linear}
+.ac-page .sc.act {box-shadow:var(--shadow-lg);z-index:2}
 .ac-page .sc.c-light {background:#fff;box-shadow:var(--shadow),inset 0 0 0 1px var(--rule)}
 .ac-page .sc.c-navy {background:linear-gradient(160deg,#1d3354,var(--navy) 60%);color:#fff}
 .ac-page .sc.c-tint {background:linear-gradient(160deg,#f5e8e2,#fff 75%)}
@@ -433,7 +433,7 @@
 /* Phones and tablets: the same pinned, scroll-driven card slider as desktop, with a compact heading so the cards keep their size. */
 @media (max-width:900px) {
   .ac-page #services {padding:24px 0 0}
-  .ac-page .pin {height:360vh}
+  .ac-page .pin {height:420vh}
   /* bottom padding keeps the cards clear of the fixed Call / WhatsApp bar */
   .ac-page .pin-sticky {height:100vh;height:100svh;padding:84px 0 calc(84px + env(safe-area-inset-bottom))}
   .ac-page .svc-head {flex-direction:column;align-items:stretch;gap:10px;margin-bottom:16px}
@@ -444,8 +444,7 @@
   .ac-page .sbar {flex:1;margin:0}
   .ac-page .hint {display:none}
   .ac-page .track {gap:14px;padding-left:8vw;padding-right:8vw}
-  .ac-page .sc {width:84vw;height:auto;padding:24px;border-radius:26px;transform:scale(.95);opacity:.92}
-  .ac-page .sc.act {transform:none;opacity:1}
+  .ac-page .sc {width:84vw;height:auto;padding:24px;border-radius:26px;filter:blur(calc((1 - var(--f,1)) * 3.5px)) saturate(calc(.5 + .5 * var(--f,1)))}
   .ac-page .sc .pr b {font-size:38px}
   .ac-page .sc .wm {font-size:170px}
 }
@@ -574,7 +573,7 @@
 .ac-page .statement {font-weight:700;letter-spacing:-.035em;line-height:1.22}
 .ac-page .sc {border-radius:28px}
 .ac-page .sc.c-light {box-shadow:inset 0 0 0 1px var(--hair),var(--sh-2)}
-.ac-page .sc.act {box-shadow:var(--sh-2),0 0 0 1px #cc866726}
+.ac-page .sc.act {box-shadow:var(--sh-2),0 0 0 1px #cc866740,0 46px 90px -44px #cc8667b3}
 .ac-page .sc .pr b {font-weight:800}
 .ac-page .sc .wm {font-weight:800;opacity:.035}
 .ac-page .s4,.ac-page .dl li,.ac-page .w,.ac-page .qa {box-shadow:inset 0 0 0 1px var(--hair),var(--sh-1)}
@@ -844,51 +843,65 @@
 .ac-page .pin-sticky > .wrap {width:100%}
 .ac-page .ex-note {margin-top:12px;font-size:12.5px;line-height:1.45;color:var(--ink-soft)}
 
-/* D4: "How it works" as four step cards; the line behind the numbers fills with --p. */
-.ac-page .steps4 {position:relative}
-.ac-page .steps4 ol {list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.ac-page .s4-line {position:absolute;left:12.5%;right:12.5%;top:26px;height:3px;border-radius:3px;background:#14253e14;overflow:hidden}
-.ac-page .s4-line i {display:block;height:100%;background:var(--grad);transform-origin:left;transform:scaleX(var(--p,0))}
-.ac-page .s4 {position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:28px;padding:42px 22px 24px;border-radius:var(--r-card);background:#fff}
-.ac-page .s4-dot {position:absolute;top:-28px;left:50%;margin-left:-28px;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:0 0 0 6px #f6ece7,var(--sh-1);font-weight:800;font-size:17px;color:var(--copper-dark);transition:background .4s,color .4s}
-.ac-page .s4.on .s4-dot {background:var(--grad);color:#fff}
-.ac-page .s4 h3 {font-size:21px}
-.ac-page .s4 p {margin-top:8px;font-size:15px;color:var(--ink-soft)}
-.ac-page .s4 .tags {justify-content:center;margin-top:auto;padding-top:16px}
+/*
+  "How it works": four step cards. As the section scrolls past, each card's top strip fills (--p and the
+  card's --i), the current step becomes the dark raised card (.cur) and earlier steps are marked done.
+*/
+.ac-page .steps4 {position:relative;--p:0}
+.ac-page .steps4 > ol {list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;align-items:stretch}
+.ac-page .s4 {position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;padding:22px 24px 26px;border-radius:28px;background:linear-gradient(180deg,#fff 0%,#fffaf7 100%);color:var(--ink);transition:transform .7s var(--ease-p),box-shadow .7s var(--ease-p),color .5s}
+.ac-page .s4::before {content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(130% 90% at 100% 0%,#2b4268 0%,#18294a 45%,#0f1f3d 100%);opacity:0;transition:opacity .7s var(--ease-p)}
+.ac-page .s4::after {content:"";position:absolute;right:-70px;top:-70px;z-index:-1;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,#cc866770,transparent 65%);opacity:0;transform:scale(.6);transition:opacity .8s var(--ease-p),transform .8s var(--ease-p)}
+.ac-page .s4.cur {color:#fff;transform:translateY(-12px);box-shadow:0 0 0 1px #cc866750,0 34px 70px -30px #14253ee6}
+.ac-page .s4.cur::before {opacity:1}
+.ac-page .s4.cur::after {opacity:1;transform:none}
+.ac-page .s4:not(.cur):hover {transform:translateY(-5px);box-shadow:inset 0 0 0 1px #cc866745,var(--sh-2)}
+.ac-page .s4-bar {display:block;height:3px;border-radius:3px;background:#14253e12;overflow:hidden;margin-bottom:22px;transition:background .5s}
+.ac-page .s4-bar i {display:block;height:100%;border-radius:inherit;background:var(--grad);transform-origin:left;transform:scaleX(clamp(0, calc(var(--p) * 4 - var(--i)), 1))}
+.ac-page .s4.cur .s4-bar {background:#ffffff1f}
+.ac-page .s4-top {display:flex;justify-content:space-between;align-items:flex-start}
+.ac-page .s4-num {font-size:58px;font-weight:800;letter-spacing:-.07em;line-height:.9;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;transition:opacity .5s}
+.ac-page .s4:not(.cur):not(.done) .s4-num {opacity:.4}
+.ac-page .s4-ic {width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:var(--tint);color:var(--copper-dark);transition:background .5s,color .5s,box-shadow .5s}
+.ac-page .s4-ic svg {width:22px;height:22px}
+.ac-page .s4.cur .s4-ic {background:#ffffff14;color:#f0c4ac;box-shadow:inset 0 0 0 1px #ffffff26}
+.ac-page .s4.done .s4-ic {background:#1f8a5b14;color:var(--ok)}
+.ac-page .s4-state {margin-top:20px;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--copper-dark)}
+.ac-page .s4.done .s4-state {color:var(--ok)}
+.ac-page .s4.cur .s4-state {color:#f0c4ac}
+.ac-page .s4 h3 {font-size:22px;margin-top:6px;color:inherit}
+.ac-page .s4 > p {margin-top:8px;font-size:15px;line-height:1.6;color:var(--ink-soft);transition:color .5s}
+.ac-page .s4.cur > p {color:var(--on-navy-soft)}
+.ac-page .s4-tags {list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:auto;padding-top:20px}
+.ac-page .s4-tags li {display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--ink-soft);transition:color .5s}
+.ac-page .s4-tags svg {width:15px;height:15px;flex:none;padding:2px;border-radius:50%;background:#1f8a5b1a;color:var(--ok)}
+.ac-page .s4.cur .s4-tags li {color:#dfe5ee}
+.ac-page .s4.cur .s4-tags svg {background:#cc866733;color:#f0c4ac}
+.ac-page .s4-loop {display:flex;align-items:center;justify-content:center;gap:10px;width:max-content;max-width:100%;margin:34px auto 0;padding:10px 18px;border-radius:999px;background:#ffffffb8;box-shadow:inset 0 0 0 1px var(--hair);font-size:14px;font-weight:600;color:var(--ink-soft)}
+.ac-page .s4-loop svg {width:18px;height:18px;color:var(--copper-dark);animation:spin 9s linear infinite}
 
-/* T1: team strip (placeholders show in development only). */
-.ac-page .team {margin-top:56px;padding:28px 30px;border-radius:28px;background:#fff;box-shadow:inset 0 0 0 1px var(--hair),var(--sh-1)}
-.ac-page .team.is-placeholder {background:repeating-linear-gradient(135deg,#fff 0 14px,#fcf6f2 14px 28px);box-shadow:inset 0 0 0 2px #cc866766}
-.ac-page .team-head {display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
-.ac-page .team-head h3 {font-size:24px}
-.ac-page .team-head p {font-size:15px;color:var(--ink-soft)}
-.ac-page .team-flag {margin-left:auto;padding:5px 10px;border-radius:999px;background:var(--tint);color:var(--copper-ink);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.ac-page .team ul {list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
-.ac-page .team li {display:flex;align-items:center;gap:14px;padding:14px;border-radius:18px;background:var(--ground)}
-.ac-page .tm-ph {width:56px;height:56px;border-radius:50%;flex:none;object-fit:cover;display:grid;place-items:center;background:var(--tint);color:var(--copper-dark)}
-.ac-page .tm-ph svg {width:26px;height:26px}
-.ac-page .team li div {min-width:0}
-.ac-page .team li b {display:block;font-size:15px}
-.ac-page .team li div span {display:block;font-size:13.5px;color:var(--ink-soft)}
-.ac-page .team li em {display:block;font-style:normal;font-size:12px;font-weight:700;color:var(--copper-dark);margin-top:2px}
 
 /* T2: Google profile link on the rating panel (only rendered once the URL is set). */
 .ac-page .g-link {display:flex;align-items:center;gap:10px;margin-top:6px;font-size:14.5px;color:#fff;text-underline-offset:3px}
 .ac-page .g-link svg {width:28px;height:28px;padding:5px;border-radius:50%;background:#fff;flex:none}
 
 @media (max-width:1100px) {
-  .ac-page .steps4 ol {grid-template-columns:1fr 1fr;row-gap:20px}
-  .ac-page .s4-line {display:none}
-  .ac-page .team ul {grid-template-columns:1fr 1fr}
+  .ac-page .steps4 > ol {grid-template-columns:1fr 1fr;gap:18px}
 }
 @media (max-width:720px) {
-  /* D4: stacked compact steps, number on the left. */
-  .ac-page .steps4 ol {grid-template-columns:1fr;gap:10px}
-  .ac-page .s4 {margin-top:0;padding:18px 18px 18px 74px;align-items:flex-start;text-align:left}
-  .ac-page .s4-dot {top:18px;left:16px;margin-left:0;width:42px;height:42px;font-size:15px;box-shadow:0 0 0 4px #f6ece7,var(--sh-1)}
-  .ac-page .s4 h3 {font-size:19px}
-  .ac-page .s4 p {font-size:14.5px;margin-top:4px}
-  .ac-page .s4 .tags {justify-content:flex-start;padding-top:10px;margin-top:0}
+  /* "How it works" on phones: stacked cards; the current one is the dark card. */
+  .ac-page .steps4 > ol {grid-template-columns:1fr;gap:12px}
+  .ac-page .s4 {padding:18px 20px 22px}
+  .ac-page .s4.cur {transform:none}
+  .ac-page .s4:not(.cur):hover {transform:none}
+  .ac-page .s4-bar {margin-bottom:16px}
+  .ac-page .s4-num {font-size:44px}
+  .ac-page .s4-ic {width:42px;height:42px;border-radius:13px}
+  .ac-page .s4-state {margin-top:14px}
+  .ac-page .s4 h3 {font-size:20px}
+  .ac-page .s4 > p {font-size:14.5px}
+  .ac-page .s4-tags {flex-direction:row;flex-wrap:wrap;gap:6px 14px;padding-top:14px}
+  .ac-page .s4-loop {font-size:13.5px;margin-top:22px}
   /* D5: "Why us" as a compact two-column grid. */
   .ac-page .why {grid-template-columns:1fr 1fr;gap:10px}
   .ac-page .w {padding:18px 16px;border-radius:20px}
@@ -896,11 +909,97 @@
   .ac-page .w i svg {width:20px;height:20px}
   .ac-page .w b {font-size:15.5px;margin-top:12px}
   .ac-page .w p {font-size:13.5px;line-height:1.5}
-  .ac-page .team {padding:22px 18px;margin-top:40px}
   .ac-page .rev {margin-top:40px;gap:16px}
-  .ac-page .team ul {grid-template-columns:1fr;gap:8px}
-  .ac-page .team-flag {margin-left:0}
   /* A1: footer links at least 40px tall. */
   .ac-page .f-col a,.ac-page .f-col span {min-height:40px;margin-bottom:2px}
   .ac-page .f-meta a,.ac-page .f-meta button {min-height:40px;display:inline-flex;align-items:center}
+}
+
+/* Services slider, desktop: a one-line heading so the cards get the height, and cards that grow with the screen. */
+@media (min-width:901px) {
+  .ac-page .svc-head {margin-bottom:22px;align-items:center}
+  .ac-page .svc-head h2 {max-width:none;font-size:clamp(34px,3.1vw,50px)}
+  .ac-page .svc-head .lede {margin-top:8px}
+  .ac-page .sc {width:clamp(440px,31vw,560px);padding:34px}
+  .ac-page .sc h3 {font-size:34px}
+}
+/* Shorter laptop screens: drop the heading's sub-line (the VAT note stays) and tighten the cards, so they keep their size instead of shrinking. */
+@media (min-width:901px) and (max-height:960px) {
+  .ac-page .hint {display:none}
+  .ac-page .counter b {font-size:34px}
+  .ac-page .sbar {margin-top:8px}
+  .ac-page .svc-note {margin-top:6px}
+  .ac-page .svc-head .lede {display:none}
+}
+@media (min-width:901px) and (max-height:820px) {
+  .ac-page .svc-head h2 {font-size:34px}
+  .ac-page .svc-head {margin-bottom:14px}
+  .ac-page .sc {padding:26px}
+  .ac-page .sc h3 {font-size:28px;margin-top:14px}
+  .ac-page .ex-list p {display:none}
+  .ac-page .ex-list div {padding:12px 16px}
+}
+/* Services slider motion: a shine sweeps the card as it becomes active, its icon pops, its content rises in
+   one line after another, and it keeps a slow copper glow. Content on the blurred cards sits a little lower. */
+.ac-page .sc::after {content:"";position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(110deg,transparent 30%,#ffffff47 47%,#ffffff12 55%,transparent 70%);transform:translateX(-130%)}
+.ac-page .sc.act::after {animation:scShine 1.3s var(--ease-p) .1s}
+@keyframes scShine {to{transform:translateX(130%)}}
+.ac-page .sc.act {animation:scGlow 4.5s ease-in-out 1.3s infinite}
+@keyframes scGlow {50%{box-shadow:var(--sh-2),0 0 0 1px #cc866773,0 54px 110px -42px #cc8667f0}}
+.ac-page .sc :is(.sc-ic,h3,.d,.pr,li,.ex-list > div,.ex-note,.sc-foot) {transition:opacity .55s var(--ease-p),transform .55s var(--ease-p)}
+.ac-page .sc:not(.act) :is(h3,.d,.pr,li,.ex-list > div,.ex-note,.sc-foot) {opacity:.55;transform:translateY(12px)}
+.ac-page .sc.act h3 {transition-delay:.04s}
+.ac-page .sc.act .d {transition-delay:.08s}
+.ac-page .sc.act .pr {transition-delay:.12s}
+.ac-page .sc.act li:nth-child(1),.ac-page .sc.act .ex-list > div:nth-child(1) {transition-delay:.16s}
+.ac-page .sc.act li:nth-child(2),.ac-page .sc.act .ex-list > div:nth-child(2) {transition-delay:.2s}
+.ac-page .sc.act li:nth-child(3),.ac-page .sc.act .ex-list > div:nth-child(3) {transition-delay:.24s}
+.ac-page .sc.act li:nth-child(4) {transition-delay:.28s}
+.ac-page .sc.act .ex-note {transition-delay:.3s}
+.ac-page .sc.act .sc-foot {transition-delay:.32s}
+.ac-page .sc.act .sc-ic {animation:scIcon .75s var(--ease-p) .05s both}
+@keyframes scIcon {0%{transform:scale(.6) rotate(-14deg)}60%{transform:scale(1.14) rotate(4deg)}100%{transform:none}}
+/* Phones: "Also available" keeps its three item titles without their one-line descriptions, so the tallest
+   card no longer forces every card to shrink. */
+@media (max-width:900px) {
+  .ac-page .ex-list p {display:none}
+  .ac-page .ex-list {gap:8px;margin-top:16px}
+  .ac-page .ex-list div {padding:12px 16px}
+}
+
+/*
+  Services slider, desktop: wide landscape cards. Title, description and price on the left; the feature list
+  in its own panel on the right; the footer across the bottom. Wide cards fit laptop heights at full size.
+*/
+@media (min-width:901px) {
+  .ac-page .sc {width:min(820px,62vw);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);grid-template-rows:auto auto auto 1fr auto;column-gap:40px;padding:36px 40px 30px}
+  .ac-page .sc > .sc-top {grid-column:1;grid-row:1}
+  .ac-page .sc > h3 {grid-column:1;grid-row:2;margin-top:20px;font-size:38px}
+  .ac-page .sc > .d {grid-column:1;grid-row:3;font-size:16px}
+  .ac-page .sc > .pr {grid-column:1;grid-row:4;align-self:end;margin-top:24px}
+  .ac-page .sc .pr b {font-size:54px}
+  .ac-page .sc > ul,.ac-page .sc > .ex-list {grid-column:2;grid-row:1 / 5;align-self:center;margin:0}
+  .ac-page .sc > ul {gap:14px;padding:26px 26px;border-radius:22px;background:#14253e07;box-shadow:inset 0 0 0 1px #14253e0f}
+  .ac-page .sc li {font-size:15.5px}
+  .ac-page .c-navy > ul,.ac-page .c-copper > ul {background:#ffffff12;box-shadow:inset 0 0 0 1px #ffffff21}
+  .ac-page .sc > .ex-note {grid-column:1;grid-row:4;align-self:end;margin-top:20px;max-width:300px}
+  .ac-page .sc > .sc-foot {grid-column:1 / -1;grid-row:5;margin-top:26px;padding-top:20px;border-top:1px solid #14253e14}
+  .ac-page .c-navy > .sc-foot,.ac-page .c-copper > .sc-foot {border-top-color:#ffffff26}
+  .ac-page .sc .sc-foot .tt {font-size:13.5px}
+  .ac-page .sc .sc-foot .tt b {font-size:15px}
+  .ac-page .sc .btn {height:52px;padding:0 26px;font-size:15px}
+  .ac-page .sc .wm {font-size:260px;bottom:-92px}
+  /* The header counter (01 / 05) already shows the position, so the wide cards drop their own. */
+  .ac-page .sc .sc-no {display:none}
+  .ac-page .sc .ex-list p {display:block}
+  .ac-page .sc .ex-list {gap:10px}
+  .ac-page .sc .ex-list div {padding:14px 18px}
+  .ac-page .sc .tag {margin-left:14px;margin-right:0}
+}
+@media (min-width:901px) and (max-height:820px) {
+  .ac-page .sc {padding:28px 34px 24px}
+  .ac-page .sc > h3 {font-size:32px;margin-top:14px}
+  .ac-page .sc .pr b {font-size:46px}
+  .ac-page .sc > ul {padding:20px 22px;gap:10px}
+  .ac-page .sc > .sc-foot {margin-top:18px;padding-top:16px}
 }

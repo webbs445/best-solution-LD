@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { AC_CLAIMS, AC_REVIEWS } from "@/content/accounting";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
-import { AcTeam } from "./AcTeam";
 
 const WHY: { title: string; body: string; icon: ReactNode }[] = [
   { title: `${AC_CLAIMS.ownership}, since ${AC_CLAIMS.founded}`, body: "A Business Bay firm advising UAE companies for more than a decade.", icon: <path d="M12 3l8 4v5c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V7z" /> },
@@ -168,8 +167,6 @@ export function AcWhy() {
             </div>
           ))}
         </div>
-
-        <AcTeam />
 
         <div className="rev rv">
           <div className="score">

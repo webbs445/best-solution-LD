@@ -48,7 +48,6 @@ dataLayer events keep the original names: `calculator_step`, `calculator_complet
 - `src/app/accounting/page.tsx`: the page, its metadata and FAQ schema. `accounting.css` holds its styles, all scoped under `.ac-page` (converted from `BestSolution_Accounting_LandingPage.html`).
 - `src/content/accounting.ts`: services and **from-prices**, the health check questions, reviews, FAQs and WhatsApp links.
   - `AC_CLAIMS`: every number and claim on the page (businesses, team size, rating, prices, package saving, Google profile link). **Confirm before going live.** Setting `freeReviewWithQuote` to true adds "Includes a free 15-minute review" to the offer.
-  - `AC_TEAM`: the "Your accounting team" strip. Placeholders until `AC_TEAM_READY` is true; until then it shows only in `npm run dev`.
 - Google Ads wording: no start/setup/register/documents/fast/guarantee style words in visitor text, and no price next to a speed or time promise. Registrations and government documents are mentioned only in the footer disclaimer.
 - `src/components/accounting/*`: the page's sections (hero flow animation, pinned service cards, health check, timeline, report preview, reviews, FAQ, 3-step quote form, footer).
 - `src/app/api/accounting/route.ts`: the quote request, validated and sent to the ERP as a lead (form id "LP Accounting Quote"), with the visitor's answers and health check result.

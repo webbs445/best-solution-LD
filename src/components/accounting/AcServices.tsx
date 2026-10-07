@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { AC_CLAIMS, aed } from "@/content/accounting";
 
@@ -115,6 +115,11 @@ const CARDS: Card[] = [
   Services and pricing: the section pins while the cards slide sideways as you scroll, on every screen size
   (the row is scaled to fit the screen height). Each card is reported once as service_card_view, only while the section is on screen.
 */
+/* Extra scroll (in cards) held before the first move and on the last card. */
+const HOLD_START = 0.2;
+const HOLD_END = 0.9;
+const ease = (t: number) => t * t * (3 - 2 * t);
+
 export function AcServices() {
   const pin = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
@@ -172,27 +177,32 @@ export function AcServices() {
       const r = p.getBoundingClientRect();
       const total = p.offsetHeight - window.innerHeight;
       const prog = Math.max(0, Math.min(1, -r.top / total));
+      const n = list.length;
+      // Scroll -> card position. Each hand-over eases in and out with a short hold on every card, plus a
+      // hold before the first move and a longer one on the last card, so it stays readable before the
+      // section moves on.
+      const raw = prog * (n - 1 + HOLD_START + HOLD_END) - HOLD_START;
+      const seg = Math.max(0, Math.min(n - 1, raw));
+      const k = Math.min(n - 2, Math.floor(seg));
+      const pos = k + ease(Math.max(0, Math.min(1, (seg - k - 0.15) / 0.7)));
+      // The active card sits in the middle of the screen; the row glides from the first card's centre to the last one's.
       const first = list[0];
-      const last = list[list.length - 1];
-      let x: number;
-      if (window.innerWidth <= 900) {
-        // Phones and tablets: glide from the first card's centre to the last one's, so the active card sits mid-screen.
-        const c0 = first.offsetLeft + first.offsetWidth / 2;
-        const c1 = last.offsetLeft + last.offsetWidth / 2;
-        x = window.innerWidth / 2 - (c0 + prog * (c1 - c0)) * fitS;
-        t.style.transformOrigin = "left top";
-      } else {
-        // Desktop: scale around the first card's left edge, so it lines up with the heading at any scale.
-        const ts = getComputedStyle(t);
-        const padL = parseFloat(ts.paddingLeft) || 24;
-        const padR = parseFloat(ts.paddingRight) || 24;
-        x = -prog * Math.max(0, padL + (last.offsetLeft + last.offsetWidth + padR - padL) * fitS - window.innerWidth);
-        t.style.transformOrigin = `${padL}px top`;
-      }
+      const last = list[n - 1];
+      const c0 = first.offsetLeft + first.offsetWidth / 2;
+      const c1 = last.offsetLeft + last.offsetWidth / 2;
+      const move = pos / (n - 1);
+      const x = window.innerWidth / 2 - (c0 + move * (c1 - c0)) * fitS;
+      t.style.transformOrigin = "left top";
       t.style.transform = `translate3d(${x}px,0,0) scale(${fitS})`;
-      if (bar.current) bar.current.style.width = `${prog * 100}%`;
-      if (hint.current) hint.current.style.opacity = prog > 0.92 ? "0" : "1";
-      activate(Math.min(list.length - 1, Math.round(prog * (list.length - 1))));
+      if (bar.current) bar.current.style.width = `${move * 100}%`;
+      if (hint.current) hint.current.style.opacity = move > 0.98 ? "0" : "1";
+      // Focus (1 = the card in the middle, 0 = a card away) and which side a card is on: CSS turns these into
+      // scale, blur, fade and a slight turn away from the centre.
+      list.forEach((c, i) => {
+        c.style.setProperty("--f", Math.max(0, 1 - Math.abs(i - pos) / 0.75).toFixed(3));
+        c.style.setProperty("--side", String(Math.sign(i - pos)));
+      });
+      activate(Math.min(n - 1, Math.round(pos)));
     };
     let ticking = false;
     const onScroll = () => {
@@ -246,7 +256,7 @@ export function AcServices() {
 
           <div className="track" id="track" ref={track}>
             {CARDS.map((c, i) => (
-              <article key={c.title} className={`sc ${c.tone}${act === i ? " act" : ""}`}>
+              <article key={c.title} className={`sc ${c.tone}${act === i ? " act" : ""}`} style={{ "--f": i === 0 ? 1 : 0 } as CSSProperties}>
                 <span className="wm">{c.wm}</span>
                 <div className="sc-top">
                   {icon(c.icon)}

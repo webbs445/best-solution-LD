@@ -122,19 +122,6 @@ export const AC_REVIEWS: { quote: string; name: string; role: string; company: s
   },
 ];
 
-/*
-  "Your accounting team" strip. PLACEHOLDERS: replace each entry with a real person (name, role,
-  qualification, and a photo saved as public/team/<photo>.webp), then set AC_TEAM_READY to true.
-  Until then the strip shows only in development (npm run dev), never in production. No stock photos.
-*/
-export const AC_TEAM_READY = false;
-export const AC_TEAM: { name: string; role: string; qualification: string; photo?: string }[] = [
-  { name: "[Name]", role: "[Role, e.g. Accounts Manager]", qualification: "[Qualification, e.g. ACCA]" },
-  { name: "[Name]", role: "[Role, e.g. Senior Accountant]", qualification: "[Qualification, e.g. CA]" },
-  { name: "[Name]", role: "[Role, e.g. Accountant]", qualification: "[Qualification, e.g. CMA]" },
-  { name: "[Name]", role: "[Role, e.g. Bookkeeper]", qualification: "[Qualification]" },
-];
-
 export const AC_FAQS = [
   {
     q: "What is included in your monthly accounting service?",
