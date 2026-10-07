@@ -12,20 +12,20 @@ export function Hero() {
         <div className={styles.copy}>
           <p className={styles.kicker}>
             <i aria-hidden="true" />
-            UAE Business Setup Advisory
+            UAE Company Structure Advisory
           </p>
           <h1 className={styles.title}>
-            Your UAE business setup,
-            <br /> <span>costed and planned</span>
-            <br /> before you begin
+            Know what your
+            <br /> <span>UAE company costs</span>
+            <br /> before you begin.
           </h1>
           <p className={styles.sub}>
-            Receive a clear cost estimate in minutes, followed by a consultation with a dedicated advisor who
+            Receive a clear cost estimate, followed by a consultation with a dedicated advisor who
             recommends the right structure for your business.
           </p>
           <div className={`cta-row ${styles.ctaRow}`}>
             <CtaLink className="btn btn-primary" href="#calculator" location="LP Hero — Calculate Cost">
-              Calculate Your Setup Cost <ArrowIcon />
+              Calculate Your Company Cost <ArrowIcon />
             </CtaLink>
             <CtaLink className="btn btn-outline" href={SITE.whatsapp} location="LP Hero — Speak to a Consultant">
               Speak to a Consultant

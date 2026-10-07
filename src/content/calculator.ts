@@ -52,8 +52,8 @@ export const STEPS: Record<StepId, StepDef> = {
     ],
   },
   bank: {
-    q: "Would you like help opening a corporate bank account?",
-    hint: "Approval remains at the bank's discretion.",
+    q: "Would you like help with a corporate bank account?",
+    hint: "The final decision rests with the bank.",
     options: [
       ["yes", "Yes, include bank account assistance", "", RATES.bank],
       ["no", "No, I will arrange it myself"],
@@ -62,7 +62,7 @@ export const STEPS: Record<StepId, StepDef> = {
 };
 
 export const OPTION_Q: Record<Jurisdiction, string> = {
-  mainland: "Which mainland setup fits your business?",
+  mainland: "Which mainland structure fits your business?",
   freezone: "Which free zone are you considering?",
   offshore: "Which offshore jurisdiction are you considering?",
 };

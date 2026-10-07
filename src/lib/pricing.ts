@@ -52,7 +52,7 @@ export const DATA: Record<Jurisdiction, SetupOption[]> = {
     { id: "m0", name: "Dubai Mainland, LLC (DET)", price: 13000, desc: "", emirate: "Dubai" },
     { id: "m1", name: "Dubai Mainland, Professional / Civil", price: 9000, desc: "Sole establishment or civil company for service professionals", emirate: "Dubai" },
     { id: "m2", name: "Dubai Mainland, General Trading", price: 28000, desc: "Broad import / export and trading scope", emirate: "Dubai" },
-    { id: "m3", name: "Dubai Mainland, Lease-flexible setup", price: 11500, desc: "No immediate lease required", emirate: "Dubai" },
+    { id: "m3", name: "Dubai Mainland, Lease-flexible structure", price: 11500, desc: "No immediate lease required", emirate: "Dubai" },
     { id: "m4", name: "Dubai Mainland, E-Trader", price: 1500, desc: "Home-based or online sole trader", emirate: "Dubai" },
     { id: "m5", name: "Abu Dhabi Mainland", price: 18000, desc: "", emirate: "Abu Dhabi" },
     { id: "m6", name: "Sharjah Mainland (SEDD)", price: 20000, desc: "", emirate: "Sharjah" },
@@ -125,7 +125,7 @@ export function pick(a: Answers): Pick | null {
   const j = a.jurisdiction;
   if (!j) return null;
   if (j === "undecided") {
-    return { opt: cheapest(DATA.freezone), chosen: false, basis: "Based on the lowest-cost free zone on our rate card" };
+    return { opt: cheapest(DATA.freezone), chosen: false, basis: "Based on the entry-level free zone package on our rate card" };
   }
   if (a.option === undefined) return null;
   if (a.option === "recommend") {
@@ -133,7 +133,7 @@ export function pick(a: Answers): Pick | null {
     return {
       opt: cheapest(DATA[j]),
       chosen: false,
-      basis: "Based on the lowest-cost " + (j === "freezone" ? "free zone" : "offshore jurisdiction") + " on our rate card",
+      basis: "Based on the entry-level " + (j === "freezone" ? "free zone" : "offshore") + " package on our rate card",
     };
   }
   const opt = DATA[j].find((o) => o.id === a.option);
@@ -186,7 +186,7 @@ export function estimate(a: Answers): Estimate {
     workspace = off ? 0 : RATES.workspace[a.workspace ?? "none"] || 0;
   }
 
-  lines.push({ label: "Setup package", amount: base });
+  lines.push({ label: "Company package", amount: base });
 
   if (off) lines.push({ label: "Residency", text: "Not applicable" });
   else if (n)

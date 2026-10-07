@@ -16,9 +16,9 @@ const inter = Inter({
 });
 
 // Brand first so it stays visible in a narrow browser tab.
-const TITLE = "Best Solution | UAE Business Setup Cost Estimate";
+const TITLE = "Best Solution | UAE Company Cost Estimate";
 const DESCRIPTION =
-  "Estimate your UAE business setup cost in minutes, then review it with a dedicated Best Solution consultant. Transparent fees, confirmed in writing.";
+  "Estimate the first-year cost of your UAE company, then review it with a dedicated Best Solution consultant. Fees confirmed in writing.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -32,13 +32,13 @@ export const metadata: Metadata = {
     type: "website",
     siteName: SITE.name,
     title: TITLE,
-    description: "Your UAE business setup, costed and planned before you begin.",
+    description: "Your UAE company, costed and planned before you begin.",
     images: [SITE.ogImage],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
-    description: "Your UAE business setup, costed and planned before you begin.",
+    description: "Your UAE company, costed and planned before you begin.",
     images: [SITE.ogImage],
   },
 };

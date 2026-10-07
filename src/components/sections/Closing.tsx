@@ -16,7 +16,7 @@ import {
 import { CallbackButton } from "./Callback";
 import styles from "./Closing.module.css";
 
-const POINTS = ["No obligation", "Estimate confirmed in writing", "Reply within 24 hours"];
+const POINTS = ["No obligation", "Estimate confirmed in writing", "Reply by phone, WhatsApp or email"];
 
 /* Closing CTA: a card on the page ground, just above the footer. */
 export function Closing() {
@@ -30,10 +30,10 @@ export function Closing() {
             <h2 id="close-title">
               Begin with <span>clarity on cost</span>
             </h2>
-            <p className={styles.lede}>Obtain your estimate today and speak with a consultant at a time that suits you.</p>
+            <p className={styles.lede}>Get a written estimate and speak with a consultant at a time that suits you.</p>
             <div className={styles.actions}>
               <CtaLink className="btn btn-primary" href="#calculator" location="LP Closing — Calculate Cost">
-                Calculate Your Setup Cost <ArrowIcon />
+                Calculate Your Company Cost <ArrowIcon />
               </CtaLink>
               <CtaLink className={styles.ghost} href={SITE.whatsapp} location="LP Closing — Speak to a Consultant">
                 <WhatsAppIcon />
@@ -107,7 +107,7 @@ const SOCIAL_LINKS = [
 
 const CONTACTS = [
   { href: SITE.phone.href, icon: <PhoneIcon />, title: SITE.phone.display, note: SITE.hours.short },
-  { href: `mailto:${SITE.email}`, icon: <MailIcon />, title: SITE.email, note: "Reply within 24 hrs" },
+  { href: `mailto:${SITE.email}`, icon: <MailIcon />, title: SITE.email, note: "We reply by email" },
   { href: MAPS_URL, icon: <PinIcon />, title: "Business Bay, Dubai", note: "View on Google Maps", external: true },
 ];
 
@@ -126,7 +126,7 @@ export function Footer() {
               <Image src={SITE.mark} alt="Best Solution" width={240} height={112} />
             </a>
             <p>
-              Your trusted partner for business setup advice in Dubai. One consultant, every step, with costs confirmed
+              Your trusted partner for company structuring advice in Dubai. One consultant, every step, with costs confirmed
               in writing.
             </p>
             <div className={styles.social}>
@@ -164,7 +164,7 @@ export function Footer() {
                 Consultants available
               </span>
               <h2>Free consultation</h2>
-              <p>Tell us your plans. A consultant calls you back within one business day.</p>
+              <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
               <CallbackButton className="btn btn-primary">
                 Book a Callback <ArrowIcon />
               </CallbackButton>

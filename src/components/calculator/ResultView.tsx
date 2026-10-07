@@ -49,7 +49,7 @@ function Summary({ result }: { result: Estimate }) {
         </span>
       </div>
       <h3 ref={headingRef} tabIndex={-1} className={styles.resLabel}>
-        Your first-year setup cost
+        Your first-year company cost
       </h3>
       <p className={styles.resTotal}>
         <small>{result.from ? "From AED" : "AED"}</small>

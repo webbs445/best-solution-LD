@@ -7,8 +7,8 @@ export function CalculatorSection() {
       <div className="wrap">
         <div className={styles.intro} data-reveal="">
           <div>
-            <p className="eyebrow">Your setup, clearly costed</p>
-            <h2 id="calculator-title">Build your UAE setup estimate.</h2>
+            <p className="eyebrow">Your company, clearly costed</p>
+            <h2 id="calculator-title">Build your UAE company estimate.</h2>
             <p className={styles.lede}>
               Answer a few short questions to see your likely first-year cost. Your consultant then confirms the exact
               figure in writing.

@@ -45,10 +45,10 @@ describe("estimate", () => {
     expect(r.lines.map((l) => l.text ?? l.amount)).toEqual([10000, "Not applicable", "Not required", 3000]);
   });
 
-  it("bases an undecided visitor on the lowest-cost free zone", () => {
+  it("bases an undecided visitor on the entry-level free zone package", () => {
     const r = estimate({ jurisdiction: "undecided", residency: 0, workspace: "none", bank: "no" });
     expect(r.total).toBe(cheapest(DATA.freezone).price);
-    expect(r.basis).toBe("Based on the lowest-cost free zone on our rate card");
+    expect(r.basis).toBe("Based on the entry-level free zone package on our rate card");
   });
 
   it("caps residency at the largest published package size", () => {

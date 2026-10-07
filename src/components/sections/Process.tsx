@@ -32,7 +32,7 @@ export function Process() {
           <Timeline />
           <div className={styles.cta}>
             <CtaLink className="btn btn-primary" href="#calculator" location="LP Process — Start with Step 1">
-              Start with Step 1 <ArrowIcon />
+              Begin with Step 1 <ArrowIcon />
             </CtaLink>
             <span>No obligation.</span>
           </div>

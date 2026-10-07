@@ -39,7 +39,7 @@ export function LeadForm({
   setLead: (updater: (prev: LeadState) => LeadState) => void;
 }) {
   const [errors, setErrors] = useState<Partial<Record<LeadField, boolean>>>({});
-  const [status, setStatus] = useState(lead.sent ? "Thank you. Your consultant will send your written estimate within 24 hours." : "");
+  const [status, setStatus] = useState(lead.sent ? "Thank you. Your consultant will send your written estimate." : "");
   const [sending, setSending] = useState(false);
   const inputs = useRef<Partial<Record<LeadField, HTMLInputElement | null>>>({});
   const honeypot = useRef<HTMLInputElement>(null);
@@ -92,7 +92,8 @@ export function LeadForm({
       });
 
       if (res.status === 503) {
-        setStatus("This form is not connected yet. Set ERPNEXT_URL, ERPNEXT_API_KEY and ERPNEXT_API_SECRET to start receiving enquiries.");
+        // The ERP is not configured (ERPNEXT_URL / ERPNEXT_API_KEY / ERPNEXT_API_SECRET).
+        setStatus(`We could not send your details right now. Please call ${SITE.phone.display} or message us on WhatsApp.`);
         setSending(false);
         return;
       }
@@ -113,7 +114,7 @@ export function LeadForm({
         return;
       }
       setLead((prev) => ({ ...prev, sent: true }));
-      setStatus("Thank you. Your consultant will send your written estimate within 24 hours.");
+      setStatus("Thank you. Your consultant will send your written estimate.");
     } catch {
       setStatus(`We could not send your details. Please try again, or call ${SITE.phone.display}.`);
     }
@@ -179,8 +180,8 @@ export function LeadForm({
         </button>
       )}
       <p className={styles.micro}>
-        By sending, you agree that Best Solution may contact you about this estimate by phone, WhatsApp or email. We
-        respond within 24 hours. No obligation.{" "}
+        By sending, you agree that Best Solution may contact you about this estimate by phone, WhatsApp or email. No
+        obligation.{" "}
         <a href={SITE.privacy} rel="noopener" target="_blank">
           Privacy policy
         </a>

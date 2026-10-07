@@ -127,7 +127,7 @@ export function Jurisdictions() {
                     <dd>{j.tax}</dd>
                   </div>
                   <div>
-                    <dt>Setup cost from</dt>
+                    <dt>Company cost from</dt>
                     <dd>AED {formatAED(headlinePrice(active))}</dd>
                   </div>
                 </dl>

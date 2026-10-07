@@ -11,7 +11,7 @@ export function MobileBar() {
   return (
     <div className={styles.bar}>
       <div aria-live="polite">
-        <span>{result ? (result.from ? "Your estimate, from" : "Your estimate") : "Setup cost estimate"}</span>
+        <span>{result ? (result.from ? "Your estimate, from" : "Your estimate") : "Company cost estimate"}</span>
         <b>{result ? `AED ${formatAED(result.total)}` : "A few short questions"}</b>
       </div>
       <CtaLink
@@ -19,7 +19,7 @@ export function MobileBar() {
         href={result ? "#leadForm" : "#calculator"}
         location={result ? "LP Mobile Bar — Get It in Writing" : "LP Mobile Bar — Start"}
       >
-        {result ? "Get it in writing" : "Start"}
+        {result ? "Get it in writing" : "Begin"}
       </CtaLink>
     </div>
   );
