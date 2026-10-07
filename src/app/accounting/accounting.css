@@ -705,6 +705,9 @@
 .ac-page .rp-nav small {display:block;font-size:13.5px;color:var(--ink-soft);margin-top:2px;line-height:1.45}
 .ac-page .rp-nav .ar {font-size:18px;color:var(--copper);opacity:0;transform:translateX(-6px);transition:all .3s}
 .ac-page .rp-nav button[aria-selected="true"] .ar {opacity:1;transform:none}
+/* Auto-switch timer: a bar fills along the bottom of the active report button; its duration is set per tab (3 s, then 6 s). */
+.ac-page .rp-auto {position:absolute;left:18px;right:18px;bottom:7px;height:2px;border-radius:2px;background:var(--grad);transform-origin:left;transform:scaleX(0);animation:rpAuto 3s linear forwards}
+@keyframes rpAuto {to{transform:scaleX(1)}}
 .ac-page .rp-call {display:flex;align-items:center;gap:10px;margin-top:22px;font-size:14px;color:var(--ink-soft)}
 .ac-page .rp-call svg {width:16px;height:16px;color:var(--copper-dark);flex:none}
 .ac-page .rp-doc {position:relative;padding:14px}

@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { prefersReducedMotion } from "@/lib/useReducedMotion";
 
 type Tab = "pl" | "rc" | "bs";
 
@@ -43,10 +44,27 @@ const line = (p: readonly (readonly [number, number])[]) => p.map((q, i) => `${i
 const PR = pts(REV);
 const PE = pts(EXP);
 
-/* "Reports you'll actually read": a sample monthly pack with three tabs; each switch replays its animation. */
+/* Auto-switch: the next tab after each one. The first loop shows each tab for 3 s, every later loop for 6 s. */
+const NEXT: Record<Tab, Tab> = { pl: "rc", rc: "bs", bs: "pl" };
+const FIRST_LOOP_MS = 3000;
+const LOOP_MS = 6000;
+
+/*
+  "Reports you'll actually read": a sample monthly pack with three tabs; each switch replays its animation.
+  While the section is on screen (and the pointer is not over it) the tabs loop by themselves, with a
+  progress bar on the active button: 3 s per tab on the first loop, then 6 s per tab. A click shows that
+  tab and the loop carries on from it with a fresh timer. Only clicks are reported as report_tab;
+  reduced motion turns the auto-switch off.
+*/
 export function AcReports() {
   const [tab, setTab] = useState<Tab>("pl");
   const [replay, setReplay] = useState(0);
+  const [shown, setShown] = useState(0); // tabs shown by the loop so far; the first 3 are the quick first loop
+  const [inView, setInView] = useState(false);
+  const [hover, setHover] = useState(false);
+  const section = useRef<HTMLElement>(null);
+  const running = inView && !hover;
+  const delay = shown < 3 ? FIRST_LOOP_MS : LOOP_MS;
   const tabsRef = useRef<HTMLDivElement>(null);
   const ink = useRef<HTMLElement>(null);
   const svg = useRef<SVGSVGElement>(null);
@@ -54,11 +72,37 @@ export function AcReports() {
   const pinDot = useRef<HTMLSpanElement>(null);
   const paper = useRef<HTMLDivElement>(null);
 
+  // Pause while a mouse pointer rests on the section (desktop only: a tap on a phone also fires mouseenter
+  // but often no mouseleave, which would pause the loop for good).
+  const pauseOnHover = () => {
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) setHover(true);
+  };
+
   const show = (r: Tab, user: boolean) => {
     setTab(r);
     setReplay((n) => n + 1);
     if (user) trackEvent("report_tab", { tab: r });
   };
+
+  // Auto-switch only while the section crosses the middle band of the screen (works for any section height,
+  // including the tall stacked layout on small phones).
+  useEffect(() => {
+    const s = section.current;
+    if (!s || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: "-30% 0px -30% 0px" });
+    io.observe(s);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!running || prefersReducedMotion()) return;
+    const t = window.setTimeout(() => {
+      setTab((cur) => NEXT[cur]);
+      setReplay((n) => n + 1);
+      setShown((n) => n + 1);
+    }, delay);
+    return () => window.clearTimeout(t);
+  }, [running, tab, replay, delay]);
 
   // Underline follows the active tab; the chart's end-point marker sits on the last revenue point.
   useLayoutEffect(() => {
@@ -107,7 +151,7 @@ export function AcReports() {
   );
 
   return (
-    <section className="sheet s-white light-zone" id="reports">
+    <section className="sheet s-white light-zone" id="reports" ref={section} onMouseEnter={pauseOnHover} onMouseLeave={() => setHover(false)}>
       <div className="wrap rp">
         <div className="rp-intro rv">
           <span className="kicker">What you receive</span>
@@ -126,6 +170,9 @@ export function AcReports() {
                   <small>{n.note}</small>
                 </div>
                 <span className="ar">→</span>
+                {running && tab === n.r && (
+                  <span className="rp-auto" key={`${tab}-${replay}`} style={{ animationDuration: `${delay}ms` }} aria-hidden="true" />
+                )}
               </button>
             ))}
           </div>
