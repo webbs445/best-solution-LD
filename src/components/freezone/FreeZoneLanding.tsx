@@ -15,9 +15,9 @@ import { FzSitelink } from "./FzSitelink";
 import { FzClosing, FzConsultation, FzMobileBar, FzReviews, FzVsMainland, FzWhyUs } from "./FzSections";
 import "@/app/freezone/freezone.css";
 
-const TITLE = "UAE Free Zone Setup Costs & Comparison | Best Solution";
+const TITLE = "UAE Free Zone Costs & Comparison | Best Solution";
 const DESCRIPTION =
-  "Compare 28 UAE free zones by activity, office and cost. Get an indicative setup estimate, shortlist suitable zones and speak with a dedicated advisor. No obligation.";
+  "Compare 28 UAE free zones by activity, office and cost. Get an indicative cost estimate, shortlist suitable zones and speak with a dedicated advisor. No obligation.";
 const SHARE_TITLE = "The right free zone costs less than the wrong one";
 const SHARE_DESCRIPTION = "Compare UAE free zones by activity, office and cost, then speak to a dedicated advisor.";
 

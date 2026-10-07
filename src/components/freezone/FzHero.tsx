@@ -135,11 +135,11 @@ export function FzHero() {
             </li>
             <li>
               <b>AED 4,898*</b>
-              <span>Indicative starting price</span>
+              <span>Indicative from-price</span>
             </li>
           </ul>
           <p className="fz-foot">
-            *Indicative starting price from our current rate card. Your cost depends on activity, package, office and
+            *Indicative from-price, based on our current rate card. Your cost depends on activity, package, office and
             residency.
           </p>
         </div>
@@ -184,7 +184,7 @@ export function FzHero() {
               </b>
             </div>
             <div className="hx-match-foot">
-              <span>Starting from</span>
+              <span>From</span>
               <strong className="hx-swap" key={`p${k}`}>
                 AED {formatAED(zone.price)}
               </strong>

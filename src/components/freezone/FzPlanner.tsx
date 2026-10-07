@@ -360,7 +360,7 @@ export function FzPlanner() {
                     <li>Extra residency for family or staff</li>
                     <li>Change of status if you are already in the UAE</li>
                     <li>Office upgrades</li>
-                    <li>External approvals for regulated activities</li>
+                    <li>External regulator sign-off for regulated activities</li>
                     <li>VIP medical, about AED 750</li>
                     <li>Authority fee updates</li>
                   </ul>

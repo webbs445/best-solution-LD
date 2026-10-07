@@ -151,7 +151,7 @@ export function CallbackButton({
           </span>
           <h3 id="cb-title">Request a callback</h3>
           <p className={styles.lede}>
-            Leave your number and a consultant will call you back within one business day.
+            Leave your number. We&apos;ll call you back.
           </p>
 
           <form className={styles.form} onSubmit={submit} noValidate data-track={CALLBACK_FORM_ID}>
@@ -242,7 +242,7 @@ export function CallbackButton({
               </a>
             </p>
             <p className={styles.status} role="status" hidden={status.kind === "idle" || status.kind === "sending"}>
-              {status.kind === "sent" && "Thank you. A consultant will call you back within one business day."}
+              {status.kind === "sent" && "Thank you. A consultant will call you back."}
               {status.kind === "error" && status.text}
             </p>
           </form>

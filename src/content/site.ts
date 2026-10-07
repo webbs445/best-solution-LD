@@ -68,8 +68,8 @@ export const TRUST = [
 
 export const WHY = [
   { title: "A dedicated consultant", body: "Your advisor remains your single point of contact throughout." },
-  { title: "Transparent fees", body: "Fees are confirmed in writing before you proceed." },
-  { title: "In-house expertise", body: "Specialists across setup, taxation, accounting and compliance, under one roof." },
+  { title: "Fees in writing", body: "Fees are confirmed in writing before you proceed." },
+  { title: "In-house expertise", body: "Specialists across company structuring, taxation, accounting and compliance, under one roof." },
   { title: "Emirati-owned", body: "Founded by Essa Al Harthi and based in Business Bay, Dubai." },
   { title: "Continued support", body: "Tax, accounting and compliance guidance as your business grows." },
 ];

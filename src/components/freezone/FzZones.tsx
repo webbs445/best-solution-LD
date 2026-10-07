@@ -168,7 +168,7 @@ function ZoneDetail({
       <p className="zd-desc">{zone.d}</p>
       <div className="zd-price">
         <div>
-          <small>Starting from</small>
+          <small>From</small>
           <b>AED {formatAED(zone.price)}</b>
         </div>
         <span className="zd-inc">
@@ -274,11 +274,11 @@ function CompareModal({ ids, onClose, onEstimate }: { ids: string[]; onClose: ()
     ["Emirate", (zn) => <span>{zn.emirate}</span>],
     ["Suited to", (zn) => <span>{zn.d}</span>],
     [
-      "Starting cost",
+      "From-price",
       (zn) => (
         <span className={zn.price === low ? "best" : undefined}>
           AED {formatAED(zn.price)}
-          {zn.price === low ? "  Lowest of these" : ""}
+          {zn.price === low ? "  Least expensive here" : ""}
         </span>
       ),
     ],
@@ -603,7 +603,7 @@ export function FzZones() {
                       <b>{highlight(a[0], input.trim())}</b>
                       <small>
                         {SECT[a[1]]}
-                        {a[3] ? " · extra approval" : ""}
+                        {a[3] ? " · extra regulator sign-off" : ""}
                       </small>
                     </span>
                     <span className="zx-sug-n">{zonesForSector(a[1])} zones</span>
@@ -699,7 +699,7 @@ export function FzZones() {
                 {zonesCovering === 1 ? " zone covers" : " zones typically cover"} this activity. Your advisor confirms the
                 exact activity code.
               </span>
-              {act[3] && <span className="zx-act-r">May need an extra regulator approval. We check this for you.</span>}
+              {act[3] && <span className="zx-act-r">May need an extra regulator sign-off. We check this for you.</span>}
             </>
           ) : likeActs.length ? (
             <span className="zx-act-n">Showing zones for activities like {likeActs.join(" and ")}</span>
@@ -713,7 +713,7 @@ export function FzZones() {
               </p>
               <div className="zx-sort" role="group" aria-label="Sort">
                 <button type="button" data-s="price" aria-pressed={sort === "price"} onClick={() => setSort("price")}>
-                  Lowest price
+                  Price, low to high
                 </button>
                 <button type="button" data-s="name" aria-pressed={sort === "name"} onClick={() => setSort("name")}>
                   A to Z
