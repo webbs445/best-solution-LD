@@ -1,4 +1,4 @@
-import { AC_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES } from "@/lib/lead";
+import { AC_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES, clickIdRows } from "@/lib/lead";
 import { createErpLead } from "@/lib/erp";
 import { BOOK_STATES, SERVICE_NAMES, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
 
@@ -39,11 +39,6 @@ export async function POST(request: Request) {
   const software = oneOf(body.software, SOFTWARE);
   const state = oneOf(body.books_state, BOOK_STATES);
   const health = str(body.health_check, 200);
-  const googleIds = (["gclid", "gbraid", "wbraid"] as const)
-    .map((k) => [k, str(body[k], 500)] as const)
-    .filter(([, v]) => v)
-    .map(([k, v]) => `${k}: ${v}`)
-    .join(", ");
 
   const details: [string, string][] = [
     ["Service", SERVICE_NAMES[service]],
@@ -51,7 +46,7 @@ export async function POST(request: Request) {
     ...(software ? ([["Current software", software]] as [string, string][]) : []),
     ...(state ? ([["Books today", state]] as [string, string][]) : []),
     ...(health ? ([["Health check", health]] as [string, string][]) : []),
-    ...(googleIds ? ([["Google click IDs", googleIds]] as [string, string][]) : []),
+    ...clickIdRows(body),
   ];
 
   const result = await createErpLead({

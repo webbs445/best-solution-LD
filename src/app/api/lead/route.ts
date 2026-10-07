@@ -1,5 +1,5 @@
 import { estimate, type Answers, type Estimate } from "@/lib/pricing";
-import { FORM_ID, FZ_FORM_ID, LEAD_RULES, type LeadField } from "@/lib/lead";
+import { FORM_ID, FZ_FORM_ID, LEAD_RULES, clickIdRows, type LeadField } from "@/lib/lead";
 import { createErpLead } from "@/lib/erp";
 import { cleanPlanner, plannerEstimate, type PlannerInput } from "@/lib/freezone";
 import { ACT_LABEL, PRIORITIES } from "@/content/freezone";
@@ -72,7 +72,8 @@ export async function POST(request: Request) {
     submission_timestamp: str(body.submission_timestamp, 40) || new Date().toISOString(),
     answers,
     estimate: computed,
-    ...(fz ? { form_name: "Free Zone Planner", button_name: "Request My Estimate", details: fz.details } : null),
+    ...(fz ? { form_name: "Free Zone Planner", button_name: "Request My Estimate" } : null),
+    details: [...(fz ? fz.details : []), ...clickIdRows(body)],
   });
 
   if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });

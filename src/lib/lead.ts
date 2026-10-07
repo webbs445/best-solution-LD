@@ -27,3 +27,14 @@ export const FZ_FORM_ID = "LP Free Zone Planner";
 export const AC_FORM_ID = "LP Accounting Quote";
 /** The ERP "Service Enquired" option for every /accounting lead (an exact Select option in the ERP). */
 export const AC_SERVICE_ENQUIRED = "Accounting & Bookkeeping Services";
+
+/** The "Google click IDs" row for the ERP notes, from a form's gclid / gbraid / wbraid (none when empty). */
+export function clickIdRows(body: Record<string, unknown>): [string, string][] {
+  const ids = (["gclid", "gbraid", "wbraid"] as const)
+    .map((k) => [k, typeof body[k] === "string" ? body[k].trim().slice(0, 500) : ""] as const)
+    .filter(([, v]) => v)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join(", ");
+  return ids ? [["Google click IDs", ids]] : [];
+}
+

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { SITE } from "@/content/site";
 import { AnalyticsInit } from "@/components/analytics/AnalyticsInit";
+import { AttributionCapture } from "@/components/analytics/AttributionCapture";
 import { ConsentInit, PageContextInit } from "@/components/analytics/ConsentInit";
 import { CookieConsentBanner } from "@/components/analytics/CookieConsentBanner";
 import { GoogleTagManager, GtmNoScript } from "@/components/analytics/GoogleTagManager";
@@ -67,6 +68,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {children}
         <CookieConsentBanner />
         <AnalyticsInit />
+        <AttributionCapture />
         <GoogleTagManager />
       </body>
     </html>
