@@ -83,16 +83,16 @@ function QuickCheck() {
       ?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
   };
 
-  const detail = picked && `Setup from AED ${formatAED(picked.from ?? cheapest(DATA[picked.j]).price)}`;
+  const detail = picked && `Company cost from AED ${formatAED(picked.from ?? cheapest(DATA[picked.j]).price)}`;
 
   return (
     <div className={`${styles.qc} ${picked ? styles.done : ""}`}>
       <div className={styles.qcHead}>
         <span className={styles.live}>
           <i aria-hidden="true" />
-          Quick check
+          Structure check
         </span>
-        <span className={styles.chip}>1 tap</span>
+        <span className={styles.chip}>1 question</span>
       </div>
       <p className={styles.q} id="qc-question">
         How will your company operate?
@@ -144,7 +144,7 @@ function QuickCheck() {
 /* Hero card: the copper logo wall from the About Us page as a photo band, the quick check below it. */
 export function HeroCard() {
   return (
-    <aside aria-label="Quick check: which UAE structure suits you" className={styles.card}>
+    <aside aria-label="Structure check: which UAE option suits you" className={styles.card}>
       <div className={styles.photo} aria-hidden="true">
         <Image
           src="/images/about-office.webp"

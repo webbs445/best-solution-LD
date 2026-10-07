@@ -104,7 +104,7 @@ const PHOTOS = [
 
 /* As the home page's WHY list, with this page's wording for the fees card. */
 const WHY_CARDS = WHY.map((w) =>
-  w.title === "Transparent fees"
+  w.title === "Fees in writing"
     ? { title: "Fees confirmed in writing", body: "Your costs are set out in writing before you proceed." }
     : w,
 );
@@ -121,7 +121,7 @@ export function FzWhyUs() {
             </p>
             <h2 id="wyTitle">One team for every stage of your business</h2>
             <p className="wy-lede">
-              Since {SITE.founded}, Best Solution has advised entrepreneurs and investors on establishing and operating businesses in
+              Since {SITE.founded}, Best Solution has advised entrepreneurs and investors on structuring and running businesses in
               the UAE.
             </p>
           </div>

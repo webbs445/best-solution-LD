@@ -4,6 +4,13 @@ import { Marquee } from "@/components/ui/Marquee";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import styles from "./Reviews.module.css";
 
+/*
+  Reviews kept off the home page because their wording uses terms our Google Ads rules exclude here.
+  Review text is never edited; /freezone still shows the full REVIEW_ROWS.
+*/
+const HOME_EXCLUDED = ["Chandra Mohan", "Javed Khan", "Tanwir Chowdhury", "Carlos Freyre"];
+const HOME_REVIEWS = REVIEW_ROWS.flat().filter((r) => !HOME_EXCLUDED.includes(r.name));
+
 function Stars({ label }: { label?: string }) {
   return (
     <div className={styles.stars} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
@@ -55,19 +62,17 @@ export function Reviews() {
           </a>
         </div>
       </div>
-      {REVIEW_ROWS.map((row, i) => (
-        <Marquee key={i} speed={i ? 60 : 70} reverse={i % 2 === 1} className={styles.rowWrap}>
-          {(copy) => (
-            <ul className={styles.row} aria-hidden={copy || undefined}>
-              {row.map((r) => (
-                <li key={r.name}>
-                  <Card r={r} copy={copy} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </Marquee>
-      ))}
+      <Marquee speed={60} className={styles.rowWrap}>
+        {(copy) => (
+          <ul className={styles.row} aria-hidden={copy || undefined}>
+            {HOME_REVIEWS.map((r) => (
+              <li key={r.name}>
+                <Card r={r} copy={copy} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </Marquee>
     </section>
   );
 }

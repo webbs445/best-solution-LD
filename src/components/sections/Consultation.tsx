@@ -5,7 +5,7 @@ import styles from "./Consultation.module.css";
 const CARDS: { icon: ReactNode; title: string; body: string }[] = [
   { icon: <StructureIcon />, title: "A recommended structure", body: "Mainland, free zone or offshore, selected according to how and where you trade." },
   { icon: <ReceiptIcon />, title: "A complete cost breakdown", body: "First-year and renewal costs, set out in full." },
-  { icon: <ChecklistIcon />, title: "A document checklist", body: "The exact requirements for your case." },
+  { icon: <ChecklistIcon />, title: "A paperwork checklist", body: "The exact requirements for your case." },
   { icon: <TimerIcon />, title: "A realistic timeline", body: "Each stage explained, with clear responsibilities." },
 ];
 

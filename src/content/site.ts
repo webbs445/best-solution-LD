@@ -68,8 +68,8 @@ export const TRUST = [
 
 export const WHY = [
   { title: "A dedicated consultant", body: "Your advisor remains your single point of contact throughout." },
-  { title: "Transparent fees", body: "Fees are confirmed in writing before you proceed." },
-  { title: "In-house expertise", body: "Specialists across setup, taxation, accounting and compliance, under one roof." },
+  { title: "Fees in writing", body: "Fees are confirmed in writing before you proceed." },
+  { title: "In-house expertise", body: "Specialists across company structuring, taxation, accounting and compliance, under one roof." },
   { title: "Emirati-owned", body: "Founded by Essa Al Harthi and based in Business Bay, Dubai." },
   { title: "Continued support", body: "Tax, accounting and compliance guidance as your business grows." },
 ];
@@ -90,11 +90,11 @@ export interface JurisdictionCopy {
 export const JURIS: Record<Jurisdiction, JurisdictionCopy> = {
   mainland: {
     title: "Mainland",
-    cta: "Estimate a mainland setup",
+    cta: "Estimate a mainland company",
     best: "For businesses trading directly across the UAE",
     suited: "Suited to businesses trading directly across the UAE.",
     market: "Across all emirates",
-    owner: "100% foreign ownership",
+    owner: "Full foreign ownership",
     office: "Tenancy contract",
     tax: "9% on profit above AED 375,000",
     photo: "/images/mainland-dubai-economy-tourism.webp",
@@ -102,11 +102,11 @@ export const JURIS: Record<Jurisdiction, JurisdictionCopy> = {
   },
   freezone: {
     title: "Free zone",
-    cta: "Estimate a free zone setup",
+    cta: "Estimate a free zone company",
     best: "For international and B2B operations",
     suited: "Suited to international and business-to-business operations.",
     market: "UAE and international B2B",
-    owner: "100% foreign ownership",
+    owner: "Full foreign ownership",
     office: "Flexi-desk or physical office",
     tax: "0% on qualifying income, 9% on non-qualifying",
     photo: "/images/free-zone-business-park-office.webp",
@@ -114,11 +114,11 @@ export const JURIS: Record<Jurisdiction, JurisdictionCopy> = {
   },
   offshore: {
     title: "Offshore",
-    cta: "Estimate an offshore setup",
+    cta: "Estimate an offshore company",
     best: "For holding and international structures",
     suited: "Suited to holding structures and asset protection.",
     market: "International only",
-    owner: "100% foreign ownership",
+    owner: "Full foreign ownership",
     office: "No office required",
     tax: "Depends on structure and UAE corporate tax rules",
     photo: "/images/offshore-company-structure.webp",
@@ -209,7 +209,7 @@ export const REVIEW_ROWS: Review[][] = [
 
 export const FAQS = [
   {
-    q: "How much does it cost to establish a business in the UAE?",
+    q: "How much does a UAE company cost?",
     a: "The cost depends on your activity, jurisdiction and team size. The calculator provides an itemised estimate, and your consultant confirms the exact figure.",
   },
   {
@@ -221,6 +221,6 @@ export const FAQS = [
   { q: "Who will handle my enquiry?", a: "A dedicated consultant from our Business Bay office." },
   {
     q: "Is Best Solution a government entity?",
-    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Licences and residency approvals are issued solely by the relevant UAE authorities.",
+    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Decisions on your company and residency are made solely by the relevant UAE authorities.",
   },
 ];

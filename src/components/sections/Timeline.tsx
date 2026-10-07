@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./Process.module.css";
 
 const STEPS = [
-  { title: "Estimate", body: "Use the calculator to view your expected first-year cost.", meta: "About 2 minutes" },
+  { title: "Estimate", body: "Use the calculator to view your expected first-year cost.", meta: "A few questions" },
   { title: "Consult", body: "Your advisor reviews your objectives and recommends a structure.", meta: "Complimentary, no obligation" },
   { title: "Decide", body: "You receive a written cost and timeline, and choose whether to proceed.", meta: "Confirmed in writing" },
 ];

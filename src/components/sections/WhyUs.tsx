@@ -41,7 +41,7 @@ export function WhyUs() {
           <p className="section-kicker">Why Best Solution</p>
           <h2 id="why-title">One team for every stage of your business</h2>
           <p className="lede">
-            Since {SITE.founded}, Best Solution has advised entrepreneurs and investors on establishing and operating businesses in
+            Since {SITE.founded}, Best Solution has advised entrepreneurs and investors on structuring and running businesses in
             the UAE.
           </p>
           <div className={styles.list}>

@@ -23,7 +23,7 @@ const SOCIAL_LINKS = [
 
 const CONTACTS = [
   { href: SITE.phone.href, icon: <PhoneIcon />, title: SITE.phone.display, note: SITE.hours.short },
-  { href: `mailto:${SITE.email}`, icon: <MailIcon />, title: SITE.email, note: "Reply within 24 hrs" },
+  { href: `mailto:${SITE.email}`, icon: <MailIcon />, title: SITE.email, note: "We reply by email" },
   { href: MAPS_URL, icon: <PinIcon />, title: "Business Bay, Dubai", note: "View on Google Maps", external: true },
 ];
 
