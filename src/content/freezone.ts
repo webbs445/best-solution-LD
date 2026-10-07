@@ -66,7 +66,7 @@ const z = (
 ): Zone => ({ id, name, price, emirate, d, t, g, sect, short, logo: logo && `/zones/${logo}`, exact });
 
 export const ZONES: Zone[] = [
-  z("f0", "IFZA (Dubai)", 12900, "Dubai", "Flexible setup with a wide activity range",
+  z("f0", "IFZA (Dubai)", 12900, "Dubai", "Flexible packages with a wide activity range",
     ["services", "trading", "ecommerce", "tech"], ["dubai"],
     ["trading", "general", "services", "ecommerce", "media", "tech", "education", "food", "tourism", "holding", "logistics", "events", "realestate"],
     ["IFZA", "IFZA"], "ifza.webp", { "0": 12900, "1": 17680, "2": 24210, "3": 30740, "4": 37270 }),
@@ -380,11 +380,11 @@ export interface PackageTerms {
 
 /* Package terms from the Best Solution free zone rate card. Update these values whenever the rate card changes. */
 export const PK: Record<string, PackageTerms> = {
-  f0: { act: 3, actTxt: "Up to 3 activities", shTxt: "AED 500 pre-approval per shareholder", years: [[2, 21900], [3, 31000], [5, 45200]], note: "Investor residency needs share capital of AED 50,000, with a bank statement as proof." },
+  f0: { act: 3, actTxt: "Up to 3 activities", shTxt: "AED 500 pre-clearance fee per shareholder, charged by the zone", years: [[2, 21900], [3, 31000], [5, 45200]], note: "Investor residency needs share capital of AED 50,000, with a bank statement as proof." },
   f1: { sh: 6, shFee: 2000, act: 7, actFee: 1000, actTxt: "Up to 7 activities (3 groups)", shTxt: "Up to 6 shareholders", note: "Investor residency needs share capital of AED 50,000, with a bank statement as proof." },
   f8: { sh: 6, act: 5, actFee: 2000, actTxt: "Up to 5 activities", shTxt: "Up to 6 shareholders", years: [[2, 25080], [3, 37620], [4, 50160]] },
   f11: { act: 3, actTxt: "Up to 3 activities from one industry group", shTxt: "Limit confirmed by your advisor", note: "Extra activities cost AED 900 to 8,000 each. A General Trading option is AED 25,000 and needs a 50+ sqm office." },
-  f14: { sh: 3, shFee: 3000, act: { 0: 2, v: 3 }, actFee: 1500, actTxt: "2 activities (no residency) or 3 (with residency)", shTxt: "Up to 3 shareholders", note: "Setups without residency use the Start-up package. One residency uses the Business One package." },
+  f14: { sh: 3, shFee: 3000, act: { 0: 2, v: 3 }, actFee: 1500, actTxt: "2 activities (no residency) or 3 (with residency)", shTxt: "Up to 3 shareholders", note: "Companies without residency use the zone's entry-level package. One residency uses the Business One package." },
   f15: { act: 5, actTxt: "Any 5 activities", shTxt: "Limit confirmed by your advisor" },
   f18: { sh: 7, shFee: 1000, act: 5, actFee: 2200, actTxt: "Up to 5 activities", shTxt: "Up to 7 shareholders", years: [[2, 13770], [3, 20655]] },
   f19: { sh: 5, act: 5, actTxt: "5 activities, mix of trading, services and e-commerce", shTxt: "Up to 5 shareholders", years: [[2, 9350], [3, 13200]] },
@@ -417,7 +417,7 @@ export const PLANNER_ACTS: { v: ActKey; label: string; icon: string }[] = [
 export type Priority = "cost" | "dubai" | "sector";
 
 export const PRIORITIES: { v: Priority; label: string }[] = [
-  { v: "cost", label: "Lowest cost" },
+  { v: "cost", label: "Keeping costs down" },
   { v: "dubai", label: "Dubai address" },
   { v: "sector", label: "Specialist zone" },
 ];
@@ -459,8 +459,8 @@ export const FZ_FAQ_TOPICS: { c: FaqTopic | "all"; label: string }[] = [
 export const FZ_FAQS: { c: FaqTopic; q: string; a: string }[] = [
   {
     c: "cost",
-    q: "Which free zone costs the least to start?",
-    a: "Our current rate card shows starting packages from AED 4,898 (Ajman Nu Venture) and AED 5,500 (Umm Al Quwain). The lowest starting price is not always the lowest total, because office size, residency and renewal costs change the picture. We compare the estimated first-year cost and the expected renewal, so you see the difference between headline price and ongoing cost.",
+    q: "Which free zone costs the least?",
+    a: "Our current rate card shows packages from AED 4,898 (Ajman Nu Venture) and AED 5,500 (Umm Al Quwain). The smallest package price is not always the smallest total, because office size, residency and renewal costs change the picture. We compare the estimated first-year cost and the expected renewal, so you see the difference between headline price and ongoing cost.",
   },
   {
     c: "choose",
@@ -480,12 +480,12 @@ export const FZ_FAQS: { c: FaqTopic; q: string; a: string }[] = [
   {
     c: "choose",
     q: "Do I need a physical office?",
-    a: "Not for every setup. Every estimate we prepare includes a flexi-desk, but office requirements vary by zone, activity and package. The number of people who can hold residency is linked to office size, so we explain when an upgrade may be needed.",
+    a: "Not for every company. Every estimate we prepare includes a flexi-desk, but office requirements vary by zone, activity and package. The number of people who can hold residency is linked to office size, so we explain when an upgrade may be needed.",
   },
   {
     c: "choose",
     q: "Can I move to a different free zone later?",
-    a: "It is possible, but it usually means closing one company and setting up another. Choosing the right zone at the start avoids that cost.",
+    a: "It is possible, but it usually means closing one company and forming another. Choosing the right zone from the outset avoids that cost.",
   },
   {
     c: "cost",
@@ -495,6 +495,6 @@ export const FZ_FAQS: { c: FaqTopic; q: string; a: string }[] = [
   {
     c: "us",
     q: "Is Best Solution a government entity?",
-    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Licences and residency approvals are issued solely by the relevant UAE authorities.",
+    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Decisions on your company and residency are made solely by the relevant UAE authorities.",
   },
 ];

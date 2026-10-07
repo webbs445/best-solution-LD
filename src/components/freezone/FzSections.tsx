@@ -7,7 +7,7 @@ import { FzCount } from "./FzCount";
 /* The /freezone page's static sections. Server components: no client JavaScript. */
 
 const VS_ROWS: [string, string, string][] = [
-  ["Ownership", "100% foreign ownership", "100% foreign ownership for most activities"],
+  ["Ownership", "Full foreign ownership", "Full foreign ownership for most activities"],
   ["Where you trade", "Within the zone and internationally", "Anywhere in the UAE"],
   ["Corporate tax", "0% on qualifying income, subject to QFZP conditions. 9% on other income", "9% on profit above AED 375,000"],
   ["Office", "Flexi-desk in every estimate, office upgrades available", "Physical office with a tenancy contract"],
@@ -57,7 +57,7 @@ const BRIEF = [
     title: "Your estimated first-year cost",
     body: "Based on your zone, office and residency needs, with the expected renewal shown separately.",
   },
-  { title: "A document checklist", body: "Exactly what your chosen zone asks for." },
+  { title: "A paperwork checklist", body: "Exactly what your chosen zone asks for." },
   { title: "A realistic timeline", body: "Confirmed in writing, with clear responsibilities." },
 ];
 
@@ -104,10 +104,19 @@ const PHOTOS = [
 
 /* As the home page's WHY list, with this page's wording for the fees card. */
 const WHY_CARDS = WHY.map((w) =>
-  w.title === "Transparent fees"
+  w.title === "Fees in writing"
     ? { title: "Fees confirmed in writing", body: "Your costs are set out in writing before you proceed." }
     : w,
 );
+
+/*
+  Reviews kept off this page because their wording uses terms our Google Ads rules exclude (same as the
+  home page). The rest are repeated within the row so the loop fills wide screens; repeats are hidden
+  from screen readers.
+*/
+const FZ_EXCLUDED = ["Chandra Mohan", "Javed Khan", "Tanwir Chowdhury", "Carlos Freyre"];
+const FZ_REVIEWS = REVIEW_ROWS.flat().filter((r) => !FZ_EXCLUDED.includes(r.name));
+const FZ_REVIEW_LOOP = Array.from({ length: Math.max(1, Math.ceil(6 / FZ_REVIEWS.length)) }, () => FZ_REVIEWS).flat();
 
 export function FzWhyUs() {
   return (
@@ -121,7 +130,7 @@ export function FzWhyUs() {
             </p>
             <h2 id="wyTitle">One team for every stage of your business</h2>
             <p className="wy-lede">
-              Since {SITE.founded}, Best Solution has advised entrepreneurs and investors on establishing and operating businesses in
+              Since {SITE.founded}, Best Solution has advised entrepreneurs and investors on structuring and running businesses in
               the UAE.
             </p>
           </div>
@@ -229,21 +238,22 @@ export function FzReviews() {
           </a>
         </div>
       </div>
-      {REVIEW_ROWS.map((row, i) => (
-        <div key={i} className={`marquee t-marquee${i % 2 ? " reverse" : ""}`}>
-          <div className="marquee-track">
-            {[false, true].map((copy) => (
-              <ul key={String(copy)} className="t-row" aria-hidden={copy || undefined}>
-                {row.map((r) => (
-                  <li key={r.name}>
-                    <ReviewCard r={r} copy={copy} />
+      <div className="marquee t-marquee">
+        <div className="marquee-track">
+          {[false, true].map((copy) => (
+            <ul key={String(copy)} className="t-row" aria-hidden={copy || undefined}>
+              {FZ_REVIEW_LOOP.map((r, k) => {
+                const repeat = copy || k >= FZ_REVIEWS.length;
+                return (
+                  <li key={`${r.name}-${k}`} aria-hidden={!copy && repeat ? true : undefined}>
+                    <ReviewCard r={r} copy={repeat} />
                   </li>
-                ))}
-              </ul>
-            ))}
-          </div>
+                );
+              })}
+            </ul>
+          ))}
         </div>
-      ))}
+      </div>
     </section>
   );
 }
@@ -254,7 +264,7 @@ export function FzClosing() {
       <div className="wrap">
         <div className="fz-close-in">
           <div>
-            <h2 id="closeTitle">Start with the right free zone</h2>
+            <h2 id="closeTitle">Begin with the right free zone</h2>
             <p>Tell us about your business. We help you compare suitable zones and prepare an estimate.</p>
           </div>
           <div className="fz-close-cta">
@@ -264,7 +274,7 @@ export function FzClosing() {
             <CallbackTrigger className="fz-btn-ghost" location="FZ Closing — Request a Callback">
               Request a Callback
             </CallbackTrigger>
-            <p>Complimentary · No obligation · Reply within one business day</p>
+            <p>Complimentary · No obligation · We reply by phone, WhatsApp or email</p>
           </div>
         </div>
       </div>
@@ -281,7 +291,7 @@ export function FzMobileBar() {
         <b>See matching zones and cost</b>
       </div>
       <a className="btn btn-primary btn-sm" href="#planner" data-cta-location="FZ Mobile Bar — Start">
-        Start
+        Begin
       </a>
     </div>
   );

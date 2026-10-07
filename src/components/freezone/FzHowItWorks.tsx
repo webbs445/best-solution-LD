@@ -5,7 +5,7 @@ import { ArrowIcon } from "@/components/ui/Icons";
 
 const STEPS = [
   {
-    time: "About 2 minutes",
+    time: "A few questions",
     title: "Shortlist",
     body: "Use the planner to see which zones fit your activity, with an estimate of your first-year cost.",
     icon: (
@@ -30,7 +30,7 @@ const STEPS = [
   {
     time: "In writing",
     title: "Receive your plan",
-    body: "You get a detailed estimate, a document checklist and a realistic timeline, confirmed in writing.",
+    body: "You get a detailed estimate, a paperwork checklist and a realistic timeline, confirmed in writing.",
     icon: (
       <>
         <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
@@ -100,7 +100,7 @@ export function FzHowItWorks() {
             </i>
           </div>
           <a className="btn btn-primary" href="#planner" data-cta-location="FZ How It Works — Start Step 1">
-            Start Step 1 <ArrowIcon />
+            Begin with Step 1 <ArrowIcon />
           </a>
         </div>
         <ol className="hw-list" ref={list}>

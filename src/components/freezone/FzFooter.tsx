@@ -23,7 +23,7 @@ const SOCIAL_LINKS = [
 
 const CONTACTS = [
   { href: SITE.phone.href, icon: <PhoneIcon />, title: SITE.phone.display, note: SITE.hours.short },
-  { href: `mailto:${SITE.email}`, icon: <MailIcon />, title: SITE.email, note: "Reply within 24 hrs" },
+  { href: `mailto:${SITE.email}`, icon: <MailIcon />, title: SITE.email, note: "We reply by email" },
   { href: MAPS_URL, icon: <PinIcon />, title: "Business Bay, Dubai", note: "View on Google Maps", external: true },
 ];
 
@@ -72,7 +72,7 @@ export function FzFooter() {
               Consultants available
             </span>
             <h4>Free consultation</h4>
-            <p>Tell us your plans. An advisor calls you back within one business day.</p>
+            <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
             <CallbackButton className="btn btn-primary" defaultInterest="freezone" ctaLocation="FZ Footer — Book a Callback">
               Book a Callback <ArrowIcon />
             </CallbackButton>
@@ -97,7 +97,7 @@ export function FzFooter() {
               Best Solution&reg; is a private business consultancy based in Business Bay, Dubai, and is not affiliated with
               any government entity or free zone authority. All licences, permits and residency approvals are issued solely
               by the relevant UAE authorities. Free zone names and logos identify the zones we advise on and do not imply
-              affiliation. Prices are indicative starting costs from our current rate card, may change, and are
+              affiliation. Prices are indicative from-prices, based on our current rate card, may change, and are
               confirmed in writing by your advisor. 0% corporate tax applies only to qualifying income under Qualifying Free
               Zone Person (QFZP) conditions.
             </p>

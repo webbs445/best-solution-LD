@@ -29,7 +29,7 @@ const MIN_SENDING_MS = 900;
 const NEXT_STEPS = [
   "Your advisor reviews your selections",
   "They contact you on WhatsApp to confirm the details",
-  "Your written estimate arrives within 24 hours",
+  "Your advisor sends your written estimate",
 ];
 
 type Phase = { kind: "ready" } | { kind: "sending" } | { kind: "sent"; firstName: string } | { kind: "error"; text: string };
@@ -112,7 +112,8 @@ export const FzLeadForm = forwardRef<HTMLInputElement, FzLeadFormProps>(function
       if (res.status === 503) {
         setPhase({
           kind: "error",
-          text: "This form is not connected yet. Set ERPNEXT_URL, ERPNEXT_API_KEY and ERPNEXT_API_SECRET to start receiving enquiries.",
+          // The ERP is not configured (ERPNEXT_URL / ERPNEXT_API_KEY / ERPNEXT_API_SECRET).
+          text: `We could not send your details right now. Please call ${SITE.phone.display} or message us on WhatsApp.`,
         });
         return;
       }
@@ -143,7 +144,7 @@ export const FzLeadForm = forwardRef<HTMLInputElement, FzLeadFormProps>(function
     return (
       <LeadSuccess
         firstName={phase.firstName}
-        message="Your advisor will send your written estimate within 24 hours."
+        message="Your advisor will send your written estimate."
         summary={summary}
         steps={NEXT_STEPS}
         onDone={onDone}
