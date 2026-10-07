@@ -1,12 +1,13 @@
 "use client";
 
-import { forwardRef, useEffect, useRef, useState, type FormEvent } from "react";
+import { forwardRef, useRef, useState, type FormEvent } from "react";
 import { SITE } from "@/content/site";
-import { ArrowIcon, WhatsAppIcon } from "@/components/ui/Icons";
+import { ArrowIcon } from "@/components/ui/Icons";
+import { LeadSuccess } from "@/components/ui/LeadSuccess";
 import { genEventId, getClid, pushFormSubmit } from "@/lib/analytics";
 import { FZ_FORM_ID, LEAD_ERRORS, LEAD_RULES, type LeadField } from "@/lib/lead";
 import type { PlannerInput } from "@/lib/freezone";
-import styles from "./FzLeadForm.module.css";
+import styles from "@/components/ui/LeadForm.module.css";
 
 /*
   "Request this estimate in writing": the main site's lead flow (same rules, honeypot, event id and
@@ -54,13 +55,7 @@ export const FzLeadForm = forwardRef<HTMLInputElement, FzLeadFormProps>(function
   const [phase, setPhase] = useState<Phase>({ kind: "ready" });
   const inputs = useRef<Partial<Record<LeadField, HTMLInputElement | null>>>({});
   const honeypot = useRef<HTMLInputElement>(null);
-  const successHeading = useRef<HTMLHeadingElement>(null);
   const sending = phase.kind === "sending";
-
-  // Move focus to the success message so screen readers and keyboard users land on it.
-  useEffect(() => {
-    if (phase.kind === "sent") successHeading.current?.focus();
-  }, [phase.kind]);
 
   const setValue = (name: LeadField, value: string) => {
     setValues((v) => ({ ...v, [name]: value }));
@@ -146,45 +141,13 @@ export const FzLeadForm = forwardRef<HTMLInputElement, FzLeadFormProps>(function
 
   if (phase.kind === "sent") {
     return (
-      <div className={styles.success}>
-        <div className={styles.badge} aria-hidden="true">
-          <span className={styles.ring} />
-          {Array.from({ length: 8 }, (_, i) => (
-            <i key={i} className={styles.spark} style={{ ["--a" as string]: `${i * 45}deg` }} />
-          ))}
-          <svg viewBox="0 0 52 52">
-            <circle className={styles.circle} cx="26" cy="26" r="24" />
-            <path className={styles.tick} d="M15 27.5l7 7 15-16" />
-          </svg>
-        </div>
-        <h3 ref={successHeading} tabIndex={-1} className={styles.title}>
-          Request received
-        </h3>
-        <p className={styles.lede} role="status">
-          Thank you{phase.firstName ? `, ${phase.firstName}` : ""}. Your advisor will send your written estimate within 24
-          hours.
-        </p>
-        {summary && <p className={styles.chip}>{summary}</p>}
-        <ol className={styles.steps}>
-          {NEXT_STEPS.map((s, i) => (
-            <li key={s} style={{ ["--i" as string]: i }}>
-              <b>{i + 1}</b>
-              <span>{s}</span>
-            </li>
-          ))}
-        </ol>
-        <div className={styles.actions}>
-          {onDone && (
-            <button type="button" className="btn btn-primary" onClick={onDone}>
-              Done
-            </button>
-          )}
-          <a className={styles.wa} href={SITE.whatsapp} target="_blank" rel="noopener">
-            <WhatsAppIcon />
-            Chat on WhatsApp now
-          </a>
-        </div>
-      </div>
+      <LeadSuccess
+        firstName={phase.firstName}
+        message="Your advisor will send your written estimate within 24 hours."
+        summary={summary}
+        steps={NEXT_STEPS}
+        onDone={onDone}
+      />
     );
   }
 

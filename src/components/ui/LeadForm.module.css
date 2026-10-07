@@ -1,4 +1,5 @@
-/* Lead form states: sending (spinner, light sweep, progress line, locked fields), error, and the success card. */
+/* Lead form states (used by the /freezone forms): sending (spinner, light sweep, progress line,
+   locked fields), error, and the success card (LeadSuccess). */
 
 .form {
   position: relative;
@@ -216,7 +217,7 @@
 }
 
 /* Animated check: the circle draws, then the tick, then sparks burst outward. */
-.badge {
+.success .badge {
   position: relative;
   width: 84px;
   height: 84px;
@@ -281,7 +282,7 @@
   }
 }
 
-.spark {
+.success .spark {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -368,7 +369,7 @@
   margin: 0;
 }
 
-.wa {
+.success .wa {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -383,12 +384,12 @@
   transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
-.wa:hover {
+.success .wa:hover {
   border-color: #25d366;
   transform: translateY(-1px);
 }
 
-.wa svg {
+.success .wa svg {
   width: 18px;
   height: 18px;
   color: #25d366;
