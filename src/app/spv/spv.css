@@ -284,19 +284,18 @@
 }
 @media (max-width:720px){
   .spv-page .tw-pin{height:400vh}
-  /* Phones: diagram + text sit low (the bottom bar is hidden while the tower is on screen; spare height
-     goes above the diagram, where the later layers stack up), with a clear gap under the diagram (its
-     shadow draws below the SVG box).
+  /* Phones: diagram + text centred on screen (the bottom bar is hidden while the tower is on screen), so
+     spare height is shared above the diagram and below the text, with a clear gap under the diagram (its
+     shadow draws below the SVG box). No "01 / 04" counter here: the dots under the text show the step.
      The diagram never exceeds the column, so its right-hand labels stay on screen, and it shrinks on
      short screens so the text always fits. */
-  .spv-page .tw-in{align-items:flex-end;padding:64px 0 40px}
-  .spv-page .tw-g{padding-top:0;gap:44px}
-  .spv-page .tw-vis{margin:0 auto;width:min(100%,calc((100vh - 495px) * 1.256))}
-  @supports (height:100svh){.spv-page .tw-vis{width:min(100%,calc((100svh - 495px) * 1.256))}}
+  .spv-page .tw-in{align-items:center;padding:56px 0 32px}
+  .spv-page .tw-g{padding-top:0;gap:40px}
+  .spv-page .tw-vis{margin:0 auto;width:min(100%,calc((100vh - 470px) * 1.256))}
+  @supports (height:100svh){.spv-page .tw-vis{width:min(100%,calc((100svh - 470px) * 1.256))}}
   .spv-page .tw-glow{width:280px;height:280px}
-  .spv-page .tw-meta{margin-top:0}
-  .spv-page .tw-meta span{font-size:36px}
-  .spv-page .tw-cards{margin-top:10px}
+  .spv-page .tw-meta{display:none}
+  .spv-page .tw-cards{margin-top:0}
   .spv-page .tw-c h3{font-size:24px}
   .spv-page .tw-c p{font-size:15px}
   .spv-page .tw-c ul,.spv-page .tw-c .jr{margin-top:10px}
