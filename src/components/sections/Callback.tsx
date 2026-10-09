@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
 import { SITE } from "@/content/site";
-import { genEventId, jurisdictionLabel, pushFormSubmit } from "@/lib/analytics";
+import { genEventId, jurisdictionLabel, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { ArrowIcon } from "@/components/ui/Icons";
 import styles from "./Callback.module.css";
@@ -111,6 +111,12 @@ export function CallbackButton({
         firstName,
         lastName: rest.join(" "),
         eventId,
+      });
+      pushGenerateLead({
+        formId: CALLBACK_FORM_ID,
+        service: interest === "not_sure" ? "not_sure" : jurisdictionLabel(interest),
+        email,
+        phone,
       });
     } catch {
       setStatus({

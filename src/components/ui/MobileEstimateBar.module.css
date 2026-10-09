@@ -1,0 +1,54 @@
+.bar {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--rule);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 -10px 30px rgba(20, 37, 62, 0.08);
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .hidden {
+    transform: translateY(110%);
+  }
+
+  .go {
+    flex: 1;
+    min-height: 50px;
+  }
+
+  .wa {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: #1f8a5b;
+    color: #fff;
+  }
+
+  .wa svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

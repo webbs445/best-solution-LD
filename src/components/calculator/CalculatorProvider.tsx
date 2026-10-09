@@ -2,7 +2,14 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
 import { estimate, stepOrder, type Answers, type Estimate, type JurisdictionChoice, type StepId } from "@/lib/pricing";
-import { jurisdictionLabel, trackCalculatorComplete, trackCalculatorStart, trackCalculatorStep, trackJurisdictionInterest } from "@/lib/analytics";
+import {
+  jurisdictionLabel,
+  trackCalculatorComplete,
+  trackCalculatorResultView,
+  trackCalculatorStart,
+  trackCalculatorStep,
+  trackJurisdictionInterest,
+} from "@/lib/analytics";
 import { FORM_ID } from "@/lib/lead";
 
 interface State {
@@ -21,11 +28,13 @@ type Action =
   | { type: "answer"; id: StepId; value: Answers[StepId] }
   | { type: "goto"; id: StepId }
   | { type: "emirate"; emirate: string }
-  | { type: "useJurisdiction"; jurisdiction: JurisdictionChoice };
+  | { type: "useJurisdiction"; jurisdiction: JurisdictionChoice }
+  /** Bank account help, toggled on the result: updates the estimate without leaving it. */
+  | { type: "bank"; on: boolean };
 
 const initialState: State = {
   answers: {},
-  stepId: "profile",
+  stepId: "jurisdiction",
   view: "quiz",
   emirate: "All",
   navKey: 0,
@@ -70,6 +79,8 @@ function reducer(state: State, action: Action): State {
     }
     case "emirate":
       return { ...state, emirate: action.emirate };
+    case "bank":
+      return { ...state, answers: { ...state.answers, bank: action.on ? "yes" : "no" } };
   }
 }
 
@@ -80,6 +91,7 @@ interface CalculatorContextValue {
   answer: (id: StepId, value: Answers[StepId]) => void;
   goTo: (id: StepId) => void;
   setEmirate: (emirate: string) => void;
+  setBank: (on: boolean) => void;
   /** Answers the jurisdiction question from elsewhere on the page and moves the calculator on. */
   startWithJurisdiction: (j: JurisdictionChoice, source?: string) => void;
 }
@@ -110,6 +122,10 @@ export function CalculatorProvider({ children }: { children: ReactNode }) {
 
   const goTo = useCallback((id: StepId) => dispatch({ type: "goto", id }), []);
   const setEmirate = useCallback((emirate: string) => dispatch({ type: "emirate", emirate }), []);
+  const setBank = useCallback((on: boolean) => {
+    trackCalculatorStep(FORM_ID, "bank", on ? "yes" : "no");
+    dispatch({ type: "bank", on });
+  }, []);
 
   // Entry from the hero quick check or the jurisdictions panel: an "establish" intent signal, then the
   // jurisdiction step answered on the visitor's behalf.
@@ -126,6 +142,8 @@ export function CalculatorProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!result || state.resultKey === 0) return;
+    // The estimate is on screen: once per page view (deduplicated in lib/analytics).
+    trackCalculatorResultView(FORM_ID, { jurisdiction: jurisdictionLabel(state.answers.jurisdiction), estimatedCost: result.total });
     trackCalculatorComplete({
       calculatorId: FORM_ID,
       jurisdiction: jurisdictionLabel(state.answers.jurisdiction),
@@ -137,8 +155,8 @@ export function CalculatorProvider({ children }: { children: ReactNode }) {
   }, [state.resultKey]);
 
   const value = useMemo(
-    () => ({ state, order, result, answer, goTo, setEmirate, startWithJurisdiction }),
-    [state, order, result, answer, goTo, setEmirate, startWithJurisdiction],
+    () => ({ state, order, result, answer, goTo, setEmirate, setBank, startWithJurisdiction }),
+    [state, order, result, answer, goTo, setEmirate, setBank, startWithJurisdiction],
   );
 
   return <CalculatorContext.Provider value={value}>{children}</CalculatorContext.Provider>;

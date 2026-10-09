@@ -33,7 +33,9 @@ export interface LeadInput {
   details?: [string, string][];
 }
 
-export type LeadResult = { ok: true; name?: string } | { ok: false; reason: "not_configured" | "upstream_failed" | "upstream_unreachable" };
+export type LeadResult =
+  | { ok: true; name?: string }
+  | { ok: false; reason: "not_configured" | "upstream_failed" | "upstream_unreachable"; status?: number };
 
 /* Values that must match the ERP's Select options and Link records exactly. */
 const SERVICE_ENQUIRED = "Business Setup";
@@ -129,6 +131,46 @@ function toLead(input: LeadInput) {
     custom_form_name: input.form_name ?? FORM_NAME,
     custom_button_name: input.button_name ?? BUTTON_NAME,
   };
+}
+
+/** The fields that describe the latest estimate, for refreshing an existing lead (same number again in one visit). */
+export function leadEstimateFields(input: LeadInput) {
+  const l = toLead(input);
+  return {
+    custom_client_profile_and_requirement: l.custom_client_profile_and_requirement,
+    custom_remarks: l.custom_remarks,
+    custom_form_name: l.custom_form_name,
+    custom_button_name: l.custom_button_name,
+  };
+}
+
+function erpConfig() {
+  const base = process.env.ERPNEXT_URL?.replace(/\/+$/, "");
+  const key = process.env.ERPNEXT_API_KEY;
+  const secret = process.env.ERPNEXT_API_SECRET;
+  return base && key && secret ? { base, auth: `token ${key}:${secret}` } : null;
+}
+
+/** Updates fields on an existing lead (PUT /api/resource/Lead/<name>). */
+export async function updateErpLead(name: string, fields: Record<string, unknown>): Promise<LeadResult> {
+  const cfg = erpConfig();
+  if (!cfg) return { ok: false, reason: "not_configured" };
+  try {
+    const res = await fetch(`${cfg.base}/api/resource/Lead/${encodeURIComponent(name)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: cfg.auth },
+      body: JSON.stringify(fields),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) {
+      console.error(`ERPNext lead update failed: ${res.status}`, (await res.text()).slice(0, 1000));
+      return { ok: false, reason: "upstream_failed" };
+    }
+    return { ok: true, name };
+  } catch (err) {
+    console.error("ERPNext unreachable", err);
+    return { ok: false, reason: "upstream_unreachable" };
+  }
 }
 
 export async function createErpLead(input: LeadInput): Promise<LeadResult> {

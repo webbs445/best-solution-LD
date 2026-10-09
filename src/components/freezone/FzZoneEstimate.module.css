@@ -103,7 +103,7 @@
 
 /* People + total in one navy panel. */
 .summary {
-  margin-top: 18px;
+  margin: 18px 0 20px;
   border-radius: 16px;
   background: var(--navy-deep);
   color: var(--on-navy);

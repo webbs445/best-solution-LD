@@ -164,3 +164,44 @@ describe("consent and click ids", () => {
     expect(analytics.getClickIds()).toEqual({ gclid: "abc123", fbclid: "fb9", li_fat_id: "" });
   });
 });
+
+describe("lead standard events", () => {
+  it("pushes generate_lead with value, AED, E.164 phone and lowercase email, then clears the PII", async () => {
+    const { analytics } = await load();
+    analytics.pushGenerateLead({ formId: "LP Callback", service: "free_zone", email: "  Layla@Example.COM ", phone: "050 123 4567" });
+    analytics.trackContentView("/");
+    const lead = dataLayer.find((e) => e.event === "generate_lead") as Record<string, unknown>;
+    expect(lead).toMatchObject({
+      form_id: "LP Callback",
+      lead_type: "form",
+      page: "/",
+      service: "free_zone",
+      value: 100,
+      currency: "AED",
+      user_data: { email: "layla@example.com", phone_number: "+971501234567" },
+    });
+    const i = dataLayer.indexOf(lead);
+    expect(dataLayer[i + 1]).toEqual({ user_data: null, form_data: null });
+  });
+
+  it("sends calculator_step once per step and calculator_result_view once per page view", async () => {
+    const { analytics } = await load();
+    analytics.trackCalculatorStep("LP Cost Calculator", "jurisdiction", "mainland");
+    analytics.trackCalculatorStep("LP Cost Calculator", "jurisdiction", "free_zone");
+    analytics.trackCalculatorStep("LP Cost Calculator", "residency", "1");
+    analytics.trackCalculatorResultView("LP Cost Calculator", { estimatedCost: 24000 });
+    analytics.trackCalculatorResultView("LP Cost Calculator", { estimatedCost: 27000 });
+    expect(dataLayer.filter((e) => e.event === "calculator_step")).toHaveLength(2);
+    expect(dataLayer.filter((e) => e.event === "calculator_result_view")).toHaveLength(1);
+  });
+
+  it("adds cta_location and the agreed values to contact clicks", async () => {
+    const { analytics } = await load();
+    analytics.trackWhatsappClick("Calculator Result");
+    analytics.trackPhoneClick("+97145531546", "Header");
+    analytics.trackEmailClick("connect@best-solution.ae", "Footer");
+    expect(dataLayer.find((e) => e.event === "whatsapp_click")).toMatchObject({ cta_location: "Calculator Result", value: 70, currency: "AED" });
+    expect(dataLayer.find((e) => e.event === "phone_click")).toMatchObject({ cta_location: "Header", value: 70 });
+    expect(dataLayer.find((e) => e.event === "email_click")).toMatchObject({ cta_location: "Footer", value: 40 });
+  });
+});

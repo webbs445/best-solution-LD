@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { FAQS } from "@/content/site";
 import { Header } from "@/components/header/Header";
-import { Hero } from "@/components/hero/Hero";
+import { Hero, HeroCardAfterCalculator } from "@/components/hero/Hero";
 import { CalculatorProvider } from "@/components/calculator/CalculatorProvider";
 import { CalculatorSection } from "@/components/calculator/CalculatorSection";
-import { MobileBar } from "@/components/calculator/MobileBar";
+import { MobileEstimateBar } from "@/components/ui/MobileEstimateBar";
 import { Partners } from "@/components/sections/Partners";
 import { Consultation } from "@/components/sections/Consultation";
 import { WhyUs } from "@/components/sections/WhyUs";
@@ -46,6 +46,7 @@ export default function Home() {
       <main id="top">
         <Hero />
         <CalculatorSection />
+        <HeroCardAfterCalculator />
         <Partners />
         <Consultation />
         <WhyUs />
@@ -56,7 +57,7 @@ export default function Home() {
         <Closing />
       </main>
       <Footer />
-      <MobileBar />
+      <MobileEstimateBar targetId="calculator" location="LP Mobile Bar — Get My Estimate" />
       <RevealObserver />
       <SectionDeepLink />
     </CalculatorProvider>

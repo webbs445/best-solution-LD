@@ -6,8 +6,12 @@ import { MAX_ACTIVITIES, MAX_SHAREHOLDERS, maxPack, maxResidents, type Match } f
 import { formatAED } from "@/lib/pricing";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 import { ArrowIcon } from "@/components/ui/Icons";
-import { FzLeadForm } from "./FzLeadForm";
+import { LockedFigure, useEstimateUnlocked } from "@/components/ui/LockedFigure";
+import { FZ_FORM_ID } from "@/lib/lead";
+import { trackCalculatorResultView } from "@/lib/analytics";
 import { usePlanner } from "./PlannerProvider";
+import { ZoneLogo } from "./ZoneLogo";
+import { FzZoneEstimate } from "./FzZoneEstimate";
 
 const COLORS = ["#cc8667", "#e8b79f", "#8aa0c2", "#dfe5ef", "#5d7aa3", "#f3d2c1"];
 const RING = 2 * Math.PI * 48;
@@ -62,20 +66,23 @@ function MatchBar({ pct, rank }: { pct: number; rank: number }) {
   );
 }
 
-function Matches({ matches, selected, onPick }: { matches: Match[]; selected: string; onPick: (id: string) => void }) {
+function Matches({ matches, selected, onPick, unlocked }: { matches: Match[]; selected: string; onPick: (id: string) => void; unlocked: boolean }) {
   return (
     <ol className="pl-matches" aria-live="polite">
       {matches.map((m, i) => (
         <li key={`${m.zone.id}-${m.pct}-${m.total}`}>
           <button type="button" aria-pressed={m.zone.id === selected} onClick={() => onPick(m.zone.id)}>
             <div className="pm-top">
+              <ZoneLogo zone={m.zone} size="zl-sug" alt={false} />
               <b>{m.zone.name}</b>
               <span className="pm-pct">{m.pct}% match</span>
             </div>
             <MatchBar pct={m.pct} rank={i} />
             <div className="pm-foot">
               <span>{m.zone.d}</span>
-              <strong>AED {formatAED(m.total)}</strong>
+              <strong>
+                <LockedFigure text={`AED ${formatAED(m.total)}`} unlocked={unlocked} />
+              </strong>
             </div>
           </button>
         </li>
@@ -149,18 +156,18 @@ function useEasedTotal(total: number) {
 }
 
 export function FzPlanner() {
-  const { state, matches, estimate, toggleAct, setPriority, step, chooseZone, setBank, complete } = usePlanner();
+  const { state, matches, estimate, toggleAct, setPriority, step, chooseZone, setBank } = usePlanner();
   const [showAll, setShowAll] = useState(false);
-  const [drawer, setDrawer] = useState(false);
+  const [popup, setPopup] = useState(0);
   const select = useRef<HTMLSelectElement>(null);
-  const drawerRef = useRef<HTMLDivElement>(null);
-  const nameInput = useRef<HTMLInputElement>(null);
 
   const zone = ZONE_BY_ID[state.zone];
   const mx = maxResidents(zone);
   const pack = maxPack(zone) !== null;
   const pk = PK[state.zone];
   const shown = useEasedTotal(estimate.total);
+  // Figures stay blurred until the visitor sends their details (in the planner's popup or a zone popup).
+  const unlocked = useEstimateUnlocked();
 
   // Colour each priced line; text-only lines get a faint marker.
   const values: number[] = [];
@@ -178,13 +185,35 @@ export function FzPlanner() {
     requestAnimationFrame(() => select.current?.focus());
   };
 
-  const openDrawer = () => {
-    setDrawer(true);
-    complete();
-    requestAnimationFrame(() => {
-      drawerRef.current?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
-      window.setTimeout(() => nameInput.current?.focus({ preventScroll: true }), 400);
-    });
+  // The live estimate panel coming on screen counts as the estimate being shown (once per page view).
+  const receipt = useRef<HTMLDivElement>(null);
+  const estRef = useRef(estimate.total);
+  useEffect(() => {
+    estRef.current = estimate.total;
+  }, [estimate.total]);
+  useEffect(() => {
+    const el = receipt.current;
+    if (!el || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        trackCalculatorResultView(FZ_FORM_ID, { jurisdiction: "free_zone", estimatedCost: estRef.current });
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  // Each opening mounts a fresh popup (its key), so a closed one never keeps old input.
+  const openPopup = () => setPopup((n) => n + 1);
+  const closePopup = () => {
+    setPopup(0);
+    // Back on the planner after sending: bring the cost panel into view, where the figures are now revealed.
+    if (unlocked) {
+      receipt.current?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
+    }
   };
 
   return (
@@ -283,7 +312,7 @@ export function FzPlanner() {
             <p className="pl-q">
               {state.acts.length ? `Ranked for ${state.acts.map((a) => ACT_LABEL[a]).join(", ")}` : "Pick an activity to rank zones"}
             </p>
-            <Matches matches={matches} selected={state.zone} onPick={(id) => chooseZone(id, "match")} />
+            <Matches matches={matches} selected={state.zone} onPick={(id) => chooseZone(id, "match")} unlocked={unlocked} />
             {!showAll && (
               <button type="button" className="pl-all" onClick={openAll}>
                 Choose any of the 28 zones
@@ -308,7 +337,7 @@ export function FzPlanner() {
           </div>
 
           {/* C. Cost */}
-          <div className="pl-panel pl-c fz-receipt">
+          <div className="pl-panel pl-c fz-receipt" ref={receipt}>
             <div className="pl-step pl-step-light">
               <span>3</span>Estimated first-year cost
             </div>
@@ -316,15 +345,18 @@ export function FzPlanner() {
               <Donut values={values} />
               <div className="pl-total">
                 <small>AED</small>
-                <b>{formatAED(shown)}</b>
+                <b>
+                  <LockedFigure text={formatAED(shown)} unlocked={unlocked} />
+                </b>
                 <span>{zone.name}</span>
+                {!unlocked && <em className="pl-lock">Unlocks when you send your details</em>}
               </div>
             </div>
             <ol className="fzr-lines">
               {lines.map((l, i) => (
                 <li key={i} style={{ "--c": l.c } as CSSProperties}>
                   <span>{l.label}</span>
-                  <b>{l.amount != null ? `AED ${formatAED(l.amount)}` : l.text}</b>
+                  <b>{l.amount != null ? <LockedFigure text={`AED ${formatAED(l.amount)}`} unlocked={unlocked} /> : l.text}</b>
                 </li>
               ))}
             </ol>
@@ -337,7 +369,9 @@ export function FzPlanner() {
             </div>
             <div className="fzr-renew">
               <span>Estimated year-two renewal</span>
-              <b>AED {formatAED(estimate.renewal)}</b>
+              <b>
+                <LockedFigure text={`AED ${formatAED(estimate.renewal)}`} unlocked={unlocked} />
+              </b>
             </div>
             <details className="pl-incl-box">
               <summary>What does this estimate include?</summary>
@@ -367,7 +401,7 @@ export function FzPlanner() {
                 </div>
               </div>
             </details>
-            <button type="button" className="btn btn-primary btn-block" onClick={openDrawer} data-cta-location="FZ Planner — Get My Estimate in Writing">
+            <button type="button" className="btn btn-primary btn-block" onClick={openPopup} data-cta-location="FZ Planner — Get My Estimate in Writing">
               Get My Estimate in Writing <ArrowIcon />
             </button>
             <p className="fzr-note">
@@ -377,24 +411,8 @@ export function FzPlanner() {
           </div>
         </div>
 
-        {/* Lead form drawer */}
-        <div className="pl-drawer" id="plDrawer" hidden={!drawer} ref={drawerRef}>
-          <div className="pl-drawer-in">
-            <div className="pl-drawer-copy">
-              <h3>Request this estimate in writing</h3>
-              <p>
-                {zone.name}, {state.res}
-                {state.res === 1 ? " person" : " people"} with residency, {state.sh} shareholder{state.sh > 1 ? "s" : ""},{" "}
-                {state.na} activit{state.na > 1 ? "ies" : "y"}, estimated first-year cost AED {formatAED(estimate.total)}.
-              </p>
-            </div>
-            <FzLeadForm
-              ref={nameInput}
-              planner={state}
-              summary={`${zone.name} · ${state.res} ${state.res === 1 ? "person" : "people"} with residency · AED ${formatAED(estimate.total)}`}
-            />
-          </div>
-        </div>
+        {/* "Get My Estimate in Writing": the details popup (name, WhatsApp, email); it closes itself once sent. */}
+        <FzZoneEstimate key={popup} zoneId={popup ? state.zone : null} onClose={closePopup} fromPlanner />
       </div>
     </section>
   );

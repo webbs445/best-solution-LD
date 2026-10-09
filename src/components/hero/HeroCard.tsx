@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { SITE } from "@/content/site";
 import { cheapest, DATA, formatAED, type Jurisdiction } from "@/lib/pricing";
 import { jurisdictionLabel, trackJurisdictionInterest } from "@/lib/analytics";
@@ -68,6 +68,7 @@ const OPTIONS: { key: Answer; label: string; icon: ReactNode; j: Jurisdiction; n
 
 function QuickCheck() {
   const { startWithJurisdiction } = useCalculator();
+  const qid = useId();
   const [picked, setPicked] = useState<(typeof OPTIONS)[number] | null>(null);
 
   const choose = (o: (typeof OPTIONS)[number]) => {
@@ -94,10 +95,10 @@ function QuickCheck() {
         </span>
         <span className={styles.chip}>1 question</span>
       </div>
-      <p className={styles.q} id="qc-question">
+      <p className={styles.q} id={qid}>
         How will your company operate?
       </p>
-      <div className={styles.opts} role="group" aria-labelledby="qc-question">
+      <div className={styles.opts} role="group" aria-labelledby={qid}>
         {OPTIONS.map((o) => (
           <button
             key={o.key}

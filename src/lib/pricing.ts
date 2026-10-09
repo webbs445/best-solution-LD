@@ -151,17 +151,49 @@ export function maxResidents(a: Answers): number {
   return Math.max(...Object.keys(p.opt.exact).map(Number));
 }
 
-/* Which questions apply to this visitor. */
+/*
+  Which questions apply to this visitor: only what changes the estimate (2 to 4 questions). Bank account
+  help is a toggle on the result, and "what describes you" is asked after the WhatsApp number step.
+*/
 export function stepOrder(a: Answers): StepId[] {
   const j = a.jurisdiction;
-  const order: StepId[] = ["profile", "jurisdiction"];
+  const order: StepId[] = ["jurisdiction"];
   if (j !== "undecided") order.push("option");
   if (j !== "offshore") {
     order.push("residency");
     if (!usesPackage(a)) order.push("workspace");
   }
-  order.push("bank");
   return order;
+}
+
+/**
+ * Live estimate range while the questions are answered: the lowest and highest first-year figure the
+ * remaining answers allow (no residency and no workspace, up to 2 people with residency and a flexi-desk).
+ * Narrows to a single figure once every question is answered.
+ */
+export function estimateRange(a: Answers): { low: number; high: number } | null {
+  const js: JurisdictionChoice[] = a.jurisdiction ? [a.jurisdiction] : ["mainland", "freezone", "offshore"];
+  let low = Infinity;
+  let high = 0;
+  for (const j of js) {
+    const options: (string | undefined)[] =
+      j === "undecided" ? [undefined] : a.jurisdiction && a.option !== undefined ? [a.option] : DATA[j].map((o) => o.id);
+    for (const option of options) {
+      for (const [res, ws] of [
+        [0, "none"],
+        [2, "flexi"],
+      ] as const) {
+        try {
+          const t = estimate({ ...a, jurisdiction: j, option, residency: a.residency ?? res, workspace: a.workspace ?? ws }).total;
+          low = Math.min(low, t);
+          high = Math.max(high, t);
+        } catch {
+          // Not enough answers for this combination; skip it.
+        }
+      }
+    }
+  }
+  return Number.isFinite(low) ? { low, high } : null;
 }
 
 /* Pure estimate function: answers in, itemised first-year figure out. */

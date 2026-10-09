@@ -13,7 +13,13 @@ import {
 } from "@/lib/freezone";
 import type { Estimate } from "@/lib/pricing";
 import { FZ_FORM_ID } from "@/lib/lead";
-import { trackCalculatorComplete, trackCalculatorStart, trackCalculatorStep, trackJurisdictionInterest } from "@/lib/analytics";
+import {
+  trackCalculatorComplete,
+  trackCalculatorResultView,
+  trackCalculatorStart,
+  trackCalculatorStep,
+  trackJurisdictionInterest,
+} from "@/lib/analytics";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 
 /*
@@ -167,6 +173,8 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
     const key = `${i.zone}|${e.total}`;
     if (completed.current === key) return;
     if (!completed.current) trackJurisdictionInterest("free_zone", "establish", { source });
+    // The estimate is on screen: once per page view (deduplicated in lib/analytics).
+    trackCalculatorResultView(FZ_FORM_ID, { jurisdiction: "free_zone", estimatedCost: e.total });
     completed.current = key;
     trackCalculatorComplete({
       calculatorId: FZ_FORM_ID,

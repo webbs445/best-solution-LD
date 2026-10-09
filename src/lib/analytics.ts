@@ -15,6 +15,7 @@
 */
 
 import { readConsent } from "./consent";
+import { LEAD_CURRENCY, LEAD_VALUES } from "./leadValues";
 
 declare global {
   interface Window {
@@ -243,7 +244,13 @@ export function trackCalculatorStart(calculatorId: string): void {
   pushEvent("calculator_start", { calculator_data: { calculator_id: calculatorId }, ...pageData() });
 }
 
+/** Steps already reported this page view, so each step is sent once (not on every change or revisit). */
+const stepsSent = new Set<string>();
+
 export function trackCalculatorStep(calculatorId: string, stepName: string, stepValue: string): void {
+  const key = `${calculatorId}|${stepName}`;
+  if (stepsSent.has(key)) return;
+  stepsSent.add(key);
   pushEvent("calculator_step", {
     calculator_data: { calculator_id: calculatorId, step_name: stepName, step_value: stepValue },
     ...pageData(),
@@ -270,6 +277,46 @@ export function trackCalculatorComplete(args: {
     },
     ...pageData(),
   });
+}
+
+/** Calculators whose estimate has been shown this page view. */
+const resultsViewed = new Set<string>();
+
+/** The estimate is on screen: once per calculator per page view. */
+export function trackCalculatorResultView(calculatorId: string, args: { jurisdiction?: string; estimatedCost?: number } = {}): void {
+  if (resultsViewed.has(calculatorId)) return;
+  resultsViewed.add(calculatorId);
+  pushEvent("calculator_result_view", {
+    calculator_data: {
+      calculator_id: calculatorId,
+      jurisdiction: args.jurisdiction || undefined,
+      estimated_cost: args.estimatedCost ?? undefined,
+      currency: LEAD_CURRENCY,
+    },
+    ...pageData(),
+  });
+}
+
+/* ─── Lead standard ─── */
+
+/**
+ * generate_lead: the one lead event for Google Ads, pushed exactly once per lead, only after the API has
+ * confirmed the lead was saved (alongside the existing form_submit). Email is trimmed and lowercased, the
+ * phone normalised to E.164; nothing is hashed here (GTM does that). PII is cleared before the next event.
+ */
+export function pushGenerateLead(args: { formId: string; service?: string; email?: string; phone?: string }): void {
+  const email = args.email?.trim().toLowerCase() || undefined;
+  const phone = args.phone ? toE164(args.phone) || undefined : undefined;
+  pushEvent("generate_lead", {
+    form_id: args.formId,
+    lead_type: "form",
+    page: canonicalPath(pagePath()),
+    service: args.service || undefined,
+    value: LEAD_VALUES.form,
+    currency: LEAD_CURRENCY,
+    user_data: { email, phone_number: phone },
+  });
+  conversionPending = true;
 }
 
 /* ─── Intent ─── */
@@ -322,16 +369,28 @@ export function trackFormAbandon(formId: string): void {
 
 /* ─── Contact and outbound clicks ─── */
 
-export function trackPhoneClick(phoneNumber: string): void {
-  pushEvent("phone_click", { phone_number: phoneNumber, ...pageData() });
+export function trackPhoneClick(phoneNumber: string, ctaLocation = ""): void {
+  pushEvent("phone_click", {
+    phone_number: phoneNumber,
+    cta_location: ctaLocation || undefined,
+    value: LEAD_VALUES.phone,
+    currency: LEAD_CURRENCY,
+    ...pageData(),
+  });
 }
 
-export function trackWhatsappClick(): void {
-  pushEvent("whatsapp_click", { ...pageData() });
+export function trackWhatsappClick(ctaLocation = ""): void {
+  pushEvent("whatsapp_click", { cta_location: ctaLocation || undefined, value: LEAD_VALUES.whatsapp, currency: LEAD_CURRENCY, ...pageData() });
 }
 
-export function trackEmailClick(email: string): void {
-  pushEvent("email_click", { email_address: email, ...pageData() });
+export function trackEmailClick(email: string, ctaLocation = ""): void {
+  pushEvent("email_click", {
+    email_address: email,
+    cta_location: ctaLocation || undefined,
+    value: LEAD_VALUES.email,
+    currency: LEAD_CURRENCY,
+    ...pageData(),
+  });
 }
 
 export function trackMapClick(url = ""): void {

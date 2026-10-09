@@ -12,7 +12,8 @@ import { FzHowItWorks } from "./FzHowItWorks";
 import { FzFaq } from "./FzFaq";
 import { FzFooter } from "./FzFooter";
 import { FzSitelink } from "./FzSitelink";
-import { FzClosing, FzConsultation, FzMobileBar, FzReviews, FzVsMainland, FzWhyUs } from "./FzSections";
+import { FzClosing, FzConsultation, FzReviews, FzVsMainland, FzWhyUs } from "./FzSections";
+import { MobileEstimateBar } from "@/components/ui/MobileEstimateBar";
 import "@/app/freezone/freezone.css";
 
 const TITLE = "UAE Free Zone Costs & Comparison | Best Solution";
@@ -72,7 +73,7 @@ export function FreeZoneLanding({ view }: { view?: string }) {
           <FzClosing />
         </main>
         <FzFooter />
-        <FzMobileBar />
+        <MobileEstimateBar targetId="planner" location="FZ Mobile Bar — Get My Estimate" />
         {view && <FzSitelink view={view} />}
       </PlannerProvider>
     </div>
