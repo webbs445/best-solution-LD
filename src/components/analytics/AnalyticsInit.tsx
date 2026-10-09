@@ -28,6 +28,22 @@ import {
   - form_start / form_abandon for every <form>, using its data-track value as form_id;
   - engaged_time_on_topic (30/45/60/120 s of active time) and scroll_depth (25/50/75/90 %).
 */
+/**
+ * Where a contact link sits, for whatsapp_click / phone_click / email_click: its own data-cta-location, else
+ * a data-area marker, else the page area it is in.
+ */
+function contactLocation(a: Element): string {
+  const own = a.closest("[data-cta-location]")?.getAttribute("data-cta-location");
+  if (own) return own;
+  const area = a.closest("[data-area]")?.getAttribute("data-area");
+  if (area) return area;
+  if (a.closest("header")) return "Header";
+  if (a.closest("footer")) return "Footer";
+  if (a.closest("dialog, [role=dialog]")) return "Popup";
+  const sec = a.closest("section[id]");
+  return sec ? `Section: ${sec.id}` : "Page";
+}
+
 export function AnalyticsInit() {
   useEffect(() => {
     const path = window.location.pathname;
@@ -64,14 +80,14 @@ export function AnalyticsInit() {
       const href = a.getAttribute("href") || "";
 
       if (href.startsWith("tel:")) {
-        trackPhoneClick(href.replace("tel:", ""));
+        trackPhoneClick(href.replace("tel:", ""), contactLocation(a));
       } else if (href.includes("wa.me")) {
-        trackWhatsappClick();
+        trackWhatsappClick(contactLocation(a));
       } else if (/\.pdf($|\?)/i.test(href) || a.hasAttribute("download")) {
         const clean = href.split("?")[0];
         trackFileDownload(clean.split("/").pop() || "", clean.split(".").pop() || "");
       } else if (href.startsWith("mailto:")) {
-        trackEmailClick(href.replace("mailto:", "").split("?")[0]);
+        trackEmailClick(href.replace("mailto:", "").split("?")[0], contactLocation(a));
       } else if (/(maps\.google\.|google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(href)) {
         trackMapClick(href);
       } else if (/^https?:\/\//i.test(href) && a.hostname && a.hostname !== location.hostname) {

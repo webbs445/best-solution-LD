@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AC_OFFER_EXTRA, AC_WHATSAPP, BOOK_STATES, SERVICE_NAMES, SERVICE_OPTIONS, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
 import { SITE } from "@/content/site";
-import { genEventId, pushFormSubmit, trackEvent } from "@/lib/analytics";
+import { genEventId, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { AC_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
 import { LeadSuccess } from "@/components/ui/LeadSuccess";
@@ -161,6 +161,7 @@ export function AcQuote() {
         lastName: rest.join(" "),
         eventId,
       });
+      pushGenerateLead({ formId: AC_FORM_ID, service, email: values.email, phone: values.phone });
       if (THANK_YOU_URL) {
         window.location.assign(THANK_YOU_URL);
         return;
