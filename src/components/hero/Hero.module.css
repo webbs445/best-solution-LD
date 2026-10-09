@@ -429,3 +429,41 @@
     font-size: 10px;
   }
 }
+
+/* ---------- Phones: a short hero so the calculator comes up within the first screen and a half ---------- */
+
+.trustLine,
+.cardAfter {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .cardSlot,
+  .rail {
+    display: none;
+  }
+
+  .trustLine {
+    display: block;
+    margin-top: 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  .inner {
+    padding-block: 12px 28px;
+  }
+
+  .sub {
+    margin-top: 14px;
+    font-size: 16px;
+  }
+
+  /* The structure check, now below the calculator. */
+  .cardAfter {
+    display: block;
+    margin-top: 28px;
+    margin-bottom: 8px;
+  }
+}

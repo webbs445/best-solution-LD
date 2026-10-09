@@ -843,3 +843,193 @@
     font-size: 21px;
   }
 }
+
+/* ---------- Result: figure first, number capture, then the breakdown ---------- */
+
+/* Desktop: the figure and breakdown on the left, the capture panel on the right. Phones stack them as
+   figure, capture, breakdown, so the estimate and the number field share one screen. */
+.resultLayout {
+  grid-template-areas:
+    "head aside"
+    "break aside";
+  grid-template-rows: auto 1fr;
+}
+
+.resultLayout > .summary {
+  grid-area: head;
+  padding-bottom: 8px;
+}
+
+.resultLayout > .contact {
+  grid-area: aside;
+}
+
+.breakdown {
+  grid-area: break;
+  padding: 0 42px 42px;
+  background: #fff;
+}
+
+.bankToggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 14px 16px;
+  min-height: 48px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: #fdf8f6;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.bankToggle input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  accent-color: var(--copper-dark);
+}
+
+.bankToggle b {
+  color: var(--copper-ink);
+  white-space: nowrap;
+}
+
+.bankToggle small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.breakToggle {
+  display: none;
+}
+
+.capture {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 1020px) {
+  .resultLayout {
+    grid-template-areas:
+      "head"
+      "aside"
+      "break";
+    grid-template-rows: auto;
+    min-height: 0;
+  }
+
+  .resultLayout > .summary {
+    padding-bottom: 24px;
+  }
+
+  .breakdown {
+    padding-top: 22px;
+  }
+
+  .breakToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid var(--rule);
+    border-radius: var(--r);
+    background: #fff;
+    color: var(--navy);
+    font: 700 15px var(--font);
+    cursor: pointer;
+  }
+
+  .breakBody {
+    display: none;
+    margin-top: 18px;
+  }
+
+  .breakBody.breakOpen {
+    display: block;
+  }
+}
+
+@media (max-width: 640px) {
+  .resultLayout > .summary {
+    padding: 22px 20px 18px;
+  }
+
+  .resultLayout .resTotal {
+    font-size: 46px;
+  }
+
+  .resultLayout .resSub {
+    font-size: 14px;
+  }
+
+  .bankToggle {
+    margin-top: 14px;
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .contact {
+    padding: 22px 20px 24px;
+  }
+
+  .contactMark,
+  .contactPoints {
+    display: none;
+  }
+
+  .contactEyebrow {
+    margin-top: 0;
+  }
+
+  .contact h3 {
+    font-size: 26px;
+  }
+
+  .contactCopy {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  .capture {
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+
+  .breakdown {
+    padding: 18px 20px 24px;
+  }
+}
+
+/* Live estimate range while the questions are answered. */
+.range {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 46px; /* reserved, so the step below never jumps when the range appears */
+  padding: 12px 28px;
+  border-bottom: 1px solid var(--rule);
+  background: #fdf8f6;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.range b {
+  color: var(--navy);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .range {
+    padding: 10px 20px;
+  }
+}

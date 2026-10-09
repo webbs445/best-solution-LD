@@ -31,11 +31,26 @@ export function Hero() {
               Speak to a Consultant
             </CtaLink>
           </div>
+          {/* Phones: one trust line instead of the stats rail, and the structure check moves below the calculator. */}
+          <p className={styles.trustLine}>
+            Advising since {SITE.founded} · Business Bay
+          </p>
           <TrustRail />
         </div>
 
-        <HeroCard />
+        <div className={styles.cardSlot}>
+          <HeroCard />
+        </div>
       </div>
+    </div>
+  );
+}
+
+/** The structure check on phones, placed after the calculator (hidden on larger screens). */
+export function HeroCardAfterCalculator() {
+  return (
+    <div className={`wrap ${styles.cardAfter}`}>
+      <HeroCard />
     </div>
   );
 }

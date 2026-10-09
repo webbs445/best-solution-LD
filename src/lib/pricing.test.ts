@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { cheapest, DATA, estimate, maxResidents, stepOrder } from "./pricing";
+import { cheapest, DATA, estimate, estimateRange, maxResidents, stepOrder } from "./pricing";
 import { LEAD_RULES } from "./lead";
 
 describe("stepOrder", () => {
   it("asks all six questions before a jurisdiction is chosen", () => {
-    expect(stepOrder({})).toEqual(["profile", "jurisdiction", "option", "residency", "workspace", "bank"]);
+    expect(stepOrder({})).toEqual(["jurisdiction", "option", "residency", "workspace"]);
   });
 
   it("skips residency and workspace for offshore", () => {
-    expect(stepOrder({ jurisdiction: "offshore" })).toEqual(["profile", "jurisdiction", "option", "bank"]);
+    expect(stepOrder({ jurisdiction: "offshore" })).toEqual(["jurisdiction", "option"]);
   });
 
   it("skips the setup list when the visitor is undecided", () => {
-    expect(stepOrder({ jurisdiction: "undecided" })).toEqual(["profile", "jurisdiction", "residency", "workspace", "bank"]);
+    expect(stepOrder({ jurisdiction: "undecided" })).toEqual(["jurisdiction", "residency", "workspace"]);
   });
 
   it("skips workspace when a package price already includes it", () => {
-    expect(stepOrder({ jurisdiction: "freezone", option: "f0" })).toEqual(["profile", "jurisdiction", "option", "residency", "bank"]);
+    expect(stepOrder({ jurisdiction: "freezone", option: "f0" })).toEqual(["jurisdiction", "option", "residency"]);
   });
 });
 
@@ -68,5 +68,18 @@ describe("lead rules", () => {
   it("accepts ordinary emails and rejects malformed ones", () => {
     expect(LEAD_RULES.email_id("name@company.ae")).toBe(true);
     expect(LEAD_RULES.email_id("name@company")).toBe(false);
+  });
+});
+
+describe("estimateRange", () => {
+  it("narrows as answers come in and ends on the estimate itself", () => {
+    const open = estimateRange({})!;
+    const fz = estimateRange({ jurisdiction: "freezone" })!;
+    const zone = estimateRange({ jurisdiction: "freezone", option: "f0" })!;
+    const done = estimateRange({ jurisdiction: "freezone", option: "f0", residency: 1 })!;
+    expect(open.low).toBeLessThanOrEqual(fz.low);
+    expect(fz.high - fz.low).toBeGreaterThanOrEqual(zone.high - zone.low);
+    expect(done.low).toBe(done.high);
+    expect(done.low).toBe(estimate({ jurisdiction: "freezone", option: "f0", residency: 1 }).total);
   });
 });
