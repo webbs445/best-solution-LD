@@ -181,9 +181,9 @@
 .spv-page .s-navy .lede{color:var(--on-n-soft)}
 .spv-page .s-navy .idx{color:var(--on-n-soft)}
 .spv-page .s-navy .idx::after{background:#ffffff26}
-.spv-page .rv{opacity:0;transform:translateY(24px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.spv-page .rv{opacity:0;transform:translateY(14px);transition:opacity .55s var(--ease),transform .55s var(--ease)}
 .spv-page .rv.in{opacity:1;transform:none}
-.spv-page .d1{transition-delay:.08s}.spv-page .d2{transition-delay:.16s}.spv-page .d3{transition-delay:.24s}
+.spv-page .d1{transition-delay:.05s}.spv-page .d2{transition-delay:.1s}.spv-page .d3{transition-delay:.15s}
 
 /* ===== REVEAL SLIDER (before/after) ===== */
 .spv-page .cmp-h{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end;margin-bottom:46px}
@@ -743,12 +743,12 @@
 .spv-page .sprog{position:fixed;top:0;left:0;right:0;height:2.5px;z-index:130;pointer-events:none}
 .spv-page .sprog i{display:block;height:100%;transform-origin:left;transform:scaleX(0);background:linear-gradient(90deg,#f0c4ac,#cc8667,#a96a4d);box-shadow:0 0 12px #cc8667aa}
 /* blur-in reveals */
-.spv-page .rv{filter:blur(8px);transition:opacity 1.1s var(--ease),transform 1.1s var(--ease),filter 1.1s var(--ease)}
+.spv-page .rv{transition:opacity .55s var(--ease),transform .55s var(--ease)}
 .spv-page .rv.in{filter:none}
 /* split headings */
 .spv-page h2.split{opacity:1!important;transform:none!important;filter:none!important}
 .spv-page h2.split .hw{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
-.spv-page h2.split .hw>span{display:inline-block;transform:translateY(105%) rotate(4deg);transform-origin:left bottom;transition:transform 1.1s var(--ease)}
+.spv-page h2.split .hw>span{display:inline-block;transform:translateY(105%) rotate(4deg);transform-origin:left bottom;transition:transform .6s var(--ease)}
 .spv-page h2.split.go .hw>span{transform:none}
 .spv-page .eyebrow::before{transform:scaleX(0);transform-origin:left;transition:transform 1.2s var(--ease) .2s}
 .spv-page .in .eyebrow::before,.spv-page .eyebrow.in::before,.spv-page .head.in .eyebrow::before,.spv-page .rv.in>.eyebrow::before{transform:scaleX(1)}
@@ -844,7 +844,7 @@
   .spv-page .ft-big{padding-bottom:36px;margin-bottom:36px}
   .spv-page .ft-big .btn{width:100%}
   .spv-page .stp::before{display:none}
-  .spv-page .rv{filter:blur(4px)}
+  .spv-page .rv{filter:none}
 }
 @media (prefers-reduced-motion:reduce){
   .spv-page .aur i,.spv-page .map::before,.spv-page .fm::after,.spv-page .ff-card::before,.spv-page .vault .lock{animation:none!important}
@@ -855,7 +855,7 @@
 
 /* ===================== PROCESS: JOURNEY ===================== */
 .spv-page .jr-sec.pinned{padding:0}
-.spv-page .jr-sec.pinned .jr-pin{height:200vh}
+.spv-page .jr-sec.pinned .jr-pin{height:240vh}
 .spv-page .jr-sec.pinned .jr-stick{position:sticky;top:0;height:100vh;display:flex;align-items:center;padding-top:40px}
 .spv-page .jr-sec.pinned .jr-stick>.wrap{width:min(1200px,100% - 48px)}
 .spv-page .jr-sec.pinned .jr-cta{margin-top:0;margin-bottom:110px}

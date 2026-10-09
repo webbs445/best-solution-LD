@@ -167,7 +167,7 @@ export function SpvMotion() {
     });
     $$("#drawer a").forEach((a) => on(a, "click", closeDrawer));
 
-    /* reveal */
+    /* reveal: starts while a block is still 20% below the screen, so it is readable by the time it scrolls in */
     const io = observe(
       (es) =>
         es.forEach((e) => {
@@ -176,7 +176,7 @@ export function SpvMotion() {
             io.unobserve(e.target);
           }
         }),
-      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
+      { threshold: 0, rootMargin: "0px 0px 20% 0px" },
     );
     $$(".rv,.idx,.stp,.vault,.ft-big,.head").forEach((el) => io.observe(el));
 
@@ -822,7 +822,7 @@ export function SpvMotion() {
                   again.disconnect();
                 }
               }),
-            { threshold: 0.2, rootMargin: "0px 0px -8% 0px" },
+            { threshold: 0, rootMargin: "0px 0px 20% 0px" },
           );
           again.observe(h);
         }
@@ -861,7 +861,7 @@ export function SpvMotion() {
       };
       wrap(h);
       h.classList.add("split");
-      $$(".hw>span", h).forEach((sp, i) => (sp.style.transitionDelay = i * 45 + "ms"));
+      $$(".hw>span", h).forEach((sp, i) => (sp.style.transitionDelay = Math.min(i * 25, 250) + "ms"));
       if (reduced) {
         h.classList.add("go");
         return;
@@ -874,7 +874,7 @@ export function SpvMotion() {
               o.disconnect();
             }
           }),
-        { threshold: 0.2, rootMargin: "0px 0px -8% 0px" },
+        { threshold: 0, rootMargin: "0px 0px 20% 0px" },
       );
       o.observe(h);
     });
