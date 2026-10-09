@@ -284,12 +284,15 @@
 }
 @media (max-width:720px){
   .spv-page .tw-pin{height:400vh}
-  /* Phones: centre diagram + text between the header and the bottom bar, with room under the diagram
-     (its shadow draws below the SVG box); the diagram shrinks on short screens so the text always fits. */
-  .spv-page .tw-in{align-items:center;padding:64px 0 88px}
-  .spv-page .tw-g{padding-top:0;gap:30px}
-  .spv-page .tw-vis{margin:0 auto;width:min(calc(100% + 16px),calc((100vh - 525px) * 1.256))}
-  @supports (height:100svh){.spv-page .tw-vis{width:min(calc(100% + 16px),calc((100svh - 525px) * 1.256))}}
+  /* Phones: diagram + text sit low (the bottom bar is hidden while the tower is on screen; spare height
+     goes above the diagram, where the later layers stack up), with a clear gap under the diagram (its
+     shadow draws below the SVG box).
+     The diagram never exceeds the column, so its right-hand labels stay on screen, and it shrinks on
+     short screens so the text always fits. */
+  .spv-page .tw-in{align-items:flex-end;padding:64px 0 40px}
+  .spv-page .tw-g{padding-top:0;gap:44px}
+  .spv-page .tw-vis{margin:0 auto;width:min(100%,calc((100vh - 495px) * 1.256))}
+  @supports (height:100svh){.spv-page .tw-vis{width:min(100%,calc((100svh - 495px) * 1.256))}}
   .spv-page .tw-glow{width:280px;height:280px}
   .spv-page .tw-meta{margin-top:0}
   .spv-page .tw-meta span{font-size:36px}

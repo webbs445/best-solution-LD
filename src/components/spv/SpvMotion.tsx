@@ -420,7 +420,10 @@ export function SpvMotion() {
       lastY = y;
       const hr = heroEl.getBoundingClientRect();
       const fm = page.querySelector("#fm")?.getBoundingClientRect();
-      dock.classList.toggle("show", hr.bottom < 0 && !(fm && fm.top < innerHeight && fm.bottom > 0));
+      // The bar stays out of the way while the layer tower is pinned on screen, and returns after it.
+      const tp = twPin.getBoundingClientRect();
+      const inTower = tp.top < innerHeight && tp.bottom > 0;
+      dock.classList.toggle("show", hr.bottom < 0 && !inTower && !(fm && fm.top < innerHeight && fm.bottom > 0));
       if (y > 40) closeDrawer();
       layers();
     };
