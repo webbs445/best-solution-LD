@@ -281,18 +281,3 @@ export function FzClosing() {
     </section>
   );
 }
-
-/* Sticky planner shortcut on phones (shown by freezone.css under 640px). */
-export function FzMobileBar() {
-  return (
-    <div className="fz-mbar">
-      <div>
-        <span>Zone Planner</span>
-        <b>See matching zones and cost</b>
-      </div>
-      <a className="btn btn-primary btn-sm" href="#planner" data-cta-location="FZ Mobile Bar — Start">
-        Begin
-      </a>
-    </div>
-  );
-}

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ACT_LABEL, EM_SHORT, HERO_DEMO, ZONES, ZONE_BY_ID } from "@/content/freezone";
 import { formatAED } from "@/lib/pricing";
+import { SITE } from "@/content/site";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
@@ -141,6 +142,10 @@ export function FzHero() {
           <p className="fz-foot">
             *Indicative from-price, based on our current rate card. Your cost depends on activity, package, office and
             residency.
+          </p>
+          {/* Phones: this one line replaces the stats and the decorative zone wall, so the planner comes up sooner. */}
+          <p className="fz-trustline">
+            Advising since {SITE.founded} · Business Bay
           </p>
         </div>
 

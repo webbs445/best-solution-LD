@@ -4,23 +4,37 @@ import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { ZONE_BY_ID } from "@/content/freezone";
 import { cleanPlanner, maxResidents, plannerEstimate } from "@/lib/freezone";
 import { formatAED } from "@/lib/pricing";
-import { FzLeadForm } from "./FzLeadForm";
+import { QuickCapture } from "@/components/ui/QuickCapture";
+import { LockedFigure, useEstimateUnlocked } from "@/components/ui/LockedFigure";
+import { FZ_FORM_ID } from "@/lib/lead";
 import { usePlanner } from "./PlannerProvider";
 import { ZoneLogo } from "./ZoneLogo";
 import styles from "./FzZoneEstimate.module.css";
 
 /*
-  "Get My Estimate" from a zone card or the comparison: a compact popup with the zone filled in.
-  One question (people needing residency) with a live total, then the planner's lead form, which
-  posts to /api/lead like the planner. The full planner stays one tap away.
+  "Get My Estimate" popup with the zone filled in: the (blurred) first-year figure and one form for name,
+  WhatsApp and email, posted to /api/lead. Once sent, the figures unlock in place.
+  - From a zone card or the comparison: one question (people needing residency) and a link to the full planner.
+  - From the planner (fromPlanner): the planner's own choices, and the popup closes itself after sending
+    so the visitor lands back on the planner with its figures revealed.
 */
-export function FzZoneEstimate({ zoneId, onClose }: { zoneId: string | null; onClose: () => void }) {
+export function FzZoneEstimate({
+  zoneId,
+  onClose,
+  fromPlanner = false,
+}: {
+  zoneId: string | null;
+  onClose: () => void;
+  fromPlanner?: boolean;
+}) {
   const { state, complete, trackStep, goPlanner } = usePlanner();
   const dialog = useRef<HTMLDialogElement>(null);
   const zone = zoneId ? ZONE_BY_ID[zoneId] : null;
   // Mounted per zone (keyed by the parent), so this starts from the planner's residency count each time.
   const [res, setRes] = useState(() => (zone ? Math.min(state.res, maxResidents(zone)) : 0));
   const [sent, setSent] = useState(false);
+  // Figures stay blurred until the visitor sends their details (here or in the planner drawer).
+  const unlocked = useEstimateUnlocked();
 
   const input = useMemo(() => (zone ? cleanPlanner({ ...state, zone: zone.id, res }) : null), [state, zone, res]);
   const est = useMemo(() => (input ? plannerEstimate(input) : null), [input]);
@@ -36,8 +50,15 @@ export function FzZoneEstimate({ zoneId, onClose }: { zoneId: string | null; onC
 
   // The estimate was requested: one calculator_complete per distinct figure (deduplicated by the provider).
   useEffect(() => {
-    if (input && est) complete(input, est, "zone_card");
-  }, [input, est, complete]);
+    if (input && est) complete(input, est, fromPlanner ? "planner" : "zone_card");
+  }, [input, est, complete, fromPlanner]);
+
+  // From the planner: a moment to read the thank-you, then back to the planner with the figures revealed.
+  useEffect(() => {
+    if (!sent || !fromPlanner) return;
+    const t = window.setTimeout(() => dialog.current?.close(), 1600);
+    return () => window.clearTimeout(t);
+  }, [sent, fromPlanner]);
 
   const onDialogClick = (e: MouseEvent<HTMLDialogElement>) => {
     if (e.target === e.currentTarget) dialog.current?.close();
@@ -74,50 +95,65 @@ export function FzZoneEstimate({ zoneId, onClose }: { zoneId: string | null; onC
             </svg>
           </button>
 
-          {/* Once sent, the success card (inside FzLeadForm) replaces the header and the estimate panel. */}
-          {!sent && (
-            <>
-              <div className={styles.head}>
-                <ZoneLogo zone={zone} size="zl-sug" />
-                <div>
-                  <h3 id="ze-title">Get your estimate in writing</h3>
-                  <p>{zone.name}</p>
-                </div>
-              </div>
+          <div className={styles.head}>
+            <ZoneLogo zone={zone} size="zl-sug" />
+            <div>
+              <h3 id="ze-title">{sent ? "Your estimate" : "Get your estimate in writing"}</h3>
+              <p>{zone.name}</p>
+            </div>
+          </div>
 
-              <div className={styles.summary}>
-                <div className={styles.people}>
-                  <span>People needing residency</span>
-                  <div className={styles.stepper} role="group" aria-label="People needing residency">
-                    <button type="button" aria-label="Fewer people" disabled={res <= 0} onClick={() => stepRes(-1)}>
-                      &minus;
-                    </button>
-                    <output aria-live="polite">{res}</output>
-                    <button type="button" aria-label="More people" disabled={res >= mx} onClick={() => stepRes(1)}>
-                      +
-                    </button>
-                  </div>
-                </div>
-                <div className={styles.total}>
-                  <span>Estimated first-year cost</span>
-                  <b aria-live="polite">AED {formatAED(est.total)}</b>
-                  <small>Indicative · flexi-desk included · year two about AED {formatAED(est.renewal)}</small>
+          {/* Stays on screen after sending, so the figure unlocks in place. */}
+          <div className={styles.summary}>
+            {fromPlanner ? (
+              <div className={styles.people}>
+                <span>
+                  {input.res} {input.res === 1 ? "person" : "people"} with residency · {input.sh} shareholder
+                  {input.sh > 1 ? "s" : ""} · {input.na} activit{input.na > 1 ? "ies" : "y"}
+                </span>
+              </div>
+            ) : (
+              <div className={styles.people}>
+                <span>People needing residency</span>
+                <div className={styles.stepper} role="group" aria-label="People needing residency">
+                  <button type="button" aria-label="Fewer people" disabled={res <= 0 || sent} onClick={() => stepRes(-1)}>
+                    &minus;
+                  </button>
+                  <output aria-live="polite">{res}</output>
+                  <button type="button" aria-label="More people" disabled={res >= mx || sent} onClick={() => stepRes(1)}>
+                    +
+                  </button>
                 </div>
               </div>
-            </>
-          )}
+            )}
+            <div className={styles.total}>
+              <span>Estimated first-year cost</span>
+              <b aria-live="polite">
+                <LockedFigure text={`AED ${formatAED(est.total)}`} unlocked={unlocked} />
+              </b>
+              <small>
+                {unlocked ? (
+                  <>Indicative · flexi-desk included · year two about AED {formatAED(est.renewal)}</>
+                ) : (
+                  "Unlocks when you send your details · flexi-desk included"
+                )}
+              </small>
+            </div>
+          </div>
 
           {/* Re-keyed per zone so a request for one zone never shows another zone's "sent" state. */}
-          <FzLeadForm
+          <QuickCapture
             key={zone.id}
-            planner={input}
-            idPrefix="ze-"
-            summary={`${zone.name} · ${res} ${res === 1 ? "person" : "people"} with residency · AED ${formatAED(est.total)}`}
+            formId={FZ_FORM_ID}
+            service="free_zone"
+            tone="light"
+            payload={() => ({ planner: input })}
+            summary={`${zone.name}, ${res} ${res === 1 ? "person" : "people"} with residency${unlocked ? `, AED ${formatAED(est.total)}` : ""}`}
             onSent={() => setSent(true)}
-            onDone={() => dialog.current?.close()}
+            onDone={fromPlanner ? undefined : () => dialog.current?.close()}
           />
 
-          {!sent && (
+          {!sent && !fromPlanner && (
             <button type="button" className={styles.planner} onClick={openPlanner}>
               Adjust activities or shareholders in the full planner
             </button>

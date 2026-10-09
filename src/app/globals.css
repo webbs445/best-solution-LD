@@ -136,6 +136,32 @@ input {
   border: 0;
 }
 
+/* Estimate figures before the visitor sends their details (LockedFigure), and their reveal after. */
+.lock-fig {
+  display: inline-block;
+  filter: blur(7px);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.lock-open {
+  display: inline-block;
+  animation: lock-reveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes lock-reveal {
+  from {
+    filter: blur(10px);
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lock-open {
+    animation: none;
+  }
+}
+
 .skip-link {
   position: fixed;
   left: 16px;
