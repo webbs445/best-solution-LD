@@ -27,6 +27,10 @@ export const FZ_FORM_ID = "LP Free Zone Planner";
 export const AC_FORM_ID = "LP Accounting Quote";
 /** The ERP "Service Enquired" option for every /accounting lead (an exact Select option in the ERP). */
 export const AC_SERVICE_ENQUIRED = "Accounting & Bookkeeping Services";
+/** The /spv page's consultation form (foundations, SPVs, holding and offshore companies). */
+export const SPV_FORM_ID = "LP Structuring Consultation";
+/** The ERP has no structuring option for "Service Enquired", so /spv leads use "Other Services". */
+export const SPV_SERVICE_ENQUIRED = "Other Services";
 
 /** The "Google click IDs" row for the ERP notes, from a form's gclid / gbraid / wbraid (none when empty). */
 export function clickIdRows(body: Record<string, unknown>): [string, string][] {
