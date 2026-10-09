@@ -32,7 +32,7 @@
 .spv-page .wrap{width:min(1200px,100% - 48px);margin-inline:auto}
 .spv-page .skip{position:absolute;left:-999px;top:8px;z-index:999;background:#fff;padding:10px 14px;border-radius:10px;font-weight:700}
 .spv-page .skip:focus{left:12px}
-.spv-page::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;opacity:.035;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.spv-page::after{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
 .spv-page h1,.spv-page h2,.spv-page h3{font-weight:800;letter-spacing:-.045em;line-height:1.02}
 .spv-page h2{font-size:clamp(32px,4.6vw,62px)}
@@ -213,12 +213,12 @@
 
 /* ===== LAYERS: scroll-driven tower ===== */
 .spv-page .tower{position:relative;background:radial-gradient(60% 50% at 30% 55%,#f5e3d8,transparent 70%),linear-gradient(180deg,var(--ivory),#f6eee8 50%,var(--ivory))}
-.spv-page .tw-pin{height:440vh;position:relative}
+.spv-page .tw-pin{height:320vh;position:relative}
 .spv-page .tw-in{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden}
 .spv-page .tw-in::before{content:"";position:absolute;inset:0;background-image:linear-gradient(#14253e0a 1px,transparent 1px),linear-gradient(90deg,#14253e0a 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 60% 60% at 30% 55%,#000,transparent 75%);-webkit-mask-image:radial-gradient(ellipse 60% 60% at 30% 55%,#000,transparent 75%)}
 .spv-page .tw-g{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;padding-top:60px}
 .spv-page .tw-vis{position:relative}
-.spv-page .tw-glow{position:absolute;left:38%;top:55%;width:420px;height:420px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#cc866740,transparent 65%);filter:blur(20px);transition:background .8s,top .8s var(--ease)}
+.spv-page .tw-glow{position:absolute;left:38%;top:55%;width:420px;height:420px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#cc866740,transparent 65%);transition:background .8s,top .8s var(--ease)}
 .spv-page #tw{position:relative;width:100%;height:auto;overflow:visible}
 .spv-page #tw .ring{fill:none;stroke:#cc866759;stroke-width:1.2;stroke-dasharray:3 9}
 .spv-page #tw .r1{animation:spv-ringA 24s linear infinite}
@@ -283,7 +283,7 @@
   .spv-page .tw-panel .idx{display:none}
 }
 @media (max-width:720px){
-  .spv-page .tw-pin{height:400vh}
+  .spv-page .tw-pin{height:300vh}
   /* Phones: diagram + text centred on screen (the bottom bar is hidden while the tower is on screen), so
      spare height is shared above the diagram and below the text, with a clear gap under the diagram (its
      shadow draws below the SVG box). No "01 / 04" counter here: the dots under the text show the step.
@@ -734,7 +734,7 @@
 .spv-page #tw .pt{fill:#cc8667;opacity:0}
 .spv-page #tw.flowing .pt{animation:spv-rise 4.2s var(--dl) ease-in infinite}
 @keyframes spv-rise{0%{opacity:0;transform:translate(0,0)}20%{opacity:.8}100%{opacity:0;transform:translate(var(--dx),-230px)}}
-.spv-page .tw-glow{mix-blend-mode:multiply}
+/* tower glow: no blend mode (see the main .tw-glow rule) */
 @media (prefers-reduced-motion:reduce){.spv-page #tw .shine,.spv-page #tw .bob,.spv-page #tw .cf,.spv-page #tw .pt,.spv-page #tw .beamr{animation:none!important}}
 
 /* ===================== PREMIUM MOTION LAYER ===================== */
@@ -855,7 +855,7 @@
 
 /* ===================== PROCESS: JOURNEY ===================== */
 .spv-page .jr-sec.pinned{padding:0}
-.spv-page .jr-sec.pinned .jr-pin{height:280vh}
+.spv-page .jr-sec.pinned .jr-pin{height:200vh}
 .spv-page .jr-sec.pinned .jr-stick{position:sticky;top:0;height:100vh;display:flex;align-items:center;padding-top:40px}
 .spv-page .jr-sec.pinned .jr-stick>.wrap{width:min(1200px,100% - 48px)}
 .spv-page .jr-sec.pinned .jr-cta{margin-top:0;margin-bottom:110px}
@@ -864,7 +864,7 @@
 .spv-page .jr-sec{background:radial-gradient(50% 60% at 100% 0%,#f0c4ac4d,transparent 70%),radial-gradient(40% 50% at 0% 100%,#f4dcba40,transparent 70%),linear-gradient(180deg,#f6ebe5,#f9f2ed);overflow:clip}
 .spv-page .jr-head{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:20px}
 .spv-page .jr-head h2{max-width:780px}
-.spv-page .jr-meter{display:flex;align-items:center;gap:14px;padding:10px 20px 10px 10px;border-radius:999px;background:#ffffffb3;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 0 0 1px var(--rule),0 14px 30px -18px #14253e59;flex:none}
+.spv-page .jr-meter{display:flex;align-items:center;gap:14px;padding:10px 20px 10px 10px;border-radius:999px;background:#ffffffeb;box-shadow:inset 0 0 0 1px var(--rule),0 14px 30px -18px #14253e59;flex:none}
 .spv-page .jr-meter svg{width:56px;height:56px;transform:rotate(-90deg)}
 .spv-page .jr-meter circle{fill:none;stroke-width:4}
 .spv-page .mt-b{stroke:#14253e14}
@@ -881,7 +881,7 @@
 .spv-page .jr-orb.on{opacity:1}
 .spv-page .jr-orb i{position:absolute;inset:-14px;border-radius:50%;border:1.5px solid #cc866766;animation:spv-orbp 1.8s ease-out infinite}
 @keyframes spv-orbp{from{transform:scale(.4);opacity:1}to{transform:scale(1.3);opacity:0}}
-.spv-page .jr-node{position:absolute;left:0;top:0;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--ink-mute);box-shadow:inset 0 0 0 1.5px var(--rule-2),0 10px 24px -14px #14253e66;z-index:2;transition:background .6s,color .6s,box-shadow .6s,transform .7s var(--ease)}
+.spv-page .jr-node{position:absolute;left:0;top:0;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--ink-mute);box-shadow:inset 0 0 0 1.5px var(--rule-2),0 10px 24px -14px #14253e66;z-index:4;transition:background .6s,color .6s,box-shadow .6s,transform .7s var(--ease)}
 .spv-page .jr-node i{display:grid;place-items:center}
 .spv-page .jr-node svg{width:24px;height:24px}
 .spv-page .jr-node::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:1.5px solid #cc866700;transition:border-color .6s}
@@ -891,7 +891,7 @@
 .spv-page .jr-node.on svg path,.spv-page .jr-node.on svg rect{stroke-dasharray:80;animation:spv-draw2 1s var(--ease) both}
 @keyframes spv-draw2{from{stroke-dashoffset:80}to{stroke-dashoffset:0}}
 .spv-page .jr-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.spv-page .jr-c{position:relative;overflow:hidden;border-radius:26px;padding:26px 24px 24px;background:#ffffff73;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 0 0 1px #ffffffb3,0 1px 0 #14253e0a;opacity:.55;transform:translateY(24px) scale(.98);filter:saturate(.3);transition:opacity .8s var(--ease),transform .9s var(--ease),filter .8s,background .6s,box-shadow .6s}
+.spv-page .jr-c{position:relative;overflow:hidden;border-radius:26px;padding:26px 24px 24px;background:#ffffffc7;box-shadow:inset 0 0 0 1px #ffffffb3,0 1px 0 #14253e0a;opacity:.55;transform:translateY(24px) scale(.98);filter:saturate(.3);transition:opacity .8s var(--ease),transform .9s var(--ease),filter .8s,background .6s,box-shadow .6s}
 .spv-page .jr-c.on{opacity:1;transform:none;filter:none;background:#fff;box-shadow:inset 0 0 0 1px var(--rule),0 30px 60px -36px #14253e80}
 .spv-page .jr-c.cur{box-shadow:inset 0 0 0 1.5px #cc866799,0 40px 70px -34px #cc8667a6;transform:translateY(-8px)}
 .spv-page .jr-c::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease) .15s}

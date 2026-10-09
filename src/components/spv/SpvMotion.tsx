@@ -376,12 +376,15 @@ export function SpvMotion() {
       const pr = Math.min(1, Math.max(0, -r.top / total));
       let p = pr * 4;
       if (reduced) p = 4;
+      // Each layer drops in once as a whole step (the CSS transition animates it), instead of being moved on
+      // every scroll frame: the layers carry SVG shadows and glows, so per-frame moves repainted the diagram.
       pls.forEach((g, i) => {
-        const t = i === 0 ? 1 : Math.min(1, Math.max(0, (p - i + 0.35) * 1.6));
-        const e = 1 - Math.pow(1 - t, 3);
-        g.style.opacity = t > 0 ? "1" : "0";
-        ($(".mv", g) as unknown as SVGGElement).style.transform = `translateY(${-90 * (1 - e)}px)`;
-        g.classList.toggle("in", t >= 0.8 || i === 0);
+        const shown = i === 0 || p > i - 0.05;
+        if (g.dataset.shown === String(shown)) return;
+        g.dataset.shown = String(shown);
+        g.style.opacity = shown ? "1" : "0";
+        ($(".mv", g) as unknown as SVGGElement).style.transform = shown ? "translateY(0)" : "translateY(-90px)";
+        g.classList.toggle("in", shown);
       });
       twBar.style.width = pr * 100 + "%";
       const act = Math.min(3, Math.floor(p));
@@ -427,7 +430,16 @@ export function SpvMotion() {
       if (y > 40) closeDrawer();
       layers();
     };
-    on(window, "scroll", onScroll, { passive: true });
+    // At most once per frame, however many scroll events the browser sends.
+    let scrollQueued = false;
+    on(window, "scroll", () => {
+      if (scrollQueued) return;
+      scrollQueued = true;
+      requestAnimationFrame(() => {
+        scrollQueued = false;
+        if (alive) onScroll();
+      });
+    }, { passive: true });
 
     /* pillar rows */
     $$(".row button").forEach((b) =>
@@ -782,7 +794,15 @@ export function SpvMotion() {
       sprog.style.transform = `scaleX(${h > 0 ? scrollY / h : 0})`;
       journey();
     };
-    on(window, "scroll", motionScroll, { passive: true });
+    let motionQueued = false;
+    on(window, "scroll", () => {
+      if (motionQueued) return;
+      motionQueued = true;
+      requestAnimationFrame(() => {
+        motionQueued = false;
+        if (alive) motionScroll();
+      });
+    }, { passive: true });
     on(window, "resize", motionScroll);
     motionScroll();
 
