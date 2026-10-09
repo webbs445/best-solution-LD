@@ -410,12 +410,117 @@ export function SpvMotion() {
       }),
     );
 
+    /* Tower steps: inside the tower, one scroll gesture (wheel/trackpad flick, swipe, arrow/page/space key)
+       moves exactly one layer, so all four are seen in order, down and up. Past layer 4 (or above layer 1)
+       the page scrolls normally. A fast fling that would skip the tower stops at its first (or last) layer. */
+    const towerStops = () => {
+      const pinTop = twPin.getBoundingClientRect().top + scrollY;
+      const total = twPin.offsetHeight - innerHeight;
+      return [0, 1, 2, 3].map((i) => Math.round(pinTop + (total * (i + 0.5)) / 4));
+    };
+    // The next stop in that direction, or null when outside the tower or leaving it.
+    const towerTarget = (dir: number) => {
+      const s = towerStops();
+      const y = scrollY;
+      if (y < s[0] - innerHeight * 0.5 || y > s[3] + innerHeight * 0.5) return null;
+      return dir > 0 ? (s.find((v) => v > y + 4) ?? null) : ([...s].reverse().find((v) => v < y - 4) ?? null);
+    };
+    let gliding = false;
+    let glideTimer = 0;
+    let jumpUntil = 0; // anchor links and the layer dots may pass over the tower
+    const glide = (y: number) => {
+      gliding = true;
+      scrollTo({ top: y, behavior: "smooth" });
+      clearTimeout(glideTimer);
+      glideTimer = window.setTimeout(() => (gliding = false), 750);
+      timers.push(glideTimer);
+    };
+    if (!reduced) {
+      let lastWheel = 0;
+      let wheelHandled = false;
+      on(window, "wheel", (e: WheelEvent) => {
+        if (e.ctrlKey) return; // pinch-zoom
+        const now = performance.now();
+        // A flick (and a trackpad's momentum after it) is one gesture: events less than 300ms apart.
+        if (now - lastWheel > 300) wheelHandled = false;
+        lastWheel = now;
+        if (gliding || wheelHandled) {
+          if (towerTarget(1) !== null || towerTarget(-1) !== null) e.preventDefault();
+          return;
+        }
+        const target = towerTarget(Math.sign(e.deltaY));
+        if (target === null) return;
+        e.preventDefault();
+        wheelHandled = true;
+        glide(target);
+      }, { passive: false });
+
+      let touchY = 0;
+      let touchLive = false;
+      let touchHandled = false;
+      on(document, "touchstart", (e: TouchEvent) => {
+        touchY = e.touches[0].clientY;
+        touchHandled = false;
+        touchLive = towerTarget(1) !== null || towerTarget(-1) !== null;
+      }, { passive: true });
+      on(document, "touchmove", (e: TouchEvent) => {
+        if (!touchLive) return;
+        const dy = touchY - e.touches[0].clientY; // finger up = scroll down
+        if (gliding || touchHandled) {
+          e.preventDefault();
+          return;
+        }
+        const target = towerTarget(Math.sign(dy));
+        if (target === null) {
+          touchLive = false; // leaving the tower: native scrolling
+          return;
+        }
+        e.preventDefault();
+        if (Math.abs(dy) > 24) {
+          touchHandled = true;
+          glide(target);
+        }
+      }, { passive: false });
+
+      on(window, "keydown", (e: KeyboardEvent) => {
+        if (/input|select|textarea/i.test((e.target as Element).tagName)) return;
+        const dir = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1, " ": e.shiftKey ? -1 : 1 }[e.key];
+        if (!dir) return;
+        if (gliding) {
+          if (towerTarget(dir) !== null) e.preventDefault();
+          return;
+        }
+        const target = towerTarget(dir);
+        if (target === null) return;
+        e.preventDefault();
+        glide(target);
+      });
+
+      on(page, "click", (e: MouseEvent) => {
+        if ((e.target as Element).closest('a[href^="#"], #twNav button')) jumpUntil = performance.now() + 2000;
+      }, { capture: true });
+    }
+    // A fling that crosses into the tower stops on its first layer (or, going up, its last).
+    let towerLastY = scrollY;
+    const towerGuard = () => {
+      const y = scrollY;
+      // Only real scrolling (under a screen per frame); big jumps such as scroll restore after a reload,
+      // the Home/End keys or anchor links are left alone.
+      if (!reduced && !gliding && performance.now() > jumpUntil && Math.abs(y - towerLastY) < innerHeight) {
+        const s = towerStops();
+        if (towerLastY < s[0] - 4 && y > s[0] + 4) scrollTo({ top: s[0], behavior: "instant" as ScrollBehavior });
+        else if (towerLastY > s[3] + 4 && y < s[3] - 4) scrollTo({ top: s[3], behavior: "instant" as ScrollBehavior });
+      }
+      towerLastY = scrollY;
+    };
+
     /* header hide on scroll down, mobile dock */
     const top = $("#top");
     const dock = $("#dock");
     const heroEl = $("#hero");
     let lastY = 0;
     const onScroll = () => {
+      towerGuard();
       const y = scrollY;
       top.classList.toggle("scrolled", y > 20);
       top.classList.toggle("hide", y > 500 && y > lastY + 4);
