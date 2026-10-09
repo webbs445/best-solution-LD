@@ -10,6 +10,7 @@ import { SITE } from "./site";
 export const SPV_WA_TEXT = "Hello, I would like advice on a foundation or holding structure.";
 export const SPV_WA_HREF = `${SITE.whatsapp}?text=${encodeURIComponent(SPV_WA_TEXT)}`;
 
+/* TODO(advisor): add "Will my ownership be private?" and "Can a foundation help plan inheritance?" once the advisor supplies the wording. */
 export const SPV_FAQS: { q: string; a: string }[] = [
   {
     q: "What is the difference between a foundation and a holding company?",
@@ -21,7 +22,7 @@ export const SPV_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Will a structure reduce my tax?",
-    a: "A structure is a planning tool, not a tax shortcut. Tax depends on where you live, where your assets are and how the entities operate. We work alongside your tax adviser where needed.",
+    a: "A structure is a planning tool, not a tax shortcut. Tax depends on where you live, where your assets are and how each entity operates. UAE Corporate Tax and economic substance rules apply depending on that activity, and we work alongside your tax adviser where needed.",
   },
   {
     q: "Can a structure hold UAE property?",

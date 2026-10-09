@@ -58,6 +58,7 @@ export default function SpvPage() {
         <SpvFit />
         <SpvWho />
         <SpvTrust />
+        {/* TODO(advisor): add 1 or 2 real client reviews (structuring clients) here once supplied. */}
         <SpvFaq />
         <SpvConsult />
       </main>

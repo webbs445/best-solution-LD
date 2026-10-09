@@ -22,6 +22,7 @@ export function SpvTrust() {
           <ul className="va-list"><li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5 9-10" /></svg></i>Seen only by the advisor on your case</li><li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5 9-10" /></svg></i>Never shared without your permission</li><li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5 9-10" /></svg></i>Consultations held in private</li></ul>
         </div>
       </article>
+      {/* TODO(advisor): confirm "The person you meet is the person who follows your case." */}
       <article className="bt bt-b rv d1">
         <div className="ad-vis" aria-hidden="true">
           <div className="ad-line"><i></i></div>
@@ -41,12 +42,13 @@ export function SpvTrust() {
       </article>
       <article className="bt bt-d rv">
         <div className="ju-vis" aria-hidden="true">
-          <div className="ju-row"><span>DIFC</span><span>ADGM</span><span>RAK ICC</span><span>JAFZA</span><i className="ju-frame"></i></div>
+          <div className="ju-row"><span>DIFC</span><span>ADGM</span><span>DMCC</span><span>RAK ICC</span><span>JAFZA</span><i className="ju-frame"></i></div>
           <div className="ju-bars"><div><small>Control</small><i><b></b></i></div><div><small>Upkeep</small><i><b></b></i></div><div><small>Cost</small><i><b></b></i></div></div>
         </div>
         <span className="bt-k">Several jurisdictions</span>
-        <h3>DIFC, ADGM, RAK ICC and JAFZA compared fairly.</h3>
+        <h3>DIFC, ADGM, DMCC, RAK ICC and JAFZA compared fairly.</h3>
       </article>
+      {/* TODO(advisor): confirm "Meet us in person or by video call" and the Business Bay address (SITE settings, with "Advising since 2014"). */}
       <article className="bt bt-e rv d1">
         <div className="of-vis" aria-hidden="true">
           <svg className="of-map" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice"><path d="M-10 120 C80 100 140 130 220 96 S360 60 420 80" /><path d="M-10 60 C60 70 120 40 200 52 S330 90 420 40" className="m2" /><path d="M120 -10 L150 170M280 -10 L250 170" className="m3" /></svg>

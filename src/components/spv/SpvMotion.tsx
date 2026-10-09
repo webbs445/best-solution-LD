@@ -16,12 +16,12 @@ import { trackEvent } from "@/lib/analytics";
 
 const MAP: Record<string, { n: [string, string][]; c: string }> = {
   family: {
-    n: [["You and your family", "Founder"], ["Private foundation", "DIFC or ADGM"], ["Holding company", "Owned by the foundation"], ["Family business", "Shares"], ["Property", "Real estate"], ["Investments", "Portfolio"]],
+    n: [["You and your family", "Founder"], ["Private foundation", "DIFC, ADGM, DMCC or RAK ICC"], ["Holding company", "Owned by the foundation"], ["Family business", "Shares"], ["Property", "Real estate"], ["Investments", "Portfolio"]],
     c: "A foundation sits at the top with rules you write. It owns a holding company, which holds the business, property and investments for your family.",
   },
   property: {
     n: [["You", "Investor"], ["Holding company", "One owner for all"], ["Property SPVs", "One per asset"], ["Villa", "SPV 1"], ["Apartment", "SPV 2"], ["Office", "SPV 3"]],
-    c: "Each property sits in its own SPV under one holding company, so a sale or a problem with one asset stays with that asset.",
+    c: "Each property sits in its own SPV under one holding company, so a sale or an issue with one asset is kept apart from the others.",
   },
   business: {
     n: [["Founders and partners", "Shareholders"], ["Holding company", "Group parent"], ["Operating layer", "Trading companies"], ["UAE company", "Trading"], ["Overseas company", "International"], ["IP company", "Brand and IP"]],
@@ -60,7 +60,7 @@ function fxPlan(a: string[]) {
     why = "A foundation sets the rules for your family. A holding company underneath keeps businesses and assets organised.";
   } else if (g === "prop") {
     st = ["holding", "spv"];
-    why = "An SPV for each property keeps every asset separate, with one holding company above them.";
+    why = "An SPV for each property holds every asset separately, with one holding company above them.";
     if (c === "family") {
       st.unshift("foundation");
       why = "A foundation for the family, a holding company below it and an SPV for each property.";
@@ -74,7 +74,7 @@ function fxPlan(a: string[]) {
     }
   } else {
     st = ["spv"];
-    why = "A single SPV ring-fences the deal, so it can be sold or closed without touching anything else.";
+    why = "A single SPV keeps the deal in its own vehicle, so it can be sold or closed separately.";
     if (c === "board") {
       st.unshift("holding");
       why = "A holding company for the partners, with an SPV for the deal itself.";
@@ -893,9 +893,11 @@ export function SpvMotion() {
         const fr = $(".ju-frame", row);
         let k = 0;
         const mv = () => {
-          const el = sp[k];
-          fr.style.left = el.offsetLeft - 4 + "px";
-          fr.style.width = el.offsetWidth + 8 + "px";
+          // Exact (fractional) positions, so the frame sits evenly around chips in fractional grid columns.
+          const a = sp[k].getBoundingClientRect();
+          const r = row.getBoundingClientRect();
+          fr.style.left = a.left - r.left - 4 + "px";
+          fr.style.width = a.width + 8 + "px";
           sp.forEach((x, i) => x.classList.toggle("on", i === k));
         };
         mv();

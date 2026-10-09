@@ -25,11 +25,12 @@ export function SpvCompare() {
             <h3 className="s1">Private foundation</h3>
             <p className="s2">Holds family wealth under rules you write.</p>
             <div className="xp-spec s3"><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7L9 18l-5-5" /></svg></i><small>Suited to</small><b>Succession, family assets, philanthropy</b></div><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg></i><small>Who controls it</small><b>A council you appoint, guided by your charter</b></div></div>
-            <div className="xp-foot s4"><div className="xp-jur"><span>DIFC</span><span>ADGM</span><span>RAK ICC</span></div><a className="xp-cta" href="#consult" data-goal="fam" data-cta-location="SPV Compare Private foundation">Plan a foundation<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
+            <div className="xp-foot s4"><div className="xp-jur"><span>RAK ICC</span><span>DIFC</span><span>ADGM</span><span>DMCC</span></div><a className="xp-cta" href="#consult" data-goal="fam" data-cta-location="SPV Compare Private foundation">Plan a foundation<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
           </div>
           <span className="xp-bar"><i></i></span>
         </div>
       </article>
+      {/* TODO(advisor): holding company jurisdictions (JAFZA Offshore, DMCC?) wait for advisor confirmation. */}
       <article className="xp-p" data-k="holding" tabIndex={0} role="button" aria-expanded="false" aria-label="Holding company">
         <div className="xp-c" aria-hidden="true">
           <span className="xp-n">02</span>
@@ -44,11 +45,12 @@ export function SpvCompare() {
             <h3 className="s1">Holding company</h3>
             <p className="s2">Owns your companies and investments under one roof.</p>
             <div className="xp-spec s3"><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7L9 18l-5-5" /></svg></i><small>Suited to</small><b>Business groups, partners, investments</b></div><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg></i><small>Who controls it</small><b>Shareholders and directors you appoint</b></div></div>
-            <div className="xp-foot s4"><div className="xp-jur"><span>DIFC</span><span>ADGM</span><span>RAK ICC</span><span>JAFZA</span></div><a className="xp-cta" href="#consult" data-goal="biz" data-cta-location="SPV Compare Holding company">Plan a holding<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
+            <div className="xp-foot s4"><div className="xp-jur"><span>DIFC</span><span>ADGM</span><span>RAK ICC</span><span>JAFZA Offshore</span></div><a className="xp-cta" href="#consult" data-goal="biz" data-cta-location="SPV Compare Holding company">Plan a holding<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
           </div>
           <span className="xp-bar"><i></i></span>
         </div>
       </article>
+      {/* TODO(advisor): name the DIFC SPV vehicle ("Prescribed Company")? Waiting for advisor input. */}
       <article className="xp-p" data-k="spv" tabIndex={0} role="button" aria-expanded="false" aria-label="SPV">
         <div className="xp-c" aria-hidden="true">
           <span className="xp-n">03</span>
@@ -61,13 +63,14 @@ export function SpvCompare() {
           <svg className="xp-big" viewBox="-6 -6 142 102" aria-hidden="true"><path className="w" d="M65 22V36M65 58V70" /><rect className="n" x="35" y="2" width="60" height="20" rx="7" /><rect className="k" x="40" y="36" width="50" height="22" rx="7" /><rect className="n" x="50" y="70" width="30" height="16" rx="5" /></svg>
           <div className="xp-txt">
             <h3 className="s1">SPV</h3>
-            <p className="s2">One vehicle for one asset or deal, kept apart from everything else.</p>
+            <p className="s2">One vehicle for one asset or deal, held separately from your other assets.</p>
             <div className="xp-spec s3"><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7L9 18l-5-5" /></svg></i><small>Suited to</small><b>Property, joint ventures, IP</b></div><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg></i><small>Who controls it</small><b>Your holding company or you directly</b></div></div>
-            <div className="xp-foot s4"><div className="xp-jur"><span>DIFC</span><span>ADGM</span><span>RAK ICC</span></div><a className="xp-cta" href="#consult" data-goal="prop" data-cta-location="SPV Compare SPV">Plan an SPV<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
+            <div className="xp-foot s4"><div className="xp-jur"><span>RAK ICC</span><span>DIFC</span><span>ADGM</span><span>DMCC</span></div><a className="xp-cta" href="#consult" data-goal="prop" data-cta-location="SPV Compare SPV">Plan an SPV<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
           </div>
           <span className="xp-bar"><i></i></span>
         </div>
       </article>
+      {/* TODO(advisor): offshore company jurisdictions (RAK ICC, JAFZA Offshore) wait for advisor confirmation. */}
       <article className="xp-p" data-k="offshore" tabIndex={0} role="button" aria-expanded="false" aria-label="Offshore company">
         <div className="xp-c" aria-hidden="true">
           <span className="xp-n">04</span>
