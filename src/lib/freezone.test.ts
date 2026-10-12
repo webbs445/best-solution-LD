@@ -55,15 +55,15 @@ describe("cleanPlanner", () => {
 });
 
 describe("topMatches", () => {
-  it("returns four zones with bounded match percentages", () => {
+  it("returns four zones, full fits first and each group cheapest first", () => {
     const m = topMatches(plan({ acts: ["tech"] }));
     expect(m).toHaveLength(4);
-    m.forEach((x) => {
-      expect(x.pct).toBeGreaterThanOrEqual(35);
-      expect(x.pct).toBeLessThanOrEqual(98);
-    });
-    expect(m[0].pct).toBeGreaterThanOrEqual(88);
+    expect(m[0].fits).toBe(true);
     expect(m[0].zone.t).toContain("tech");
+    for (let i = 1; i < m.length; i++) {
+      if (m[i].fits === m[i - 1].fits) expect(m[i].total).toBeGreaterThanOrEqual(m[i - 1].total);
+      else expect(m[i - 1].fits).toBe(true);
+    }
   });
 });
 

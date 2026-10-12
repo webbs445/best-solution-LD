@@ -52,32 +52,17 @@ function Stepper({
   );
 }
 
-/* A match card's bar fills shortly after it appears, staggered by rank. */
-function MatchBar({ pct, rank }: { pct: number; rank: number }) {
-  const [w, setW] = useState(0);
-  useEffect(() => {
-    const t = window.setTimeout(() => setW(pct), 60 + rank * 60);
-    return () => window.clearTimeout(t);
-  }, [pct, rank]);
-  return (
-    <div className="pm-bar">
-      <i style={{ width: `${w}%` }} />
-    </div>
-  );
-}
-
 function Matches({ matches, selected, onPick, unlocked }: { matches: Match[]; selected: string; onPick: (id: string) => void; unlocked: boolean }) {
   return (
     <ol className="pl-matches" aria-live="polite">
       {matches.map((m, i) => (
-        <li key={`${m.zone.id}-${m.pct}-${m.total}`}>
+        <li key={`${m.zone.id}-${m.total}`}>
           <button type="button" aria-pressed={m.zone.id === selected} onClick={() => onPick(m.zone.id)}>
             <div className="pm-top">
               <ZoneLogo zone={m.zone} size="zl-sug" alt={false} />
               <b>{m.zone.name}</b>
-              <span className="pm-pct">{m.pct}% match</span>
+              <span className={`pm-pct${m.fits ? "" : " pm-part"}`}>{!m.fits ? "Partial fit" : i === 0 ? "Best fit" : "Also fits"}</span>
             </div>
-            <MatchBar pct={m.pct} rank={i} />
             <div className="pm-foot">
               <span>{m.zone.d}</span>
               <strong>
@@ -156,7 +141,7 @@ function useEasedTotal(total: number) {
 }
 
 export function FzPlanner() {
-  const { state, matches, estimate, toggleAct, setPriority, step, chooseZone, setBank } = usePlanner();
+  const { state, matches, estimate, toggleAct, setPriority, step, chooseZone, setBank, complete } = usePlanner();
   const [showAll, setShowAll] = useState(false);
   const [popup, setPopup] = useState(0);
   const select = useRef<HTMLSelectElement>(null);
@@ -205,6 +190,15 @@ export function FzPlanner() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
+  // calculator_complete as soon as the visitor's own choice (an activity) gives a figure, not only on the estimate button.
+  const counted = useRef(false);
+  const hasActs = state.acts.length > 0;
+  useEffect(() => {
+    if (!hasActs || counted.current) return;
+    counted.current = true;
+    complete(undefined, undefined, "planner_result");
+  }, [hasActs, complete]);
 
   // Each opening mounts a fresh popup (its key), so a closed one never keeps old input.
   const openPopup = () => setPopup((n) => n + 1);
