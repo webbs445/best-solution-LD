@@ -93,6 +93,14 @@
   color: var(--qc-err);
 }
 
+.next {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--qc-soft);
+}
+
 .send,
 .done {
   min-height: 54px;

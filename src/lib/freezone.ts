@@ -168,22 +168,23 @@ function score(z: Zone, p: PlannerInput): number {
 
 export interface Match {
   zone: Zone;
-  /** Match percentage shown on the card. */
-  pct: number;
+  /** Covers every chosen activity, the team size and the shareholder setup. */
+  fits: boolean;
   total: number;
 }
 
-/** The top four zones for the visitor's choices, best first. */
+/** The four best-scored zones for the visitor's choices: full fits first, each group lowest first-year cost first. */
 export function topMatches(p: PlannerInput): Match[] {
-  const max = (p.acts.length ? p.acts.length * 6 : 2) + 5;
   return ZONES.map((zone) => ({ zone, s: score(zone, p) }))
     .sort((a, b) => b.s - a.s || a.zone.price - b.zone.price)
     .slice(0, 4)
-    .map((r, i) => {
-      let pct = Math.max(35, Math.min(98, Math.round((100 * (r.s + 4)) / (max + 4))));
-      if (i === 0 && p.acts.length) pct = Math.max(pct, 88);
-      return { zone: r.zone, pct, total: totalFor(r.zone, p).total };
-    });
+    .map(({ zone }) => {
+      const tf = totalFor(zone, p);
+      const mp = maxPack(zone);
+      const fits = tf.ok && p.acts.every((a) => zone.t.includes(a)) && (mp === null || p.res <= mp);
+      return { zone, fits, total: tf.total };
+    })
+    .sort((a, b) => Number(b.fits) - Number(a.fits) || a.total - b.total);
 }
 
 /* ---------- Activity search ---------- */

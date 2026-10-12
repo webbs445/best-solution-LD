@@ -1,0 +1,198 @@
+/* The "Unlock your exact figure" popup: a centred card on desktop, a bottom sheet on phones. */
+
+.noScroll {
+  overflow: hidden;
+}
+
+.dlg {
+  width: min(100% - 32px, 520px);
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font);
+  overflow: visible;
+}
+
+.dlg:focus,
+.dlg:focus-visible {
+  outline: none;
+}
+
+.dlg::backdrop {
+  background: rgba(6, 12, 22, 0.66);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.dlg[open] {
+  animation: up 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 24px 24px 20px;
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
+}
+
+.card::-webkit-scrollbar {
+  display: none;
+}
+
+.card :focus-visible {
+  outline: 2px solid var(--copper-dark);
+  outline-offset: 3px;
+}
+
+.close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ground);
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--tint);
+}
+
+.close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px 12px;
+  padding-right: 40px;
+}
+
+.head p,
+.head .tags {
+  grid-column: 1 / -1;
+}
+
+.lock {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #e0a283, #9c5a3d);
+  color: #fff;
+}
+
+.lock svg {
+  width: 20px;
+  height: 20px;
+}
+
+.head h3 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.head p {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #f4eee9;
+  color: #3a4659;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.soon {
+  order: 2;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.review {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  border-left: 2px solid var(--copper);
+}
+
+.review blockquote {
+  margin: 0;
+  color: #3a4659;
+  font-size: 14.5px;
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.review figcaption {
+  margin-top: 6px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+
+@media (max-width: 640px) {
+  .dlg {
+    width: 100%;
+    max-height: calc(100dvh - 12px);
+    margin: auto 0 0;
+  }
+
+  .card {
+    max-height: calc(100dvh - 12px);
+    padding: 24px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+    border-radius: 26px 26px 0 0;
+  }
+
+  .head h3 {
+    font-size: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dlg[open] {
+    animation: none;
+  }
+}

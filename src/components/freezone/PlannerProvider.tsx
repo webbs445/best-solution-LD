@@ -27,6 +27,9 @@ import { prefersReducedMotion } from "@/lib/useReducedMotion";
   ("Estimate My Cost" on a zone hands that zone to the planner).
 */
 
+/** Fired when a zone elsewhere on the page hands itself to the planner (phones then show the matches step). */
+export const FZ_GO_PLANNER = "fz:go-planner";
+
 interface State extends PlannerInput {
   /** The visitor picked the zone themselves, so re-ranking must not replace it. */
   manual: boolean;
@@ -159,6 +162,7 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
     (id: string, res?: number) => {
       chooseZone(id, "explorer");
       if (res != null) dispatch({ type: "res", n: res });
+      window.dispatchEvent(new Event(FZ_GO_PLANNER));
       document.getElementById("planner")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
     },
     [chooseZone],

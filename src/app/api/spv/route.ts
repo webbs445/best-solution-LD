@@ -1,4 +1,6 @@
 import { LEAD_RULES, SPV_FORM_ID, SPV_SERVICE_ENQUIRED, clickIdRows } from "@/lib/lead";
+import { emailIsReal } from "@/lib/emailCheck";
+import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
 import { str, trackingFields } from "@/lib/calculatorLead";
 import { isPhoneCountry } from "@/lib/phone";
@@ -17,7 +19,7 @@ const HOUR = 60 * 60 * 1000;
 /* Only values the form offers are passed on; anything else is dropped. */
 const oneOf = (v: unknown, list: readonly string[]) => (typeof v === "string" && list.includes(v) ? v : "");
 
-export async function POST(request: Request) {
+export const POST = withLeadLog("spv", async (request, log) => {
   let body: Record<string, unknown>;
   try {
     body = await request.json();
@@ -34,7 +36,7 @@ export async function POST(request: Request) {
   const email_id = str(body.email_id, 200).toLowerCase();
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
-    ...(LEAD_RULES.email_id(email_id) ? [] : ["email_id"]),
+    ...((await emailIsReal(email_id)) ? [] : ["email_id"]),
     ...(mobile ? [] : ["mobile_no"]),
   ];
   if (invalid.length) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });
@@ -69,6 +71,8 @@ export async function POST(request: Request) {
     details,
   });
 
+  if (result.ok) log.erp_id = result.name;
+  else log.erp_status = result.status;
   if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
   return Response.json({ ok: true });
-}
+});
