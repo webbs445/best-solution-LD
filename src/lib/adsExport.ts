@@ -24,7 +24,8 @@ const cell = (v: string) => (/[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` :
 export function adsConversionCsv(leads: ClickLead[]): string {
   const rows = leads
     .filter((l) => l.custom_clid?.trim() && isGclid(l.custom_clid.trim()) && !SKIP_STATUS.has(l.status))
-    .map((l) => [l.custom_clid.trim(), ADS_LEAD_CONVERSION, l.creation.slice(0, 19)].map(cell).join(","));
-  // The ERP stores UAE time (UTC+4, no daylight saving).
-  return ["Parameters:TimeZone=+0400", "Google Click ID,Conversion Name,Conversion Time", ...rows].join("\n") + "\n";
+    // The ERP stores UAE time (UTC+4, no daylight saving); the offset goes on each time, as Data Manager reads the
+    // first line as the column names. Order ID (the ERP lead number) stops a lead being counted twice.
+    .map((l) => [l.custom_clid.trim(), ADS_LEAD_CONVERSION, `${l.creation.slice(0, 19)}+04:00`, l.name].map(cell).join(","));
+  return ["Google Click ID,Conversion Name,Conversion Time,Order ID", ...rows].join("\n") + "\n";
 }
