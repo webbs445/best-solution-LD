@@ -190,6 +190,17 @@ export function AcQuote() {
         name={k}
         type={type}
         autoComplete={autoComplete}
+        // The phone keyboard's "Next" key moves on (name, phone, email) instead of sending a half-filled form.
+        enterKeyHint={k === "email" ? "send" : "next"}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" || k === "email") return;
+          e.preventDefault();
+          inputs.current[k === "name" ? "phone" : "email"]?.focus();
+        }}
+        // Flag a wrong number on leaving the field, not only after pressing send.
+        onBlur={(e) => {
+          if (k === "phone" && e.target.value.trim() && !rules.phone(e.target.value)) setBad((b) => ({ ...b, phone: true }));
+        }}
         inputMode={inputMode}
         placeholder=" "
         required
@@ -323,6 +334,16 @@ export function AcQuote() {
                     )}
                   </button>
                 </div>
+                {/* A shortcut at every step for visitors who would rather not fill in the form. */}
+                <a
+                  className="qwa"
+                  href={service === "not_sure" ? AC_WHATSAPP.quote : `${AC_WHATSAPP.quote}${encodeURIComponent(`: ${SERVICE_NAMES[service]}`)}`}
+                  target="_blank"
+                  rel="noopener"
+                  data-area="Quote Form"
+                >
+                  Prefer WhatsApp? Get your quote there
+                </a>
                 <p className="safe">
                   <span>
                     By sending, you agree that Best Solution may contact you by phone, WhatsApp or email.{" "}
