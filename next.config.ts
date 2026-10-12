@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
       ...SITELINK_PATHS.map((path) => ({ source: `/${path}`, destination: "/" })),
       // Google Ads only fetches scheduled uploads from a URL ending in .csv.
       { source: "/ads-conversions.csv", destination: "/api/ads-conversions" },
+      // The same data as a readable page for the team.
+      { source: "/ads-report", destination: "/api/ads-report" },
     ];
   },
   images: {

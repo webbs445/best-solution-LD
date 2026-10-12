@@ -19,14 +19,23 @@ const SKIP_STATUS = new Set(["Junk", "Duplicate Lead"]);
  */
 const isGclid = (v: string) => !/^Iw/.test(v) && !/^0AAAA/.test(v) && !/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(v);
 
+/** Why a lead is left out of the upload, or null when it goes to Google. Shared with the report page. */
+export function exclusionReason(l: ClickLead): string | null {
+  const id = l.custom_clid?.trim() ?? "";
+  if (!id) return "No click ID";
+  if (!isGclid(id)) return "Not a Google web click";
+  if (SKIP_STATUS.has(l.status)) return `Marked ${l.status} in the ERP`;
+  return null;
+}
+
 /** Current UAE time as "YYYY-MM-DD HH:MM:SS" (UTC+4, no daylight saving). */
-const uaeNow = () => new Date(Date.now() + 4 * 3_600_000).toISOString().slice(0, 19).replace("T", " ");
+export const uaeNow = () => new Date(Date.now() + 4 * 3_600_000).toISOString().slice(0, 19).replace("T", " ");
 
 const cell = (v: string) => (/[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
 
 export function adsConversionCsv(leads: ClickLead[]): string {
   const rows = leads
-    .filter((l) => l.custom_clid?.trim() && isGclid(l.custom_clid.trim()) && !SKIP_STATUS.has(l.status))
+    .filter((l) => exclusionReason(l) === null)
     // The ERP stores UAE time (UTC+4, no daylight saving); the offset goes on each time, as Data Manager reads the
     // first line as the column names. Order ID (the ERP lead number) stops a lead being counted twice.
     .map((l) => [l.custom_clid.trim(), ADS_LEAD_CONVERSION, `${l.creation.slice(0, 19)}+04:00`, l.name].map(cell).join(","));

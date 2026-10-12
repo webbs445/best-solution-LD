@@ -1,27 +1,17 @@
-import { createHash, timingSafeEqual } from "node:crypto";
 import { adsConversionCsv } from "@/lib/adsExport";
+import { adsAuthFailure } from "@/lib/adsAuth";
 import { listClickLeads } from "@/lib/erp";
 
 /*
-  The CSV Google Ads fetches on a schedule (Goals > Uploads > Schedules, source HTTPS) at /ads-conversions.csv (Google needs the .csv ending) to import website
-  leads from the ERP as "Website lead (ERP)" conversions. Basic auth with ADS_EXPORT_USER /
-  ADS_EXPORT_PASSWORD; without both set, the link is off. Leads from the last 90 days (Google's click window).
+  The CSV Google Ads fetches every night (Data Manager, HTTPS source) at /ads-conversions.csv, as Google needs the
+  .csv ending, to import website leads from the ERP as "Website lead (ERP)" conversions. Basic auth (lib/adsAuth).
+  Leads from the last 90 days (Google's click window). The same data, readable, is at /ads-report.
 */
 export const dynamic = "force-dynamic";
 
-const digest = (v: string) => createHash("sha256").update(v).digest();
-const same = (a: string, b: string) => timingSafeEqual(digest(a), digest(b));
-
 export async function GET(request: Request) {
-  const user = process.env.ADS_EXPORT_USER;
-  const pass = process.env.ADS_EXPORT_PASSWORD;
-  if (!user || !pass) return new Response("Not found", { status: 404 });
-
-  const [scheme, token] = (request.headers.get("authorization") || "").split(" ");
-  const given = scheme === "Basic" && token ? Buffer.from(token, "base64").toString() : "";
-  if (!same(given, `${user}:${pass}`)) {
-    return new Response("Unauthorized", { status: 401, headers: { "WWW-Authenticate": 'Basic realm="ads-export"' } });
-  }
+  const refused = adsAuthFailure(request);
+  if (refused) return refused;
 
   const leads = await listClickLeads(90);
   if (!leads) return new Response("ERP unavailable", { status: 502 });

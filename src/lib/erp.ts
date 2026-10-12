@@ -191,6 +191,54 @@ export async function listClickLeads(days: number): Promise<ClickLead[] | null> 
   }
 }
 
+/** A lead's tracking and status, for the lead dashboard. No name, phone or email is ever read. */
+export interface ReportLead extends ClickLead {
+  source: string;
+  custom_platform: string;
+  custom_campaign: string;
+  custom_ad_set_name: string;
+  custom_ad_name: string;
+  custom_form_name: string;
+}
+
+/** Every lead created on or after `since` (UAE date, "YYYY-MM-DD"), tracking fields only (GET /api/resource/Lead). Null when the ERP fails. */
+export async function listLeads(since: string): Promise<ReportLead[] | null> {
+  const cfg = erpConfig();
+  if (!cfg) return null;
+  const q = new URLSearchParams({
+    fields: JSON.stringify([
+      "name",
+      "creation",
+      "status",
+      "source",
+      "custom_platform",
+      "custom_campaign",
+      "custom_ad_set_name",
+      "custom_ad_name",
+      "custom_clid",
+      "custom_form_name",
+    ]),
+    filters: JSON.stringify([["creation", ">=", since]]),
+    order_by: "creation desc",
+    // ponytail: one page of 5,000 (about 280 leads a month today). Paginate if the report window ever passes that.
+    limit_page_length: "5000",
+  });
+  try {
+    const res = await fetch(`${cfg.base}/api/resource/Lead?${q}`, {
+      headers: { Accept: "application/json", Authorization: cfg.auth },
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!res.ok) {
+      console.error(`ERPNext lead list failed: ${res.status}`, (await res.text()).slice(0, 500));
+      return null;
+    }
+    return ((await res.json()) as { data?: ReportLead[] }).data ?? [];
+  } catch (err) {
+    console.error("ERPNext unreachable", err);
+    return null;
+  }
+}
+
 /** Updates fields on an existing lead (PUT /api/resource/Lead/<name>). */
 export async function updateErpLead(name: string, fields: Record<string, unknown>): Promise<LeadResult> {
   const cfg = erpConfig();
