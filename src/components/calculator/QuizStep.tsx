@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useCalculator } from "./CalculatorProvider";
-import { Scramble } from "./Scramble";
+import { Scramble } from "@/components/ui/Scramble";
 import { OPTION_Q, STEPS } from "@/content/calculator";
 import { DATA, maxResidents, type Answers, type Jurisdiction } from "@/lib/pricing";
 import { useReducedMotion } from "@/lib/useReducedMotion";
