@@ -190,6 +190,17 @@ export function AcQuote() {
         name={k}
         type={type}
         autoComplete={autoComplete}
+        // The phone keyboard's "Next" key moves on (name, phone, email) instead of sending a half-filled form.
+        enterKeyHint={k === "email" ? "send" : "next"}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" || k === "email") return;
+          e.preventDefault();
+          inputs.current[k === "name" ? "phone" : "email"]?.focus();
+        }}
+        // Flag a wrong number on leaving the field, not only after pressing send.
+        onBlur={(e) => {
+          if (k === "phone" && e.target.value.trim() && !rules.phone(e.target.value)) setBad((b) => ({ ...b, phone: true }));
+        }}
         inputMode={inputMode}
         placeholder=" "
         required
