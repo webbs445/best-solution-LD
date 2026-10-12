@@ -366,6 +366,8 @@
 .ac-page .qnav {display:flex;gap:10px;margin-top:8px}
 .ac-page .qnav .btn {flex:1;height:56px}
 .ac-page .qnav .back {flex:0 0 56px;padding:0;background:var(--ground);color:var(--navy)}
+.ac-page .qwa {display:block;margin-top:12px;text-align:center;font-size:14.5px;font-weight:700;color:#1f8a5b;text-decoration:none}
+.ac-page .qwa:hover {text-decoration:underline;text-underline-offset:3px}
 .ac-page .qnav .back svg {transform:rotate(180deg)}
 .ac-page .qnav .back:hover svg {transform:rotate(180deg) translateX(3px)}
 .ac-page .safe {display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-soft);margin-top:14px}
