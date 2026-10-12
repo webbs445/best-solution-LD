@@ -63,6 +63,59 @@ const PHONE = "(max-width: 900px)";
 const HAY = Object.fromEntries(ZONES.map((zn) => [zn.id, norm(zoneHaystack(zn))]));
 const track = trackEvent;
 
+/*
+  A sideways chip row that a mouse can drag (touch already swipes) and a vertical wheel scrolls. A drag of more
+  than a few pixels does not count as a click on the chip under the pointer.
+*/
+function dragScroll(el: HTMLDivElement | null) {
+  if (!el || el.dataset.drag) return;
+  el.dataset.drag = "1";
+  let startX = 0;
+  let startLeft = 0;
+  let down = false;
+  let moved = false;
+  el.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse" || el.scrollWidth <= el.clientWidth) return;
+    down = true;
+    moved = false;
+    startX = e.clientX;
+    startLeft = el.scrollLeft;
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) moved = true;
+    el.scrollLeft = startLeft - dx;
+  });
+  const up = () => {
+    down = false;
+  };
+  el.addEventListener("pointerup", up);
+  el.addEventListener("pointerleave", up);
+  el.addEventListener(
+    "click",
+    (e) => {
+      if (!moved) return;
+      e.preventDefault();
+      e.stopPropagation();
+      moved = false;
+    },
+    true,
+  );
+  el.addEventListener(
+    "wheel",
+    (e) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || el.scrollWidth <= el.clientWidth) return;
+      const max = el.scrollWidth - el.clientWidth;
+      const next = Math.max(0, Math.min(max, el.scrollLeft + e.deltaY));
+      if (next === el.scrollLeft) return;
+      e.preventDefault();
+      el.scrollLeft = next;
+    },
+    { passive: false },
+  );
+}
+
 function ActIcon({ name, className }: { name: string; className?: string }) {
   return (
     <span className={className} aria-hidden="true">
@@ -699,7 +752,7 @@ export function FzZones() {
             </div>
           </div>
 
-          <div className={s.chipRow} role="group" aria-label="Filter free zones">
+          <div ref={dragScroll} className={`${s.chipRow} ${s.seg}`} role="group" aria-label="Filter free zones">
             {FILTERS.map((f) => (
               <button
                 key={f.g}
@@ -717,7 +770,7 @@ export function FzZones() {
             ))}
           </div>
 
-          <div className={s.chipRow} role="group" aria-label="Popular activities">
+          <div ref={dragScroll} className={s.chipRow} role="group" aria-label="Popular activities">
             <span className={s.popLabel}>Popular</span>
             {POPULAR_ACTS.map((name) => (
               <button
