@@ -205,3 +205,26 @@ describe("lead standard events", () => {
     expect(dataLayer.find((e) => e.event === "email_click")).toMatchObject({ cta_location: "Footer", value: 40 });
   });
 });
+
+describe("form drop-off events", () => {
+  it("form_abandon carries where the visitor stopped, and form_error the fields that blocked a send", async () => {
+    const { analytics } = await load();
+    analytics.trackFormAbandon("LP Cost Calculator", { last_field: "email_id", fields_filled: "lead_name,mobile_no", error_fields: "mobile_no", submit_attempts: 1, seconds_in_form: 42, exit: "page_leave" });
+    analytics.trackFormError("LP Cost Calculator", ["mobile_no", "email_id"], 2);
+    expect(dataLayer.find((e) => e.event === "form_abandon")).toMatchObject({
+      form_data: { form_id: "LP Cost Calculator", last_field: "email_id", fields_filled: "lead_name,mobile_no", error_fields: "mobile_no", submit_attempts: 1, seconds_in_form: 42, exit: "page_leave" },
+    });
+    expect(dataLayer.find((e) => e.event === "form_error")).toMatchObject({ form_data: { form_id: "LP Cost Calculator", error_fields: "mobile_no,email_id", attempt: 2 } });
+  });
+
+  it("pushFormSubmit tells the page the form succeeded", async () => {
+    const seen: string[] = [];
+    (window as unknown as { dispatchEvent: (e: Event) => boolean }).dispatchEvent = (e) => {
+      seen.push(`${e.type}:${(e as CustomEvent).detail}`);
+      return true;
+    };
+    const { analytics } = await load();
+    analytics.pushFormSubmit({ formId: "LP Structuring Consultation", email: "test@example.com", phone: "+971500000000" });
+    expect(seen).toContain("bs:form-success:LP Structuring Consultation");
+  });
+});

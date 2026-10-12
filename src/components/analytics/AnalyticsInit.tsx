@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import {
   captureClickIds,
+  FORM_SUCCESS_EVENT,
   pushPageContext,
   trackConsultationCta,
   trackContentView,
@@ -11,6 +12,7 @@ import {
   trackFaqExpand,
   trackFileDownload,
   trackFormAbandon,
+  trackFormError,
   trackFormStart,
   trackMapClick,
   trackOutboundClick,
@@ -25,7 +27,8 @@ import {
   - content_view on load, plus click-id capture on load and whenever consent changes;
   - one delegated click listener: [data-cta-location] CTAs, FAQ opens, tel / wa.me / mailto / Maps /
     pdf / other outbound links. Anchors with data-no-track opt out;
-  - form_start / form_abandon for every <form>, using its data-track value as form_id;
+  - form_start / form_error / form_abandon for every <form>, using its data-track value as form_id
+    (abandon carries where the visitor stopped: field names, errors, attempts, time; never typed values);
   - engaged_time_on_topic (30/45/60/120 s of active time) and scroll_depth (25/50/75/90 %).
 */
 /**
@@ -99,36 +102,89 @@ export function AnalyticsInit() {
     return () => document.removeEventListener("click", onClick, { capture: true });
   }, []);
 
-  // form_start on first field focus, form_abandon on page leave if started but not submitted.
+  // form_start on first field focus. form_abandon on page leave if started but the lead was never confirmed,
+  // with where the visitor stopped (field names, errors, attempts, time; never what they typed).
+  // form_error when a send attempt is stopped by field errors.
   useEffect(() => {
-    const started = new Map<HTMLFormElement, string>();
-    const submitted = new WeakSet<HTMLFormElement>();
+    interface FormState {
+      id: string;
+      t0: number;
+      lastField: string;
+      errors: Set<string>;
+      attempts: number;
+      whatsapp: boolean;
+    }
+    const started = new Map<HTMLFormElement, FormState>();
+    const succeeded = new Set<string>();
     let counter = 0;
-    const formId = (form: HTMLFormElement) =>
-      started.get(form) || form.dataset.track || form.getAttribute("name") || form.id || `form_${++counter}`;
+    const formId = (form: HTMLFormElement) => form.dataset.track || form.getAttribute("name") || form.id || `form_${++counter}`;
+    const fieldName = (el: Element) => el.getAttribute("name") || el.id || (el as HTMLInputElement).type || el.tagName.toLowerCase();
+    const isSpamTrap = (el: Element) => el.getAttribute("name") === "website";
+    const filled = (form: HTMLFormElement) =>
+      Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea"))
+        .filter((el) => !isSpamTrap(el) && !/^(hidden|radio|checkbox|submit|button)$/.test(el.type) && el.value.trim())
+        .map(fieldName);
+    const invalid = (form: HTMLFormElement) =>
+      Array.from(form.querySelectorAll('[aria-invalid="true"]')).filter((el) => !isSpamTrap(el)).map(fieldName);
 
     const onFocusIn = (e: FocusEvent) => {
-      const form = (e.target as Element | null)?.closest?.("form") as HTMLFormElement | null;
-      if (!form || started.has(form)) return;
-      const id = formId(form);
-      started.set(form, id);
-      trackFormStart(id);
+      const el = e.target as Element | null;
+      const form = el?.closest?.("form") as HTMLFormElement | null;
+      if (!form) return;
+      let st = started.get(form);
+      if (!st) {
+        st = { id: formId(form), t0: Date.now(), lastField: "", errors: new Set(), attempts: 0, whatsapp: false };
+        started.set(form, st);
+        trackFormStart(st.id);
+      }
+      if (el && el.matches("input, select, textarea") && !isSpamTrap(el)) st.lastField = fieldName(el);
     };
     const onSubmit = (e: Event) => {
       const form = e.target as HTMLFormElement | null;
-      if (form && form.tagName === "FORM") submitted.add(form);
+      const st = form && started.get(form);
+      if (!form || !st) return;
+      st.attempts++;
+      // The form marks bad fields right after its own submit handler runs.
+      window.setTimeout(() => {
+        const bad = invalid(form);
+        if (!bad.length) return;
+        bad.forEach((f) => st.errors.add(f));
+        trackFormError(st.id, bad, st.attempts);
+      }, 150);
     };
+    const onSuccess = (e: Event) => succeeded.add(String((e as CustomEvent).detail));
+    // A WhatsApp tap after starting a form means they contacted us instead: still reported, marked as such.
+    const onClick = (e: MouseEvent) => {
+      if (!(e.target as Element | null)?.closest?.('a[href*="wa.me"]')) return;
+      started.forEach((st) => (st.whatsapp = true));
+    };
+    let reported = false;
     const onPageHide = () => {
-      started.forEach((id, form) => {
-        if (!submitted.has(form)) trackFormAbandon(id);
+      if (reported) return;
+      reported = true;
+      started.forEach((st, form) => {
+        if (succeeded.has(st.id)) return;
+        invalid(form).forEach((f) => st.errors.add(f));
+        trackFormAbandon(st.id, {
+          last_field: st.lastField || undefined,
+          fields_filled: filled(form).join(",") || undefined,
+          error_fields: [...st.errors].join(",") || undefined,
+          submit_attempts: st.attempts,
+          seconds_in_form: Math.round((Date.now() - st.t0) / 1000),
+          exit: st.whatsapp ? "whatsapp" : "page_leave",
+        });
       });
     };
     document.addEventListener("focusin", onFocusIn);
     document.addEventListener("submit", onSubmit, { capture: true });
+    document.addEventListener("click", onClick, { capture: true });
+    window.addEventListener(FORM_SUCCESS_EVENT, onSuccess);
     window.addEventListener("pagehide", onPageHide);
     return () => {
       document.removeEventListener("focusin", onFocusIn);
       document.removeEventListener("submit", onSubmit, { capture: true });
+      document.removeEventListener("click", onClick, { capture: true });
+      window.removeEventListener(FORM_SUCCESS_EVENT, onSuccess);
       window.removeEventListener("pagehide", onPageHide);
     };
   }, []);

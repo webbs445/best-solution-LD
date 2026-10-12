@@ -236,7 +236,12 @@ export function pushFormSubmit({
     ...pageData(),
   });
   conversionPending = true;
+  // Tells AnalyticsInit this form succeeded, so leaving the page afterwards is not an abandon.
+  window.dispatchEvent(new CustomEvent(FORM_SUCCESS_EVENT, { detail: formId }));
 }
+
+/** Window event fired once a form's lead is confirmed (detail: form id). */
+export const FORM_SUCCESS_EVENT = "bs:form-success";
 
 /* ─── Calculator ─── */
 
@@ -363,8 +368,29 @@ export function trackFormStart(formId: string): void {
   pushEvent("form_start", { form_data: { form_id: formId }, ...pageData() });
 }
 
-export function trackFormAbandon(formId: string): void {
-  pushEvent("form_abandon", { form_data: { form_id: formId }, ...pageData() });
+/** Where a started form was left: field names and counts only, never what the visitor typed. */
+export interface FormAbandonDetails {
+  /** The last field the visitor was in, e.g. "email_id". */
+  last_field?: string;
+  /** Fields with something typed in, comma separated, e.g. "lead_name,mobile_no". */
+  fields_filled?: string;
+  /** Fields that showed an error at any point, comma separated. */
+  error_fields?: string;
+  /** Times the visitor pressed the send button. */
+  submit_attempts?: number;
+  /** Seconds from the first field focus to leaving. */
+  seconds_in_form?: number;
+  /** "whatsapp" when they tapped a WhatsApp link after starting (they contacted us), else "page_leave". */
+  exit?: "whatsapp" | "page_leave";
+}
+
+export function trackFormAbandon(formId: string, details: FormAbandonDetails = {}): void {
+  pushEvent("form_abandon", { form_data: { form_id: formId, ...details }, ...pageData() });
+}
+
+/** A send attempt stopped by field errors (field names only). */
+export function trackFormError(formId: string, errorFields: string[], attempt: number): void {
+  pushEvent("form_error", { form_data: { form_id: formId, error_fields: errorFields.join(","), attempt }, ...pageData() });
 }
 
 /* ─── Contact and outbound clicks ─── */
