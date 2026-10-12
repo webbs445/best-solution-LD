@@ -10,16 +10,25 @@ import styles from "./MobileEstimateBar.module.css";
   opens WhatsApp. It slides away while the calculator itself is on screen, so it never covers the estimate
   or the number field. Contact clicks report cta_location "Mobile Bar" (data-area).
 */
-export function MobileEstimateBar({ targetId, location }: { targetId: string; location: string }) {
+export function MobileEstimateBar({ targetId, hideOver = [], location }: { targetId: string; hideOver?: string[]; location: string }) {
   const [hidden, setHidden] = useState(false);
+  const watch = [targetId, ...hideOver].join(" ");
 
+  // Hidden while any watched section (the calculator, or one with its own bottom bar) is on screen.
   useEffect(() => {
-    const el = document.getElementById(targetId);
-    if (!el || !("IntersectionObserver" in window)) return;
-    const io = new IntersectionObserver(([e]) => setHidden(e.isIntersecting), { threshold: 0 });
-    io.observe(el);
+    const els = watch.split(" ").map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
+    if (!els.length || !("IntersectionObserver" in window)) return;
+    const on = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => (e.isIntersecting ? on.add(e.target) : on.delete(e.target)));
+        setHidden(on.size > 0);
+      },
+      { threshold: 0 },
+    );
+    els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [targetId]);
+  }, [watch]);
 
   return (
     <div className={`${styles.bar}${hidden ? ` ${styles.hidden}` : ""}`} data-area="Mobile Bar" aria-hidden={hidden || undefined}>

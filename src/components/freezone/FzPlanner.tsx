@@ -193,10 +193,14 @@ export function FzPlanner() {
     else setOpen(true);
   };
 
-  // "Estimate my cost" on a zone elsewhere on the page: back to the plan, on the matches step for phones.
+  // A zone handed over from elsewhere on the page: its estimate once prices are unlocked, else the matches step.
+  const unlockedRef = useRef(unlocked);
+  useEffect(() => {
+    unlockedRef.current = unlocked;
+  }, [unlocked]);
   useEffect(() => {
     const toMatches = () => {
-      setView("plan");
+      setView(unlockedRef.current ? "estimate" : "plan");
       setDir(1);
       setStep(3);
     };
