@@ -13,7 +13,7 @@ describe("Google Ads conversion CSV", () => {
       { name: "BSL-7", creation: "2026-10-12 18:00:00.000000", custom_clid: "5a1f7b2c-1d3e-4f5a-8b9c-0d1e2f3a4b5c", status: "Lead" },
     ]);
     expect(csv).toBe(
-      "Parameters:TimeZone=+0400\nGoogle Click ID,Conversion Name,Conversion Time\nCj0KCQabc,Website lead (ERP),2026-10-12 12:04:04\n",
+      "Google Click ID,Conversion Name,Conversion Time,Order ID\nCj0KCQabc,Website lead (ERP),2026-10-12 12:04:04+04:00,BSL-1\n",
     );
   });
 });
