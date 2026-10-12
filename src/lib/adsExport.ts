@@ -19,6 +19,9 @@ const SKIP_STATUS = new Set(["Junk", "Duplicate Lead"]);
  */
 const isGclid = (v: string) => !/^Iw/.test(v) && !/^0AAAA/.test(v) && !/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(v);
 
+/** Current UAE time as "YYYY-MM-DD HH:MM:SS" (UTC+4, no daylight saving). */
+const uaeNow = () => new Date(Date.now() + 4 * 3_600_000).toISOString().slice(0, 19).replace("T", " ");
+
 const cell = (v: string) => (/[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
 
 export function adsConversionCsv(leads: ClickLead[]): string {
@@ -27,5 +30,8 @@ export function adsConversionCsv(leads: ClickLead[]): string {
     // The ERP stores UAE time (UTC+4, no daylight saving); the offset goes on each time, as Data Manager reads the
     // first line as the column names. Order ID (the ERP lead number) stops a lead being counted twice.
     .map((l) => [l.custom_clid.trim(), ADS_LEAD_CONVERSION, `${l.creation.slice(0, 19)}+04:00`, l.name].map(cell).join(","));
+  // Google's Data Manager needs one row to read the layout. Until a real ad-click lead exists, a marked sample row
+  // stands in; its click id is not a real one, so Google rejects that row and nothing is counted.
+  if (!rows.length) rows.push(["SAMPLE-not-a-real-click", ADS_LEAD_CONVERSION, `${uaeNow()}+04:00`, "SAMPLE"].join(","));
   return ["Google Click ID,Conversion Name,Conversion Time,Order ID", ...rows].join("\n") + "\n";
 }

@@ -16,4 +16,10 @@ describe("Google Ads conversion CSV", () => {
       "Google Click ID,Conversion Name,Conversion Time,Order ID\nCj0KCQabc,Website lead (ERP),2026-10-12 12:04:04+04:00,BSL-1\n",
     );
   });
+
+  it("shows one marked sample row only while there are no real leads", () => {
+    const lines = adsConversionCsv([]).trim().split("\n");
+    expect(lines).toHaveLength(2);
+    expect(lines[1]).toMatch(/^SAMPLE-not-a-real-click,Website lead \(ERP\),\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\+04:00,SAMPLE$/);
+  });
 });
