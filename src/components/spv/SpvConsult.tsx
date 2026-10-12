@@ -2,6 +2,29 @@ import { SITE } from "@/content/site";
 import { SPV_WA_HREF } from "@/content/spv";
 import { SpvConsultForm } from "./SpvConsultForm";
 
+/* Right after the hero: an early, short way into the consultation for visitors who already know they want to talk. */
+export function SpvConsultCard() {
+  return (
+    <section className="cc-band" aria-labelledby="ccTitle">
+      <div className="wrap cc-card rv">
+        <div>
+          <span className="eyebrow">Free consultation</span>
+          <h2 id="ccTitle">Talk it through with a structuring advisor.</h2>
+          <p>A private conversation about what you want to hold, protect or pass on. No obligation.</p>
+        </div>
+        <div className="cc-acts">
+          <a className="btn btn-cu" href="#fm" data-cta-location="SPV Card Book">
+            Book a free consultation
+          </a>
+          <a className="btn btn-wh" href={SPV_WA_HREF} target="_blank" rel="noopener" data-area="SPV Card">
+            WhatsApp us
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* Free consultation: what happens next, quick contact, and the form. */
 export function SpvConsult() {
   return (

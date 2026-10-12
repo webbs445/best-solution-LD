@@ -13,7 +13,7 @@ import { SpvFit } from "@/components/spv/SpvFit";
 import { SpvWho } from "@/components/spv/SpvWho";
 import { SpvTrust } from "@/components/spv/SpvTrust";
 import { SpvFaq } from "@/components/spv/SpvFaq";
-import { SpvConsult } from "@/components/spv/SpvConsult";
+import { SpvConsult, SpvConsultCard } from "@/components/spv/SpvConsult";
 import { SpvFooter } from "@/components/spv/SpvFooter";
 import { SpvMotion } from "@/components/spv/SpvMotion";
 import "./spv.css";
@@ -49,6 +49,7 @@ export default function SpvPage() {
       <SpvChrome />
       <main id="main" tabIndex={-1}>
         <SpvHero />
+        <SpvConsultCard />
         <SpvStamps />
         <SpvWhy />
         <SpvLayers />
