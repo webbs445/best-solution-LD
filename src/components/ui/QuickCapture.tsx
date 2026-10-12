@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { SITE } from "@/content/site";
 import { genEventId, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
@@ -82,6 +82,13 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
   const setValue = (f: Field, v: string) => {
     setValues((x) => ({ ...x, [f]: v }));
     if (bad[f] && check(f, v)) setBad((b) => ({ ...b, [f]: false }));
+  };
+
+  // The phone keyboard's "Next" key moves on instead of sending a half-filled form.
+  const nextOnEnter = (to: Field) => (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    document.getElementById(`${id}-${to}`)?.focus();
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -201,6 +208,8 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
           name="lead_name"
           type="text"
           autoComplete="name"
+          enterKeyHint="next"
+          onKeyDown={nextOnEnter("phone")}
           required
           value={values.name}
           aria-invalid={!!bad.name}
@@ -236,6 +245,10 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
             type="tel"
             inputMode="tel"
             autoComplete="tel"
+            enterKeyHint="next"
+            onKeyDown={nextOnEnter("email")}
+            // Flag a wrong number on leaving the field, not only after pressing send.
+            onBlur={() => values.phone.trim() && !check("phone", values.phone) && setBad((b) => ({ ...b, phone: true }))}
             required
             placeholder={PLACEHOLDER[country] ?? "Mobile number"}
             value={values.phone}
@@ -249,13 +262,14 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
       </div>
 
       <div className={styles.field}>
-        <label htmlFor={`${id}-email`}>Email</label>
+        <label htmlFor={`${id}-email`}>Email (for your written copy)</label>
         <input
           id={`${id}-email`}
           name="email_id"
           type="email"
           inputMode="email"
           autoComplete="email"
+          enterKeyHint="send"
           required
           value={values.email}
           aria-invalid={!!bad.email}
@@ -271,6 +285,8 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
           {error}
         </p>
       ) : null}
+
+      <p className={styles.next}>Your advisor sends the breakdown on WhatsApp.</p>
 
       <button type="submit" className={`btn btn-primary btn-block ${styles.send}`} disabled={sending}>
         {sending ? <span className={styles.spin} aria-hidden="true" /> : null}

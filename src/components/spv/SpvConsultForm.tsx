@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FocusEvent, type FormEvent, type KeyboardEvent } from "react";
 import { SITE } from "@/content/site";
 import { SPV_ASSETS, SPV_CONTACT, SPV_GOALS, SPV_PREFILL_EVENT, type SpvAssets, type SpvGoal, type SpvPrefill } from "@/content/spv";
 import { genEventId, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
@@ -104,6 +104,15 @@ export function SpvConsultForm() {
   };
 
   const clear = (k: Field) => () => bad[k] && setBad((b) => ({ ...b, [k]: false }));
+  // The phone keyboard's "Next" key moves on instead of sending a half-filled form.
+  const nextOnEnter = (to: string) => (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    document.getElementById(to)?.focus();
+  };
+  // Flag a wrong number on leaving the field, not only after pressing send.
+  const checkPhone = (e: FocusEvent<HTMLInputElement>) =>
+    e.target.value.trim() && !toE164Phone(e.target.value, country) && setBad((b) => ({ ...b, phone: true }));
 
   return (
     <div className={`fm${done ? " done" : ""}`} id="fm">
@@ -113,7 +122,7 @@ export function SpvConsultForm() {
         <p className="fm-sub">Takes a few moments. We only use your details to contact you.</p>
         <div className="fg">
           <div className={`fl${bad.name ? " bad" : ""}`}>
-            <input id="fName" name="name" placeholder=" " autoComplete="name" required aria-invalid={!!bad.name} onInput={clear("name")} />
+            <input id="fName" name="name" placeholder=" " autoComplete="name" enterKeyHint="next" onKeyDown={nextOnEnter("fPhone")} required aria-invalid={!!bad.name} onInput={clear("name")} />
             <label htmlFor="fName">Full name</label>
             <span className="err">Please enter your full name.</span>
           </div>
@@ -126,7 +135,7 @@ export function SpvConsultForm() {
                   </option>
                 ))}
               </select>
-              <input id="fPhone" name="phone" type="tel" inputMode="tel" placeholder=" " autoComplete="tel" required aria-invalid={!!bad.phone} onInput={clear("phone")} />
+              <input id="fPhone" name="phone" type="tel" inputMode="tel" placeholder=" " autoComplete="tel" enterKeyHint="next" onKeyDown={nextOnEnter("fEmail")} onBlur={checkPhone} required aria-invalid={!!bad.phone} onInput={clear("phone")} />
               <label htmlFor="fPhone">Phone or WhatsApp</label>
             </div>
             <span className="err">
@@ -134,7 +143,7 @@ export function SpvConsultForm() {
             </span>
           </div>
           <div className={`fl full${bad.email ? " bad" : ""}`}>
-            <input id="fEmail" name="email" type="email" inputMode="email" placeholder=" " autoComplete="email" required aria-invalid={!!bad.email} onInput={clear("email")} />
+            <input id="fEmail" name="email" type="email" inputMode="email" placeholder=" " autoComplete="email" enterKeyHint="send" required aria-invalid={!!bad.email} onInput={clear("email")} />
             <label htmlFor="fEmail">Email</label>
             <span className="err">Please enter a valid email address.</span>
           </div>
