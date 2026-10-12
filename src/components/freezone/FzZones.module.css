@@ -130,6 +130,13 @@
   outline: none;
 }
 
+/* The rounded box shows the focus ring, so the field itself draws none. */
+.zx .searchWrap .search input:focus,
+.zx .searchWrap .search input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 .search input::placeholder {
   color: #8a93a3;
 }
