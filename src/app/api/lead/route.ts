@@ -1,4 +1,5 @@
 import { LEAD_RULES, type LeadField } from "@/lib/lead";
+import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead, leadEstimateFields, updateErpLead } from "@/lib/erp";
 import { calculatorLeadContext, str, trackingFields } from "@/lib/calculatorLead";
 import { LEAD_REF_TTL_MS, phoneHash, signLeadRef, verifyLeadRef } from "@/lib/leadRef";
@@ -22,7 +23,7 @@ const HOUR = 60 * 60 * 1000;
 /** This instance's memory of recent leads: phone hash -> lead, for the same-number protection. */
 const recent = new Map<string, { lead: string; exp: number }>();
 
-export async function POST(request: Request) {
+export const POST = withLeadLog("lead", async (request, log) => {
   let body: Record<string, unknown>;
   try {
     body = await request.json();
@@ -72,13 +73,17 @@ export async function POST(request: Request) {
       lead_name: fields.lead_name,
       email_id: fields.email_id,
     });
+    log.erp_id = existing;
+    if (!upd.ok) log.erp_status = upd.status;
     // Only a lead that is gone (deleted in the ERP) is created again. Any other failure, e.g. the API user
     // not being allowed to edit leads, keeps the existing lead as it is: never a second lead for one number.
     if (upd.ok || upd.status !== 404) return Response.json({ ok: true, created: false, ref: signLeadRef(existing, fields.mobile_no) });
   }
 
   const result = await createErpLead(input);
+  if (result.ok) log.erp_id = result.name;
+  else log.erp_status = result.status;
   if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
   if (result.name) recent.set(ph, { lead: result.name, exp: Date.now() + LEAD_REF_TTL_MS });
   return Response.json({ ok: true, created: true, ref: result.name ? signLeadRef(result.name, fields.mobile_no) : null });
-}
+});

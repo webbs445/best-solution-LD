@@ -1,4 +1,5 @@
 import { AC_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES, clickIdRows } from "@/lib/lead";
+import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
 import { BOOK_STATES, SERVICE_NAMES, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
 
@@ -13,7 +14,7 @@ const str = (v: unknown, max = 500) => (typeof v === "string" ? v.trim().slice(0
 /* Only values the form offers are passed on; anything else is dropped. */
 const oneOf = (v: unknown, list: string[]) => (typeof v === "string" && list.includes(v) ? v : "");
 
-export async function POST(request: Request) {
+export const POST = withLeadLog("accounting", async (request, log) => {
   let body: Record<string, unknown>;
   try {
     body = await request.json();
@@ -71,6 +72,8 @@ export async function POST(request: Request) {
     details,
   });
 
+  if (result.ok) log.erp_id = result.name;
+  else log.erp_status = result.status;
   if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
   return Response.json({ ok: true });
-}
+});
