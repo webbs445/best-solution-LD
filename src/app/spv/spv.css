@@ -564,6 +564,8 @@
 .spv-page .ft-top a:hover{color:#fff}
 .spv-page .ft-legal{margin-top:30px;font-size:12.5px;line-height:1.7;color:#8c99ad;max-width:980px}
 .spv-page .ft-bot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:24px;font-size:12.5px}
+.spv-page .ft-links{display:flex;gap:18px;flex-wrap:wrap}
+.spv-page .ft-cookie{padding:0;color:inherit;font:inherit;text-decoration:underline}
 
 .spv-page .fl.tel .telbox{position:relative;display:flex;border-radius:14px;background:var(--ground);box-shadow:inset 0 0 0 1px var(--rule);transition:box-shadow .2s,background .2s}
 .spv-page .fl.tel .telbox:focus-within{background:#fff;box-shadow:inset 0 0 0 1.5px var(--copper)}

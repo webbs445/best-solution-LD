@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SITE } from "@/content/site";
 import { setVisitorGeo, type VisitorGeo } from "@/lib/analytics";
 import { ALL_DENIED, ALL_GRANTED, readConsent, setConsent, type ConsentChoices } from "@/lib/consent";
@@ -25,13 +25,19 @@ export function CookieSettingsButton({ className }: { className?: string }) {
   );
 }
 
+const PHONE = "(max-width: 640px)";
+
 export function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
-  // EU/EEA/UK/CH visitors also get a "Reject all" button. Everyone gets the same non-blocking bottom banner:
-  // the page stays readable and usable, and tags wait on Consent Mode (denied by default), not on this banner.
+  // Desktop: the non-blocking bottom banner; EU/EEA/UK/CH visitors also get a "Reject all" button.
+  // Phones (first visit): a choice card that holds the page until the visitor taps Accept all or Reject all,
+  // and either one unlocks it. Tags wait on Consent Mode (denied by default) either way.
   const [isEU, setIsEU] = useState(false);
+  const [phone, setPhone] = useState(false);
   const [choices, setChoices] = useState<ConsentChoices>(ALL_DENIED);
+  const acceptRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   // Wait for geo before showing, so the right buttons appear from the start. Unknown geo => EU.
   useEffect(() => {
@@ -44,11 +50,13 @@ export function CookieConsentBanner() {
         if (cancelled) return;
         setVisitorGeo(data);
         setIsEU(!!data.eu);
+        setPhone(matchMedia(PHONE).matches);
         if (!saved) setVisible(true);
       })
       .catch(() => {
         if (cancelled) return;
         setIsEU(true);
+        setPhone(matchMedia(PHONE).matches);
         if (!saved) setVisible(true);
       });
 
@@ -70,7 +78,71 @@ export function CookieConsentBanner() {
     setShowPrefs(false);
   };
 
+  // The phone choice card (first visit only; the footer "Cookie Settings" link reopens the normal banner).
+  const choiceCard = visible && phone && !showPrefs;
+
+  // While the card is up: no page scrolling, focus on the card, Tab stays inside it.
+  useEffect(() => {
+    if (!choiceCard) return;
+    const root = document.documentElement;
+    const prev = [root.style.overflow, document.body.style.overflow];
+    root.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    acceptRef.current?.focus({ preventScroll: true });
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !cardRef.current) return;
+      const items = Array.from(cardRef.current.querySelectorAll<HTMLElement>("a[href], button"));
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", trap);
+    return () => {
+      root.style.overflow = prev[0];
+      document.body.style.overflow = prev[1];
+      document.removeEventListener("keydown", trap);
+    };
+  }, [choiceCard]);
+
   if (!visible) return null;
+
+  if (choiceCard) {
+    return (
+      <div className={styles.overlay}>
+        <div ref={cardRef} className={styles.choice} role="dialog" aria-modal="true" aria-labelledby="consent-title" aria-describedby="consent-text">
+          <span className={styles.icon} aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5" />
+              <path d="M8.5 8.5v.01M16 15.5v.01M12 12v.01M11 17v.01M7 14v.01" />
+            </svg>
+          </span>
+          <h2 id="consent-title">Your privacy choice</h2>
+          <p id="consent-text">
+            We use cookies to run the site, measure visits and improve your experience. You can change this later in
+            Cookie Settings.{" "}
+            <a href={SITE.privacy} target="_blank" rel="noopener">
+              Privacy Policy
+            </a>
+          </p>
+          {/* Equal size and placement: either choice unlocks the page. */}
+          <div className={styles.choiceActions}>
+            <button type="button" className={styles.reject} onClick={() => commit(ALL_DENIED)}>
+              Reject all
+            </button>
+            <button ref={acceptRef} type="button" className={styles.accept} onClick={() => commit(ALL_GRANTED)}>
+              Accept all
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
