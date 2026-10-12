@@ -3,7 +3,7 @@ import { adsConversionCsv } from "@/lib/adsExport";
 import { listClickLeads } from "@/lib/erp";
 
 /*
-  The CSV Google Ads fetches on a schedule (Goals > Uploads > Schedules, source HTTPS) to import website
+  The CSV Google Ads fetches on a schedule (Goals > Uploads > Schedules, source HTTPS) at /ads-conversions.csv (Google needs the .csv ending) to import website
   leads from the ERP as "Website lead (ERP)" conversions. Basic auth with ADS_EXPORT_USER /
   ADS_EXPORT_PASSWORD; without both set, the link is off. Leads from the last 90 days (Google's click window).
 */

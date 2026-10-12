@@ -6,7 +6,11 @@ const SITELINK_PATHS = ["calculator", "mainland", "free-zone", "offshore", "cons
 
 const nextConfig: NextConfig = {
   async rewrites() {
-    return SITELINK_PATHS.map((path) => ({ source: `/${path}`, destination: "/" }));
+    return [
+      ...SITELINK_PATHS.map((path) => ({ source: `/${path}`, destination: "/" })),
+      // Google Ads only fetches scheduled uploads from a URL ending in .csv.
+      { source: "/ads-conversions.csv", destination: "/api/ads-conversions" },
+    ];
   },
   images: {
     // Remote photography used by the hero, "Why Best Solution" and jurisdiction panels.
