@@ -151,6 +151,46 @@ function erpConfig() {
   return base && key && secret ? { base, auth: `token ${key}:${secret}` } : null;
 }
 
+/** A lead that came with a Google click id, for the Google Ads conversion import. */
+export interface ClickLead {
+  name: string;
+  /** ERP local time (UAE, UTC+4), "YYYY-MM-DD HH:MM:SS.ffffff". */
+  creation: string;
+  custom_clid: string;
+  status: string;
+}
+
+/** Leads created in the last `days` days that carry a click id (GET /api/resource/Lead). Null when the ERP fails. */
+export async function listClickLeads(days: number): Promise<ClickLead[] | null> {
+  const cfg = erpConfig();
+  if (!cfg) return null;
+  const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  const q = new URLSearchParams({
+    fields: JSON.stringify(["name", "creation", "custom_clid", "status"]),
+    filters: JSON.stringify([
+      ["custom_clid", "is", "set"],
+      ["creation", ">=", since],
+    ]),
+    order_by: "creation asc",
+    // ponytail: one page; raise or paginate if click-id leads ever pass 2,000 in 90 days.
+    limit_page_length: "2000",
+  });
+  try {
+    const res = await fetch(`${cfg.base}/api/resource/Lead?${q}`, {
+      headers: { Accept: "application/json", Authorization: cfg.auth },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!res.ok) {
+      console.error(`ERPNext lead list failed: ${res.status}`, (await res.text()).slice(0, 500));
+      return null;
+    }
+    return ((await res.json()) as { data?: ClickLead[] }).data ?? [];
+  } catch (err) {
+    console.error("ERPNext unreachable", err);
+    return null;
+  }
+}
+
 /** Updates fields on an existing lead (PUT /api/resource/Lead/<name>). */
 export async function updateErpLead(name: string, fields: Record<string, unknown>): Promise<LeadResult> {
   const cfg = erpConfig();
