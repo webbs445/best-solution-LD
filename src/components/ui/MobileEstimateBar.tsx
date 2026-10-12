@@ -16,7 +16,7 @@ export function MobileEstimateBar({ targetId, location }: { targetId: string; lo
   useEffect(() => {
     const el = document.getElementById(targetId);
     if (!el || !("IntersectionObserver" in window)) return;
-    const io = new IntersectionObserver(([e]) => setHidden(e.isIntersecting), { threshold: 0.12 });
+    const io = new IntersectionObserver(([e]) => setHidden(e.isIntersecting), { threshold: 0 });
     io.observe(el);
     return () => io.disconnect();
   }, [targetId]);

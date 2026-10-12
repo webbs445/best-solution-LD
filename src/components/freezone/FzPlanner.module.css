@@ -1477,28 +1477,27 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-top: 2px;
-  }
-
-  .back,
-  .next {
-    height: 54px;
-    border-radius: 15px;
-    font: 600 15px var(--font);
-    cursor: pointer;
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .back {
     flex: none;
-    padding: 0 20px;
-    border: 1.5px solid rgba(255, 255, 255, 0.16);
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
     background: rgba(255, 255, 255, 0.06);
     color: #fff;
+    cursor: pointer;
   }
 
-  .back:disabled {
-    color: #6f7d92;
-    cursor: default;
+  .back svg {
+    width: 20px;
+    height: 20px;
   }
 
   .next {
@@ -1507,11 +1506,13 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    height: 54px;
     border: 0;
+    border-radius: 16px;
     background: linear-gradient(135deg, #c98161, #9c5a3d);
     color: #fff;
-    font-weight: 700;
-    font-size: 16px;
+    font: 700 16px var(--font);
+    cursor: pointer;
     box-shadow: 0 12px 26px rgba(184, 113, 79, 0.35);
   }
 
@@ -1525,13 +1526,6 @@
   .next svg {
     width: 17px;
     height: 17px;
-  }
-
-  .navHint {
-    flex: 1;
-    color: var(--soft);
-    font-size: 13px;
-    text-align: center;
   }
 
   .results.on {

@@ -233,7 +233,7 @@ export function FzPlanner() {
     { label: "Priority", value: PRIORITIES[priIdx].label },
     { label: "Team", value: `${resText} · ${shText}` },
   ].slice(0, step);
-  const canNext = step === 0 ? hasActs : step === 2;
+  const canNext = step === 0 ? hasActs : true;
   const pane = (n: number) => `${s.pane}${n === step ? ` ${s.on}` : ""}`;
 
   return (
@@ -473,16 +473,14 @@ export function FzPlanner() {
                   {/* Phones: Back / Continue under each of the first three steps. */}
                   {step < 3 ? (
                     <div className={s.nav}>
-                      <button type="button" className={s.back} onClick={() => go(step - 1)} disabled={step === 0}>
-                        Back
-                      </button>
-                      {step === 1 ? (
-                        <span className={s.navHint}>Tap an option to continue</span>
-                      ) : (
-                        <button type="button" className={s.next} onClick={() => canNext && go(step + 1)} aria-disabled={!canNext}>
-                          {step === 2 ? "See my matches" : "Continue"} {ARROW}
+                      {step > 0 ? (
+                        <button type="button" className={s.back} onClick={() => go(step - 1)} aria-label="Back">
+                          {BACK_ARROW}
                         </button>
-                      )}
+                      ) : null}
+                      <button type="button" className={s.next} onClick={() => canNext && go(step + 1)} aria-disabled={!canNext}>
+                        {step === 2 ? "See my matches" : "Continue"} {ARROW}
+                      </button>
                     </div>
                   ) : null}
                 </div>
