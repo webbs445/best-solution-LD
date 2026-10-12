@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cheapest, DATA, estimate, estimateRange, maxResidents, resultBand, stepOrder } from "./pricing";
+import { cheapest, DATA, estimate, estimateRange, maxResidents, stepOrder } from "./pricing";
 import { LEAD_RULES } from "./lead";
 
 describe("stepOrder", () => {
@@ -81,16 +81,5 @@ describe("estimateRange", () => {
     expect(fz.high - fz.low).toBeGreaterThanOrEqual(zone.high - zone.low);
     expect(done.low).toBe(done.high);
     expect(done.low).toBe(estimate({ jurisdiction: "freezone", option: "f0", residency: 1 }).total);
-  });
-});
-
-describe("resultBand", () => {
-  it("brackets the figure, rounded outward to 500", () => {
-    expect(resultBand(14_350)).toEqual({ low: 12_500, high: 16_000 });
-    for (const t of [4_888, 9_999, 23_150]) {
-      const b = resultBand(t);
-      expect(b.low).toBeLessThanOrEqual(t);
-      expect(b.high).toBeGreaterThanOrEqual(t);
-    }
   });
 });

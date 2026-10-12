@@ -196,11 +196,6 @@ export function estimateRange(a: Answers): { low: number; high: number } | null 
   return Number.isFinite(low) ? { low, high } : null;
 }
 
-/** A rounded band around a final estimate (about 10% each way, to the nearest 500), shown until the visitor sends their details. */
-export function resultBand(total: number): { low: number; high: number } {
-  return { low: Math.floor((total * 0.9) / 500) * 500, high: Math.ceil((total * 1.1) / 500) * 500 };
-}
-
 /* Pure estimate function: answers in, itemised first-year figure out. */
 export function estimate(a: Answers): Estimate {
   const p = pick(a);

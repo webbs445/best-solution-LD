@@ -1,4 +1,5 @@
 import { LEAD_RULES, type LeadField } from "@/lib/lead";
+import { emailDomainAcceptsMail } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead, leadEstimateFields, updateErpLead } from "@/lib/erp";
 import { calculatorLeadContext, str, trackingFields } from "@/lib/calculatorLead";
@@ -43,6 +44,7 @@ export const POST = withLeadLog("lead", async (request, log) => {
   };
   const invalid = (Object.keys(fields) as LeadField[]).filter((k) => !LEAD_RULES[k](fields[k]));
   if (!mobile && !invalid.includes("mobile_no")) invalid.push("mobile_no");
+  if (!invalid.includes("email_id") && !(await emailDomainAcceptsMail(fields.email_id))) invalid.push("email_id");
   if (invalid.length) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });
 
   if (!rateLimit(`lead:${clientIp(request)}`, 5, HOUR)) return Response.json({ error: "rate_limited" }, { status: 429 });

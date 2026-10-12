@@ -1,8 +1,28 @@
 /* Lead field rules, shared by the form (instant feedback) and /api/lead (authoritative check). */
 
+/* Throwaway inbox services and made-up addresses, refused in the form and on the server (which also checks
+   that the domain can receive mail, lib/emailCheck). */
+const DISPOSABLE_DOMAINS = new Set([
+  "mailinator.com", "yopmail.com", "tempmail.com", "temp-mail.org", "10minutemail.com", "guerrillamail.com",
+  "sharklasers.com", "trashmail.com", "getnada.com", "maildrop.cc", "dispostable.com", "throwawaymail.com",
+  "fakeinbox.com", "mintemail.com", "emailondeck.com", "mohmal.com", "tempr.email", "moakt.com",
+  "burnermail.io", "mailnesia.com", "mytemp.email", "tempmailo.com", "inboxkitten.com", "spamgourmet.com",
+  "test.com", "fake.com", "asdf.com", "domain.com",
+]);
+const FAKE_NAMES = new Set([
+  "test", "testing", "asdf", "asd", "abc", "abcd", "qwerty", "aaa", "xxx", "fake", "none", "noemail", "no", "na", "null",
+  "123", "1234", "12345",
+]);
+
+/** A throwaway or obviously made-up address (test@…, asdf@…, …@mailinator.com). */
+export function emailLooksFake(v: string): boolean {
+  const [name = "", domain = ""] = v.trim().toLowerCase().split("@");
+  return FAKE_NAMES.has(name) || DISPOSABLE_DOMAINS.has(domain);
+}
+
 export const LEAD_RULES = {
   lead_name: (v: string) => v.trim().length > 1,
-  email_id: (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
+  email_id: (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) && !emailLooksFake(v),
   mobile_no: (v: string) => /^\+\d[\d\s()-]{6,18}$/.test(v.trim()),
 } as const;
 
@@ -10,7 +30,7 @@ export type LeadField = keyof typeof LEAD_RULES;
 
 export const LEAD_ERRORS: Record<LeadField, string> = {
   lead_name: "Please enter your full name.",
-  email_id: "Please enter a valid email address.",
+  email_id: "Please enter a real email address you check. Your written copy is sent there.",
   mobile_no: "Please include your country code, for example +971.",
 };
 

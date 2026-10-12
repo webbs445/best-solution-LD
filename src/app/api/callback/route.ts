@@ -1,4 +1,5 @@
 import { CALLBACK_FORM_ID, LEAD_RULES, clickIdRows } from "@/lib/lead";
+import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
 import type { JurisdictionChoice } from "@/lib/pricing";
@@ -35,7 +36,7 @@ export const POST = withLeadLog("callback", async (request, log) => {
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
     ...(LEAD_RULES.mobile_no(mobile_no) ? [] : ["mobile_no"]),
-    ...(LEAD_RULES.email_id(email_id) ? [] : ["email_id"]),
+    ...((await emailIsReal(email_id)) ? [] : ["email_id"]),
   ];
   if (invalid.length) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });
 

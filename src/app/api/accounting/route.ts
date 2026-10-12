@@ -1,4 +1,5 @@
 import { AC_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES, clickIdRows } from "@/lib/lead";
+import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
 import { BOOK_STATES, SERVICE_NAMES, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
@@ -30,7 +31,7 @@ export const POST = withLeadLog("accounting", async (request, log) => {
   const mobile_no = str(body.mobile_no, 40);
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
-    ...(LEAD_RULES.email_id(email_id) ? [] : ["email_id"]),
+    ...((await emailIsReal(email_id)) ? [] : ["email_id"]),
     ...(LEAD_RULES.mobile_no(mobile_no) ? [] : ["mobile_no"]),
   ];
   if (invalid.length) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });

@@ -1,4 +1,5 @@
 import { LEAD_RULES, SPV_FORM_ID, SPV_SERVICE_ENQUIRED, clickIdRows } from "@/lib/lead";
+import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
 import { str, trackingFields } from "@/lib/calculatorLead";
@@ -35,7 +36,7 @@ export const POST = withLeadLog("spv", async (request, log) => {
   const email_id = str(body.email_id, 200).toLowerCase();
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
-    ...(LEAD_RULES.email_id(email_id) ? [] : ["email_id"]),
+    ...((await emailIsReal(email_id)) ? [] : ["email_id"]),
     ...(mobile ? [] : ["mobile_no"]),
   ];
   if (invalid.length) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });

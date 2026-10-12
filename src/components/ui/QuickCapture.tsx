@@ -56,9 +56,11 @@ export interface QuickCaptureProps {
   onSent?: () => void;
   /** Shows a "Done" button on the success view (e.g. to close a popup). */
   onDone?: () => void;
+  /** The send button's text. Defaults to "Send my breakdown". */
+  cta?: string;
 }
 
-export function QuickCapture({ formId, service, payload, summary, tone = "dark", onSent, onDone }: QuickCaptureProps) {
+export function QuickCapture({ formId, service, payload, summary, tone = "dark", onSent, onDone, cta = "Send my breakdown" }: QuickCaptureProps) {
   const id = useId().replace(/:/g, "");
   const [country, setCountry] = useState<PhoneCountry>(DEFAULT_PHONE_COUNTRY);
   const [values, setValues] = useState<Record<Field, string>>({ name: "", phone: "", email: "" });
@@ -290,7 +292,7 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
 
       <button type="submit" className={`btn btn-primary btn-block ${styles.send}`} disabled={sending}>
         {sending ? <span className={styles.spin} aria-hidden="true" /> : null}
-        {sending ? "Sending..." : "Send my breakdown"}
+        {sending ? "Sending..." : cta}
       </button>
 
       <a className={styles.waLink} href={waHref} target="_blank" rel="noopener" data-cta-location="Calculator Result">
