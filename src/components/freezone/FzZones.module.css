@@ -1012,7 +1012,7 @@
   white-space: nowrap;
 }
 
-/* Compare sheet */
+/* Compare sheet: zones in columns, one row per detail */
 .cmpDlg {
   width: min(100% - 32px, 1080px);
   max-width: none;
@@ -1039,10 +1039,8 @@
 .cmpCard {
   display: flex;
   flex-direction: column;
-  gap: 18px;
   max-height: calc(100dvh - 32px);
-  overflow-y: auto;
-  padding: 26px;
+  overflow: hidden;
   border-radius: 26px;
   background: var(--ground);
   box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
@@ -1053,10 +1051,11 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  padding: 22px 24px 14px;
 }
 
 .cmpHead h3 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
@@ -1064,18 +1063,18 @@
 .cmpHead p {
   margin-top: 4px;
   color: var(--soft-ink);
-  font-size: 14px;
+  font-size: 13.5px;
 }
 
 .close {
   flex: none;
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border: 0;
   border-radius: 50%;
-  background: #fff;
+  background: var(--ground);
   color: var(--navy);
   cursor: pointer;
 }
@@ -1085,13 +1084,156 @@
   height: 18px;
 }
 
-.cmpCols {
+.cmpBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 24px 8px;
+  scrollbar-width: none;
+}
+
+.cmpBody::-webkit-scrollbar {
+  display: none;
+}
+
+.cmpZones,
+.cmpVals {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cmpZones {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 4px 0 12px;
+  background: #fff;
+  box-shadow: 0 10px 12px -12px rgba(20, 37, 62, 0.25);
+}
+
+.cmpZone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--ground);
+  text-align: center;
+}
+
+.cmpZone b {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmpZone small {
+  color: #8a93a3;
+  font-size: 11.5px;
+}
+
+.cmpX {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--soft-ink);
+  cursor: pointer;
+}
+
+.cmpX svg {
+  width: 12px;
+  height: 12px;
+}
+
+.cmpRow {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.cmpLabel {
+  margin-bottom: 6px;
+  color: #8a93a3;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cmpVals span {
+  min-width: 0;
+  color: var(--navy);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.cmpBest {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #e3f3ea;
+  color: #17643e;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.cmpFoot {
+  padding: 14px 24px 20px;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+
+.full {
+  width: 100%;
+}
+
+.planBtn {
+  min-height: 46px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--navy);
+  color: #fff;
+  font: 700 13px var(--font);
+  cursor: pointer;
+}
+
+/* Laptop compare: one card per zone, side by side */
+.cards {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
   gap: 14px;
+  padding: 4px 24px 24px;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
-.cmpCol {
+.cards::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1099,54 +1241,39 @@
   border: 1px solid var(--line);
   border-radius: 20px;
   background: #fff;
+  box-shadow: 0 12px 28px rgba(20, 37, 62, 0.06);
 }
 
-.cmpZone {
+.cardZone {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.cmpZone span {
+.cardZone span {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.cmpZone b {
+.cardZone b {
   font-size: 16px;
   font-weight: 700;
   line-height: 1.25;
 }
 
-.cmpZone small {
+.cardZone small {
   color: #8a93a3;
   font-size: 12.5px;
 }
 
-.cmpBest {
-  align-self: flex-start;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #e3f3ea;
-  color: #17643e;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.cmpDesc {
-  color: var(--soft-ink);
-  font-size: 13.5px;
-  line-height: 1.5;
-}
-
-.cmpCol dl {
+.card dl {
   display: flex;
   flex-direction: column;
   margin: 0;
 }
 
-.cmpCol dl div {
+.card dl div {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -1154,19 +1281,19 @@
   border-top: 1px solid var(--line);
 }
 
-.cmpCol dt {
+.card dt {
   color: #8a93a3;
   font-size: 12px;
   font-weight: 600;
 }
 
-.cmpCol dd {
+.card dd {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
 }
 
-.cmpActs {
+.cardActs {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1174,15 +1301,17 @@
   margin-top: auto;
 }
 
-.cmpActs .cta {
+.cardActs .cta {
   flex: 1;
 }
 
-.cmpActs .linkBtn {
+.cardActs .linkBtn {
   color: var(--soft-ink);
 }
 
-.swipe {
+/* The column view and its footer are for phones only. */
+.cmpBody,
+.cmpFoot {
   display: none;
 }
 
@@ -1336,7 +1465,23 @@
     display: none;
   }
 
-  /* Compare: a bottom sheet with zone cards side by side that swipe. */
+  /* Compare: a bottom sheet; zones stay side by side in narrow columns. */
+  .cards {
+    display: none;
+  }
+
+  .cmpBody {
+    display: block;
+  }
+
+  .cmpFoot {
+    display: block;
+  }
+
+  .cmpCard {
+    background: #fff;
+  }
+
   .cmpDlg {
     width: 100%;
     max-height: calc(100dvh - 12px);
@@ -1345,43 +1490,46 @@
 
   .cmpCard {
     max-height: calc(100dvh - 12px);
-    padding: 20px 0 calc(18px + env(safe-area-inset-bottom, 0px));
     border-radius: 26px 26px 0 0;
   }
 
   .cmpHead {
-    padding: 0 18px;
+    padding: 20px 16px 12px;
   }
 
   .cmpHead h3 {
-    font-size: 21px;
+    font-size: 20px;
   }
 
-  .cmpCols {
-    display: flex;
-    gap: 12px;
-    padding: 0 18px 4px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
+  .cmpBody {
+    padding: 0 16px 6px;
   }
 
-  .cmpCols::-webkit-scrollbar {
-    display: none;
+  .cmpZones,
+  .cmpVals {
+    gap: 8px;
   }
 
-  .cmpCol {
-    flex: 0 0 82%;
-    scroll-snap-align: center;
+  .cmpZone {
+    padding: 12px 6px 10px;
   }
 
-  .swipe {
-    display: block;
-    color: #8a93a3;
+  .cmpZone b {
+    font-size: 13px;
+  }
+
+  .cmpVals span {
     font-size: 12.5px;
-    font-weight: 600;
-    text-align: center;
   }
+
+  .cmpFoot {
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .cmpFoot .cta {
+    font-size: 14.5px;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {

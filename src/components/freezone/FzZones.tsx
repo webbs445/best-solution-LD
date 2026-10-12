@@ -239,7 +239,7 @@ function ZoneDetail({
   );
 }
 
-/* ---------- Side-by-side comparison (cards; swipe on phones) ---------- */
+/* ---------- Side-by-side comparison: zones in columns, one row per detail (fits 3 zones on a phone) ---------- */
 
 function CompareSheet({
   ids,
@@ -270,8 +270,17 @@ function CompareSheet({
   }, []);
 
   const rows: [string, (zn: Zone) => ReactNode][] = [
-    ["First year from", (zn) => <LockedFigure text={`AED ${formatAED(zn.price)}`} unlocked={unlocked} />],
-    ["Year-two renewal", (zn) => <LockedFigure text={`About AED ${formatAED(renewalFor(zn))}`} unlocked={unlocked} />],
+    [
+      "First year from",
+      (zn) => (
+        <>
+          <LockedFigure text={`AED ${formatAED(zn.price)}`} unlocked={unlocked} />
+          {unlocked && zn.price === low && zs.length > 1 ? <em className={s.cmpBest}>Lowest</em> : null}
+        </>
+      ),
+    ],
+    ["Year-two renewal", (zn) => <LockedFigure text={`AED ${formatAED(renewalFor(zn))}`} unlocked={unlocked} />],
+    ["Suited to", (zn) => zn.d],
     ["Workspace", () => "Flexi-desk included"],
     ["Activities", (zn) => PK[zn.id]?.actTxt ?? "Confirmed by your advisor"],
     ["Shareholders", (zn) => PK[zn.id]?.shTxt ?? "Confirmed by your advisor"],
@@ -286,7 +295,7 @@ function CompareSheet({
 
   return (
     <dialog ref={dialog} className={s.cmpDlg} aria-labelledby="cmpTitle" onClose={onClose} onClick={(e) => e.target === e.currentTarget && dialog.current?.close()}>
-      <div className={s.cmpCard}>
+      <div className={s.cmpCard} style={{ "--n": zs.length } as CSSProperties}>
         <div className={s.cmpHead}>
           <div>
             <h3 id="cmpTitle">Compare free zones</h3>
@@ -298,18 +307,18 @@ function CompareSheet({
             </svg>
           </button>
         </div>
-        <div className={s.cmpCols} style={{ "--n": zs.length } as CSSProperties}>
+
+        {/* Laptop: one card per zone, side by side. */}
+        <div className={s.cards}>
           {zs.map((zn) => (
-            <article key={zn.id} className={s.cmpCol}>
-              <div className={s.cmpZone}>
+            <article key={zn.id} className={s.card}>
+              <div className={s.cardZone}>
                 <ZoneLogo zone={zn} size="zl-cmp" />
                 <span>
                   <b>{zn.name}</b>
                   <small>{zn.emirate}</small>
                 </span>
               </div>
-              {unlocked && zn.price === low && zs.length > 1 ? <span className={s.cmpBest}>Lowest cost here</span> : null}
-              <p className={s.cmpDesc}>{zn.d}</p>
               <dl>
                 {rows.map(([label, cell]) => (
                   <div key={label}>
@@ -318,7 +327,7 @@ function CompareSheet({
                   </div>
                 ))}
               </dl>
-              <div className={s.cmpActs}>
+              <div className={s.cardActs}>
                 <button type="button" className={s.cta} onClick={() => onCost(zn.id)}>
                   {unlocked ? null : <span className={s.ctaLock}>{LOCK_ICON}</span>}
                   {unlocked ? "Plan this zone" : "Get my cost"}
@@ -330,7 +339,53 @@ function CompareSheet({
             </article>
           ))}
         </div>
-        {zs.length > 1 ? <p className={s.swipe}>Swipe to see each zone</p> : null}
+
+        {/* Phones: zones in narrow columns, one row per detail, so they stay side by side. */}
+        <div className={s.cmpBody}>
+          {/* Zones across the top; stays in view while the rows scroll. */}
+          <div className={s.cmpZones}>
+            {zs.map((zn) => (
+              <div key={zn.id} className={s.cmpZone}>
+                <button type="button" className={s.cmpX} aria-label={`Remove ${zn.name}`} onClick={() => onRemove(zn.id)}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6 6 18" />
+                  </svg>
+                </button>
+                <ZoneLogo zone={zn} size="zl-cmp" />
+                <b>{zn.short[0]}</b>
+                <small>{zn.emirate}</small>
+              </div>
+            ))}
+          </div>
+
+          {rows.map(([label, cell]) => (
+            <div key={label} className={s.cmpRow}>
+              <p className={s.cmpLabel}>{label}</p>
+              <div className={s.cmpVals}>
+                {zs.map((zn) => (
+                  <span key={zn.id}>{cell(zn)}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className={s.cmpFoot}>
+          {unlocked ? (
+            <div className={s.cmpVals}>
+              {zs.map((zn) => (
+                <button key={zn.id} type="button" className={s.planBtn} onClick={() => onCost(zn.id)}>
+                  Plan {zn.short[0]}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <button type="button" className={`${s.cta} ${s.full}`} onClick={() => onCost(zs[0].id)}>
+              <span className={s.ctaLock}>{LOCK_ICON}</span>
+              Unlock prices for these zones {ARROW}
+            </button>
+          )}
+        </div>
       </div>
     </dialog>
   );
