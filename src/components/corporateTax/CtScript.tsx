@@ -5,7 +5,7 @@ import { CT_TRUST } from "@/content/corporateTax";
 import { CT_FORM_ID, LEAD_RULES } from "@/lib/lead";
 import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry } from "@/lib/phone";
 import { attributionFields } from "@/lib/attribution";
-import { computeTax, latePenalty, yearEnd } from "@/lib/corporateTax";
+import { computeTax, latePenalty, nextDueYear, yearEnd } from "@/lib/corporateTax";
 import { genEventId, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
 
 /*
@@ -71,7 +71,9 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
   $$("a", drawer).forEach((a) => on(a, "click", closeDrawer));
 
   /* ---------- state ---------- */
-  const S = { m: 11, y: TODAY.getFullYear() };
+  const S = { m: 11, y: nextDueYear(TODAY) };
+  const copy = $(".ft-bot span");
+  if (copy) copy.textContent = copy.textContent!.replace(/\d{4}/, String(TODAY.getFullYear()));
 
   /* ---------- dial ---------- */
   const svg = $<SVGSVGElement>("#dialSvg"), C = 220;

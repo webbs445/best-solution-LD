@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeTax, latePenalty, yearEnd } from "./corporateTax";
+import { computeTax, latePenalty, nextDueYear, yearEnd } from "./corporateTax";
 
 const base = { rev: 0, np: 0, ent: 0, fin: 0, ex: 0, loss: 0, nqi: 0, nqr: 0 };
 
@@ -46,5 +46,12 @@ describe("UAE Corporate Tax rules", () => {
 
   it("charges AED 500 a month for a late return, then AED 1,000 from month 13", () => {
     expect([latePenalty(3), latePenalty(12), latePenalty(13), latePenalty(24)]).toEqual([1500, 6000, 7000, 18_000]);
+  });
+
+  it("opens on the next return due: last year's until 30 September, then this year's", () => {
+    expect(nextDueYear(new Date(2027, 2, 15))).toBe(2026); // March 2027: Dec 2026 return, due 30 Sep 2027
+    expect(nextDueYear(new Date(2027, 8, 30))).toBe(2026); // due today
+    expect(nextDueYear(new Date(2027, 9, 1))).toBe(2027);
+    expect(nextDueYear(new Date(2026, 9, 13))).toBe(2026);
   });
 });

@@ -32,3 +32,6 @@ export function yearEnd(m: number, y: number, today: Date) {
 
 /** Late-return penalty for n months (AED 500 a month for the first 12, then AED 1,000). */
 export const latePenalty = (n: number) => Math.min(n, 12) * 500 + Math.max(0, n - 12) * 1000;
+
+/** The December year end whose return is next due: last year's until its 30 September date has passed. */
+export const nextDueYear = (today: Date) => (yearEnd(11, today.getFullYear() - 1, today).days >= 0 ? today.getFullYear() - 1 : today.getFullYear());
