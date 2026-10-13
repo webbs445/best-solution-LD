@@ -847,3 +847,5 @@ html:has(.ct-page){scroll-padding-top:92px}
 /* The form card fits the step on show (steps used to share one grid cell, sized by the tallest). */
 .ct-page .steps{position:relative}
 .ct-page .step:not(.cur){position:absolute;top:0;left:0;right:0}
+/* Footer slogan on two lines: "Corporate Tax," then "handled.", sized so the first line always fits. */
+.ct-page .ft-mark{font-size:clamp(34px,9.4vw,146px);white-space:nowrap}
