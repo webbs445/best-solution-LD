@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { CT_TRUST } from "@/content/corporateTax";
-import { CT_FORM_ID, LEAD_RULES } from "@/lib/lead";
+import { CT_ESTIMATE_FORM_ID, CT_FORM_ID, LEAD_RULES } from "@/lib/lead";
 import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry } from "@/lib/phone";
 import { attributionFields } from "@/lib/attribution";
 import { computeTax, latePenalty, nextDueYear, yearEnd } from "@/lib/corporateTax";
@@ -235,6 +235,12 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     setRow("sbr", r.ti, max, { sub: true, off: !r.sbr });
     setRow("b0", r.b0, max, { off: r.sbr, keep: true, small: r.qPass ? "Qualifying income" : "First AED 375,000" });
     setRow("b9", r.b9, max, { off: r.sbr, keep: true, small: r.qPass ? "Non-qualifying income" : "Everything above AED 375,000" });
+    if (!unlocked) {
+      // Locked: the working is still computed, but the figure is masked until the visitor leaves their details.
+      $("#shTax").textContent = $("#miniTax").textContent = "•••,•••";
+      est = { revenue: v.rev, net_profit: v.np, adjusted: r.adj, losses_used: r.used, taxable_income: r.ti, regime: r.qPass ? "QFZP" : "standard", sbr: r.sbr, tax: r.tax };
+      return;
+    }
     tween($("#shTax"), "tax", r.tax);
     $("#miniTax").textContent = fmt(r.tax);
     const tb = $(".cx-tot b");
@@ -260,6 +266,21 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     const hot = r.sbr || r.adj < 0 ? 3 : r.tax > 0 ? 4 : 3;
     $$(".cx-flow li").forEach((li, i) => li.classList.toggle("hot", i === hot));
     est = { revenue: v.rev, net_profit: v.np, adjusted: r.adj, losses_used: r.used, taxable_income: r.ti, regime: r.qPass ? "QFZP" : "standard", sbr: r.sbr, tax: r.tax };
+  }
+  // The estimate opens once per visit (only a flag is stored, never the visitor's details).
+  const UNLOCK_KEY = "ct-estimate-open";
+  let unlocked = false;
+  try { unlocked = sessionStorage.getItem(UNLOCK_KEY) === "1"; } catch { /* storage blocked: stays locked */ }
+  cx.classList.toggle("locked", !unlocked);
+  $("#miniCta").textContent = unlocked ? "See the working" : "Show my estimate";
+  function unlock() {
+    unlocked = true;
+    try { sessionStorage.setItem(UNLOCK_KEY, "1"); } catch { /* ignore */ }
+    cx.classList.remove("locked");
+    cx.classList.add("unlocked");
+    $("#miniCta").textContent = "See the working";
+    shown.tax = 0; // the figure counts up from zero
+    estimate();
   }
   const startEst = () => { if (!estStarted) { estStarted = true; trackEvent("tax_estimator_start"); } };
   const clearScen = () => $$("#scen button").forEach((b) => b.classList.remove("on"));
@@ -436,20 +457,22 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     input.setAttribute("aria-invalid", ok ? "false" : "true"); // read by the site's form_error tracking
     return ok;
   };
-  on(form, "submit", async (e: SubmitEvent) => {
-    e.preventDefault();
-    if (step < 4) { go(step + 1); return; }
-    if (sending || sent) return;
-    const els = form.elements as HTMLFormControlsCollection & Record<string, HTMLInputElement>;
-    const name = els["name"].value.trim(), email = els["email"].value.trim().toLowerCase();
-    const country = cc.value as PhoneCountry, phoneRaw = els["phone"].value;
+  /**
+   * Checks the contact fields, posts the lead to /api/corporate-tax and, only once the ERP has it, pushes
+   * form_submit and generate_lead. Returns the first name on success, null otherwise (errors are shown in place).
+   */
+  async function sendLead(c: {
+    form: HTMLFormElement; ids: { name: string; phone: string; email: string }; cc: HTMLSelectElement;
+    btn: HTMLButtonElement; btnText: string; errBox: HTMLElement;
+    formId: string; formName: string; formType: string; fields: Record<string, unknown>;
+  }): Promise<string | null> {
+    const name = $<HTMLInputElement>(`#${c.ids.name}`).value.trim(), email = $<HTMLInputElement>(`#${c.ids.email}`).value.trim().toLowerCase();
+    const country = c.cc.value as PhoneCountry, phoneRaw = $<HTMLInputElement>(`#${c.ids.phone}`).value;
     const phone = toE164Phone(phoneRaw, country);
-    const ok = [mark("fName", LEAD_RULES.lead_name(name)), mark("fPhone", !!phone), mark("fEmail", LEAD_RULES.email_id(email))].every(Boolean);
-    if (!ok) { $<HTMLInputElement>(".fl.bad input", form)?.focus(); return; }
-    const btn = $<HTMLButtonElement>("#fmNext"), errBox = $("#fmErr");
-    const biz = val("biz") || "Not sure";
+    const ok = [mark(c.ids.name, LEAD_RULES.lead_name(name)), mark(c.ids.phone, !!phone), mark(c.ids.email, LEAD_RULES.email_id(email))].every(Boolean);
+    if (!ok) { $<HTMLInputElement>(".fl.bad input", c.form)?.focus(); return null; }
     const eventId = genEventId();
-    sending = true; btn.disabled = true; btn.textContent = "Sending"; errBox.hidden = true;
+    c.btn.disabled = true; c.btn.textContent = "Sending"; c.errBox.hidden = true;
     const t0 = Date.now();
     let res: Response | null = null;
     try {
@@ -457,43 +480,92 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lead_name: name, email_id: email, mobile_no: phoneRaw, country,
-          business_type: biz, year_end: yeText(), revenue: val("revenue") || "Prefer not to say",
-          estimate: estimateNote(),
+          lead_name: name, email_id: email, mobile_no: phoneRaw, country, ...c.fields,
           ...attributionFields(), event_id: eventId, landing_page: location.href.split("#")[0],
-          form_id: CT_FORM_ID, website: els["website"].value,
+          form_id: c.formId, website: (c.form.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "",
         }),
       });
     } catch { /* network error: shown below */ }
     await new Promise((r) => setTimeout(r, Math.max(0, 900 - (Date.now() - t0)))); // the button never flickers
-    sending = false;
     if (!res?.ok) {
-      btn.disabled = false; btn.textContent = "Book my free tax review";
+      c.btn.disabled = false; c.btn.textContent = c.btnText;
       const body = (await res?.json().catch(() => null)) as { fields?: string[] } | null;
       if (res?.status === 422 && body?.fields?.length) {
-        body.fields.forEach((f) => mark({ lead_name: "fName", email_id: "fEmail", mobile_no: "fPhone" }[f] || "fName", false));
-        $<HTMLInputElement>(".fl.bad input", form)?.focus();
-        return;
+        body.fields.forEach((f) => mark(({ lead_name: c.ids.name, email_id: c.ids.email, mobile_no: c.ids.phone } as Record<string, string>)[f] || c.ids.name, false));
+        $<HTMLInputElement>(".fl.bad input", c.form)?.focus();
+        return null;
       }
-      errBox.textContent = res?.status === 429
+      c.errBox.textContent = res?.status === 429
         ? "You've sent a few requests already. Please message us on WhatsApp and we'll reply straight away."
         : "We could not send your details. Please try again, or message us on WhatsApp.";
-      errBox.hidden = false;
-      return;
+      c.errBox.hidden = false;
+      return null;
     }
-    sent = true;
     const [firstName, ...rest] = name.split(/\s+/);
-    pushFormSubmit({ formId: CT_FORM_ID, formName: "Corporate Tax Review", formType: "consultation", serviceInterest: "corporate_tax", email, phone: phone as string, firstName, lastName: rest.join(" "), eventId });
-    pushGenerateLead({ formId: CT_FORM_ID, service: "Corporate Tax", email, phone: phone as string });
+    pushFormSubmit({ formId: c.formId, formName: c.formName, formType: c.formType, serviceInterest: "corporate_tax", email, phone: phone as string, firstName, lastName: rest.join(" "), eventId });
+    pushGenerateLead({ formId: c.formId, service: "Corporate Tax", email, phone: phone as string });
+    return firstName;
+  }
+  /** The review form shows its thank-you (also after the estimate pop-up: the same person is not asked twice). */
+  const reviewDone = (firstName: string) => { sent = true; $("#doneH").textContent = `Thank you, ${firstName}.`; $("#fm").classList.add("done"); };
+  on(form, "submit", async (e: SubmitEvent) => {
+    e.preventDefault();
+    if (step < 4) { go(step + 1); return; }
+    if (sending || sent) return;
+    sending = true;
+    const firstName = await sendLead({
+      form, ids: { name: "fName", phone: "fPhone", email: "fEmail" }, cc,
+      btn: $<HTMLButtonElement>("#fmNext"), btnText: "Book my free tax review", errBox: $("#fmErr"),
+      formId: CT_FORM_ID, formName: "Corporate Tax Review", formType: "consultation",
+      fields: { business_type: val("biz") || "Not sure", year_end: yeText(), revenue: val("revenue") || "Prefer not to say", estimate: estimateNote() },
+    });
+    sending = false;
+    if (!firstName) return;
     if (THANK_YOU_URL) { window.location.assign(THANK_YOU_URL); return; }
-    $("#doneH").textContent = `Thank you, ${firstName}.`;
-    $("#fm").classList.add("done");
+    reviewDone(firstName);
     confetti();
     $("#fm").scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
   });
+
+  /* ---------- estimate pop-up: the figure opens once the visitor leaves their details ---------- */
+  const ux = $<HTMLDialogElement>("#ux"), uxForm = $<HTMLFormElement>("#uxForm"), uxCC = $<HTMLSelectElement>("#uxCC");
+  uxCC.innerHTML = cc.innerHTML;
+  let uxSending = false;
+  const openGate = () => {
+    if (unlocked || ux.open) return;
+    ux.showModal();
+    trackEvent("tax_estimate_gate_open");
+    if (innerWidth > 640) $("#uxName").focus();
+  };
+  on($("#lockBtn"), "click", openGate);
+  on($("#uxX"), "click", () => ux.close());
+  on(ux, "click", (e: MouseEvent) => { if (e.target === ux) ux.close(); }); // a tap on the backdrop
+  on(uxForm, "submit", async (e: SubmitEvent) => {
+    e.preventDefault();
+    if (uxSending || unlocked) return;
+    uxSending = true;
+    const rev = num(F.rev);
+    const firstName = await sendLead({
+      form: uxForm, ids: { name: "uxName", phone: "uxPhone", email: "uxEmail" }, cc: uxCC,
+      btn: $<HTMLButtonElement>("#uxGo"), btnText: "Show my tax estimate", errBox: $("#uxErr"),
+      formId: CT_ESTIMATE_FORM_ID, formName: "Corporate Tax Estimate", formType: "calculator",
+      fields: {
+        source: "estimate", business_type: MODE === "qfzp" ? "Free zone company" : "Not sure", year_end: `${MO[S.m]} ${S.y}`,
+        revenue: rev <= 1_000_000 ? "Up to AED 1 million" : rev <= 3_000_000 ? "AED 1M to 3M" : rev <= 50_000_000 ? "AED 3M to 50M" : "Above AED 50M",
+        estimate: estimateNote(true),
+      },
+    });
+    uxSending = false;
+    if (!firstName) return;
+    ux.close();
+    unlock();
+    reviewDone(firstName);
+    trackEvent("tax_estimator_complete", { estimate: est });
+    $("#sheet").scrollIntoView({ block: "start", behavior: reduced ? "auto" : "smooth" });
+  });
   // One line for the ERP notes, when the visitor used the estimator.
-  const estimateNote = () => (estStarted ? `Estimated tax AED ${fmt(Number(est.tax) || 0)} (revenue AED ${fmt(Number(est.revenue) || 0)}, net profit AED ${fmt(Number(est.net_profit) || 0)}, ${est.regime === "QFZP" ? "Qualifying Free Zone Person" : "standard rates"}${est.sbr ? ", Small Business Relief" : ""})` : "");
-  $$(".fl input", form).forEach((i) => on(i, "input", () => { const fl = i.closest(".tel")?.parentElement ?? i.closest(".fl"); fl?.classList.remove("bad"); i.setAttribute("aria-invalid", "false"); }));
+  const estimateNote = (always = false) => (estStarted || always ? `Estimated tax AED ${fmt(Number(est.tax) || 0)} (revenue AED ${fmt(Number(est.revenue) || 0)}, net profit AED ${fmt(Number(est.net_profit) || 0)}, ${est.regime === "QFZP" ? "Qualifying Free Zone Person" : "standard rates"}${est.sbr ? ", Small Business Relief" : ""})` : "");
+  $$(".fl input").forEach((i) => on(i, "input", () => { const fl = i.closest(".tel")?.parentElement ?? i.closest(".fl"); fl?.classList.remove("bad"); i.setAttribute("aria-invalid", "false"); }));
 
   /* ---------- scroll ---------- */
   const navLinks = $$(".hd-nav a"), secs = ["top", "estimate", "apply", "late", "faq"].map((id) => document.getElementById(id));

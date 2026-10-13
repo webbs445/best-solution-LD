@@ -796,3 +796,40 @@ html:has(.ct-page){scroll-padding-top:92px}
   mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/%3E%3C/svg%3E") center/contain no-repeat}
 .ct-page .cf:hover .cf-in::after{opacity:1}
 .ct-page .cf-in:focus-within::after{opacity:0} /* typing: the caret takes over */
+
+/* ================= ESTIMATE GATE: the result opens once the visitor leaves their details ================= */
+.ct-page .cx-lock{display:none}
+.ct-page .cx.locked .cx-lock{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:start;margin-top:16px;padding:22px 22px 20px;border-radius:18px;background:var(--tint-2);box-shadow:inset 0 0 0 1px #efd9cd}
+.ct-page .cx-lock-i{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--grad);color:#fff;box-shadow:0 10px 22px -12px #a96a4d}
+.ct-page .cx-lock-i svg{width:20px;height:20px}
+.ct-page .cx-lock-t b{display:block;font-size:17px;font-weight:650;letter-spacing:-.02em}
+.ct-page .cx-lock-t p{margin-top:4px;font-size:14.5px;color:var(--ink-2);line-height:1.55}
+.ct-page .cx-lock .btn{grid-column:1/-1;margin-top:14px;width:100%}
+/* Locked: the figure is masked, the gauge, explanation and working stay out of view. */
+.ct-page .cx.locked .cx-tot b{filter:blur(.5px);letter-spacing:.04em;color:#ffffffcc}
+.ct-page .cx.locked .gauge,.ct-page .cx.locked .cx-why,.ct-page .cx.locked .wk-b,.ct-page .cx.locked .wk,.ct-page .cx.locked .sh-cta{display:none}
+.ct-page .cx.unlocked .cx-tot{animation:ct-pop .5s var(--ease)}
+
+/* The pop-up */
+.ct-page .ux{margin:auto;border:0;padding:0;width:min(460px,calc(100% - 32px));max-height:calc(100dvh - 32px);overflow:auto;border-radius:26px;background:#fff;color:var(--ink);box-shadow:0 40px 90px -30px #0b1628cc,inset 0 0 0 1px var(--rule)}
+.ct-page .ux::backdrop{background:#0b1628a6;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.ct-page .ux[open]{animation:ct-uxIn .35s var(--ease)}
+@keyframes ct-uxIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.ct-page .ux form{position:relative;padding:30px 28px 24px}
+.ct-page .ux-x{position:absolute;right:14px;top:14px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2);transition:background .2s}
+.ct-page .ux-x:hover{background:#14253e0d}
+.ct-page .ux-x svg{width:18px;height:18px}
+.ct-page .ux-i{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:var(--grad);color:#fff;box-shadow:0 10px 22px -12px #a96a4d;margin-bottom:16px}
+.ct-page .ux-i svg{width:21px;height:21px}
+.ct-page .ux-k{font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--copper-ink)}
+.ct-page .ux h3{margin-top:4px;font-size:26px;font-weight:650;letter-spacing:-.03em;line-height:1.15}
+.ct-page .ux-p{margin:8px 0 20px;font-size:15px;color:var(--ink-2);line-height:1.55}
+.ct-page .ux-go{width:100%;margin-top:6px}
+.ct-page .fm-err{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--bad-bg);color:var(--bad);font-size:14px}
+@media (max-width:640px){.ct-page .ux form{padding:26px 20px 20px}.ct-page .ux h3{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.ct-page .ux[open],.ct-page .cx.unlocked .cx-tot{animation:none}}
+/* Always-visible note: the estimate is approximate; the exact figure comes from the tax team. */
+.ct-page .cx-approx{display:flex;gap:10px;align-items:flex-start;margin-top:12px;padding:12px 14px;border-radius:14px;background:#14253e08;box-shadow:inset 0 0 0 1px var(--rule);font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.ct-page .cx-approx svg{width:17px;height:17px;flex:none;margin-top:2px;color:var(--copper-d)}
+.ct-page .cx-approx b{color:var(--ink);font-weight:650}
+.ct-page .cx-approx a{color:var(--copper-ink);font-weight:600;text-decoration:underline;text-underline-offset:2px}

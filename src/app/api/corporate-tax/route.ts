@@ -1,4 +1,4 @@
-import { LEAD_RULES, CT_FORM_ID, CT_SERVICE_ENQUIRED, clickIdRows } from "@/lib/lead";
+import { LEAD_RULES, CT_ESTIMATE_FORM_ID, CT_FORM_ID, CT_SERVICE_ENQUIRED, clickIdRows } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
@@ -58,15 +58,17 @@ export const POST = withLeadLog("corporate-tax", async (request, log) => {
     ...clickIdRows(body),
   ];
 
+  // The estimator's pop-up (details to see the estimate) or the review form.
+  const fromEstimate = body.source === "estimate";
   const result = await createErpLead({
     lead_name,
     email_id,
     mobile_no: mobile as string,
     ...trackingFields(body),
-    form_id: CT_FORM_ID,
-    form_name: "Corporate Tax Review",
+    form_id: fromEstimate ? CT_ESTIMATE_FORM_ID : CT_FORM_ID,
+    form_name: fromEstimate ? "Corporate Tax Estimate" : "Corporate Tax Review",
     service_enquired: CT_SERVICE_ENQUIRED,
-    button_name: "Book my free tax review",
+    button_name: fromEstimate ? "Show my tax estimate" : "Book my free tax review",
     answers: {},
     estimate: null,
     details,

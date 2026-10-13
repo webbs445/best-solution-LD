@@ -75,7 +75,7 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
     <div class="sec-h"><h2 id="h-est" class="split">Work out your Corporate Tax the way the return does</h2><p>Corporate Tax is not 9% of your profit. It begins with the profit in your accounts, adjusts it, uses any losses, and only then taxes what is above AED 375,000 at 9%.</p></div>
     <ol class="cx-flow cxf" aria-label="How Corporate Tax is worked out"><li><i>1</i><b>Accounting profit</b></li><li><i>2</i><b>Adjust</b></li><li><i>3</i><b>Use losses</b></li><li><i>4</i><b>Taxable income</b></li><li><i>5</i><b>0% / 9%</b></li></ol>
     <div class="cx-sc"><span>Try an example</span><div class="cx-sc-b" id="scen"><button type="button" data-s="trade">Small trading company</button><button type="button" data-s="consult">Growing consultancy</button><button type="button" data-s="fz">Free zone exporter</button></div></div>
-    <a class="cx-mini" id="cxMini" href="#sheet"><span>Estimated tax</span><b>AED <span id="miniTax">0</span></b><em>See the working</em></a>
+    <a class="cx-mini" id="cxMini" href="#sheet"><span>Approx. tax</span><b>AED <span id="miniTax">0</span></b><em id="miniCta">See the working</em></a>
     <div class="cx-g">
       <div class="cx-in">
         <div class="cg"><div class="cg-h"><i>1</i><b>Your figures</b></div>
@@ -92,9 +92,9 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
         </div></div>
       </div>
       <div class="sheet" id="sheet" aria-live="polite"><div class="stamp" id="stamp" aria-hidden="true"><svg viewBox="0 0 126 126"><defs><path id="spc" d="M63 63m-46 0a46 46 0 1 1 92 0a46 46 0 1 1-92 0"/></defs><circle cx="63" cy="63" r="60" fill="#14253e"/><circle cx="63" cy="63" r="55" fill="none" stroke="#cc8667" stroke-width="1.5" stroke-dasharray="2 4"/><g class="sp"><text font-size="10.5" font-weight="700" letter-spacing="2.6" fill="#f0c4ac"><textPath href="#spc">ILLUSTRATION ✦ HEADLINE RATES ✦ UAE ✦ </textPath></text></g><text x="63" y="60" text-anchor="middle" font-size="22" font-weight="800" fill="#fff" letter-spacing="-1">9%</text><text x="63" y="77" text-anchor="middle" font-size="9" font-weight="600" fill="#e2a684" letter-spacing="1">ABOVE 375K</text></svg></div>
-        <div class="cx-tot"><div><span>Corporate Tax payable</span><b><small>AED</small><span id="shTax">0</span></b><em class="tp">Tax period ending <span id="shYe">31 Dec 2026</span></em></div>
+        <div class="cx-tot"><div><span>Estimated Corporate Tax (approximate)</span><b><small>AED</small><span id="shTax">0</span></b><em class="tp">Tax period ending <span id="shYe">31 Dec 2026</span></em></div>
           <div class="gauge" aria-hidden="true"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" class="g-t"/><circle cx="42" cy="42" r="34" class="g-f" id="gF" pathLength="100"/></svg><span><b id="shEff">0%</b>of net profit</span></div></div>
-        <div class="cx-why"><b>What this means</b><ul id="why"></ul></div>
+        <p class="cx-approx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span><b>An approximate figure, not your final tax.</b> Your actual Corporate Tax depends on your full accounts and the adjustments in your return. For an exact figure, <a href="#book" data-cta-location="CT Estimate — Exact figure from an advisor">talk to our tax team</a>.</span></p><div class="cx-lock" id="cxLock"><span class="cx-lock-i" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><div class="cx-lock-t"><b>Your estimate is ready</b><p>Enter your details to see your approximate Corporate Tax, what it means for you and the full working. Free, with no obligation.</p></div><button type="button" class="btn btn-cu" id="lockBtn" data-cta-location="CT Estimate — Show my tax estimate">Show my tax estimate</button></div><div class="cx-why"><b>What this means</b><ul id="why"></ul></div>
         <button type="button" class="wk-b" id="wkB" aria-expanded="false" aria-controls="wk">See the working<i></i></button>
         <div class="wk" id="wk"><div><ul class="wf" id="wf"><li class="wf-r base" data-r="np"><div><div class="wf-h"><span class="wf-l">Net profit in your accounts<small data-s="np"></small></span><span class="wf-a" data-k="np">0</span></div><div class="wf-t"><i></i></div></div></li><li class="wf-r add" data-r="ent"><div><div class="wf-h"><span class="wf-l">Add: 50% of entertainment<small data-s="ent">Half of entertainment is not deductible</small></span><span class="wf-a" data-k="ent">0</span></div><div class="wf-t"><i></i></div></div></li><li class="wf-r add" data-r="fin"><div><div class="wf-h"><span class="wf-l">Add: fines and penalties<small data-s="fin">Never deductible</small></span><span class="wf-a" data-k="fin">0</span></div><div class="wf-t"><i></i></div></div></li><li class="wf-r sub" data-r="ex"><div><div class="wf-h"><span class="wf-l">Less: exempt income<small data-s="ex">Qualifying dividends and gains</small></span><span class="wf-a" data-k="ex">0</span></div><div class="wf-t"><i></i></div></div></li><li class="wf-r tot" data-r="adj"><div><div class="wf-h"><span class="wf-l">Adjusted profit<small data-s="adj"></small></span><span class="wf-a" data-k="adj">0</span></div><div class="wf-t"><i></i></div></div></li><li class="wf-r sub" data-r="loss"><div><div class="wf-h"><span class="wf-l">Less: tax losses used<small data-s="loss">Capped at 75% of adjusted profit</small></span><span class="wf-a" data-k="loss">0</span></div><div class="wf-t"><i></i></div></div></li><li class="wf-r tot" data-r="ti"><div><div class="wf-h"><span class="wf-l">Taxable income<small data-s="ti"></small></span><span class="wf-a" data-k="ti">0</span></div><div class="wf-t"><i></i></div></div></li><li class="wf-r sub" data-r="sbr"><div><div class="wf-h"><span class="wf-l">Small Business Relief<small data-s="sbr">Treated as no taxable income</small></span><span class="wf-a" data-k="sbr">0</span></div><div class="wf-t"><i></i></div></div></li><li class="wf-r zero" data-r="b0"><div><div class="wf-h"><span class="wf-l">Taxed at 0%<small data-s="b0">First AED 375,000</small></span><span class="wf-a" data-k="b0">0</span></div><div class="wf-t"><i></i></div></div></li><li class="wf-r nine" data-r="b9"><div><div class="wf-h"><span class="wf-l">Taxed at 9%<small data-s="b9">Everything above AED 375,000</small></span><span class="wf-a" data-k="b9">0</span></div><div class="wf-t"><i></i></div></div></li></ul></div></div>
         <p class="cx-due">Return and payment due by <b id="shDue">30 Sep 2027</b>, based on the year end on your dial.</p>
@@ -250,7 +250,7 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
           <button type="button" class="back" id="fmBack" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>Back</button>
           <button type="submit" class="btn btn-cu" id="fmNext">Next</button>
         </div>
-        <p class="fm-err" id="fmErr" role="alert" hidden style="margin-top:14px;padding:12px 14px;border-radius:12px;background:#fbe8e5;color:#ad2a1f;font-size:14px">We could not send your details. Please try again, or message us on WhatsApp.</p>
+        <p class="fm-err" id="fmErr" role="alert" hidden>We could not send your details. Please try again, or message us on WhatsApp.</p>
         <p class="fm-priv">Private and confidential. By sending, you agree that Best Solution may contact you by phone, WhatsApp or email.</p>
       </form>
       <div class="done-v" role="status">
@@ -263,6 +263,22 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
   </div>
 </section>
 
+<dialog class="ux" id="ux" aria-labelledby="uxH">
+  <form id="uxForm" novalidate data-track="LP Corporate Tax Estimate">
+    <button type="button" class="ux-x" id="uxX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <span class="ux-i" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+    <p class="ux-k">Your Corporate Tax estimate</p>
+    <h3 id="uxH">See your tax in seconds</h3>
+    <p class="ux-p">Tell us where to reach you and your estimate opens straight away. It is an approximate figure: a tax advisor can then work out your exact tax with you, free.</p>
+    <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div class="fl"><input id="uxName" name="name" placeholder=" " autocomplete="name"><label for="uxName">Full name</label><span class="err">Please enter your name</span></div>
+    <div class="fl"><div class="tel"><select id="uxCC" aria-label="Country code"></select><div style="position:relative"><input id="uxPhone" name="phone" type="tel" inputmode="tel" placeholder=" " autocomplete="tel-national"><label for="uxPhone">Phone or WhatsApp</label></div></div><span class="err">Please enter a valid phone number</span></div>
+    <div class="fl"><input id="uxEmail" name="email" type="email" inputmode="email" placeholder=" " autocomplete="email"><label for="uxEmail">Email</label><span class="err">Please enter a valid email</span></div>
+    <p class="fm-err" id="uxErr" role="alert" hidden></p>
+    <button type="submit" class="btn btn-cu ux-go" id="uxGo">Show my tax estimate</button>
+    <p class="fm-priv">Private and confidential. By sending, you agree that Best Solution may contact you by phone, WhatsApp or email.</p>
+  </form>
+</dialog>
 </main>
 
 <footer class="ft">

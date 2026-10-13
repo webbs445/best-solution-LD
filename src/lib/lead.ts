@@ -53,6 +53,8 @@ export const SPV_FORM_ID = "LP Structuring Consultation";
 export const SPV_SERVICE_ENQUIRED = "Other Services";
 /** The /corporate-tax page's free tax review form ("Book my free tax review"). */
 export const CT_FORM_ID = "LP Corporate Tax Review";
+/** The /corporate-tax estimator's pop-up: the visitor's details open their tax estimate ("Show my tax estimate"). */
+export const CT_ESTIMATE_FORM_ID = "LP Corporate Tax Estimate";
 /** The ERP "Service Enquired" option for every /corporate-tax lead (an exact Select option in the ERP). */
 export const CT_SERVICE_ENQUIRED = "VAT & Tax Services";
 
