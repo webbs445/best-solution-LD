@@ -51,6 +51,10 @@ export const AC_SERVICE_ENQUIRED = "Accounting & Bookkeeping Services";
 export const SPV_FORM_ID = "LP Structuring Consultation";
 /** The ERP has no structuring option for "Service Enquired", so /spv leads use "Other Services". */
 export const SPV_SERVICE_ENQUIRED = "Other Services";
+/** The /corporate-tax page's free tax review form ("Book my free tax review"). */
+export const CT_FORM_ID = "LP Corporate Tax Review";
+/** The ERP "Service Enquired" option for every /corporate-tax lead (an exact Select option in the ERP). */
+export const CT_SERVICE_ENQUIRED = "VAT & Tax Services";
 
 /** The "Google click IDs" row for the ERP notes, from a form's gclid / gbraid / wbraid (none when empty). */
 export function clickIdRows(body: Record<string, unknown>): [string, string][] {
