@@ -97,4 +97,28 @@ describe("createErpLead", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("ECONNREFUSED")));
     expect(await createErpLead(input)).toEqual({ ok: false, reason: "upstream_unreachable" });
   });
+
+  it("adds Google Ads leads to the lead log sheet with tracking only, and skips other leads", async () => {
+    vi.stubEnv("ADS_SHEET_URL", "https://script.example.com/exec");
+    vi.stubEnv("ADS_SHEET_SECRET", "s3cret");
+    const fetchMock = vi.fn((url: string) =>
+      Promise.resolve(url.startsWith("https://erp") ? Response.json({ data: { name: "BSL-1" } }) : Response.json({ ok: true })),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const test = { ...input, lead_name: "Test", mobile_no: "050 000 0000", email_id: "test.lead@example.com" };
+
+    await createErpLead({ ...test, click_id: "Cj0KCQtest", utm_campaign: "fz_search", utm_term: "ajman free zone" });
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    const [url, init] = fetchMock.mock.calls[1] as unknown as [string, RequestInit];
+    expect(url).toBe("https://script.example.com/exec");
+    const sent = JSON.parse(String(init.body));
+    expect(sent.secret).toBe("s3cret");
+    expect(sent.lead).toMatchObject({ name: "BSL-1", custom_clid: "Cj0KCQtest", custom_campaign: "fz_search", custom_ad_set_name: "ajman free zone" });
+    expect(JSON.stringify(sent)).not.toMatch(/Test"|050 000 0000|test\.lead/);
+
+    fetchMock.mockClear();
+    await createErpLead({ ...test, utm_source: "fb", click_id: "IwAR3meta", utm_campaign: "meta" });
+    await new Promise((r) => setTimeout(r, 10));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });

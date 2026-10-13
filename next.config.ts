@@ -5,6 +5,8 @@ import type { NextConfig } from "next";
 const SITELINK_PATHS = ["calculator", "mainland", "free-zone", "offshore", "consultation", "reviews"] as const;
 
 const nextConfig: NextConfig = {
+  // The dashboard reads its page template at run time.
+  outputFileTracingIncludes: { "/api/ads-report": ["./src/lib/adsReportPage.html"] },
   async rewrites() {
     return [
       ...SITELINK_PATHS.map((path) => ({ source: `/${path}`, destination: "/" })),
