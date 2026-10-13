@@ -1,5 +1,9 @@
 import { STEPS } from "@/content/calculator";
 import { DATA, formatAED, type Answers, type Estimate, type Jurisdiction } from "@/lib/pricing";
+import { after } from "next/server";
+import { uaeNow } from "@/lib/adsExport";
+import { isGoogleAdsLead } from "@/lib/adsReport";
+import { recordAdsLead, type SheetLead } from "@/lib/adsSheet";
 
 /*
   Creates a Lead in Best Solution's ERPNext (POST /api/resource/Lead), mapped to its Lead doctype.
@@ -261,6 +265,27 @@ export async function updateErpLead(name: string, fields: Record<string, unknown
   }
 }
 
+/** Google Ads leads also go to the lead log sheet (lib/adsSheet), after the response so the form is not slowed. */
+function logGoogleAdsLead(name: string, l: ReturnType<typeof toLead>) {
+  const row: SheetLead = {
+    name,
+    creation: uaeNow(),
+    source: l.source,
+    custom_platform: l.custom_platform ?? "",
+    custom_campaign: l.custom_campaign ?? "",
+    custom_ad_set_name: l.custom_ad_set_name ?? "",
+    custom_ad_name: l.custom_ad_name ?? "",
+    custom_clid: l.custom_clid ?? "",
+    custom_form_name: l.custom_form_name,
+  };
+  if (!isGoogleAdsLead({ ...row, status: "" })) return;
+  try {
+    after(() => recordAdsLead(row));
+  } catch {
+    void recordAdsLead(row); // outside a request (scripts, tests)
+  }
+}
+
 export async function createErpLead(input: LeadInput): Promise<LeadResult> {
   const base = process.env.ERPNEXT_URL?.replace(/\/+$/, "");
   const key = process.env.ERPNEXT_API_KEY;
@@ -284,7 +309,9 @@ export async function createErpLead(input: LeadInput): Promise<LeadResult> {
       return { ok: false, reason: "upstream_failed" };
     }
     const json = (await res.json().catch(() => null)) as { data?: { name?: string } } | null;
-    return { ok: true, name: json?.data?.name };
+    const name = json?.data?.name;
+    if (name) logGoogleAdsLead(name, toLead(input));
+    return { ok: true, name };
   } catch (err) {
     console.error("ERPNext unreachable", err);
     return { ok: false, reason: "upstream_unreachable" };
