@@ -221,6 +221,9 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     const q = MODE === "qfzp";
     cx.classList.toggle("qf", q);
     const r = computeTax(v, q, cSbr.checked);
+    // Profit above revenue can't be right (usually a missing digit): flag the revenue field and say so below.
+    const odd = v.np > v.rev;
+    F.rev.closest(".cf-in")?.classList.toggle("warn", odd);
     if (!r.sbrOk) cSbr.checked = false;
     cSbr.disabled = !r.sbrOk;
     $("#tgSbr").classList.toggle("show", r.sbrOk);
@@ -250,6 +253,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     $("#shEff").textContent = `${eff.toFixed(1)}%`;
     $("#gF").style.strokeDasharray = `${Math.min(100, (eff / 9) * 100).toFixed(1)} 100`;
     const W: [string, string][] = [];
+    if (odd) W.push(["warn", `Your net profit of ${A(v.np)} is higher than your revenue of ${A(v.rev)}. Profit comes out of revenue, so please check both figures: this estimate will not be right until they match your accounts.`]);
     if (r.qFail) W.push(["warn", `Your non-qualifying revenue of ${A(v.nqr)} is above the limit of ${A(r.limit)} (5% of revenue or AED 5 million, whichever is lower). That would mean losing Qualifying Free Zone status, so this shows the standard calculation.`]);
     if (r.addEnt + v.fin > 0) W.push(["", `${A(r.addEnt + v.fin)} was added back, because half of entertainment and all fines are not deductible.`]);
     if (v.ex > 0) W.push(["", `${A(v.ex)} of exempt income was taken out, so it is not taxed.`]);
