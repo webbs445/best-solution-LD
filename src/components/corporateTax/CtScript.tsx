@@ -311,11 +311,6 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     startEst(); estimate();
     trackEvent("tax_scenario_select", { scenario: b.textContent });
   });
-  on($("#shCta"), "click", () => {
-    trackEvent("tax_estimator_complete", { estimate: est });
-    const rev = num(F.rev);
-    prefill(null, rev <= 1_000_000 ? "Up to AED 1 million" : rev <= 3_000_000 ? "AED 1M to 3M" : rev <= 50_000_000 ? "AED 3M to 50M" : "Above AED 50M", MODE === "qfzp" ? "Free zone company" : null);
-  });
   {
     const mini = $("#cxMini");
     let inV = false, shV = false;
@@ -365,11 +360,6 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     });
   radioGroup("#apT", "t");
   radioGroup("#apR", "r");
-  on($("#apCta"), "click", () => {
-    const bm: Record<string, string> = { mainland: "Mainland company", freezone: "Free zone company", person: "Freelancer or sole trader", holding: "Holding company" };
-    const rm: Record<string, string> = { "1": "Up to AED 1 million", "3": "AED 1M to 3M", "50": "AED 3M to 50M", "51": "Above AED 50M" };
-    prefill(bm[AP.t], rm[AP.r]);
-  });
 
   /* ---------- late calendar ---------- */
   const cal = $("#cal");
@@ -417,26 +407,33 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
   function syncFormYe() { if (!yeTouched) { setRadio("ye_m", S.m); setRadio("ye_y", S.y); } }
   const val = (name: string) => form.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value ?? "";
   const yeText = () => { const y = val("ye_y"), m = val("ye_m"); return y === "ns" ? "Not sure" : (m !== "" ? `${MO[Number(m)]} ` : "") + y; };
+  // Steps: 1 business, 2 year end, 3 revenue, 4 help needed, 5 contact. Steps the page already answered are skipped.
+  const CONTACT = 5;
+  const skip = new Set<number>();
+  const order = () => [1, 2, 3, 4, 5].filter((s) => !skip.has(s));
+  const answer = (s: number) => (s === 1 ? val("biz") : s === 2 ? `Year end ${yeText()}` : s === 3 ? val("revenue") : s === 4 ? val("help") : "");
   function summary() {
-    const a: string[] = [];
-    if (step > 1 && val("biz")) a.push(val("biz"));
-    if (step > 2) a.push(`Year end ${yeText()}`);
-    if (step > 3 && val("revenue")) a.push(val("revenue"));
+    const ord = order(), at = ord.indexOf(step);
+    const a = [1, 2, 3, 4].filter((s) => skip.has(s) || ord.indexOf(s) < at).map(answer).filter(Boolean);
     $("#fmSum").innerHTML = a.map((x) => `<span>${escHtml(x)}</span>`).join("");
   }
   function go(n: number) {
-    const prev = step;
+    const prev = step, ord = order(), at = ord.indexOf(n);
     step = n;
     $$(".step", form).forEach((s) => { const k = Number(s.dataset.s); s.classList.toggle("cur", k === n); s.classList.toggle("past", k < n); s.toggleAttribute("inert", k !== n); });
-    $$(".fm-bar i").forEach((b, i) => b.classList.toggle("on", i < n));
-    $("#fmN").textContent = `Step ${n} of 4`;
-    $("#fmBack").hidden = n === 1;
-    $("#fmNext").textContent = n === 4 ? "Book my free tax review" : "Next";
+    const bar = $(".fm-bar");
+    bar.style.gridTemplateColumns = `repeat(${ord.length},1fr)`;
+    bar.innerHTML = ord.map((_, i) => `<i${i <= at ? ' class="on"' : ""}></i>`).join("");
+    $("#fmN").textContent = `Step ${at + 1} of ${ord.length}`;
+    $("#fmBack").hidden = at === 0;
+    $("#fmNext").textContent = n === CONTACT ? "Book my free tax review" : "Next";
     summary();
     if (n > prev) trackEvent("form_step", { form_name: "corporate_tax_review", step: n });
-    if (n === 4 && prev < 4) setTimeout(() => { if (innerWidth > 640) $("#fName").focus({ preventScroll: true }); }, 350);
+    if (n === CONTACT && prev < CONTACT) setTimeout(() => { if (innerWidth > 640) $("#fName").focus({ preventScroll: true }); }, 350);
   }
-  $$(".step", form).forEach((s) => s.toggleAttribute("inert", Number(s.dataset.s) !== 1));
+  const next = () => { const ord = order(); go(ord[Math.min(ord.length - 1, ord.indexOf(step) + 1)]); };
+  const back = () => { const ord = order(); go(ord[Math.max(0, ord.indexOf(step) - 1)]); };
+  go(1);
   function prefill(biz: string | null, rev: string | null, bizFallback?: string | null) {
     if (biz) setRadio("biz", biz);
     else if (bizFallback && !val("biz")) setRadio("biz", bizFallback);
@@ -450,11 +447,10 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
   on(form, "click", (e: MouseEvent) => {
     const t = e.target as HTMLInputElement;
     if (t.type !== "radio") return;
-    if (t.name === "biz" && step === 1) setTimeout(() => go(2), 260);
-    if (t.name === "ye_y" && step === 2) setTimeout(() => go(3), 260);
-    if (t.name === "revenue" && step === 3) setTimeout(() => go(4), 260);
+    const at = ({ biz: 1, ye_y: 2, revenue: 3, help: 4 } as Record<string, number>)[t.name];
+    if (at && step === at) setTimeout(() => { if (step === at) next(); }, 260);
   });
-  on($("#fmBack"), "click", () => { if (step > 1) go(step - 1); });
+  on($("#fmBack"), "click", back);
   const mark = (id: string, ok: boolean) => {
     const input = $<HTMLInputElement>(`#${id}`);
     input.closest(".fl")?.classList.toggle("bad", !ok);
@@ -514,14 +510,14 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
   const reviewDone = (firstName: string) => { sent = true; $("#doneH").textContent = `Thank you, ${firstName}.`; $("#fm").classList.add("done"); };
   on(form, "submit", async (e: SubmitEvent) => {
     e.preventDefault();
-    if (step < 4) { go(step + 1); return; }
+    if (step < CONTACT) { next(); return; }
     if (sending || sent) return;
     sending = true;
     const firstName = await sendLead({
       form, ids: { name: "fName", phone: "fPhone", email: "fEmail" }, cc,
       btn: $<HTMLButtonElement>("#fmNext"), btnText: "Book my free tax review", errBox: $("#fmErr"),
       formId: CT_FORM_ID, formName: "Corporate Tax Review", formType: "consultation",
-      fields: { business_type: val("biz") || "Not sure", year_end: yeText(), revenue: val("revenue") || "Prefer not to say", estimate: estimateNote() },
+      fields: { business_type: val("biz") || "Not sure", year_end: yeText(), revenue: val("revenue") || "Prefer not to say", help: val("help") || "Not sure yet", estimate: estimateNote() },
     });
     sending = false;
     if (!firstName) return;
@@ -529,6 +525,46 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     reviewDone(firstName);
     confetti();
     $("#fm").scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+  });
+
+  /* ---------- review pop-up: every "Book" link opens the review form in a pop-up, skipping what the page already knows ---------- */
+  const rv = $<HTMLDialogElement>("#rv"), fmEl = $("#fm"), fmHome = document.createComment("review form");
+  fmEl.before(fmHome);
+  const revenueBand = (rev: number) => (rev <= 1_000_000 ? "Up to AED 1 million" : rev <= 3_000_000 ? "AED 1M to 3M" : rev <= 50_000_000 ? "AED 3M to 50M" : "Above AED 50M");
+  function openReview(from: Element) {
+    if (rv.open) return;
+    skip.clear();
+    const source = from.getAttribute("data-cta-location") || "Book link";
+    let kicker = "Free Corporate Tax review";
+    if (from.id === "apCta") {
+      // "Does it apply": business type and revenue were just answered.
+      const bm: Record<string, string> = { mainland: "Mainland company", freezone: "Free zone company", person: "Freelancer or sole trader", holding: "Holding company" };
+      const rm: Record<string, string> = { "1": "Up to AED 1 million", "3": "AED 1M to 3M", "50": "AED 3M to 50M", "51": "Above AED 50M" };
+      prefill(bm[AP.t], rm[AP.r]);
+      skip.add(1).add(3);
+      kicker = "Review my case";
+    } else if (from.id === "shCta") {
+      // The estimator: revenue is known, and the free zone choice if they made it.
+      trackEvent("tax_estimator_complete", { estimate: est });
+      prefill(MODE === "qfzp" ? "Free zone company" : null, revenueBand(num(F.rev)));
+      skip.add(3);
+      if (MODE === "qfzp") skip.add(1);
+      kicker = "Check my estimate with an advisor";
+    }
+    if (!sent) go(order()[0]);
+    $("#rvK").textContent = kicker;
+    $("#rvSlot").append(fmEl);
+    rv.showModal();
+    trackEvent("review_popup_open", { source });
+  }
+  on(rv, "close", () => { fmHome.after(fmEl); skip.clear(); if (!sent) go(order().includes(step) ? step : 1); });
+  on($("#rvX"), "click", () => rv.close());
+  on(rv, "click", (e: MouseEvent) => { if (e.target === rv) rv.close(); }); // a tap on the backdrop
+  on(root, "click", (e: MouseEvent) => {
+    const a = (e.target as Element).closest('a[href="#book"]');
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || a.closest("#rv")) return;
+    e.preventDefault();
+    openReview(a);
   });
 
   /* ---------- estimate pop-up: the figure opens once the visitor leaves their details ---------- */

@@ -35,6 +35,7 @@ export const CT_FAQS: { q: string; a: string }[] = [
 /** The review form's choices; /api/corporate-tax passes on only these exact values. */
 export const CT_BUSINESS = ["Mainland company", "Free zone company", "Freelancer or sole trader", "Holding company", "Not sure"] as const;
 export const CT_REVENUE = ["Up to AED 1 million", "AED 1M to 3M", "AED 3M to 50M", "Above AED 50M", "Prefer not to say"] as const;
+export const CT_HELP = ["Corporate Tax registration", "Preparing and filing my return", "Checking reliefs and exemptions", "Free zone 0% review", "Not sure yet"] as const;
 
 /*
   Trust details. Fill only with real, verified facts; anything left empty stays hidden on the page.

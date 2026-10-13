@@ -198,7 +198,7 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
   <div class="wrap bk-g">
     <div class="bk-side">
       <h2 id="h-bk" class="split">Book your free tax review</h2>
-      <p>Four short questions. A member of our tax team will then call you to go through your dates, relief and records.</p>
+      <p>A few short questions. A member of our tax team will then call you to go through your dates, relief and records.</p>
       <ul class="bk-con">
         <li><a href="https://wa.me/97145531546?text=Hello%2C%20I%20would%20like%20a%20Corporate%20Tax%20review." target="_blank" rel="noopener" data-area="Book"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>WhatsApp us<small>Message any time</small></a></li>
         <li><a href="tel:+971522330011" data-area="Book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>+971 52 233 0011<small>Call our team</small></a></li>
@@ -209,7 +209,7 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
     </div>
 
     <div class="fm" id="fm" data-area="Tax Review Form"><canvas class="confetti" id="conf"></canvas>
-      <div class="fm-top"><div class="fm-bar" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div><span class="fm-step-n" id="fmN">Step 1 of 4</span></div>
+      <div class="fm-top"><div class="fm-bar" aria-hidden="true"></div><span class="fm-step-n" id="fmN">Step 1 of 5</span></div>
       <form id="form" novalidate data-track="LP Corporate Tax Review">
         <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
         <div class="fm-sum" id="fmSum"></div>
@@ -240,6 +240,16 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
             </div>
           </fieldset>
           <fieldset class="step" data-s="4">
+            <legend class="st-h">What do you need help with?</legend>
+            <div class="ch" id="chHelp">
+              <label><input type="radio" name="help" value="Corporate Tax registration"><span>Corporate Tax registration</span></label>
+              <label><input type="radio" name="help" value="Preparing and filing my return"><span>Preparing and filing my return</span></label>
+              <label><input type="radio" name="help" value="Checking reliefs and exemptions"><span>Checking reliefs and exemptions</span></label>
+              <label><input type="radio" name="help" value="Free zone 0% review"><span>Free zone 0% review</span></label>
+              <label><input type="radio" name="help" value="Not sure yet"><span>Not sure yet</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="step" data-s="5">
             <legend class="st-h">Where should we reach you?</legend>
             <div class="fl"><input id="fName" name="name" placeholder=" " autocomplete="name"><label for="fName">Full name</label><span class="err">Please enter your name</span></div>
             <div class="fl"><div class="tel"><select id="fCC" aria-label="Country code"></select><div style="position:relative"><input id="fPhone" name="phone" type="tel" inputmode="tel" placeholder=" " autocomplete="tel-national"><label for="fPhone">Phone or WhatsApp</label></div></div><span class="err">Please enter a valid phone number</span></div>
@@ -278,6 +288,11 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
     <button type="submit" class="btn btn-cu ux-go" id="uxGo">Show my tax estimate</button>
     <p class="fm-priv">Private and confidential. By sending, you agree that Best Solution may contact you by phone, WhatsApp or email.</p>
   </form>
+</dialog>
+<dialog class="ux rv" id="rv" aria-label="Book your free tax review">
+  <button type="button" class="ux-x rv-x" id="rvX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <p class="rv-k" id="rvK">Free Corporate Tax review</p>
+  <div id="rvSlot"></div>
 </dialog>
 </main>
 

@@ -6,7 +6,7 @@ import { str, trackingFields } from "@/lib/calculatorLead";
 import { isPhoneCountry } from "@/lib/phone";
 import { validatePhoneServer } from "@/lib/phoneServer";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
-import { CT_BUSINESS, CT_REVENUE } from "@/content/corporateTax";
+import { CT_BUSINESS, CT_HELP, CT_REVENUE } from "@/content/corporateTax";
 
 /*
   The /corporate-tax free tax review: creates a Lead in the ERP (name, email and phone are all required for
@@ -54,6 +54,7 @@ export const POST = withLeadLog("corporate-tax", async (request, log) => {
     ["Business type", oneOf(body.business_type, CT_BUSINESS) || "Not sure"],
     ...(yearEndText ? ([["Financial year end", yearEndText]] as [string, string][]) : []),
     ["Annual revenue", oneOf(body.revenue, CT_REVENUE) || "Prefer not to say"],
+    ...(oneOf(body.help, CT_HELP) ? ([["Needs help with", oneOf(body.help, CT_HELP)]] as [string, string][]) : []),
     ...(estimate ? ([["Tax estimator", estimate]] as [string, string][]) : []),
     ...clickIdRows(body),
   ];
