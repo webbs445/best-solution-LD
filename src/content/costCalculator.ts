@@ -19,7 +19,7 @@ export const CC_TR: Record<string, CcTr> = {
     "Choose where, which setup, how many visas and your workspace. Then unlock your full price, line by line.":["اختر الموقع ونوع الشركة وعدد التأشيرات ومساحة العمل، ثم اكشف سعرك الكامل بندًا بندًا.","Choisissez où, quelle structure, combien de visas et votre espace de travail. Puis découvrez votre prix complet, ligne par ligne.","Выберите юрисдикцию, тип компании, количество виз и офис. Затем откройте полную цену по каждой статье.","选择地点、公司类型、签证数量和办公空间，然后查看逐项列出的完整价格。"],
     "Activity":["النشاط","Activité","Деятельность","业务"],
     "What does your business do?":["ما نشاط شركتك؟","Que fait votre entreprise ?","Чем занимается ваш бизнес?","您的业务是什么？"],
-    "ACT_SUB":["قد يغيّر النشاط السعر، ويتحقق منه مستشارك قبل تقديم أي طلب.","Votre activité peut changer le prix ; votre conseiller la vérifie avant tout dépôt.","Вид деятельности влияет на цену; консультант проверит его до подачи документов.","业务活动可能影响价格，顾问会在提交前核实。"],
+    "Your activity can change the price. Your advisor checks it before anything is filed.":["قد يغيّر النشاط السعر، ويتحقق منه مستشارك قبل تقديم أي طلب.","Votre activité peut changer le prix ; votre conseiller la vérifie avant tout dépôt.","Вид деятельности влияет на цену; консультант проверит его до подачи документов.","业务活动可能影响价格，顾问会在提交前核实。"],
     "Trading":["التجارة","Négoce","Торговля","贸易"],
     "Import, export and general trading":["الاستيراد والتصدير والتجارة العامة","Import, export et négoce général","Импорт, экспорт и общая торговля","进出口及综合贸易"],
     "Consulting and services":["الاستشارات والخدمات","Conseil et services","Консалтинг и услуги","咨询与服务"],

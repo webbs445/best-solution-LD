@@ -255,10 +255,10 @@ html:has(.cc-page){scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-s
 .cc-page .prog{height:3px;margin:16px 4px 0;border-radius:2px;background:var(--rule);overflow:hidden}
 .cc-page .prog i{display:block;height:100%;width:0;background:var(--grad);transition:width .6s var(--ease)}
 .cc-page .stepv{position:relative;margin-top:22px;min-height:420px}
-.cc-page .st{animation:cc-stIn .5s var(--ease) both}
+.cc-page .st{animation:cc-stIn .42s var(--ease) both}
 .cc-page .st.back{animation-name:cc-stBack}
-@keyframes cc-stIn{from{opacity:0;transform:translateX(26px)}}
-@keyframes cc-stBack{from{opacity:0;transform:translateX(-26px)}}
+@keyframes cc-stIn{from{opacity:0;transform:translateX(14px)}}
+@keyframes cc-stBack{from{opacity:0;transform:translateX(-14px)}}
 .cc-page[dir="rtl"] .st{animation-name:cc-stBack}
 .cc-page[dir="rtl"] .st.back{animation-name:cc-stIn}
 .cc-page .st h2{font-size:clamp(22px,2.2vw,28px);font-weight:720;letter-spacing:-.03em;line-height:1.25}

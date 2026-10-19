@@ -7,7 +7,7 @@ import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry 
 import { attributionFields } from "@/lib/attribution";
 import { DATA, RATES, cheapest, type Jurisdiction, type SetupOption, type WorkspaceKey } from "@/lib/pricing";
 import { activityLabel, ccEstimate, ccMaxResidents, ccUsesPackage, type CcActivity, type CcAnswers, type CcEstimate } from "@/lib/costCalculator";
-import { genEventId, pushEvent, pushFormSubmit, pushGenerateLead, trackCalculatorComplete, trackCalculatorStart, trackCalculatorStep } from "@/lib/analytics";
+import { genEventId, jurisdictionLabel, pushEvent, pushFormSubmit, pushGenerateLead, trackCalculatorComplete, trackCalculatorResultView, trackCalculatorStart, trackCalculatorStep } from "@/lib/analytics";
 
 /*
   The /cost-calculator page's behaviour, ported from the design file's script: the six-step configurator and its
@@ -183,7 +183,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
   };
   const complete = () => {
     const e = ccEstimate(A);
-    if (e && !completed) { completed = true; trackCalculatorComplete({ calculatorId: CC_CALCULATOR_ID, jurisdiction: A.jurisdiction, activity: actName(), visaCount: e.n, estimatedCost: e.total }); }
+    if (e && !completed) { completed = true; trackCalculatorComplete({ calculatorId: CC_CALCULATOR_ID, jurisdiction: jurisdictionLabel(A.jurisdiction), activity: actName(), visaCount: e.n, estimatedCost: e.total }); }
   };
 
   function tabs() {
@@ -222,7 +222,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
         return `<button type="button" class="card" data-j="${k}" aria-pressed="${j === k}"><span class="ic">${svg(k)}</span><b>${t(JL[k])}</b><span>${k === "undecided" ? "" : t(sub)}</span><em>${from}</em></button>`;
       }).join("") + "</div>";
     } else if (cur === "act") {
-      h = `<h2>${t("What does your business do?")}</h2><p>${t("ACT_SUB")}</p><div class="acts">` + (Object.keys(ACT_UI) as CcActivity[]).map((k) =>
+      h = `<h2>${t("What does your business do?")}</h2><p>${t("Your activity can change the price. Your advisor checks it before anything is filed.")}</p><div class="acts">` + (Object.keys(ACT_UI) as CcActivity[]).map((k) =>
         `<button type="button" class="card" data-a="${k}" aria-pressed="${A.activity === k}"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ACT_UI[k][1]}</svg></span><span class="tx"><b>${t(activityLabel(k))}</b><span>${t(ACT_UI[k][0])}</span></span></button>`).join("") + "</div>";
     } else if (cur === "setup" && j && j !== "undecided") {
       const ems = ["All", ...DATA[j].map((o) => o.emirate).filter((e, i, a): e is string => !!e && a.indexOf(e) === i)];
@@ -267,20 +267,26 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     $("#vHint").textContent = ccUsesPackage(A) ? t("This free zone sells packages: one published price that includes residency for up to {n} people and the workspace.", { n: max }) : t("Residency is for two years, plus a one-off establishment card. Your breakdown shows the cost.");
   }
 
-  const later = (fn: () => void) => { const id = window.setTimeout(() => { if (!signal.aborted) fn(); }, reduced ? 0 : 300); timers.push(id); };
+  const later = (fn: () => void, ms = 300) => { const id = window.setTimeout(() => { if (!signal.aborted) fn(); }, reduced ? 0 : ms); timers.push(id); };
+  /* A choice marks its card in place (no redraw, so nothing flashes); the next step slides in once the tick has shown. */
+  const choose = (el: HTMLElement, group: string, key: string, value: string) => {
+    $$(`#stepv ${group}`).forEach((c) => c.setAttribute("aria-pressed", String(c === el)));
+    done[key] = true; track(key === "where" ? "jurisdiction" : key === "act" ? "activity" : key === "setup" ? "option" : "workspace", value);
+    render(); tabs(); later(next, 420);
+  };
   on($("#stepv"), "click", (e) => {
     const ac = closest(e, "[data-a]"), j = closest(e, "[data-j]"), o = closest(e, "[data-o]"), w = closest(e, "[data-w]"), s = closest(e, "[data-s]"), em = closest(e, "[data-e]");
-    if (ac) { A.activity = ac.dataset.a as CcActivity; done.act = true; track("activity", A.activity); render(); step(); tabs(); later(next); return; }
+    if (ac) { A.activity = ac.dataset.a as CcActivity; choose(ac, "[data-a]", "act", A.activity); return; }
     if (j) {
       const nj = j.dataset.j as Choice;
       if (nj !== A.jurisdiction) A.option = undefined;
       A.jurisdiction = nj;
       if (nj === "offshore") { A.residency = 0; A.workspace = "none"; }
-      filter = { q: "", em: "All", sort: filter.sort }; done.where = true;
-      track("jurisdiction", nj); render(); step(); tabs(); later(next); return;
+      filter = { q: "", em: "All", sort: filter.sort };
+      choose(j, "[data-j]", "where", nj); return;
     }
-    if (o) { A.option = o.dataset.o; if (A.residency > ccMaxResidents(A)) A.residency = ccMaxResidents(A); done.setup = true; track("option", A.option); render(); list(); tabs(); later(next); return; }
-    if (w) { A.workspace = w.dataset.w as WorkspaceKey; done.space = true; track("workspace", A.workspace); render(); step(); tabs(); later(next); return; }
+    if (o) { A.option = o.dataset.o; if (A.residency > ccMaxResidents(A)) A.residency = ccMaxResidents(A); choose(o, "[data-o]", "setup", A.option || ""); return; }
+    if (w) { A.workspace = w.dataset.w as WorkspaceKey; choose(w, "[data-w]", "space", A.workspace); return; }
     if (s) { filter.sort = s.dataset.s || "price"; $$("#sort .chip").forEach((c) => c.setAttribute("aria-pressed", String(c === s))); list(); return; }
     if (em) { filter.em = em.dataset.e || "All"; $$("#em .chip").forEach((c) => c.setAttribute("aria-pressed", String(c === em))); list(); return; }
     const plus = closest(e, "#rPlus");
@@ -542,6 +548,9 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     $("#doneH").textContent = t("Thank you, {name}.", { name: firstName });
     $("#fm").classList.add("ok");
     lastSig = ""; render(); step(); tabs(); budget();
+    // The price is on screen now: the same result-view event as the site's other calculators.
+    const e = ccEstimate(A);
+    if (e) trackCalculatorResultView(CC_CALCULATOR_ID, { jurisdiction: jurisdictionLabel(A.jurisdiction), estimatedCost: e.total });
   }
   let sending = false;
   on<SubmitEvent>($("#gForm"), "submit", async (e) => {
