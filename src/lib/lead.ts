@@ -58,6 +58,13 @@ export const CT_ESTIMATE_FORM_ID = "LP Corporate Tax Estimate";
 /** The ERP "Service Enquired" option for every /corporate-tax lead (an exact Select option in the ERP). */
 export const CT_SERVICE_ENQUIRED = "VAT & Tax Services";
 
+/** The /cost-calculator page's price pop-up: the visitor's details open their price ("Show my price"). */
+export const CC_PRICE_FORM_ID = "LP Cost Calculator Price";
+/** The /cost-calculator page's written quote form ("Send me my written quote"). */
+export const CC_QUOTE_FORM_ID = "LP Cost Calculator Quote";
+/** calculator_id of the /cost-calculator configurator's events (the home page calculator uses FORM_ID). */
+export const CC_CALCULATOR_ID = "LP Cost Calculator Page";
+
 /** The "Google click IDs" row for the ERP notes, from a form's gclid / gbraid / wbraid (none when empty). */
 export function clickIdRows(body: Record<string, unknown>): [string, string][] {
   const ids = (["gclid", "gbraid", "wbraid"] as const)
