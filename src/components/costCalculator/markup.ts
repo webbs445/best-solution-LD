@@ -75,6 +75,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
 
       <div class="panel in-a" style="--k:3" id="studio">
         <div class="tabs" role="tablist" id="tabs"></div>
+        <p class="stepn" id="stepN" aria-live="polite"></p>
         <div class="prog" aria-hidden="true"><i id="prog"></i></div>
         <div class="stepv" id="stepv" aria-live="polite"></div>
         <div class="nav2"><button class="btn btn-ghost" type="button" id="back"><svg class="arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="rotate:180deg"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-t="Back">Back</span></button><button class="btn btn-ink sm" type="button" id="next"></button></div>
@@ -86,7 +87,6 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
 <section class="sec cmp" id="compare" aria-labelledby="h-cp">
   <div class="wrap">
     <div class="sec-h rv"><div><span class="kick" data-t="Jurisdictions">Jurisdictions</span><h2 id="h-cp" data-t="Compare the three structures">Compare the three structures</h2></div><p data-t="CMP_SUB">Your plan priced in each jurisdiction, side by side. The highlighted column is your current selection.</p></div>
-    <div class="locked-cmp" id="cmpLock"><span data-t="Prices open once you send your details.">Prices open once you send your details.</span><button type="button" class="btn btn-ink sm" data-gate data-cta-location="CC Compare — Show my price"><span data-t="Show my price">Show my price</span></button></div>
     <div class="cmpt" id="chart" role="table" aria-labelledby="h-cp"></div>
     <p class="cmp-note" data-t="Entry prices from our rate card. Offshore companies cannot hold UAE residency or an office, so those parts do not apply.">Entry prices from our rate card. Offshore companies cannot hold UAE residency or an office, so those parts do not apply.</p>
   </div>

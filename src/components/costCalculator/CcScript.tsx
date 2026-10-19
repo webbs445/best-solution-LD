@@ -193,6 +193,8 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
       return `<button type="button" role="tab" data-k="${k}" aria-selected="${k === cur}" class="${done[k] ? "done" : ""}"${locked ? " disabled" : ""}><i>${done[k] && k !== cur ? "✓" : i + 1}</i><span>${t(label)}</span></button>`;
     }).join("");
     $("#prog").style.width = `${((ord.indexOf(cur) + 1) / ord.length) * 100}%`;
+    // Phones show this line instead of the tabs.
+    $("#stepN").innerHTML = `${t(STEPS.find(([k]) => k === cur)?.[1] ?? "")}<small>${t("Step {n} of {m}", { n: ord.indexOf(cur) + 1, m: ord.length })}</small>`;
     $("#back").hidden = ord.indexOf(cur) <= 0;
     $("#next").textContent = cur === "extras" ? (unlocked ? t("Book a call") : t("Show my price")) : t("Next");
     $<HTMLButtonElement>("#next").disabled = !A.jurisdiction || (cur === "setup" && A.option === undefined);
@@ -348,7 +350,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     const parts: [string, string, string, number | string | null][] = !e ? [] : year === 1 ? [
       ["pkg", t("Company package"), e.chosen ? "" : t(e.basis), e.base],
       ["res", e.n ? (e.n === 1 ? t("Residency for 1 person") : t("Residency for {n} people", { n: e.n })) : t("Residency"), e.off ? "" : e.pack ? t("Package price") : e.n ? t("Two years, incl. establishment card") : "", e.off ? t("Not applicable") : e.n ? e.res : t("None")],
-      ["ws", t("Workspace"), e.off || e.pack ? "" : t(WSN[A.workspace]), e.off ? t("Not required") : e.pack ? t("Included") : e.ws || t("None")],
+      ["ws", t("Workspace"), e.off || e.pack || A.workspace === "none" ? "" : t(WSN[A.workspace]), e.off ? t("Not required") : e.pack ? t("Included") : e.ws || t("None")],
       ["bank", t("Bank account help"), "", A.bank ? e.bank : null],
     ] : [["pkg", t("Licence renewal"), t("About 90% of the package price"), e.renewal], ["res", t("Residency renewal"), t("Every two years"), t("Not in year two")]];
     const bar = Array.from($("#bar").children) as HTMLElement[], tot = Math.max(1, v);
@@ -415,7 +417,6 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
         CMP_ROWS.map((r) => { const v = r[k + 1]; return cell(t(r[0]), typeof v === "number" ? (v ? `<span class="yes">${YES}${t("Yes")}</span>` : `<span class="no">${NO}${t("No")}</span>`) : t(v)); }).join("") +
         cell("", `<a class="btn ${isCur ? "btn-ink" : "btn-soft"} sm" href="#calculator" data-build="${p.j}">${t(isCur ? "Edit my setup" : "Use in calculator")}</a>`, "cta") + "</div>";
     }).join("");
-    $("#cmpLock").hidden = unlocked;
   }
   on($("#chart"), "click", (e) => { const b = closest(e, "[data-build]"); if (!b) return; e.preventDefault(); if (b.dataset.build !== A.jurisdiction) load(b.dataset.build as Choice); $("#calculator").scrollIntoView({ behavior: smooth }); });
 
