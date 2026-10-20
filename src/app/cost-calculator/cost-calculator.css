@@ -486,6 +486,16 @@ html:has(.cc-page){scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-s
 .cc-page .sum-t span{font-size:13px;color:#b9c5d8}
 .cc-page .sum-t b{font-size:21px;font-weight:780;letter-spacing:-.02em}
 .cc-page .sum-t .lkm{background:#ffffff1f;color:#fff}
+.cc-page .sum.is-empty{background:none;box-shadow:none;border-radius:0;overflow:visible}
+.cc-page .sum-empty{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;border:1.5px dashed var(--rule-2);transition:border-color .25s,background .25s}
+.cc-page .sum-empty:hover{border-color:var(--copper);background:var(--ivory-2)}
+.cc-page .sum-empty .lt{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--tint);color:var(--copper-d)}
+.cc-page .sum-empty .lt svg{width:20px;height:20px}
+.cc-page .sum-empty b{display:block;font-size:15px;font-weight:700}
+.cc-page .sum-empty small{display:block;margin-top:2px;font-size:13px;line-height:1.45;color:var(--mute)}
+.cc-page .sum-empty>svg{flex:none;width:18px;height:18px;margin-inline-start:auto;color:var(--copper-d)}
+.cc-page[dir="rtl"] .sum-empty>svg{transform:scaleX(-1)}
+.cc-page .nav2 .btn-ink[hidden]{display:none}
 .cc-page .sum>.btn{display:flex;width:calc(100% - 36px);margin:4px 18px 18px}
 .cc-page .nx-h{margin-top:26px;font-size:16px;font-weight:720}
 .cc-page .nx{list-style:none;margin-top:14px;display:grid;gap:16px}

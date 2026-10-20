@@ -276,6 +276,8 @@ export const CC_TR: Record<string, CcTr> = {
     "Step {n} of {m}":["الخطوة {n} من {m}","Étape {n} sur {m}","Шаг {n} из {m}","第 {n} 步，共 {m} 步"],
     "Ask an advisor":["اسأل مستشارًا","Demander à un conseiller","Спросить консультанта","咨询顾问"],
     "Build your setup in six short steps.":["صمّم شركتك في ست خطوات قصيرة.","Construisez votre configuration en six étapes courtes.","Соберите конфигурацию за шесть коротких шагов.","通过六个简短步骤搭建您的方案。"],
+    "No setup yet":["لا يوجد تكوين بعد","Pas encore de configuration","Конфигурация ещё не выбрана","尚未选择方案"],
+    "Your advisor can help you choose, or build it in the calculator first.":["يمكن لمستشارك مساعدتك في الاختيار، أو صمّمها في الحاسبة أولًا.","Votre conseiller peut vous aider à choisir, ou configurez-la d'abord dans le calculateur.","Консультант поможет выбрать, или сначала соберите её в калькуляторе.","顾问可以帮您选择，您也可以先在计算器中搭建。"],
     "Sending":["جارٍ الإرسال","Envoi","Отправка","发送中"],
     "We could not send your details. Please try again, or message us on WhatsApp.":["تعذّر إرسال بياناتك. يرجى المحاولة مرة أخرى أو مراسلتنا عبر واتساب.","Nous n'avons pas pu envoyer vos coordonnées. Réessayez ou écrivez-nous sur WhatsApp.","Не удалось отправить данные. Попробуйте ещё раз или напишите нам в WhatsApp.","无法发送您的信息。请重试，或通过 WhatsApp 联系我们。"],
     "PRIV":["خاص وسري. بالإرسال، توافق على أن تتواصل معك Best Solution عبر الهاتف أو واتساب أو البريد الإلكتروني.","Privé et confidentiel. En envoyant, vous acceptez que Best Solution vous contacte par téléphone, WhatsApp ou e-mail.","Конфиденциально. Отправляя форму, вы соглашаетесь, что Best Solution может связаться с вами по телефону, WhatsApp или e-mail.","私密保密。提交即表示您同意 Best Solution 通过电话、WhatsApp 或电子邮件与您联系。"],

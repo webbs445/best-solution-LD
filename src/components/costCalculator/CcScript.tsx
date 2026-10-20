@@ -198,7 +198,10 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     // Phones show this line instead of the tabs.
     $("#stepN").innerHTML = `${t(STEPS.find(([k]) => k === cur)?.[1] ?? "")}<small>${t("Step {n} of {m}", { n: ord.indexOf(cur) + 1, m: ord.length })}</small>`;
     $("#back").hidden = ord.indexOf(cur) <= 0;
-    $("#next").textContent = cur === "extras" ? (unlocked ? t("Book a call") : t("Show my price")) : t("Next");
+    // On the last step the "Your setup is ready" block is the one action, so Next steps aside.
+    $("#next").hidden = cur === "extras";
+    $("#next").textContent = t("Next");
+    onScroll(); // the phone bar steps aside on the last step
     $<HTMLButtonElement>("#next").disabled = !A.jurisdiction || (cur === "setup" && A.option === undefined);
   }
   function go(k: string, back = false) {
@@ -322,11 +325,11 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
   }
   /* "Your setup" in the quote section: the authority, the choices and the figure, or an empty state with the way in */
   function renderSum(e: CcEstimate | null, v: number) {
-    const rows = (list: [string, string][], ghost = false) => `<div class="sum-rows${ghost ? " ghost" : ""}">${list.map(([k, val]) => `<div><span>${k}</span><b>${val}</b></div>`).join("")}</div>`;
+    const rows = (list: [string, string][]) => `<div class="sum-rows">${list.map(([k, val]) => `<div><span>${k}</span><b>${val}</b></div>`).join("")}</div>`;
+    $("#sum").classList.toggle("is-empty", !e || !A.jurisdiction);
     if (!e || !A.jurisdiction) {
-      $("#sum").innerHTML = `<div class="sum-h"><span class="lt ghost">${svg("mainland")}</span><span><b>${t("Not configured yet")}</b><small>${t("Build your setup in six short steps.")}</small></span></div>` +
-        rows([[t("Jurisdiction"), "—"], [t("Setup"), "—"], [t("Visas"), "—"]], true) +
-        `<a class="btn btn-cu sm" href="#calculator" data-cta-location="CC Quote — Start the calculator">${t("Start the calculator")}${ARW}</a>`;
+      // Nothing chosen yet: one slim row instead of an empty card (the form works without a setup).
+      $("#sum").innerHTML = `<a class="sum-empty" href="#calculator" data-cta-location="CC Quote — Start the calculator"><span class="lt">${svg("mainland")}</span><span><b>${t("No setup yet")}</b><small>${t("Your advisor can help you choose, or build it in the calculator first.")}</small></span>${ARW}</a>`;
       return;
     }
     const where = [t(JL[A.jurisdiction]), city(e.opt) ? t(city(e.opt)) : ""].filter(Boolean).join(" · ");
@@ -597,7 +600,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
   function onScroll() {
     hd.classList.toggle("on", scrollY > 20);
     const st = $("#stage").getBoundingClientRect(), q = $("#quote").getBoundingClientRect();
-    mbar.classList.toggle("hide", !A.jurisdiction || (st.top < innerHeight - 90 && st.bottom > 80) || (q.top < innerHeight && q.bottom > 0));
+    mbar.classList.toggle("hide", !A.jurisdiction || cur === "extras" || (st.top < innerHeight - 90 && st.bottom > 80) || (q.top < innerHeight && q.bottom > 0));
     let c = 0;
     secs.forEach((x, i) => { if (x.getBoundingClientRect().top < innerHeight * 0.4) c = i; });
     navs.forEach((a, i) => a.classList.toggle("cur", i === c));
