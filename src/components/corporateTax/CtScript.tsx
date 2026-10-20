@@ -6,7 +6,7 @@ import { CT_ESTIMATE_FORM_ID, CT_FORM_ID, LEAD_RULES } from "@/lib/lead";
 import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry } from "@/lib/phone";
 import { attributionFields } from "@/lib/attribution";
 import { computeTax, latePenalty, nextDueYear, yearEnd } from "@/lib/corporateTax";
-import { genEventId, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
+import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
 
 /*
   The /corporate-tax page's behaviour, ported from the design file's script: the year-end dial, the tax estimator,
@@ -475,6 +475,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     c.btn.disabled = true; c.btn.textContent = "Sending"; c.errBox.hidden = true;
     const t0 = Date.now();
     let res: Response | null = null;
+    let responseBody: { created?: unknown; fields?: string[] } | null = null;
     try {
       res = await fetch("/api/corporate-tax", {
         method: "POST",
@@ -485,13 +486,13 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
           form_id: c.formId, website: (c.form.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "",
         }),
       });
+      responseBody = (await res.json().catch(() => null)) as { created?: unknown; fields?: string[] } | null;
     } catch { /* network error: shown below */ }
     await new Promise((r) => setTimeout(r, Math.max(0, 900 - (Date.now() - t0)))); // the button never flickers
     if (!res?.ok) {
       c.btn.disabled = false; c.btn.textContent = c.btnText;
-      const body = (await res?.json().catch(() => null)) as { fields?: string[] } | null;
-      if (res?.status === 422 && body?.fields?.length) {
-        body.fields.forEach((f) => mark(({ lead_name: c.ids.name, email_id: c.ids.email, mobile_no: c.ids.phone } as Record<string, string>)[f] || c.ids.name, false));
+      if (res?.status === 422 && responseBody?.fields?.length) {
+        responseBody.fields.forEach((f) => mark(({ lead_name: c.ids.name, email_id: c.ids.email, mobile_no: c.ids.phone } as Record<string, string>)[f] || c.ids.name, false));
         $<HTMLInputElement>(".fl.bad input", c.form)?.focus();
         return null;
       }
@@ -501,6 +502,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
       c.errBox.hidden = false;
       return null;
     }
+    if (!isConfirmedLeadResponse(responseBody)) return name.split(/\s+/)[0];
     const [firstName, ...rest] = name.split(/\s+/);
     pushFormSubmit({ formId: c.formId, formName: c.formName, formType: c.formType, serviceInterest: "corporate_tax", email, phone: phone as string, firstName, lastName: rest.join(" "), eventId });
     pushGenerateLead({ formId: c.formId, service: "Corporate Tax", email, phone: phone as string });

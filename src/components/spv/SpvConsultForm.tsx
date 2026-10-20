@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FocusEvent, type FormEvent, type KeyboardEvent } from "react";
 import { SITE } from "@/content/site";
 import { SPV_ASSETS, SPV_CONTACT, SPV_GOALS, SPV_PREFILL_EVENT, type SpvAssets, type SpvGoal, type SpvPrefill } from "@/content/spv";
-import { genEventId, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
+import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { LEAD_RULES, SPV_FORM_ID } from "@/lib/lead";
 import { DEFAULT_PHONE_COUNTRY, PHONE_COUNTRIES, toE164Phone, type PhoneCountry } from "@/lib/phone";
@@ -76,7 +76,7 @@ export function SpvConsultForm() {
           website: f.website.value,
         }),
       });
-      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; fields?: string[] };
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; created?: unknown; error?: string; fields?: string[] };
       if (!res.ok || !json.ok) {
         if (json.error === "invalid_fields") {
           setBad({ name: !!json.fields?.includes("lead_name"), phone: !!json.fields?.includes("mobile_no"), email: !!json.fields?.includes("email_id") });
@@ -90,7 +90,7 @@ export function SpvConsultForm() {
         setSending(false);
         return;
       }
-      if (!counted.current) {
+      if (isConfirmedLeadResponse(json) && !counted.current) {
         counted.current = true;
         const [firstName, ...rest] = name.split(/\s+/);
         pushFormSubmit({ formId: SPV_FORM_ID, formType: "consultation", serviceInterest: goal, email, phone: phone as string, firstName, lastName: rest.join(" "), value: 100, eventId });

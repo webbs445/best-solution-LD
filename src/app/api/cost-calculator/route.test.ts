@@ -28,6 +28,7 @@ describe("POST /api/cost-calculator", () => {
   it("creates the price pop-up lead with the setup and its estimate", async () => {
     const res = await post({ ...lead, source: "price", language: "ar", whatsapp_optin: true, answers: { jurisdiction: "freezone", option: "f0", residency: 2, workspace: "none", bank: false, activity: "tech" } }, "203.0.113.1");
     expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true, created: true });
     const erp = sent[0];
     expect(erp).toMatchObject({
       lead_name: "Test",
@@ -66,6 +67,31 @@ describe("POST /api/cost-calculator", () => {
   it("drops a filled spam trap without a lead", async () => {
     const res = await post({ ...lead, website: "https://spam.example" }, "203.0.113.5");
     expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true, created: false });
     expect(sent).toHaveLength(0);
+  });
+
+  it.each([
+    ["a missing record name", new Response(JSON.stringify({ data: {} }), { status: 200 })],
+    ["malformed JSON", new Response("not-json", { status: 200 })],
+  ])("does not confirm creation after ERP HTTP success with %s", async (_description, erpResponse) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(erpResponse));
+    const res = await post({ ...lead, source: "price" }, "203.0.113.6");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true, created: false });
+  });
+
+  it("returns an error when ERP creation fails", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 500 })));
+    const res = await post({ ...lead, source: "price" }, "203.0.113.8");
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: "upstream_failed" });
+  });
+
+  it("returns an error when ERP is unreachable", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("ECONNREFUSED")));
+    const res = await post({ ...lead, source: "price" }, "203.0.113.9");
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: "upstream_unreachable" });
   });
 });

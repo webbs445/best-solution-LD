@@ -24,7 +24,7 @@ export const POST = withLeadLog("accounting", async (request, log) => {
   }
 
   // Honeypot: real visitors never fill this in. Pretend success so bots move on.
-  if (str(body.website)) return Response.json({ ok: true });
+  if (str(body.website)) return Response.json({ ok: true, created: false });
 
   const lead_name = str(body.lead_name, 120);
   const email_id = str(body.email_id, 200);
@@ -76,5 +76,5 @@ export const POST = withLeadLog("accounting", async (request, log) => {
   if (result.ok) log.erp_id = result.name;
   else log.erp_status = result.status;
   if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, created: !!result.name?.trim() });
 });
