@@ -33,7 +33,7 @@ export const POST = withLeadLog("lead", async (request, log) => {
   }
 
   // Honeypot: real visitors never fill this in. Pretend success so bots move on.
-  if (str(body.website)) return Response.json({ ok: true, created: true });
+  if (str(body.website)) return Response.json({ ok: true, created: false });
 
   const country = str(body.country, 8);
   const mobile = validatePhoneServer(str(body.mobile_no, 40), isPhoneCountry(country) ? country : "OTHER");
@@ -86,6 +86,11 @@ export const POST = withLeadLog("lead", async (request, log) => {
   if (result.ok) log.erp_id = result.name;
   else log.erp_status = result.status;
   if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
-  if (result.name) recent.set(ph, { lead: result.name, exp: Date.now() + LEAD_REF_TTL_MS });
-  return Response.json({ ok: true, created: true, ref: result.name ? signLeadRef(result.name, fields.mobile_no) : null });
+  const name = result.name?.trim();
+  if (name) recent.set(ph, { lead: name, exp: Date.now() + LEAD_REF_TTL_MS });
+  return Response.json({
+    ok: true,
+    created: !!name,
+    ref: name ? signLeadRef(name, fields.mobile_no) : null,
+  });
 });

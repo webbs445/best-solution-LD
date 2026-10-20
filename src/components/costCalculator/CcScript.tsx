@@ -7,7 +7,7 @@ import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry 
 import { attributionFields } from "@/lib/attribution";
 import { DATA, RATES, cheapest, type Jurisdiction, type SetupOption, type WorkspaceKey } from "@/lib/pricing";
 import { activityLabel, ccEstimate, ccMaxResidents, ccUsesPackage, type CcActivity, type CcAnswers, type CcEstimate } from "@/lib/costCalculator";
-import { genEventId, jurisdictionLabel, pushEvent, pushFormSubmit, pushGenerateLead, trackCalculatorComplete, trackCalculatorResultView, trackCalculatorStart, trackCalculatorStep } from "@/lib/analytics";
+import { genEventId, isConfirmedLeadResponse, jurisdictionLabel, pushEvent, pushFormSubmit, pushGenerateLead, trackCalculatorComplete, trackCalculatorResultView, trackCalculatorStart, trackCalculatorStep } from "@/lib/analytics";
 
 /*
   The /cost-calculator page's behaviour, ported from the design file's script: the six-step configurator and its
@@ -506,6 +506,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     c.btn.disabled = true; c.btn.textContent = t("Sending"); c.err.hidden = true;
     const t0 = Date.now();
     let res: Response | null = null;
+    let responseBody: { created?: unknown; fields?: string[] } | null = null;
     try {
       res = await fetch("/api/cost-calculator", {
         method: "POST",
@@ -516,14 +517,14 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
           ...attributionFields(), event_id: eventId, landing_page: location.href.split("#")[0], form_id: c.formId, website,
         }),
       });
+      responseBody = (await res.json().catch(() => null)) as { created?: unknown; fields?: string[] } | null;
     } catch { /* network error: shown below */ }
     await new Promise((r) => setTimeout(r, Math.max(0, 900 - (Date.now() - t0)))); // the button never flickers
     if (signal.aborted) return null;
     c.btn.disabled = false; c.btn.textContent = t(c.label);
     if (!res?.ok) {
-      const body = (await res?.json().catch(() => null)) as { fields?: string[] } | null;
-      if (res?.status === 422 && body?.fields?.length) {
-        body.fields.forEach((f) => mark(({ lead_name: nameId, email_id: emailId, mobile_no: phoneId } as Record<string, string>)[f] || nameId, false));
+      if (res?.status === 422 && responseBody?.fields?.length) {
+        responseBody.fields.forEach((f) => mark(({ lead_name: nameId, email_id: emailId, mobile_no: phoneId } as Record<string, string>)[f] || nameId, false));
         $<HTMLInputElement>(".fl.bad input", c.form)?.focus();
         return null;
       }
@@ -531,6 +532,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
       c.err.hidden = false;
       return null;
     }
+    if (!isConfirmedLeadResponse(responseBody)) return name.split(/\s+/)[0];
     const [firstName, ...rest] = name.split(/\s+/);
     pushFormSubmit({ formId: c.formId, formName: c.formName, formType: "calculator", serviceInterest: "business_setup", email, phone: phone as string, firstName, lastName: rest.join(" "), eventId });
     pushGenerateLead({ formId: c.formId, service: "Business Setup", email, phone: phone as string });

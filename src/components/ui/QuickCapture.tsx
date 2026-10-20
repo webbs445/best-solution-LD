@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { SITE } from "@/content/site";
-import { genEventId, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
+import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
 import { DEFAULT_PHONE_COUNTRY, PHONE_COUNTRIES, toE164Phone, type PhoneCountry } from "@/lib/phone";
@@ -152,7 +152,7 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
       }
       if (json.ref) saveRef(json.ref);
       // form_submit + generate_lead once per lead: only for a newly created lead, never for the same number again.
-      if (json.created && !counted.current) {
+      if (isConfirmedLeadResponse(json) && !counted.current) {
         counted.current = true;
         const [firstName, ...rest] = name.split(/\s+/);
         pushFormSubmit({ formId, formType: "calculator", serviceInterest: service, email, phone, firstName, lastName: rest.join(" "), eventId });

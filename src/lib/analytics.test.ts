@@ -57,6 +57,26 @@ describe("genEventId", () => {
   });
 });
 
+describe("confirmed lead response", () => {
+  it("only allows conversion events for an explicit created true response", async () => {
+    const { isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead } = (await load()).analytics;
+    for (const response of [{ created: false }, {}, { created: "true" }, null]) {
+      if (isConfirmedLeadResponse(response)) {
+        pushFormSubmit({ formId: "LP Test" });
+        pushGenerateLead({ formId: "LP Test" });
+      }
+    }
+    expect(dataLayer).toHaveLength(0);
+
+    if (isConfirmedLeadResponse({ created: true })) {
+      pushFormSubmit({ formId: "LP Test" });
+      pushGenerateLead({ formId: "LP Test" });
+    }
+    expect(dataLayer.filter((event) => event.event === "form_submit")).toHaveLength(1);
+    expect(dataLayer.filter((event) => event.event === "generate_lead")).toHaveLength(1);
+  });
+});
+
 describe("pushFormSubmit", () => {
   it("pushes the main site's nested form_submit shape", async () => {
     const { pushFormSubmit } = (await load()).analytics;

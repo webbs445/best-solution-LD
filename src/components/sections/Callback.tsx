@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
 import { SITE } from "@/content/site";
-import { genEventId, jurisdictionLabel, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
+import { genEventId, isConfirmedLeadResponse, jurisdictionLabel, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { ArrowIcon } from "@/components/ui/Icons";
 import styles from "./Callback.module.css";
@@ -101,7 +101,9 @@ export function CallbackButton({
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
+      const responseBody = (await res.json().catch(() => ({}))) as { created?: unknown };
       setStatus({ kind: "sent" });
+      if (!isConfirmedLeadResponse(responseBody)) return;
       pushFormSubmit({
         formId: CALLBACK_FORM_ID,
         formType: "callback",

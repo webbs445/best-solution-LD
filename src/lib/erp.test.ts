@@ -80,6 +80,14 @@ describe("createErpLead", () => {
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).custom_service_enquired).toBe("Accounting & Bookkeeping Services");
   });
 
+  it.each([
+    ["missing record name", Response.json({ data: {} })],
+    ["malformed JSON", new Response("not-json", { status: 200 })],
+  ])("does not provide a record identifier for HTTP success with %s", async (_description, response) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response));
+    expect(await createErpLead(input)).toEqual({ ok: true, name: undefined });
+  });
+
   it("escapes visitor-supplied text in the HTML summary", async () => {
     const fetchMock = vi.fn().mockResolvedValue(Response.json({ data: {} }));
     vi.stubGlobal("fetch", fetchMock);

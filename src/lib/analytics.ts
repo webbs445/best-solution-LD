@@ -49,6 +49,11 @@ export function genEventId(): string {
   return "evt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
 }
 
+/** Whether a lead API response explicitly confirms a newly created ERP record. */
+export function isConfirmedLeadResponse(response: unknown): boolean {
+  return typeof response === "object" && response !== null && "created" in response && response.created === true;
+}
+
 /** Read a URL query param from the current location. */
 export function getParam(name: string): string {
   if (typeof window === "undefined") return "";
