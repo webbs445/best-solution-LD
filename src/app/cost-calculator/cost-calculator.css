@@ -347,7 +347,26 @@ html:has(.cc-page){scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-s
 .cc-page[dir="rtl"] svg.arw{transform:scaleX(-1)}
 .cc-page[dir="rtl"] .btn:hover svg.arw{transform:scaleX(-1) translateX(3px)}
 .cc-page[dir="rtl"] .back-ic{transform:none!important}
-@media (max-width:1000px){.cc-page .cfg-g{grid-template-columns:1fr}.cc-page .stage.locked{display:none}.cc-page .stage{position:relative;top:0}.cc-page .stepv{min-height:0}}
+.cc-page .res-hello,.cc-page .also,.cc-page .res-edit,.cc-page .mbar-wa,.cc-page .only-mob{display:none}
+.cc-page .res-hello{align-items:center;gap:8px;width:max-content;margin-bottom:12px;padding:5px 12px;border-radius:999px;background:var(--ok-bg);color:var(--ok);font-size:13px;font-weight:700}
+.cc-page .res-hello svg{width:14px;height:14px}
+.cc-page .also{align-items:center;gap:10px;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--ivory-2);box-shadow:inset 0 0 0 1px var(--rule);font-size:13px;line-height:1.5;color:var(--ink);transition:box-shadow .2s}
+.cc-page .also:hover{box-shadow:inset 0 0 0 1px var(--copper)}
+.cc-page .also span{color:var(--mute)}
+.cc-page .also>svg{flex:none;width:16px;height:16px;margin-inline-start:auto;color:var(--copper-d)}
+.cc-page[dir="rtl"] .also>svg{transform:scaleX(-1)}
+.cc-page .res-edit{align-items:center;justify-content:center;gap:6px;width:100%;min-height:44px;margin-top:8px;font-size:14px;font-weight:650;color:var(--copper-ink)}
+.cc-page .res-edit svg{width:15px;height:15px}
+.cc-page .mbar-t{min-width:0}
+.cc-page .mbar-t span{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cc-page .mbar-wa{flex:none;place-items:center;width:46px;height:46px;border-radius:14px;background:#1f8a4c;color:#fff}
+.cc-page .mbar-wa svg{width:20px;height:20px}
+.cc-page .mbar.open .mbar-wa{display:grid}
+.cc-page .mbar.open .btn{margin-inline-start:0}
+.cc-page .mbar.open .mbar-t{flex:1}
+@media (max-width:1000px){.cc-page .cfg-g{grid-template-columns:1fr}.cc-page main:not(.is-result) .stage{display:none}.cc-page main.is-result .panel{display:none}
+  .cc-page main.is-result .res-hello{display:inline-flex}.cc-page main.is-result .also,.cc-page main.is-result .res-edit{display:flex}.cc-page main.is-result .elsewhere,.cc-page main.is-result .stage-cta{display:none}
+  .cc-page .only-desk{display:none}.cc-page .only-mob{display:flex}.cc-page .stage{position:relative;top:0}.cc-page .stepv{min-height:0}}
 @media (max-width:640px){.cc-page .lic-logo{height:60px;margin-top:14px}.cc-page .lic-logo .lt,.cc-page .slot{width:60px;height:60px;padding:7px;border-radius:16px}.cc-page .lic-logo .em small{display:none}}
 @media (max-width:640px){.cc-page .cfg{padding-top:28px}.cc-page .stage,.cc-page .panel{padding:18px;border-radius:24px}
   .cc-page .tabs{display:none}.cc-page .panel .stepn{display:flex}.cc-page .prog{margin:10px 0 0}.cc-page .stepv{margin-top:18px}

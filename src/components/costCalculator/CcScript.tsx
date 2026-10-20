@@ -249,7 +249,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
         `<label class="tg"><input type="checkbox" id="bank"${A.bank ? " checked" : ""}><span class="tg-s"></span><span class="tg-t"><b>${t("Corporate bank account help")}</b><small>${t("We prepare and follow up your application. The bank decides.")}</small></span>${unlocked ? `<em>+${money(RATES.bank)}</em>` : ""}</label>` +
         (ccUsesPackage(A) ? `<div class="incl">${YES}${t("Workspace is included in this free zone package.")}</div>` : "") +
         `<div class="finish"><b>${t("Your setup is ready")}</b><p>${t(unlocked ? "Get it confirmed in writing, or compare it with the other jurisdictions." : "Unlock your full price, or get it confirmed in writing.")}</p>` +
-        (unlocked ? `<button type="button" class="btn btn-cu" data-call data-cta-location="CC Panel — Book a call">${t("Book a 15-minute call")}${ARW}</button>` : `<button type="button" class="btn btn-cu" data-gate data-cta-location="CC Panel — Show my price">${LOCK}${t("Show my price")}</button>`) + "</div>";
+        (unlocked ? `<button type="button" class="btn btn-cu only-desk" data-call data-cta-location="CC Panel — Book a call">${t("Book a 15-minute call")}${ARW}</button><button type="button" class="btn btn-cu only-mob" data-result data-cta-location="CC Panel — See my updated price">${t("See my updated price")}${ARW}</button>` : `<button type="button" class="btn btn-cu" data-gate data-cta-location="CC Panel — Show my price">${LOCK}${t("Show my price")}</button>`) + "</div>";
     }
     $("#stepv").innerHTML = `<div class="st${back ? " back" : ""}">${h}</div>`;
     if (cur === "setup") list();
@@ -386,7 +386,16 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     $("#stCta").innerHTML = unlocked ? t("Book a call") + ARW : LOCK + t("Show my price");
     $("#hdCta").innerHTML = unlocked ? t("Book a call") : t("Show my price");
     $$<HTMLAnchorElement>(".wa-setup").forEach((a) => { a.href = `https://wa.me/97145531546?text=${encodeURIComponent(summary())}`; });
-    $("#mbarV").innerHTML = !e ? t("Start configuring") : unlocked ? (e.from ? `${t("From")} ` : "") + money(e.total) : t("Price ready");
+    $("#mbarV").innerHTML = !e ? t("Start configuring") : unlocked ? (e.from ? `${t("From")} ` : "") + money(v) : t("Price ready");
+    // Phones and tablets, once unlocked: the bar names the setup and carries WhatsApp next to "Book a call".
+    $("#mbar").classList.toggle("open", unlocked && !!e);
+    $("#mbarK").textContent = unlocked && e ? `${e.chosen ? shortNm(e.opt) : t("Recommended by your consultant")} · ${t(year === 1 ? "first year" : "year two")}` : t("Your estimate");
+    if (unlocked && e) {
+      $("#resHello").innerHTML = `${YES}${esc(t("Here's your price, {name}", { name: $("#doneH").dataset.name || "" }))}`;
+      const others = plans.filter((p) => p.j !== j).map((p) => `${t(JL[p.j])} <b>${money(p.e.total)}</b>${p.j === "offshore" && A.residency ? ` <span>${t("(no visas)")}</span>` : ""}`);
+      $("#also").innerHTML = `<div><span>${t("Also for you:")}</span> ${others.join(" · ")}</div>${ARW}`;
+      $("#resEdit").innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>${t("Edit my setup")}`;
+    }
     $("#mbarCta").innerHTML = unlocked ? t("Book a call") : LOCK + t("Show my price");
     $$(".yr button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.y) === year)));
     chart(plans, low);
@@ -410,6 +419,8 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
   ["#stCta", "#mbarCta", "#hdCta"].forEach((id) => on($(id), "click", mainCta));
   on(root, "click", (e) => {
     if (closest(e, "[data-call]")) openCall();
+    else if (closest(e, "[data-result]")) { complete(); setView("result"); $("#stage").scrollIntoView({ block: "start", behavior: smooth }); }
+    else if (closest(e, "#resEdit")) { setView("steps"); go("extras"); $("#studio").scrollIntoView({ block: "start", behavior: smooth }); }
     else if (closest(e, "[data-gate]") || closest(e, ".vw")) openGate();
   });
   if (fine && !reduced) {
@@ -534,6 +545,14 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     // The price is on screen now: the same result-view event as the site's other calculators.
     const e = ccEstimate(A);
     if (e) trackCalculatorResultView(CC_CALCULATOR_ID, { jurisdiction: jurisdictionLabel(A.jurisdiction), estimatedCost: e.total });
+    if (e) setView("result");
+  }
+  /* Phones and tablets: once the price is open, the steps panel gives way to the result (desktop shows both side by side). */
+  let view: "steps" | "result" = "steps";
+  function setView(v: "steps" | "result") {
+    view = v;
+    $("#top").classList.toggle("is-result", v === "result");
+    onScroll();
   }
   let sending = false;
   on<SubmitEvent>($("#gForm"), "submit", async (e) => {
@@ -600,7 +619,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
   function onScroll() {
     hd.classList.toggle("on", scrollY > 20);
     const st = $("#stage").getBoundingClientRect(), q = $("#quote").getBoundingClientRect();
-    mbar.classList.toggle("hide", !A.jurisdiction || cur === "extras" || (st.top < innerHeight - 90 && st.bottom > 80) || (q.top < innerHeight && q.bottom > 0));
+    mbar.classList.toggle("hide", !A.jurisdiction || (view !== "result" && cur === "extras") || (!unlocked && st.top < innerHeight - 90 && st.bottom > 80) || (q.top < innerHeight && q.bottom > 0));
     let c = 0;
     secs.forEach((x, i) => { if (x.getBoundingClientRect().top < innerHeight * 0.4) c = i; });
     navs.forEach((a, i) => a.classList.toggle("cur", i === c));

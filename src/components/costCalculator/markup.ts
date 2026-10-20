@@ -54,6 +54,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
 
     <div class="cfg-g">
       <aside class="stage in-a" style="--k:2" id="stage" aria-label="Estimate">
+        <p class="res-hello" id="resHello"></p>
         <div class="price">
           <div><span class="price-k"><span id="pK"></span><em class="tagx" id="pFrom" hidden></em></span><span class="od" id="od" aria-live="polite"></span></div>
           <div class="yr" role="group"><button type="button" data-y="1" aria-pressed="true" data-t="Year 1">Year 1</button><button type="button" data-y="2" aria-pressed="false" data-t="Year 2">Year 2</button></div>
@@ -69,6 +70,8 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
         <div class="bar" id="bar" aria-hidden="true"><i class="pkg" style="flex-grow:1"></i><i class="res" style="flex-grow:0"></i><i class="ws" style="flex-grow:0"></i><i class="bank" style="flex-grow:0"></i></div>
         <ul class="lines" id="lines"></ul>
         <div class="elsewhere" id="else" role="group"></div>
+        <a class="also" id="also" href="#compare" data-cta-location="CC Result — Also for you"></a>
+        <button type="button" class="res-edit" id="resEdit"></button>
         <div class="stage-cta"><button type="button" class="btn btn-cu" id="stCta"></button><a class="btn btn-soft" href="#compare" data-cta-location="CC Stage — Compare" data-t="Compare">Compare</a></div>
         <p class="note" data-t="NOTE">"From" prices on our published rate card, 30 Sep 2026. Government fees can change; your consultant confirms the exact figure in writing before you pay anything.</p>
       </aside>
@@ -204,5 +207,5 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
   </div>
 </footer>
 
-<div class="mbar hide" id="mbar"><div><span data-t="Your estimate">Your estimate</span><b id="mbarV"></b></div><button type="button" class="btn btn-cu" id="mbarCta"></button></div>
+<div class="mbar hide" id="mbar"><div class="mbar-t"><span id="mbarK" data-t="Your estimate">Your estimate</span><b id="mbarV"></b></div><a class="mbar-wa wa-setup" href="https://wa.me/97145531546" target="_blank" rel="noopener" data-area="Bottom bar" data-ta="WhatsApp my setup" aria-label="WhatsApp my setup"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.3z"/></svg></a><button type="button" class="btn btn-cu" id="mbarCta"></button></div>
 `;
