@@ -11,7 +11,7 @@ import { genEventId, jurisdictionLabel, pushEvent, pushFormSubmit, pushGenerateL
 
 /*
   The /cost-calculator page's behaviour, ported from the design file's script: the six-step configurator and its
-  licence card, the price lock (prices open after the details pop-up), the comparison table, the budget finder, the
+  licence card, the price lock (prices open after the details pop-up), the comparison table, the
   hero preview, five languages (Arabic right to left), the call pop-up and the lead forms. It works on the static
   markup (components/costCalculator/markup). Contact clicks, form_start / form_error / form_abandon and CTA clicks are
   tracked site-wide (AnalyticsInit); this adds the calculator events, and the lead conversions only after
@@ -56,7 +56,9 @@ const CMP_ROWS: [string, string | number, string | number, string | number][] = 
   ["Residency", 1, 1, 0],
   ["Typical activities", "Retail, contracting, local services", "Consultancies, e-commerce, international trade", "Holding companies, asset ownership"],
 ];
-const CMP_SUB: Record<Jurisdiction, string> = { mainland: "Trade directly with customers anywhere in the UAE", freezone: "International and business-to-business work", offshore: "Holding structures and asset protection" };
+const CMP_WA: Record<Jurisdiction, string> = { mainland: "mainland", freezone: "free zone", offshore: "offshore" };
+const WA = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.3z"/></svg>';
+const CMP_SUB: Record<Jurisdiction, string> ={ mainland: "Trade directly with customers anywhere in the UAE", freezone: "International and business-to-business work", offshore: "Holding structures and asset protection" };
 /* hero preview: sample setups with masked figures (the digits are placeholders, not prices) */
 const MOCK: [Jurisdiction, string, [string, string, string][]][] = [
   ["mainland", "m0", [["pkg", "Company package", "14,200"], ["res", "RES2", "11,600"], ["ws", "Flexi-desk", "8,400"], ["bank", "Bank account help", "3,100"]]],
@@ -132,7 +134,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     if (vars) for (const k in vars) out = out.split(`{${k}}`).join(String(vars[k]));
     return out;
   };
-  const people = (n: number) => (n === 1 ? t("1 person") : t("{n} people", { n }));
+
   const nm = (o: SetupOption) => (lang !== "en" && CC_NAMES[o.id]?.[IX[lang]]) || o.name;
   const city = (o: SetupOption) => CITY[o.id] || o.emirate || "";
   const shortNm = (o: SetupOption) => { const parts = nm(o).split(/, |، |，/); return A.jurisdiction === "mainland" && parts.length > 1 ? parts.slice(1).join(", ") : nm(o); };
@@ -318,14 +320,23 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     $("#licR").innerHTML = !e ? "–" : e.off ? t("Not applicable") : e.n ? `${e.n} ${Array.from({ length: e.n }, (_, i) => `<i style="animation-delay:${i * 50}ms"></i>`).join("")}` : t("None");
     $("#licW").textContent = !e ? "–" : e.off ? t("Not required") : e.pack ? t("Included") : t(WSN[A.workspace]);
   }
+  /* "Your setup" in the quote section: the authority, the choices and the figure, or an empty state with the way in */
   function renderSum(e: CcEstimate | null, v: number) {
-    if (!e || !A.jurisdiction) { $("#sum").innerHTML = `<p class="sum-e">${t("Not configured yet")}</p><a class="btn btn-soft sm" href="#calculator" data-cta-location="CC Quote — Start the calculator">${t("Start the calculator")}</a>`; return; }
-    const rows: ([string, string] | null)[] = [
-      [t("Jurisdiction"), t(JL[A.jurisdiction])], [t("Setup"), e.chosen ? nm(e.opt) : t("Recommended by your consultant")],
+    const rows = (list: [string, string][], ghost = false) => `<div class="sum-rows${ghost ? " ghost" : ""}">${list.map(([k, val]) => `<div><span>${k}</span><b>${val}</b></div>`).join("")}</div>`;
+    if (!e || !A.jurisdiction) {
+      $("#sum").innerHTML = `<div class="sum-h"><span class="lt ghost">${svg("mainland")}</span><span><b>${t("Not configured yet")}</b><small>${t("Build your setup in six short steps.")}</small></span></div>` +
+        rows([[t("Jurisdiction"), "—"], [t("Setup"), "—"], [t("Visas"), "—"]], true) +
+        `<a class="btn btn-cu sm" href="#calculator" data-cta-location="CC Quote — Start the calculator">${t("Start the calculator")}${ARW}</a>`;
+      return;
+    }
+    const where = [t(JL[A.jurisdiction]), city(e.opt) ? t(city(e.opt)) : ""].filter(Boolean).join(" · ");
+    const list = [
       A.activity ? [t("Activity"), t(actName())] : null, e.off ? null : [t("Visas"), String(e.n)], e.off || e.pack ? null : [t("Workspace"), t(WSN[A.workspace])],
-      A.bank ? [t("Bank account help"), t("Yes")] : null, [t(year === 1 ? "Estimated first-year cost" : "Estimated year-two renewal"), money(v)],
-    ];
-    $("#sum").innerHTML = rows.filter((r): r is [string, string] => !!r).map(([k, val]) => `<div><span>${k}</span><b>${val}</b></div>`).join("");
+      A.bank ? [t("Bank account help"), t("Yes")] : null,
+    ].filter((r): r is [string, string] => !!r);
+    $("#sum").innerHTML = `<div class="sum-h"><span class="lt">${e.chosen ? logo(e.opt) : svg(A.jurisdiction)}</span><span><b>${e.chosen ? nm(e.opt) : t("Recommended by your consultant")}</b><small>${where}</small></span></div>` +
+      (list.length ? rows(list) : "") +
+      `<div class="sum-t"><span>${t(year === 1 ? "Estimated first-year cost" : "Estimated year-two renewal")}</span><b>${money(v)}</b></div>`;
   }
   /* the WhatsApp message to the advisor stays in English */
   function summary() {
@@ -396,7 +407,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
   ["#stCta", "#mbarCta", "#hdCta"].forEach((id) => on($(id), "click", mainCta));
   on(root, "click", (e) => {
     if (closest(e, "[data-call]")) openCall();
-    else if (closest(e, "[data-gate]") || (closest(e, ".vw") && !closest(e, ".bud-in"))) openGate();
+    else if (closest(e, "[data-gate]") || closest(e, ".vw")) openGate();
   });
   if (fine && !reduced) {
     const lic = $("#lic"), wrap = lic.parentElement as HTMLElement;
@@ -415,41 +426,9 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
         cell("", `<h3>${t(JL[p.j])}${isCur ? `<span class="badge">${t("Your selection")}</span>` : ""}</h3><p>${t(CMP_SUB[p.j])}</p>`, "h") +
         (unlocked ? cell(t("Your price"), `<div class="pr"><small>${isLow ? t("Lowest for you") : p.j === "offshore" && A.residency ? t("No residency") : t("From")}</small><b>${money(p.e.total)}</b></div><div class="track"><i style="width:${chartSeen ? (p.e.total / max) * 100 : 0}%"></i></div>`) : "") +
         CMP_ROWS.map((r) => { const v = r[k + 1]; return cell(t(r[0]), typeof v === "number" ? (v ? `<span class="yes">${YES}${t("Yes")}</span>` : `<span class="no">${NO}${t("No")}</span>`) : t(v)); }).join("") +
-        cell("", `<a class="btn ${isCur ? "btn-ink" : "btn-soft"} sm" href="#calculator" data-build="${p.j}">${t(isCur ? "Edit my setup" : "Use in calculator")}</a>`, "cta") + "</div>";
+        cell("", `<a class="btn ${isCur ? "btn-ink" : "btn-soft"} sm" href="https://wa.me/97145531546?text=${encodeURIComponent(`Hello, I would like to know more about setting up a ${CMP_WA[p.j]} company in the UAE.`)}" target="_blank" rel="noopener" data-area="Compare ${JL[p.j]}">${WA}${t("Ask an advisor")}</a>`, "cta") + "</div>";
     }).join("");
   }
-  on($("#chart"), "click", (e) => { const b = closest(e, "[data-build]"); if (!b) return; e.preventDefault(); if (b.dataset.build !== A.jurisdiction) load(b.dataset.build as Choice); $("#calculator").scrollIntoView({ behavior: smooth }); });
-
-  /* ---------- budget finder ---------- */
-  const B = { budget: 15000, res: 0, j: "all" };
-  let budUsed = false;
-  function budChips() {
-    $("#budR").innerHTML = [0, 1, 2, 3].map((n) => `<button type="button" class="chip" data-r="${n}" aria-pressed="${B.res === n}">${n ? people(n) : t("None")}</button>`).join("");
-    $("#budJ").innerHTML = [["all", "All"], ["freezone", "Free zone"], ["mainland", "Mainland"], ["offshore", "Offshore"]].map(([k, l]) => `<button type="button" class="chip" data-bj="${k}" aria-pressed="${B.j === k}">${t(l)}</button>`).join("");
-  }
-  function budget() {
-    const fits: { j: Jurisdiction; o: SetupOption; e: CcEstimate }[] = [];
-    (["mainland", "freezone", "offshore"] as Jurisdiction[]).forEach((j) => {
-      if ((B.j !== "all" && B.j !== j) || (j === "offshore" && B.res)) return;
-      DATA[j].forEach((o) => {
-        const a: CcAnswers = { jurisdiction: j, option: o.id, residency: B.res, workspace: "none", bank: false };
-        if (o.exact && B.res > ccMaxResidents(a)) return;
-        const e = ccEstimate(a);
-        if (e && e.total <= B.budget) fits.push({ j, o, e });
-      });
-    });
-    fits.sort((a, b) => a.e.total - b.e.total);
-    odometer($("#budOd"), B.budget, true); // the budget is the visitor's own figure
-    $("#bud").style.setProperty("--p", `${((B.budget - 5000) / 55000) * 100}%`);
-    $("#budC").innerHTML = fits.length ? (fits.length === 1 ? t("1 setup fits your budget") : t("{n} setups fit your budget", { n: `<b>${fits.length}</b>` })) : t("Nothing on our rate card fits that yet. Try a higher budget or fewer people.");
-    const arrow = root.dir === "rtl" ? "←" : "→";
-    $("#fits").innerHTML = fits.slice(0, 6).map((f, i) => `<div class="fit" style="animation-delay:${i * 50}ms"><span class="rk">${i === 0 ? t("Lowest") : `#${i + 1}`} · ${t(JL[f.j])}</span><b>${nm(f.o)}</b><small>${t(city(f.o) || "UAE")}${f.e.pack ? ` · ${t("package")}` : ""}</small><span class="pr">${unlocked ? money(f.e.total) : `<span class="fitok">✓ ${t("Fits your budget")}</span>`}</span><a class="go" href="#calculator" data-j="${f.j}" data-o="${f.o.id}">${t("Load into the configurator")} ${arrow}</a></div>`).join("");
-    $("#budMore").textContent = fits.length > 6 ? t("And {n} more. Narrow by jurisdiction, or load one to see its full breakdown.", { n: fits.length - 6 }) : "";
-  }
-  on($("#bud"), "input", (e) => { B.budget = Number((e.target as HTMLInputElement).value); budget(); if (!budUsed) { budUsed = true; pushEvent("budget_finder_used", { calculator_id: CC_CALCULATOR_ID }); } });
-  on($("#budR"), "click", (e) => { const b = closest(e, ".chip"); if (!b) return; B.res = Number(b.dataset.r); budChips(); budget(); });
-  on($("#budJ"), "click", (e) => { const b = closest(e, ".chip"); if (!b) return; B.j = b.dataset.bj || "all"; budChips(); budget(); });
-  on($("#fits"), "click", (e) => { const a = closest(e, ".go"); if (!a) return; e.preventDefault(); A.residency = B.res; A.workspace = "none"; load(a.dataset.j as Choice, a.dataset.o); $("#calculator").scrollIntoView({ behavior: smooth }); });
 
   /* ---------- hero preview ---------- */
   let mi = 0, mHover = false;
@@ -548,7 +527,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     $("#doneH").dataset.name = firstName;
     $("#doneH").textContent = t("Thank you, {name}.", { name: firstName });
     $("#fm").classList.add("ok");
-    lastSig = ""; render(); step(); tabs(); budget();
+    lastSig = ""; render(); step(); tabs();
     // The price is on screen now: the same result-view event as the site's other calculators.
     const e = ccEstimate(A);
     if (e) trackCalculatorResultView(CC_CALCULATOR_ID, { jurisdiction: jurisdictionLabel(A.jurisdiction), estimatedCost: e.total });
@@ -562,7 +541,8 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     sending = false;
     if (!first) return;
     gate.close(); unlock(first);
-    if (innerWidth > 1000) $("#stage").scrollIntoView({ block: "center", behavior: smooth });
+    // On phones the price panel and card appear only now, so bring them into view everywhere.
+    $("#stage").scrollIntoView({ block: innerWidth > 1000 ? "center" : "start", behavior: smooth });
   });
   on<SubmitEvent>($("#form"), "submit", async (e) => {
     e.preventDefault();
@@ -603,7 +583,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     $("#langMenu").innerHTML = LANGS.map(([k, label, code]) => `<li><button type="button" role="menuitemradio" data-l="${k}" aria-checked="${k === lang}" lang="${k}">${label}<small>${code}</small></button></li>`).join("");
     if (sent) $("#doneH").textContent = t("Thank you, {name}.", { name: $("#doneH").dataset.name || "" });
     store("cc-lang", lang);
-    lastSig = ""; render(); step(); tabs(); budChips(); budget(); faq(); heroMock();
+    lastSig = ""; render(); step(); tabs(); faq(); heroMock();
   }
   const lb = $("#langBtn"), lm = $("#langMenu");
   const closeLang = () => { lm.classList.remove("open"); lb.setAttribute("aria-expanded", "false"); };
@@ -613,7 +593,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
   on<KeyboardEvent>(document, "keydown", (e) => { if (e.key === "Escape" && lm.classList.contains("open")) { closeLang(); lb.focus(); } });
 
   /* ---------- scroll, reveals, spotlight ---------- */
-  const hd = $("#hd"), mbar = $("#mbar"), navs = $$(".nav a"), secs = ["calculator", "compare", "budget", "faq"].map((id) => $(`#${id}`));
+  const hd = $("#hd"), mbar = $("#mbar"), navs = $$(".nav a"), secs = ["calculator", "compare", "faq"].map((id) => $(`#${id}`));
   function onScroll() {
     hd.classList.toggle("on", scrollY > 20);
     const st = $("#stage").getBoundingClientRect(), q = $("#quote").getBoundingClientRect();

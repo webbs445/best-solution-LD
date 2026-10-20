@@ -7,7 +7,7 @@
 export const CC_MARKUP = String.raw`<header class="hd" id="hd">
   <div class="wrap hd-in">
     <a class="brand" href="#top" aria-label="Best Solution"><img src="/brand/logo.webp" alt="Best Solution" width="150" height="36"></a>
-    <nav class="nav" aria-label="Page sections"><a href="#calculator" data-t="Calculator">Calculator</a><a href="#compare" data-t="Compare">Compare</a><a href="#budget" data-t="Budget finder">Budget finder</a><a href="#faq" data-t="FAQ">FAQ</a></nav>
+    <nav class="nav" aria-label="Page sections"><a href="#calculator" data-t="Calculator">Calculator</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a></nav>
     <div class="hd-act">
       <div class="lang"><button type="button" id="langBtn" aria-haspopup="true" aria-expanded="false" data-ta="Language" aria-label="Language"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span id="langCur">EN</span></button><ul id="langMenu" role="menu"></ul></div>
       <button type="button" class="btn btn-ink sm" id="hdCta" data-cta-location="CC Header — Main"></button>
@@ -92,26 +92,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
   </div>
 </section>
 
-<section class="sec bud" id="budget" aria-labelledby="h-bd">
-  <div class="wrap">
-    <div class="sec-h rv"><div><span class="kick" data-t="Start from your budget">Start from your budget</span><h2 id="h-bd"><span data-t="Set a budget.">Set a budget.</span> <span style="color:var(--copper-hi)" data-t="See every setup that fits.">See every setup that fits.</span></h2></div><p data-t="Move the slider and choose how many visas. Cheapest first, and one tap loads it into the configurator.">Move the slider and choose how many visas. Cheapest first, and one tap loads it into the configurator.</p></div>
-    <div class="bud-g">
-      <div class="bud-in rv">
-        <p data-t="First-year budget">First-year budget</p>
-        <span class="od" id="budOd"></span>
-        <input class="range" id="bud" type="range" min="5000" max="60000" step="500" value="15000" data-ta="First-year budget" aria-label="First-year budget">
-        <div class="range-k"><span>AED 5,000</span><span>AED 60,000</span></div>
-        <p class="lab" data-t="People needing residency">People needing residency</p>
-        <div class="chips" id="budR" role="group"></div>
-        <p class="lab" data-t="Jurisdiction">Jurisdiction</p>
-        <div class="chips" id="budJ" role="group"></div>
-      </div>
-      <div aria-live="polite"><p class="bud-c" id="budC"></p><div class="fits" id="fits"></div><p class="bud-more" id="budMore"></p></div>
-    </div>
-  </div>
-</section>
-
-<section class="sec why" aria-labelledby="h-wy">
+<section class="sec alt why" aria-labelledby="h-wy">
   <div class="wrap">
     <div class="sec-h rv"><div><span class="kick" data-t="Why Best Solution">Why Best Solution</span><h2 id="h-wy" data-t="An advisory standard built on written fees">An advisory standard built on written fees</h2></div><p data-t="WHY_SUB">We have advised more than 5,000 businesses since 2014. The approach has stayed the same: a clear figure, one advisor, and nothing filed until you agree to the numbers.</p></div>
     <div class="why-g">
@@ -162,7 +143,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
           <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
           <div class="fl"><input id="fName" name="name" placeholder=" " autocomplete="name"><label for="fName" data-t="Full name">Full name</label><span class="err" data-t="Please enter your name">Please enter your name</span></div>
           <div class="fl"><div class="tel"><select id="fCC" data-ta="Country code" aria-label="Country code"></select><div class="fl-in" style="position:relative"><input id="fPhone" name="phone" type="tel" inputmode="tel" placeholder=" " autocomplete="tel-national"><label for="fPhone" data-t="Phone or WhatsApp">Phone or WhatsApp</label></div></div><span class="err" data-t="Please enter a valid phone number">Please enter a valid phone number</span></div>
-          <div class="fl"><input id="fEmail" name="email" type="email" inputmode="email" placeholder=" " autocomplete="email"><label for="fEmail" data-t="Email (optional)">Email (optional)</label><span class="err" data-t="Please enter a valid email">Please enter a valid email</span></div>
+          <div class="fl"><input id="fEmail" name="email" type="email" inputmode="email" placeholder=" " autocomplete="email"><label for="fEmail" data-t="Email">Email</label><span class="err" data-t="Please enter a valid email">Please enter a valid email</span></div>
           <button class="btn btn-cu" type="submit" id="fGo" data-t="Send me my written quote">Send me my written quote</button>
           <p class="ferr" id="fErr" role="alert" hidden data-t="We could not send your details. Please try again, or message us on WhatsApp.">We could not send your details. Please try again, or message us on WhatsApp.</p>
           <p class="priv" data-t="PRIV">Private and confidential. By sending, you agree that Best Solution may contact you by phone, WhatsApp or email.</p>
@@ -187,7 +168,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
     <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
     <div class="fl"><input id="gName" name="name" placeholder=" " autocomplete="name"><label for="gName" data-t="Full name">Full name</label><span class="err" data-t="Please enter your name">Please enter your name</span></div>
     <div class="fl"><div class="tel"><select id="gCC" data-ta="Country code" aria-label="Country code"></select><div class="fl-in" style="position:relative"><input id="gPhone" name="phone" type="tel" inputmode="tel" placeholder=" " autocomplete="tel-national"><label for="gPhone" data-t="Phone or WhatsApp">Phone or WhatsApp</label></div></div><span class="err" data-t="Please enter a valid phone number">Please enter a valid phone number</span></div>
-    <div class="fl"><input id="gEmail" name="email" type="email" inputmode="email" placeholder=" " autocomplete="email"><label for="gEmail" data-t="Email (optional)">Email (optional)</label><span class="err" data-t="Please enter a valid email">Please enter a valid email</span></div>
+    <div class="fl"><input id="gEmail" name="email" type="email" inputmode="email" placeholder=" " autocomplete="email"><label for="gEmail" data-t="Email">Email</label><span class="err" data-t="Please enter a valid email">Please enter a valid email</span></div>
     <label class="wa-opt"><input type="checkbox" id="gWa"><span class="bx"></span><span data-t="Send my breakdown to WhatsApp">Send my breakdown to WhatsApp</span></label>
     <button class="btn btn-cu" type="submit" id="gGo" data-t="Show my price">Show my price</button>
     <p class="sure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg><span data-t="One advisor contacts you. No spam.">One advisor contacts you. No spam.</span><a href="#faq" id="whyAsk" data-t="Why we ask">Why we ask</a></p>
@@ -215,7 +196,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
   <div class="wrap">
     <div class="ft-top">
       <div><img src="/brand/logo.webp" alt="Best Solution" width="170" height="42"><p data-t="Business setup consultants in Business Bay, Dubai: mainland, free zone and offshore companies, residency and banking.">Business setup consultants in Business Bay, Dubai: mainland, free zone and offshore companies, residency and banking.</p></div>
-      <div><h4 data-t="On this page">On this page</h4><a href="#calculator" data-t="Calculator">Calculator</a><a href="#compare" data-t="Compare">Compare</a><a href="#budget" data-t="Budget finder">Budget finder</a><a href="#faq" data-t="FAQ">FAQ</a></div>
+      <div><h4 data-t="On this page">On this page</h4><a href="#calculator" data-t="Calculator">Calculator</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a></div>
       <div><h4 data-t="Contact">Contact</h4><a href="tel:+971522330011" data-area="Footer" dir="ltr">+971 52 233 0011</a><a href="https://wa.me/97145531546" target="_blank" rel="noopener" data-area="Footer">WhatsApp</a><a href="mailto:connect@best-solution.ae" data-area="Footer">connect@best-solution.ae</a></div>
     </div>
     <p class="ft-legal" data-t="LEGAL">Best Solution® is a private business consultancy based in Business Bay, Dubai. We are not affiliated with any government entity. Licences, residency and bank accounts are approved solely by the relevant authorities and banks. Prices are "from" prices on our published rate card and can change with government fees; the exact figure is confirmed in writing after a consultation.</p>
