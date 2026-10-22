@@ -451,10 +451,13 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     $("#mkInd").style.setProperty("--i", String(mi));
     $$("#mkSeg b").forEach((b, i) => b.classList.toggle("on", i === mi));
     $("#mkCo").outerHTML = `<div class="mk-co" id="mkCo"><span class="lt">${logo(o)}</span><span><b>${j === "mainland" ? nm(o).split(/, |، |，/).slice(1).join(", ") : nm(o)}</b><small>${t(city(o))} · ${t(JL[j])}</small></span></div>`;
-    $("#mkL").innerHTML = lines.map(([c, l, val], i) => {
+    const rows = lines.map(([c, l, val], i) => {
       const label = l === "RES2" ? t("Residency for {n} people", { n: 2 }) : t(l), shown = val ? `AED <span class="bl">${val}</span>` : t(j === "offshore" ? "Not applicable" : "Included");
       return `<li style="animation-delay:${i * 90 + 120}ms"><i style="background:var(--c-${c})"></i><span>${label}</span><b class="${val ? "" : "t"}">${shown}</b></li>`;
-    }).join("");
+    });
+    // Always four rows (the free zone and offshore samples have three), so the hero keeps its height and the page below stays put.
+    while (rows.length < 4) rows.push('<li aria-hidden="true" style="visibility:hidden"><i></i><span>&nbsp;</span><b>&nbsp;</b></li>');
+    $("#mkL").innerHTML = rows.join("");
   }
   on($("#mock"), "click", () => $("#calculator").scrollIntoView({ behavior: smooth }));
   on($(".mock-w"), "pointerenter", () => { mHover = true; });
@@ -648,6 +651,19 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
 
   setLang(new URLSearchParams(location.search).get("lang") || store("cc-lang") || "en");
   onScroll();
+  /* An ad or sitelink landing on #calculator (or ?section=calculator): the browser jumps before this script has built the
+     page, so the section then sits lower. Aim again once built and loaded, unless the visitor has started scrolling.
+     Anything Ads appends after the # ("#calculator?gclid=…") is ignored. */
+  const want = location.hash.slice(1).split(/[?&]/)[0] || new URLSearchParams(location.search).get("section") || "";
+  const target = want ? root.querySelector<HTMLElement>(`[id="${CSS.escape(want)}"]`) : null;
+  if (target) {
+    let moved = false;
+    ["wheel", "touchmove", "keydown"].forEach((type) => on(window, type, () => { moved = true; }, true));
+    const aim = () => { if (!moved) target.scrollIntoView({ block: "start", behavior: "instant" }); };
+    requestAnimationFrame(aim);
+    if (document.readyState === "complete") later(aim, 150);
+    else on(window, "load", () => later(aim, 150));
+  }
   requestAnimationFrame(() => { later(() => $(".hero").classList.add("go")); });
   observe((es, o) => es.forEach((e) => { if (e.isIntersecting) { $(".cfg").classList.add("go"); o.disconnect(); } }), { threshold: 0.12 }, $(".cfg"));
 }
