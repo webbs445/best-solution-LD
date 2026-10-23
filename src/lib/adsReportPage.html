@@ -1515,7 +1515,18 @@ body::after {
 .lr-pipe__count { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
 .lr-pipe__big { color: var(--text); font: 800 clamp(52px, 6vw, 72px)/.95 var(--font) !important; letter-spacing: -.045em; }
 .lr-pipe__unit { color: var(--muted); font: 600 15px/1 var(--font); }
-.lr-pipe__trend .lr-spark { height: 44px; }
+.lr-pipe__plot { position: relative; }
+.lr-pipe__plot .lr-spark { height: 48px; }
+.lr-pipe__plot::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; border-top: 1px dashed rgba(20,37,62,.16); pointer-events: none; } /* the zero line */
+.lr-pipe__axis { display: flex; justify-content: space-between; margin-top: 6px; color: var(--muted); font: 500 11.5px/1 var(--font); }
+/* Hover or tap a day: a dot on the line and its count above it. */
+.lr-pipe__hits { position: absolute; inset: 0; }
+.lr-pipe__hits span { position: absolute; top: 0; bottom: 0; left: var(--x); width: var(--w); transform: translateX(-50%); }
+.lr-pipe__hits span::before { content: ""; position: absolute; left: 50%; top: var(--y); width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2.5px var(--copper); opacity: 0; transition: opacity var(--t-fast) var(--ease); }
+.lr-pipe__hits span::after { content: attr(data-tip); position: absolute; z-index: 2; left: 50%; bottom: calc(100% - var(--y) + 12px); transform: translateX(-50%); padding: 6px 10px; border-radius: 10px; background: #14253e; color: #fff; font: 600 12px/1 var(--font); white-space: nowrap; box-shadow: 0 8px 18px -8px rgba(20,37,62,.6); opacity: 0; pointer-events: none; transition: opacity var(--t-fast) var(--ease); }
+.lr-pipe__hits span:hover::before, .lr-pipe__hits span:hover::after { opacity: 1; }
+.lr-pipe__hits span:first-child::after { left: 50%; transform: none; }
+.lr-pipe__hits span:last-child::after { left: auto; right: 50%; transform: none; }
 .lr-pipe__best { color: var(--muted); font: 500 12.5px/1.3 var(--font); }
 .lr-pipe__best b { color: var(--text); font-weight: 650; }
 .lr-pipe__waiting { justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border: 0; border-radius: var(--r-pill); background: rgba(204,134,103,.13); color: var(--copper-hi); font: 600 13px/1 var(--font); cursor: pointer; transition: background var(--t-fast) var(--ease); }
@@ -1524,7 +1535,8 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
 .lr-pipe__waiting .lr-icon { font-size: 14px; }
 .lr-pipe__waiting[data-done] { background: rgba(14,158,108,.1); color: var(--won); cursor: default; }
 .lr-pipe__ping { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: lr-ping 1.8s ease-out infinite; }
-.lr-pipe__stages { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 18px 16px; align-items: center; min-width: 0; }
+/* Laptop and tablet: label, bar, number and rate on one line; phone: the rate goes under the bar. */
+.lr-pipe__stages { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto minmax(132px, auto); gap: 34px 16px; align-items: center; align-content: center; min-width: 0; }
 /* Rows share the stages grid (subgrid), so every bar starts and ends at the same place. */
 .lr-pipe__row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; row-gap: 4px; }
 .lr-pipe__label { grid-column: 1; display: flex; align-items: center; gap: 6px; color: var(--muted); font: 650 12px/1 var(--font); letter-spacing: .08em; text-transform: uppercase; }
@@ -1534,9 +1546,13 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
 .lr-pipe__row[data-step="won"] .lr-pipe__track i { background: linear-gradient(90deg, #34c792, #0e9e6c); box-shadow: 0 4px 12px -4px rgba(14,158,108,.6); }
 .lr-pipe__num { grid-column: 3; display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; min-width: 3ch; }
 .lr-pipe__num .lr-journey__value { font: 750 26px/1 var(--font); letter-spacing: -.03em; }
-.lr-pipe__rate { grid-column: 2 / -1; color: var(--muted); font: 500 12.5px/1.2 var(--font); }
+.lr-pipe__rate { grid-column: 4; color: var(--muted); font: 500 12.5px/1.2 var(--font); white-space: nowrap; }
+.lr-pipe__rate b { color: var(--text); font-weight: 700; }
 .lr-pipe__row[data-hit] .lr-pipe__label, .lr-pipe__row[data-hit] .lr-journey__value { color: var(--won); }
-@media (max-width: 480px) { .lr-pipe__stages { grid-template-columns: 78px minmax(0, 1fr) auto; column-gap: 10px; } }
+@media (max-width: 767px) {
+  .lr-pipe__stages { grid-template-columns: 78px minmax(0, 1fr) auto; gap: 20px 10px; }
+  .lr-pipe__rate { grid-column: 2 / -1; }
+}
 @media (prefers-reduced-motion: reduce) { .lr-pipe__ping, .lr-pipe__track i { animation: none; } }
 /* Ring centre: the largest group, in that group's colour (hovering a tile switches it). */
 .lr-ring__centre { --c: var(--muted); }
@@ -1881,10 +1897,11 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
 
   /* ---------- A8 Sparkline ---------- */
   // values: numbers or null (null breaks the line). One usable point shows a dot.
-  function spark(values, label) {
+  // fromZero: counts draw against a 0 baseline (a day with no leads sits on the floor), not against the lowest value.
+  function spark(values, label, fromZero = false) {
     const pts = values.map((v, i) => [i, v]).filter(([, v]) => v != null && Number.isFinite(v));
     if (pts.length < 2) return `<div class="lr-spark-dot" role="img" aria-label="${esc(label)}"></div>`;
-    const vs = pts.map(([, v]) => v), lo = Math.min(...vs), hi = Math.max(...vs);
+    const vs = pts.map(([, v]) => v), lo = fromZero ? 0 : Math.min(...vs), hi = Math.max(...vs);
     const x = (i) => (values.length === 1 ? 50 : (i / (values.length - 1)) * 100);
     const y = (v) => (hi === lo ? 16 : 30 - ((v - lo) / (hi - lo)) * 28); // 2 px headroom top and bottom
     let line = "", prev = null;
@@ -2128,9 +2145,16 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
     const perDay = days.map((day) => d.erp.leads.filter((l) => l.created.startsWith(day)).length);
     const best = perDay.indexOf(Math.max(...perDay));
     const waiting = d.erp.leads.filter((l) => NEW_STATUSES.includes(l.status)).length;
+    // Hover or tap a day for its count: one hit area per point, centred on it (the line's points run edge to edge).
+    const plural = (n) => `${n} lead${n === 1 ? "" : "s"}`;
+    const hi = Math.max(...perDay, 1);
+    const hits = perDay.map((n, i) => `<span style="--x:${(i / (days.length - 1) * 100).toFixed(2)}%;--y:${((30 - n / hi * 28) / 32 * 100).toFixed(2)}%;--w:${(100 / (days.length - 1)).toFixed(2)}%" data-tip="${esc(dayMonth(days[i]))} · ${plural(n)}"></span>`).join("");
     const trend = days.length > 1
-      ? `<div class="lr-pipe__trend">${spark(perDay, `Leads per day: ${days.map((day, i) => `${dayMonth(day)} ${perDay[i]}`).join(", ")}`)}</div>
-         <p class="lr-pipe__best">Best day <b>${esc(dayMonth(days[best]))}</b> · ${perDay[best]} lead${perDay[best] === 1 ? "" : "s"}</p>`
+      ? `<div class="lr-pipe__trend">
+           <div class="lr-pipe__plot">${spark(perDay, `Leads per day: ${days.map((day, i) => `${dayMonth(day)} ${perDay[i]}`).join(", ")}`, true)}<div class="lr-pipe__hits" aria-hidden="true">${hits}</div></div>
+           <div class="lr-pipe__axis" aria-hidden="true"><span>${esc(dayMonth(days[0]))}</span><span>${esc(dayMonth(days.at(-1)))}</span></div>
+         </div>
+         <p class="lr-pipe__best">Best day <b>${esc(dayMonth(days[best]))}</b> · ${plural(perDay[best])}</p>`
       : "";
     const action = waiting
       ? `<button type="button" class="lr-pipe__waiting" data-feed-new><span class="lr-pipe__ping" aria-hidden="true"></span><b>${waiting}</b> waiting for a first reply${icon("chevron")}</button>`
@@ -2140,7 +2164,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
         <span class="lr-pipe__label">${key === "won" && value > 0 ? icon("trophy") : ""}${label}</span>
         <span class="lr-pipe__track"><i style="--w:${m.leads ? Math.max(value / m.leads * 100, value ? 2 : 0).toFixed(1) : 0}%"></i></span>
         <span class="lr-pipe__num"><span class="lr-journey__value">${esc(fmtCount(value))}</span>${deltaHtml(arrow(aKey, value, prev, ctx, key === "leads" ? lb : small), ctx)}</span>
-        ${rate ? `<span class="lr-pipe__rate">${rate}</span>` : ""}
+        <span class="lr-pipe__rate">${rate}</span>
       </div>`;
     const arrival = d.google.connected
       ? `<p class="lr-arrival"><b>${m.withClickId}</b> of <b>${d.google.totals.formConversions}</b> from Google arrived${isPartial(ctx, "google") ? partialHtml() : ""}${info("arrivals", "Leads in the ERP with a Google click ID, against the form sends Google counted. Google counts every send, including duplicates and repeat sends, and reports a few hours late, so the two rarely match exactly.")}</p>`
@@ -2160,9 +2184,8 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
           ${action}
         </div>
         <div class="lr-pipe__stages">
-          ${bar("leads", "Leads", m.leads, d.erp.prevLeadCount, "leads", "")}
-          ${bar("qualified", "Qualified", m.qualified, d.erp.prevQualifiedCount, "qualified", `${esc(fmtPct(m.qualifiedPct))} of leads`)}
-          ${bar("won", "Won", m.won, d.erp.prevWonCount, "won", `${esc(fmtPct(m.winRate))} of qualified`)}
+          ${bar("qualified", "Qualified", m.qualified, d.erp.prevQualifiedCount, "qualified", `<b>${esc(fmtPct(m.qualifiedPct))}</b> of ${plural(m.leads)}`)}
+          ${bar("won", "Won", m.won, d.erp.prevWonCount, "won", `<b>${esc(fmtPct(m.winRate))}</b> of qualified`)}
         </div>
       </div>
       ${cpql}
@@ -2621,13 +2644,17 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
       return `${fmtCount(d.google.totals.formConversions)} leads from ${fmtMoney(d.google.totals.cost)}`;
     }
     if (!d.erp.available) return "The ERP isn't answering";
-    // The one fact the cards don't show: who still needs a first reply.
-    const leads = d.erp.leads, waiting = leads.filter((l) => NEW_STATUSES.includes(l.status)).length;
-    const won = leads.filter((l) => groupOf(l.status) === "won").length;
+    // The one insight the cards don't spell out: the change on the previous period when there is a fair one (same
+    // minimums as the arrows), else where the leads came from.
+    const leads = d.erp.leads;
     if (!leads.length) return "No new leads yet";
-    if (waiting) return `${waiting} new lead${waiting === 1 ? " is" : "s are"} waiting for a first reply`;
-    if (won) return `${won} deal${won === 1 ? "" : "s"} won, and every lead has had a reply`;
-    return "Every lead has had a reply";
+    const a = arrow("leads", leads.length, d.erp.prevLeadCount, ctx, { leadBased: true, leadsCur: leads.length, leadsPrev: d.erp.prevLeadCount });
+    const period = PERIOD_WORDS[ctx.range] ?? "the previous period";
+    if (a) return a.dir === "flat" ? `Leads are level with ${period}` : `Leads ${a.dir} ${Math.abs(a.pct)}% on ${period}`;
+    const [top] = boardRows(leads, (l) => { const n = rowName(l, d, "campaign"); return { key: n.name, name: n.name, missing: n.missing }; });
+    if (top.missing) return `${top.leads} of ${leads.length} leads came without a campaign tag`;
+    if (top.leads < leads.length) return `${top.leads} of ${leads.length} leads came from ${top.name}`;
+    return leads.length === 1 ? `The one lead came from ${top.name}` : `All ${leads.length} leads came from ${top.name}`;
   }
 
   function renderPage(ctx) {
