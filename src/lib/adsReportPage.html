@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light">
-<title>Lead Radar · Best Solution</title>
+<title>Lead Insights · Best Solution</title>
 <meta name="description" content="New Google Ads leads and their ERP status.">
-<meta name="application-name" content="Lead Radar">
-<meta name="apple-mobile-web-app-title" content="Lead Radar">
+<meta name="application-name" content="Lead Insights">
+<meta name="apple-mobile-web-app-title" content="Lead Insights">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f1ede8">
-<link rel="icon" href="/lead-radar/icon.svg" type="image/svg+xml">
-<link rel="icon" href="/lead-radar/icon-192.png" type="image/png" sizes="192x192">
-<link rel="apple-touch-icon" href="/lead-radar/apple-touch-icon.png">
-<link rel="manifest" href="/lead-radar/manifest.webmanifest">
+<link rel="icon" href="/lead-insights/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/lead-insights/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/lead-insights/apple-touch-icon.png">
+<link rel="manifest" href="/lead-insights/manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
@@ -2368,9 +2368,9 @@ body::after {
       : { long: "Google Ads · Not connected", short: "Google Ads · Not connected" };
     return `<header class="lr-topbar lr-glass">
       <div class="lr-topbar__in">
-        <a class="lr-brand" href="?view=${esc(ctx.view)}" aria-label="Lead Radar, Best Solution">
-          <img class="lr-brand__mark" src="/lead-radar/icon.svg" alt="" width="32" height="32">
-          <span class="lr-brand__text"><span class="lr-brand__name">Lead Radar</span><span class="lr-brand__by">Best Solution</span></span>
+        <a class="lr-brand" href="?view=${esc(ctx.view)}" aria-label="Lead Insights, Best Solution">
+          <img class="lr-brand__mark" src="/lead-insights/icon.svg" alt="" width="32" height="32">
+          <span class="lr-brand__text"><span class="lr-brand__name">Lead Insights</span><span class="lr-brand__by">Best Solution</span></span>
         </a>
         <nav class="lr-nav" aria-label="Dashboards">
           <p class="lr-nav__label">Dashboards</p>
@@ -2507,8 +2507,8 @@ body::after {
     return `<main class="lr-signin">
       <form class="lr-signin__card lr-card" method="post" action="/ads-report" novalidate>
         <div class="lr-signin__brand">
-          <img class="lr-signin__mark" src="/lead-radar/icon.svg" alt="" width="48" height="48">
-          <div><h1 class="lr-signin__title">Lead Radar</h1><p class="lr-signin__by">Best Solution</p></div>
+          <img class="lr-signin__mark" src="/lead-insights/icon.svg" alt="" width="48" height="48">
+          <div><h1 class="lr-signin__title">Lead Insights</h1><p class="lr-signin__by">Best Solution</p></div>
         </div>
         <p class="lr-signin__lead">Sign in to see the new leads from Google Ads.</p>
         ${err ? `<p class="lr-alert" id="lr-signin-err" role="alert">${icon("info")}${esc(err)}</p>` : ""}
@@ -2527,7 +2527,7 @@ body::after {
     return `${renderTopbar(ctx)}
     <div class="lr-page">
       <div class="lr-main">
-        <h1 class="lr-sr">Lead Radar: ${ctx.view === "google" ? "Google leads" : "ERP status"}</h1>
+        <h1 class="lr-sr">Lead Insights: ${ctx.view === "google" ? "Google leads" : "ERP status"}</h1>
         <div class="lr-controls">${renderSwitch(ctx)}${renderRange(ctx)}</div>
         <main class="lr-view lr-bento" id="lr-view">${ctx.view === "google" ? renderGoogle(ctx) : renderErp(ctx)}</main>
       </div>
@@ -2537,7 +2537,7 @@ body::after {
   function render() {
     infoSeq = 0;
     const ctx = readUrl();
-    document.title = ctx.state === 6 ? "Sign in · Lead Radar" : `${ctx.view === "google" ? "Google leads" : "ERP status"} · Lead Radar`;
+    document.title = ctx.state === 6 ? "Sign in · Lead Insights" : `${ctx.view === "google" ? "Google leads" : "ERP status"} · Lead Insights`;
     const html = renderPage(ctx);
     document.getElementById("lr-root").innerHTML = html;
   }
@@ -3177,7 +3177,7 @@ body::after {
       const main = document.querySelector(".lr-main");
       if (main && !main.querySelector(".lr-pagehead")) {
         const h = document.createElement("div"); h.className = "lr-pagehead"; h.setAttribute("aria-hidden", "true");
-        h.innerHTML = `<span>Lead Radar</span><strong>${viewKey() === "erp" ? "ERP status" : "Google leads"}</strong>`;
+        h.innerHTML = `<span>Lead Insights</span><strong>${viewKey() === "erp" ? "ERP status" : "Google leads"}</strong>`;
         main.querySelector(".lr-controls")?.before(h);
       }
       const view = document.getElementById("lr-view"); if (!view) return;
