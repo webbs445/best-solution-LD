@@ -1498,20 +1498,46 @@ body::after {
 @media (prefers-reduced-motion: reduce) { .lr-aurora i { animation: none; } .lr-card { transform: none !important; } }
 
 /* ===== Review pass: one journey card, status ring in its own colours, quiet statuses, compact phone feed ===== */
-/* Lead journey carries the count, so its numbers are hero-sized; the range sits on the right of the header. */
+/* Lead pipeline: the range sits on the right of the header (phone and tablet), cost note underneath. */
 .lr-journey__range { margin-left: auto; color: var(--muted); font: 500 var(--fs-small)/1.2 var(--font); }
-.lr-journey-card .lr-journey__value { font-size: clamp(34px, 4vw, 52px); }
-.lr-journey__step .lr-kpi__label { display: flex; align-items: center; gap: 6px; }
-.lr-journey__note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: var(--s3); color: var(--muted); font: 500 var(--fs-small)/1.4 var(--font); }
-.lr-journey__note .lr-icon { font-size: 15px; color: var(--copper-hi); }
+.lr-journey__note { margin-top: var(--s3); color: var(--muted); font: 500 var(--fs-small)/1.4 var(--font); }
+.lr-journey__note .lr-icon { margin-right: 6px; font-size: 15px; vertical-align: -3px; color: var(--copper-hi); }
+.lr-journey__note .lr-delta, .lr-journey__note .lr-partial { margin-left: 6px; }
 .lr-journey__note b { color: var(--text); font-weight: 700; }
 .lr-journey__note a { color: var(--copper-hi); font-weight: 650; text-decoration: none; }
 .lr-journey__note a:hover { text-decoration: underline; }
-/* A won deal lights the Won step. */
-.lr-journey__step[data-hit] { background: linear-gradient(160deg, rgba(14,158,108,.26), rgba(255,255,255,.72)); box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1.5px rgba(14,158,108,.45), 0 18px 36px -14px rgba(14,158,108,.6); }
-.lr-journey__step[data-hit] .lr-kpi__label { color: var(--won); }
-.lr-journey__step[data-hit] .lr-kpi__label .lr-icon { font-size: 16px; }
 
+/* Lead pipeline: the count and its trend on the left, the stages to scale on the right. */
+.lr-pipe { display: grid; gap: var(--s4); }
+@media (min-width: 900px) { .lr-pipe { grid-template-columns: minmax(240px, 2fr) 3fr; gap: 40px; align-items: center; } }
+.lr-pipe__lead { display: grid; gap: 12px; align-content: start; min-width: 0; }
+@media (min-width: 900px) { .lr-pipe__lead { padding-right: 40px; border-right: 1px solid var(--line); } }
+.lr-pipe__count { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.lr-pipe__big { color: var(--text); font: 800 clamp(52px, 6vw, 72px)/.95 var(--font) !important; letter-spacing: -.045em; }
+.lr-pipe__unit { color: var(--muted); font: 600 15px/1 var(--font); }
+.lr-pipe__trend .lr-spark { height: 44px; }
+.lr-pipe__best { color: var(--muted); font: 500 12.5px/1.3 var(--font); }
+.lr-pipe__best b { color: var(--text); font-weight: 650; }
+.lr-pipe__waiting { justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border: 0; border-radius: var(--r-pill); background: rgba(204,134,103,.13); color: var(--copper-hi); font: 600 13px/1 var(--font); cursor: pointer; transition: background var(--t-fast) var(--ease); }
+button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
+.lr-pipe__waiting b { font-weight: 800; }
+.lr-pipe__waiting .lr-icon { font-size: 14px; }
+.lr-pipe__waiting[data-done] { background: rgba(14,158,108,.1); color: var(--won); cursor: default; }
+.lr-pipe__ping { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: lr-ping 1.8s ease-out infinite; }
+.lr-pipe__stages { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 18px 16px; align-items: center; min-width: 0; }
+/* Rows share the stages grid (subgrid), so every bar starts and ends at the same place. */
+.lr-pipe__row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; row-gap: 4px; }
+.lr-pipe__label { grid-column: 1; display: flex; align-items: center; gap: 6px; color: var(--muted); font: 650 12px/1 var(--font); letter-spacing: .08em; text-transform: uppercase; }
+.lr-pipe__label .lr-icon { font-size: 15px; }
+.lr-pipe__track { grid-column: 2; height: 14px; border-radius: var(--r-pill); background: rgba(20,37,62,.06); box-shadow: inset 0 1px 2px rgba(20,37,62,.06); }
+.lr-pipe__track i { display: block; height: 100%; width: var(--w); border-radius: inherit; background: linear-gradient(90deg, #f0ab8a, #cc8667 60%, #b06a4c); box-shadow: 0 4px 12px -4px rgba(204,134,103,.65); transform-origin: 0 50%; animation: lr-p-growx 1s var(--ease-out) backwards .3s; }
+.lr-pipe__row[data-step="won"] .lr-pipe__track i { background: linear-gradient(90deg, #34c792, #0e9e6c); box-shadow: 0 4px 12px -4px rgba(14,158,108,.6); }
+.lr-pipe__num { grid-column: 3; display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; min-width: 3ch; }
+.lr-pipe__num .lr-journey__value { font: 750 26px/1 var(--font); letter-spacing: -.03em; }
+.lr-pipe__rate { grid-column: 2 / -1; color: var(--muted); font: 500 12.5px/1.2 var(--font); }
+.lr-pipe__row[data-hit] .lr-pipe__label, .lr-pipe__row[data-hit] .lr-journey__value { color: var(--won); }
+@media (max-width: 480px) { .lr-pipe__stages { grid-template-columns: 78px minmax(0, 1fr) auto; column-gap: 10px; } }
+@media (prefers-reduced-motion: reduce) { .lr-pipe__ping, .lr-pipe__track i { animation: none; } }
 /* Ring centre: the largest group, in that group's colour (hovering a tile switches it). */
 .lr-ring__centre { --c: var(--muted); }
 .lr-ring__centre[data-g="won"], .lr-ring[data-focus="won"] .lr-ring__centre { --c: var(--won); }
@@ -2096,18 +2122,26 @@ body::after {
     const m = erpMetrics(d);
     const lb = { leadBased: true, leadsCur: m.leads, leadsPrev: d.erp.prevLeadCount };
     const small = { ...lb, ownMin: true }; // Qualified and Won also need 5+ themselves (D30)
-    const HELP = {
-      leads: "Google Ads leads that reached the ERP: they carry a Google click ID, or Google ad tags.",
-      qualified: "Every lead except Junk, Duplicate and Lost.",
-      won: "Deal Won or Converted.",
-    };
-    // A won deal is the moment the team cares about most: the Won step lights up (trophy, green glow) when there is one.
-    const step = (key, label, value, prev, aKey) => `<div class="lr-journey__step" data-step="${key}"${key === "won" && value > 0 ? " data-hit" : ""}>
-        <h3 class="lr-kpi__label">${key === "won" && value > 0 ? icon("trophy") : ""}${label}${info(label, HELP[key])}</h3>
-        <div class="lr-journey__value">${esc(fmtCount(value))}</div>
-        ${deltaHtml(arrow(aKey, value, prev, ctx, key === "leads" ? lb : small), ctx)}
+    // Left: the count, its trend per day across the range, the best day, and who still needs a first reply.
+    const days = [];
+    for (let day = d.range.from; day <= d.range.to; day = addDays(day, 1)) days.push(day);
+    const perDay = days.map((day) => d.erp.leads.filter((l) => l.created.startsWith(day)).length);
+    const best = perDay.indexOf(Math.max(...perDay));
+    const waiting = d.erp.leads.filter((l) => NEW_STATUSES.includes(l.status)).length;
+    const trend = days.length > 1
+      ? `<div class="lr-pipe__trend">${spark(perDay, `Leads per day: ${days.map((day, i) => `${dayMonth(day)} ${perDay[i]}`).join(", ")}`)}</div>
+         <p class="lr-pipe__best">Best day <b>${esc(dayMonth(days[best]))}</b> · ${perDay[best]} lead${perDay[best] === 1 ? "" : "s"}</p>`
+      : "";
+    const action = waiting
+      ? `<button type="button" class="lr-pipe__waiting" data-feed-new><span class="lr-pipe__ping" aria-hidden="true"></span><b>${waiting}</b> waiting for a first reply${icon("chevron")}</button>`
+      : `<p class="lr-pipe__waiting" data-done>${icon("tick")}Every lead has had a reply</p>`;
+    // Right: one bar per stage, sized by count, so the drop from leads to won shows at a glance.
+    const bar = (key, label, value, prev, aKey, rate) => `<div class="lr-pipe__row" data-step="${key}"${key === "won" && value > 0 ? " data-hit" : ""}>
+        <span class="lr-pipe__label">${key === "won" && value > 0 ? icon("trophy") : ""}${label}</span>
+        <span class="lr-pipe__track"><i style="--w:${m.leads ? Math.max(value / m.leads * 100, value ? 2 : 0).toFixed(1) : 0}%"></i></span>
+        <span class="lr-pipe__num"><span class="lr-journey__value">${esc(fmtCount(value))}</span>${deltaHtml(arrow(aKey, value, prev, ctx, key === "leads" ? lb : small), ctx)}</span>
+        ${rate ? `<span class="lr-pipe__rate">${rate}</span>` : ""}
       </div>`;
-    const link = (pct, word) => `<div class="lr-journey__link">${icon("chevron")}<span class="lr-rate">${esc(pct)}<span class="lr-rate__word"> ${esc(word)}</span></span></div>`;
     const arrival = d.google.connected
       ? `<p class="lr-arrival"><b>${m.withClickId}</b> of <b>${d.google.totals.formConversions}</b> from Google arrived${isPartial(ctx, "google") ? partialHtml() : ""}${info("arrivals", "Leads in the ERP with a Google click ID, against the form sends Google counted. Google counts every send, including duplicates and repeat sends, and reports a few hours late, so the two rarely match exactly.")}</p>`
       : "";
@@ -2115,15 +2149,21 @@ body::after {
     const cpql = d.google.connected
       ? `<p class="lr-journey__note">Cost per qualified lead <b>${esc(fmtMoney(m.cpql))}</b>${deltaHtml(arrow("cpql", m.cpql, m.prevCpql, ctx, { ...lb, google: true }), ctx)}${isPartial(ctx, "cpql") ? partialHtml() : ""}</p>`
       : `<p class="lr-journey__note">${icon("link")}Cost per qualified lead shows once Google Ads is connected. <a href="${esc(viewHref(ctx, "google"))}">See setup</a></p>`;
+    const help = "Leads: Google Ads leads that reached the ERP (a Google click ID, or Google ad tags). Qualified: every lead except Junk, Duplicate and Lost. Won: Deal Won or Converted. Bars are to scale.";
     return `<section class="lr-card lr-journey-card" aria-labelledby="lr-journey-title" ${attrs}>
-      <div class="lr-card__head"><h2 class="lr-card__title" id="lr-journey-title">Lead journey</h2><span class="lr-journey__range">${esc(rangePhrase(ctx))}</span></div>
+      <div class="lr-card__head"><h2 class="lr-card__title" id="lr-journey-title">Lead pipeline${info("the lead pipeline", help)}</h2><span class="lr-journey__range">${esc(rangePhrase(ctx))}</span></div>
       ${arrival}
-      <div class="lr-journey">
-        ${step("leads", "Leads", m.leads, d.erp.prevLeadCount, "leads")}
-        ${link(fmtPct(m.qualifiedPct), "qualified")}
-        ${step("qualified", "Qualified", m.qualified, d.erp.prevQualifiedCount, "qualified")}
-        ${link(fmtPct(m.winRate), "won")}
-        ${step("won", "Won", m.won, d.erp.prevWonCount, "won")}
+      <div class="lr-pipe">
+        <div class="lr-pipe__lead">
+          <div class="lr-pipe__count"><span class="lr-pipe__big lr-journey__value">${esc(fmtCount(m.leads))}</span><span class="lr-pipe__unit">lead${m.leads === 1 ? "" : "s"}</span>${deltaHtml(arrow("leads", m.leads, d.erp.prevLeadCount, ctx, lb), ctx)}</div>
+          ${trend}
+          ${action}
+        </div>
+        <div class="lr-pipe__stages">
+          ${bar("leads", "Leads", m.leads, d.erp.prevLeadCount, "leads", "")}
+          ${bar("qualified", "Qualified", m.qualified, d.erp.prevQualifiedCount, "qualified", `${esc(fmtPct(m.qualifiedPct))} of leads`)}
+          ${bar("won", "Won", m.won, d.erp.prevWonCount, "won", `${esc(fmtPct(m.winRate))} of qualified`)}
+        </div>
       </div>
       ${cpql}
     </section>`;
@@ -2270,7 +2310,8 @@ body::after {
     const d = ctx.data;
     const all = [...d.erp.leads].sort((a, b) => b.created.localeCompare(a.created)).map((l) => feedRow(l, d));
     const q = feed.q.trim().toLowerCase();
-    const match = all.filter((r) => (feed.group === "all" || groupOf(r.l.status) === feed.group) && (!q || r.hay.includes(q)));
+    const inGroup = (r) => feed.group === "all" || (feed.group === "new" ? NEW_STATUSES.includes(r.l.status) : groupOf(r.l.status) === feed.group);
+    const match = all.filter((r) => inGroup(r) && (!q || r.hay.includes(q)));
     const shown = match.slice(0, feed.limit);
     const filtered = Boolean(q) || feed.group !== "all";
     const count = filtered ? `Showing ${shown.length} of ${match.length} matching (${all.length} total)` : `Showing ${shown.length} of ${all.length}`;
@@ -2773,6 +2814,13 @@ body::after {
   document.addEventListener("click", (e) => {
     const chip = e.target.closest("[data-fgroup]");
     if (chip) { feed.group = chip.dataset.fgroup; feed.limit = FEED_STEP; return updateFeed(); }
+    // Pipeline card: "N waiting for a first reply" shows just those leads in the list below.
+    if (e.target.closest("[data-feed-new]")) {
+      Object.assign(feed, { group: "new", q: "", limit: FEED_STEP }); updateFeed();
+      const card = document.querySelector(".lr-feed-card");
+      card?.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+      return;
+    }
     if (e.target.closest("[data-feed-more]")) {
       feed.limit += FEED_STEP;
       updateFeed();
@@ -3189,7 +3237,7 @@ body::after {
         percent: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
       };
       const TITLE_IC = [["leads reported", "user"], ["leads in the erp", "db"], ["google conversions", "check"], ["impressions to leads", "filter"],
-        ["per day", "pulse"], ["campaigns", "target"], ["journey", "route"], ["quality", "shield"], ["status", "pie"], ["ad groups", "layers"],
+        ["per day", "pulse"], ["campaigns", "target"], ["journey", "route"], ["pipeline", "route"], ["quality", "shield"], ["status", "pie"], ["ad groups", "layers"],
         ["keywords", "key"], ["forms", "file"], ["new leads", "inbox"]];
       const KPI_IC = { "spend": "wallet", "cost per lead": "tag", "avg cpc": "mouse", "impressions": "eye", "clicks": "mouse", "ctr": "percent" };
       const chip = (k) => `<span class="lr-tic" aria-hidden="true"><svg viewBox="0 0 24 24">${IC[k]}</svg></span>`;
