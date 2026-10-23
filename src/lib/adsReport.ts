@@ -78,6 +78,23 @@ export function adsReportData(all: ReportLead[] | null, sheet: SheetLead[] | nul
   const inRange = (l: ReportLead, from: string, to: string) => l.creation.slice(0, 10) >= from && l.creation.slice(0, 10) <= to;
   const prev = range.prevFrom ? google.filter((l) => inRange(l, range.prevFrom!, range.prevTo!)) : null;
   const count = (g: string[]) => prev && prev.filter((l) => g.includes(groupOf(l.status))).length;
+  // Every lead since REPORT_START goes to the page too, so the range chips re-filter there without a reload.
+  const rows = google
+    .sort((a, b) => b.creation.localeCompare(a.creation))
+    .map((l) => ({
+      leadNo: l.name,
+      created: l.creation.slice(0, 16),
+      status: l.status,
+      campaign: val(l.custom_campaign),
+      // utm_content is "{adgroup}_{creative id}" (the ads' URL suffix).
+      adGroup: val(l.custom_ad_name).replace(/_\d+$/, ""),
+      keyword: val(l.custom_ad_set_name),
+      form: val(l.custom_form_name),
+      // In tonight's conversion file; a lead the ERP hides isn't, as that file is read from the ERP.
+      hasGoogleClickId: !("hidden" in l) && exclusionReason(l) === null,
+      googleCampaignId: "",
+      googleAdGroupId: "",
+    }));
   return {
     updated: now.slice(0, 16),
     range,
@@ -85,23 +102,8 @@ export function adsReportData(all: ReportLead[] | null, sheet: SheetLead[] | nul
     google: { connected: false, dataAsOf: null, setup: googleSetup(), totals: null, prevTotals: null, daily: [], campaigns: [] },
     erp: {
       available: all !== null,
-      leads: google
-        .filter((l) => inRange(l, range.from, range.to))
-        .sort((a, b) => b.creation.localeCompare(a.creation))
-        .map((l) => ({
-          leadNo: l.name,
-          created: l.creation.slice(0, 16),
-          status: l.status,
-          campaign: val(l.custom_campaign),
-          // utm_content is "{adgroup}_{creative id}" (the ads' URL suffix).
-          adGroup: val(l.custom_ad_name).replace(/_\d+$/, ""),
-          keyword: val(l.custom_ad_set_name),
-          form: val(l.custom_form_name),
-          // In tonight's conversion file; a lead the ERP hides isn't, as that file is read from the ERP.
-          hasGoogleClickId: !("hidden" in l) && exclusionReason(l) === null,
-          googleCampaignId: "",
-          googleAdGroupId: "",
-        })),
+      all: rows,
+      leads: rows.filter((l) => l.created.slice(0, 10) >= range.from && l.created.slice(0, 10) <= range.to),
       prevLeadCount: prev?.length ?? null,
       prevQualifiedCount: count(["won", "progress"]),
       prevWonCount: count(["won"]),

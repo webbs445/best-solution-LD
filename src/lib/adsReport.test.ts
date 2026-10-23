@@ -73,6 +73,8 @@ describe("Google Ads lead dashboard", () => {
     );
     expect(d.erp.leads).toHaveLength(0);
     expect([d.erp.prevLeadCount, d.erp.prevQualifiedCount, d.erp.prevWonCount]).toEqual([1, 1, 1]);
+    // The page re-filters other ranges itself, newest first.
+    expect(d.erp.all.map((l) => l.leadNo)).toEqual(["A", "B", "C", "D"]);
   });
 
   it("keeps leads the ERP hides, from the lead log sheet, without double counting", () => {

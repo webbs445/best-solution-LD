@@ -7,6 +7,18 @@ const SITELINK_PATHS = ["calculator", "mainland", "free-zone", "offshore", "cons
 const nextConfig: NextConfig = {
   // The dashboard reads its page template at run time.
   outputFileTracingIncludes: { "/api/ads-report": ["./src/lib/adsReportPage.html"] },
+  // Nothing on this subdomain goes in search results: the header also covers images, PDFs and other files the
+  // pages' noindex tag can't reach. Crawling stays allowed so it is seen (src/app/robots.ts).
+  async headers() {
+    // A later rule wins for the same header: the private dashboard and API also say nofollow (this replaces the route's own value).
+    const noFollow = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
+    return [
+      { source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
+      { source: "/ads-report", headers: noFollow },
+      { source: "/ads-conversions.csv", headers: noFollow },
+      { source: "/api/:path*", headers: noFollow },
+    ];
+  },
   async rewrites() {
     return [
       ...SITELINK_PATHS.map((path) => ({ source: `/${path}`, destination: "/" })),
