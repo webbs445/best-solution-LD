@@ -391,10 +391,42 @@ body::before {
   .lr-custom { position: absolute; z-index: 20; top: calc(100% + var(--s2)); left: 0; width: 440px; margin: 0; }
 }
 @media (min-width: 1200px) { .lr-custom { left: auto; right: 0; } }
-.lr-custom__dates { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
-.lr-custom__dates .lr-field { margin: 0; }
-.lr-input[type="date"] { color-scheme: dark; padding-right: var(--s2); }
-.lr-custom__err { min-height: 1.4em; color: var(--bad); font: 500 var(--fs-small)/var(--lh-small) var(--font); }
+@media (min-width: 768px) { .lr-custom { width: 360px; } }
+/* Calendar: the two ends on top (the one the next click sets is lit), one month below. */
+.lr-cal__ends { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
+.lr-cal__end { display: grid; gap: 2px; padding: var(--s2) var(--s3); border: 1px solid var(--line-strong); border-radius: var(--r-control); background: var(--surface-3); text-align: left; }
+.lr-cal__end[data-next] { border-color: var(--copper); box-shadow: 0 0 0 3px var(--copper-glow); }
+.lr-cal__end b { color: var(--text); font: 600 var(--fs-body)/1.3 var(--font); font-feature-settings: "tnum"; }
+.lr-cal__end b:empty::before { content: "Pick a day"; color: var(--muted); font-weight: 500; }
+.lr-cal__head { display: flex; align-items: center; justify-content: space-between; }
+.lr-cal__month { color: var(--text); font: 600 var(--fs-body)/1 var(--font); }
+.lr-cal__nav { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text); cursor: pointer; }
+.lr-cal__nav:hover:not(:disabled) { background: var(--surface-3); }
+.lr-cal__nav:disabled { color: var(--faint); cursor: default; }
+.lr-cal__nav[data-dir="prev"] .lr-icon { transform: rotate(180deg); }
+.lr-cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; }
+.lr-cal__wd { padding-bottom: var(--s1); color: var(--muted); font: 600 var(--fs-label)/2 var(--font); text-align: center; }
+.lr-cal__day {
+  position: relative; height: 40px; border: 0; background: transparent; color: var(--text); cursor: pointer;
+  font: 500 var(--fs-small)/1 var(--font); font-feature-settings: "tnum";
+}
+@media (max-width: 767px) { .lr-cal__day { height: 44px; } }
+.lr-cal__day span { position: relative; z-index: 1; display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r-pill); transition: background var(--t-fast) var(--ease); }
+.lr-cal__day:hover:not(:disabled, [data-edge]) span { background: var(--surface-3); }
+.lr-cal__day:disabled { color: var(--faint); cursor: default; }
+.lr-cal__day[data-today] span { box-shadow: inset 0 0 0 1px var(--copper); }
+/* The band between the ends; it runs to the cell edges so the days read as one stretch. */
+.lr-cal__day[data-in]::before, .lr-cal__day[data-edge]::before { content: ""; position: absolute; inset: 2px 0; background: var(--copper-glow); }
+.lr-cal__day[data-edge="start"]::before { left: 50%; }
+.lr-cal__day[data-edge="end"]::before { right: 50%; }
+.lr-cal__day[data-edge="both"]::before { display: none; }
+.lr-cal__day[data-edge] span { background: var(--copper-brushed); color: var(--on-copper); font-weight: 700; box-shadow: var(--copper-hl); }
+.lr-cal__day:focus-visible { outline: none; }
+.lr-cal__day:focus-visible span { outline: 2px solid var(--copper-hi); outline-offset: 1px; }
+.lr-cal__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
+.lr-cal__len { color: var(--muted); font: 500 var(--fs-small)/var(--lh-small) var(--font); }
+.lr-custom__err { color: var(--bad); font: 500 var(--fs-small)/var(--lh-small) var(--font); }
+.lr-custom__err:empty { display: none; }
 .lr-custom__actions { display: flex; gap: var(--s2); justify-content: flex-end; }
 .lr-btn:disabled { background: var(--surface-3); color: var(--muted); cursor: not-allowed; box-shadow: none; filter: none; }
 
@@ -2384,9 +2416,39 @@ body::after {
     if (from < RANGE_START) return "Counting starts on 12 Oct 2026. Pick a later start date.";
     if (to > today) return "The end date can't be in the future.";
     if (to < from) return "The end date must be on or after the start date.";
-    const days = (Date.parse(to) - Date.parse(from)) / 86400000 + 1;
+    const days = daysIn(from, to);
     if (days > MAX_DAYS) return `A range can be at most ${MAX_DAYS} days (this one is ${days}).`;
     return "";
+  }
+
+  /* Range changes are in-page: every Google lead since the start is already in DATA.erp.all, so a chip or Apply
+     re-filters it and re-renders. Same rules as reportRange() and adsReportData() in lib/adsReport.ts; keep them in step. */
+  const addDays = (d, n) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
+  const daysIn = (from, to) => (Date.parse(to) - Date.parse(from)) / 86400000 + 1;
+  function reportRange(q, today) {
+    const from = q.get("from"), to = q.get("to");
+    const isDate = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v ?? "") && !Number.isNaN(Date.parse(v));
+    const custom = isDate(from) && isDate(to) && !customError(from, to, today);
+    const key = custom ? "custom" : ["today", "7d", "30d"].find((k) => k === q.get("range")) ?? "since";
+    if (key === "since") return { key, from: RANGE_START, to: today, prevFrom: null, prevTo: null };
+    const start = custom ? from : addDays(today, key === "today" ? 0 : key === "7d" ? -6 : -29);
+    const end = custom ? to : today;
+    const prevFrom = addDays(start, -daysIn(start, end));
+    // No comparison when the previous period starts before counting did (D21).
+    return prevFrom < RANGE_START ? { key, from: start, to: end, prevFrom: null, prevTo: null } : { key, from: start, to: end, prevFrom, prevTo: addDays(start, -1) };
+  }
+  function applyRange() {
+    const r = reportRange(new URLSearchParams(QS()), DATA.updated.slice(0, 10));
+    const pick = (from, to) => DATA.erp.all.filter((l) => l.created.slice(0, 10) >= from && l.created.slice(0, 10) <= to);
+    const prev = r.prevFrom ? pick(r.prevFrom, r.prevTo) : null;
+    const count = (groups) => prev && prev.filter((l) => groups.includes(groupOf(l.status))).length;
+    DATA.range = r;
+    Object.assign(DATA.erp, { leads: pick(r.from, r.to), prevLeadCount: prev?.length ?? null, prevQualifiedCount: count(["won", "progress"]), prevWonCount: count(["won"]) });
+  }
+  // No view transition here: its snapshot delays the update about 150 ms; the numbers count up instead (theme JS).
+  function goRange(href) {
+    setQuery(href); applyRange(); render();
+    document.querySelector('.lr-range__chips [aria-current="page"]')?.focus({ preventScroll: true });
   }
 
   function renderRange(ctx) {
@@ -2407,18 +2469,21 @@ body::after {
           ${isCustom ? `Custom: ${esc(fmtRangeLabel(ctx.from, ctx.to))}` : "Custom"}${icon("chevron")}
         </button>
       </div>
-      <form class="lr-custom lr-glass" id="lr-custom" method="get" action="" hidden data-today="${esc(today)}">
+      <form class="lr-custom lr-glass" id="lr-custom" method="get" action="" hidden data-today="${esc(today)}" aria-label="Custom date range">
         ${keep}
-        <div class="lr-custom__dates">
-          <label class="lr-field"><span class="lr-field__label">From</span>
-            <input class="lr-input" type="date" name="from" value="${esc(from)}" min="${RANGE_START}" max="${esc(today)}" required aria-describedby="lr-custom-err"></label>
-          <label class="lr-field"><span class="lr-field__label">To</span>
-            <input class="lr-input" type="date" name="to" value="${esc(to)}" min="${RANGE_START}" max="${esc(today)}" required aria-describedby="lr-custom-err"></label>
+        <input type="hidden" name="from" value="${esc(from)}"><input type="hidden" name="to" value="${esc(to)}">
+        <div class="lr-cal__ends">
+          <div class="lr-cal__end"><span class="lr-field__label">From</span><b data-end="from"></b></div>
+          <div class="lr-cal__end"><span class="lr-field__label">To</span><b data-end="to"></b></div>
         </div>
+        <div class="lr-cal"></div>
         <p class="lr-custom__err" id="lr-custom-err" aria-live="polite"></p>
-        <div class="lr-custom__actions">
-          <button type="button" class="lr-btn-ghost" data-action="custom-cancel">Cancel</button>
-          <button type="submit" class="lr-btn">Apply</button>
+        <div class="lr-cal__foot">
+          <span class="lr-cal__len" aria-live="polite"></span>
+          <div class="lr-custom__actions">
+            <button type="button" class="lr-btn-ghost" data-action="custom-cancel">Cancel</button>
+            <button type="submit" class="lr-btn">Apply</button>
+          </div>
         </div>
       </form>
     </nav>`;
@@ -2704,33 +2769,110 @@ body::after {
   addEventListener("scroll", () => { if (openInfo) placeInfo(openInfo, document.getElementById(openInfo.getAttribute("aria-controls"))); }, { passive: true });
   addEventListener("resize", () => hideInfo());
 
-  // C3 Custom range: open/close, live validation, Apply only when valid.
-  function validateCustom(form) {
-    const msg = customError(form.from.value, form.to.value, form.dataset.today);
-    form.querySelector(".lr-custom__err").textContent = msg;
-    form.querySelector('[type="submit"]').disabled = Boolean(msg);
-    for (const i of form.querySelectorAll(".lr-input")) i.setAttribute("aria-invalid", String(Boolean(msg)));
-    return !msg;
+  // C3 Preset chips: re-filter in place (no reload). A modified click still opens the link normally.
+  document.addEventListener("click", (e) => {
+    const chip = e.target.closest("a.lr-chip");
+    if (!chip || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    if (chip.getAttribute("aria-current") !== "page") goRange(chip.getAttribute("href"));
+  });
+
+  // C3 Custom range: a one-month calendar. The first click sets From, the second sets To (an earlier day swaps them).
+  // Days before the start, after today, or more than MAX_DAYS from From can't be picked. Arrow keys move by day and week.
+  const cal = { from: "", to: "", month: "", focus: "" };
+  const monthOf = (d) => d.slice(0, 7);
+  const addMonths = (m, n) => { const d = new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7) - 1 + n, 1)); return d.toISOString().slice(0, 7); };
+  const longDate = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  function pickable(d, today) {
+    if (d < RANGE_START || d > today) return false;
+    return !(cal.from && !cal.to && Math.abs(daysIn(cal.from, d)) > MAX_DAYS);
   }
+  function drawCal(form) {
+    const today = form.dataset.today;
+    const m = cal.month, first = `${m}-01`, lead = (new Date(`${first}T00:00:00Z`).getUTCDay() + 6) % 7;
+    const last = addDays(`${addMonths(m, 1)}-01`, -1);
+    const days = [];
+    for (let d = first; d <= last; d = addDays(d, 1)) days.push(d);
+    if (!days.includes(cal.focus)) cal.focus = days.find((d) => pickable(d, today)) ?? first;
+    const day = (d) => {
+      const ok = pickable(d, today);
+      const edge = d === cal.from && d === cal.to ? "both" : d === cal.from ? "start" : d === cal.to ? "end" : "";
+      const inside = cal.from && cal.to && d > cal.from && d < cal.to;
+      return `<button type="button" class="lr-cal__day" data-day="${d}" tabindex="${d === cal.focus ? 0 : -1}" aria-label="${esc(longDate(d))}"`
+        + ` aria-pressed="${Boolean(edge || inside)}"${edge ? ` data-edge="${edge}"` : ""}${inside ? " data-in" : ""}${d === today ? ' data-today aria-current="date"' : ""}${ok ? "" : " disabled"}><span>${Number(d.slice(8))}</span></button>`;
+    };
+    const title = new Date(`${first}T00:00:00Z`).toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+    form.querySelector(".lr-cal").innerHTML = `
+      <div class="lr-cal__head">
+        <button type="button" class="lr-cal__nav" data-dir="prev" aria-label="Previous month"${m <= monthOf(RANGE_START) ? " disabled" : ""}>${icon("chevron")}</button>
+        <span class="lr-cal__month" aria-live="polite">${esc(title)}</span>
+        <button type="button" class="lr-cal__nav" data-dir="next" aria-label="Next month"${m >= monthOf(today) ? " disabled" : ""}>${icon("chevron")}</button>
+      </div>
+      <div class="lr-cal__grid" role="group" aria-label="${esc(title)}">
+        ${["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((w) => `<span class="lr-cal__wd" aria-hidden="true">${w}</span>`).join("")}
+        ${'<span aria-hidden="true"></span>'.repeat(lead)}${days.map(day).join("")}
+      </div>`;
+    form.from.value = cal.from; form.to.value = cal.to;
+    form.querySelector('[data-end="from"]').textContent = cal.from ? fmtDate(cal.from) : "";
+    form.querySelector('[data-end="to"]').textContent = cal.to ? fmtDate(cal.to) : "";
+    form.querySelectorAll(".lr-cal__end").forEach((el, i) => el.toggleAttribute("data-next", i === (cal.from && !cal.to ? 1 : 0)));
+    const msg = cal.from && cal.to ? customError(cal.from, cal.to, today) : "";
+    form.querySelector(".lr-custom__err").textContent = msg;
+    form.querySelector(".lr-cal__len").textContent = cal.from && cal.to && !msg
+      ? `${daysIn(cal.from, cal.to)} day${cal.from === cal.to ? "" : "s"}` : cal.from ? "Now pick the end day" : "Pick the first day";
+    form.querySelector('[type="submit"]').disabled = !cal.from || !cal.to || Boolean(msg);
+  }
+  function focusDay(form) { form.querySelector(`.lr-cal__day[data-day="${cal.focus}"]`)?.focus(); }
   function toggleCustom(open, refocus = true) {
     const btn = document.querySelector('[aria-controls="lr-custom"]');
     const form = document.getElementById("lr-custom");
     if (!btn || !form) return;
     btn.setAttribute("aria-expanded", String(open));
     form.hidden = !open;
-    if (open) { validateCustom(form); form.from.focus(); } else if (refocus) btn.focus();
+    if (open) {
+      Object.assign(cal, { from: form.from.value, to: form.to.value, month: monthOf(form.to.value || form.dataset.today), focus: form.to.value });
+      drawCal(form); focusDay(form);
+    } else if (refocus) btn.focus();
   }
   document.addEventListener("click", (e) => {
     const btn = e.target.closest('[aria-controls="lr-custom"]');
+    const form = document.getElementById("lr-custom");
+    const day = e.target.closest(".lr-cal__day"), nav = e.target.closest(".lr-cal__nav");
     if (btn) toggleCustom(btn.getAttribute("aria-expanded") !== "true");
     else if (e.target.closest('[data-action="custom-cancel"]')) toggleCustom(false);
-    else if (!e.target.closest("#lr-custom") && document.getElementById("lr-custom")?.hidden === false) toggleCustom(false, false);
+    else if (day && !day.disabled) {
+      const d = day.dataset.day;
+      if (!cal.from || cal.to) Object.assign(cal, { from: d, to: "" });
+      else if (d < cal.from) Object.assign(cal, { from: d, to: cal.from });
+      else cal.to = d;
+      cal.focus = d; drawCal(form); focusDay(form);
+    } else if (nav && !nav.disabled) {
+      cal.month = addMonths(cal.month, nav.dataset.dir === "prev" ? -1 : 1); cal.focus = "";
+      drawCal(form); form.querySelector(`.lr-cal__nav[data-dir="${nav.dataset.dir}"]`)?.focus();
+    } else if (form && !e.target.closest("#lr-custom") && form.hidden === false) toggleCustom(false, false);
   });
-  document.addEventListener("input", (e) => { if (e.target.form?.id === "lr-custom") validateCustom(e.target.form); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && e.target.closest?.("#lr-custom")) toggleCustom(false); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && e.target.closest?.("#lr-custom")) { toggleCustom(false); return; }
+    const day = e.target.closest?.(".lr-cal__day");
+    const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+    if (!day || !step) return;
+    e.preventDefault();
+    const form = day.form, to = addDays(day.dataset.day, step);
+    if (!pickable(to, form.dataset.today)) return;
+    cal.focus = to;
+    if (monthOf(to) !== cal.month) { cal.month = monthOf(to); drawCal(form); }
+    else form.querySelectorAll(".lr-cal__day").forEach((b) => { b.tabIndex = b.dataset.day === to ? 0 : -1; });
+    focusDay(form);
+  });
 
   document.addEventListener("submit", (e) => {
-    if (e.target.id === "lr-custom" && !validateCustom(e.target)) e.preventDefault();
+    if (e.target.id !== "lr-custom") return;
+    e.preventDefault();
+    const form = e.target;
+    if (!cal.from || !cal.to || customError(cal.from, cal.to, form.dataset.today)) return;
+    const q = new URLSearchParams(QS());
+    q.delete("range"); q.set("from", cal.from); q.set("to", cal.to);
+    goRange(`?${q}`);
   });
 
   /* ===================== THEME JS: presentation only (liquid glass / spatial) ===================== */
@@ -2852,7 +2994,8 @@ body::after {
       card.querySelectorAll(".lr-bd__panel").forEach((p) => p.classList.toggle("on", p.dataset.bd === bdTab));
     });
     const viewKey = () => new URLSearchParams(QS()).get("view") || "google";
-    let shownKey = null;
+    const rangeKey = () => { const q = new URLSearchParams(QS()); return ["range", "from", "to"].map((k) => q.get(k)).join(); };
+    let shownKey = null, shownRange = null;
     function onRender() {
       decorate(document);
       // Funnel v6: flow band (log scale) with drop-off streams.
@@ -3026,7 +3169,10 @@ body::after {
         main.querySelector(".lr-controls")?.before(h);
       }
       const view = document.getElementById("lr-view"); if (!view) return;
-      const key = viewKey(); if (key === shownKey) return; shownKey = key;
+      const key = viewKey(), rk = rangeKey();
+      // A new range in the same view: the numbers count up to their new values; the cards stay put.
+      if (key === shownKey) { if (rk !== shownRange) { shownRange = rk; if (!calm()) countUp(document); } return; }
+      shownKey = key; shownRange = rk;
       if (calm()) return;
       [...view.children].forEach((c, i) => c.style.setProperty("--pi", String(Math.min(i, 12))));
       view.querySelectorAll(".lr-chart__bar").forEach((b, i) => b.style.setProperty("--bi", String(i)));

@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import type { ReportLead } from "@/lib/erp";
 
 /*
@@ -35,15 +36,25 @@ export async function recordAdsLead(lead: SheetLead): Promise<void> {
   }
 }
 
-/** Every lead in the sheet; [] when the sheet is off, null when it is set up but not answering. */
-export async function readAdsSheet(): Promise<SheetLead[] | null> {
-  const c = config();
-  if (!c) return [];
-  try {
+// The Apps Script takes 2 to 6 seconds to answer, so the report keeps a copy for 5 minutes and Next serves the old
+// copy while it fetches a new one. The ERP stays live; only leads the ERP already hides come from here. A failure throws, so it is never cached.
+const cachedSheet = unstable_cache(
+  async () => {
+    const c = config()!;
     const res = await fetch(`${c.url}?secret=${encodeURIComponent(c.secret)}`, { cache: "no-store", signal: AbortSignal.timeout(15_000) });
     const out = (await res.json()) as { ok?: boolean; leads?: SheetLead[] };
     if (!out.ok || !Array.isArray(out.leads)) throw new Error(`sheet answered ${res.status}`);
     return out.leads;
+  },
+  ["ads-sheet-leads"],
+  { revalidate: 300 },
+);
+
+/** Every lead in the sheet; [] when the sheet is off, null when it is set up but not answering. */
+export async function readAdsSheet(): Promise<SheetLead[] | null> {
+  if (!config()) return [];
+  try {
+    return await cachedSheet();
   } catch (err) {
     console.error("Ads lead sheet unreachable", err);
     return null;
