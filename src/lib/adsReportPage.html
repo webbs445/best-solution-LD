@@ -1496,6 +1496,66 @@ body::after {
 @keyframes lr-vt-out { to { opacity: 0; transform: scale(.985); } }
 @keyframes lr-vt-in { from { opacity: 0; transform: translateY(10px) scale(.99); } }
 @media (prefers-reduced-motion: reduce) { .lr-aurora i { animation: none; } .lr-card { transform: none !important; } }
+
+/* ===== Review pass: one journey card, status ring in its own colours, quiet statuses, compact phone feed ===== */
+/* Lead journey carries the count, so its numbers are hero-sized; the range sits on the right of the header. */
+.lr-journey__range { margin-left: auto; color: var(--muted); font: 500 var(--fs-small)/1.2 var(--font); }
+.lr-journey-card .lr-journey__value { font-size: clamp(34px, 4vw, 52px); }
+.lr-journey__step .lr-kpi__label { display: flex; align-items: center; gap: 6px; }
+.lr-journey__note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: var(--s3); color: var(--muted); font: 500 var(--fs-small)/1.4 var(--font); }
+.lr-journey__note .lr-icon { font-size: 15px; color: var(--copper-hi); }
+.lr-journey__note b { color: var(--text); font-weight: 700; }
+.lr-journey__note a { color: var(--copper-hi); font-weight: 650; text-decoration: none; }
+.lr-journey__note a:hover { text-decoration: underline; }
+/* A won deal lights the Won step. */
+.lr-journey__step[data-hit] { background: linear-gradient(160deg, rgba(14,158,108,.26), rgba(255,255,255,.72)); box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1.5px rgba(14,158,108,.45), 0 18px 36px -14px rgba(14,158,108,.6); }
+.lr-journey__step[data-hit] .lr-kpi__label { color: var(--won); }
+.lr-journey__step[data-hit] .lr-kpi__label .lr-icon { font-size: 16px; }
+
+/* Ring centre: the largest group, in that group's colour (hovering a tile switches it). */
+.lr-ring__centre { --c: var(--muted); }
+.lr-ring__centre[data-g="won"], .lr-ring[data-focus="won"] .lr-ring__centre { --c: var(--won); }
+.lr-ring__centre[data-g="progress"], .lr-ring[data-focus="progress"] .lr-ring__centre { --c: var(--progress); }
+.lr-ring__centre[data-g="lost"], .lr-ring[data-focus="lost"] .lr-ring__centre { --c: var(--lost); }
+.lr-ring__centre[data-g="junk"], .lr-ring[data-focus="junk"] .lr-ring__centre { --c: var(--junk); }
+.lr-ring__centre[data-g="duplicate"], .lr-ring[data-focus="duplicate"] .lr-ring__centre { --c: var(--duplicate); }
+.lr-ring__word { color: var(--c) !important; }
+.lr-legend__none { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; width: 100%; color: var(--muted); font: 500 12.5px/1.3 var(--font); }
+.lr-legend__none span { margin-right: 2px; }
+.lr-legend__none b { padding: 5px 10px; border-radius: 999px; background: rgba(20,37,62,.05); font-weight: 600; }
+
+/* Status: In progress is quiet text with a dot; new, won, lost, junk and duplicate keep their pills. */
+.lr-pill[data-quiet] { padding-left: 0 !important; background: none !important; box-shadow: none !important; color: var(--muted); font-weight: 500; }
+.lr-pill[data-quiet]::before, .lr-pill[data-new]::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--progress); }
+.lr-pill[data-new] { --c: var(--copper-hi); }
+.lr-pill[data-new]::before { background: currentColor; animation: lr-ping 1.8s ease-out infinite; }
+@keyframes lr-ping { from { box-shadow: 0 0 0 0 rgba(204,134,103,.6); } to { box-shadow: 0 0 0 7px rgba(204,134,103,0); } }
+.lr-feed tbody tr[data-won] > * { background-color: rgba(14,158,108,.08); }
+.lr-feed tbody tr[data-won] > :first-child { box-shadow: inset 3px 0 0 var(--won); }
+/* Laptop: the page heading already names the range. */
+@media (min-width: 1200px) { .lr-journey__range { display: none; } }
+/* Breakdown: the legend sits at the bottom of the card, so a short list leaves space above it, not below. */
+.lr-bd__legend { margin-top: auto; }
+.lr-bd__panels { margin-bottom: 14px; }
+.lr-fcard[data-won] { background: linear-gradient(90deg, rgba(14,158,108,.1), transparent 70%); }
+
+/* Phone lead list: three short lines per lead. */
+.lr-fcard { padding: 12px 0; }
+.lr-fcard__top { align-items: center; }
+.lr-fcard__no { font: 700 14px/1.2 var(--font); }
+.lr-fcard__kw { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 6px; color: var(--text); font: 600 14px/1.35 var(--font); }
+.lr-fcard__kw time { flex: none; color: var(--muted); font: 500 12.5px/1 var(--font); }
+.lr-fcard__sub { margin-top: 3px; color: var(--muted); font: 500 12.5px/1.45 var(--font); overflow-wrap: anywhere; }
+.lr-fcard__sub .lr-import { margin-left: 6px; vertical-align: 1px; }
+
+.lr-nav__setup { padding: 4px 8px; border-radius: 999px; background: rgba(204,134,103,.14); color: var(--copper-hi); font: 700 10px/1 var(--font); font-style: normal; letter-spacing: .06em; text-transform: uppercase; }
+
+/* Phone: all five range buttons fit on one row, so none is cut off. */
+@media (max-width: 767px) {
+  .lr-range__chips { justify-content: space-between; }
+  .lr-range__chips .lr-chip { gap: 2px; padding: 0 9px; font-size: 12.5px; }
+}
+@media (prefers-reduced-motion: reduce) { .lr-pill[data-new]::before { animation: none; } }
 </style>
 </head>
 <body>
@@ -1504,6 +1564,7 @@ body::after {
   <symbol id="i-bars" viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></symbol><symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
   <symbol id="i-signout" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></symbol>
   <symbol id="i-tick" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></symbol>
   <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
@@ -2035,8 +2096,14 @@ body::after {
     const m = erpMetrics(d);
     const lb = { leadBased: true, leadsCur: m.leads, leadsPrev: d.erp.prevLeadCount };
     const small = { ...lb, ownMin: true }; // Qualified and Won also need 5+ themselves (D30)
-    const step = (key, label, value, prev, aKey) => `<div class="lr-journey__step" data-step="${key}">
-        <h3 class="lr-kpi__label">${label}</h3>
+    const HELP = {
+      leads: "Google Ads leads that reached the ERP: they carry a Google click ID, or Google ad tags.",
+      qualified: "Every lead except Junk, Duplicate and Lost.",
+      won: "Deal Won or Converted.",
+    };
+    // A won deal is the moment the team cares about most: the Won step lights up (trophy, green glow) when there is one.
+    const step = (key, label, value, prev, aKey) => `<div class="lr-journey__step" data-step="${key}"${key === "won" && value > 0 ? " data-hit" : ""}>
+        <h3 class="lr-kpi__label">${key === "won" && value > 0 ? icon("trophy") : ""}${label}${info(label, HELP[key])}</h3>
         <div class="lr-journey__value">${esc(fmtCount(value))}</div>
         ${deltaHtml(arrow(aKey, value, prev, ctx, key === "leads" ? lb : small), ctx)}
       </div>`;
@@ -2044,8 +2111,12 @@ body::after {
     const arrival = d.google.connected
       ? `<p class="lr-arrival"><b>${m.withClickId}</b> of <b>${d.google.totals.formConversions}</b> from Google arrived${isPartial(ctx, "google") ? partialHtml() : ""}${info("arrivals", "Leads in the ERP with a Google click ID, against the form sends Google counted. Google counts every send, including duplicates and repeat sends, and reports a few hours late, so the two rarely match exactly.")}</p>`
       : "";
-    return `<section class="lr-card" aria-labelledby="lr-journey-title" ${attrs}>
-      <div class="lr-card__head"><h2 class="lr-card__title" id="lr-journey-title">Lead journey</h2></div>
+    // Cost per qualified lead needs the Google spend: a value once connected, a one-line note until then.
+    const cpql = d.google.connected
+      ? `<p class="lr-journey__note">Cost per qualified lead <b>${esc(fmtMoney(m.cpql))}</b>${deltaHtml(arrow("cpql", m.cpql, m.prevCpql, ctx, { ...lb, google: true }), ctx)}${isPartial(ctx, "cpql") ? partialHtml() : ""}</p>`
+      : `<p class="lr-journey__note">${icon("link")}Cost per qualified lead shows once Google Ads is connected. <a href="${esc(viewHref(ctx, "google"))}">See setup</a></p>`;
+    return `<section class="lr-card lr-journey-card" aria-labelledby="lr-journey-title" ${attrs}>
+      <div class="lr-card__head"><h2 class="lr-card__title" id="lr-journey-title">Lead journey</h2><span class="lr-journey__range">${esc(rangePhrase(ctx))}</span></div>
       ${arrival}
       <div class="lr-journey">
         ${step("leads", "Leads", m.leads, d.erp.prevLeadCount, "leads")}
@@ -2054,6 +2125,7 @@ body::after {
         ${link(fmtPct(m.winRate), "won")}
         ${step("won", "Won", m.won, d.erp.prevWonCount, "won")}
       </div>
+      ${cpql}
     </section>`;
   }
 
@@ -2074,7 +2146,10 @@ body::after {
     const pct = (n) => fmtPct(ratio(n, m.leads));
     const summary = `Status of ${m.leads} leads: ` + GROUPS.map(([g, label]) => `${label} ${m[g]} (${pct(m[g])})`).join(", ");
     const wonArrow = arrow("won", m.won, d.erp.prevWonCount, ctx, { leadBased: true, leadsCur: m.leads, leadsPrev: d.erp.prevLeadCount, ownMin: true });
-    const legend = GROUPS.map(([g, label]) => `<li>
+    // Tiles only for groups that have leads; the empty ones share one line. The centre names the largest group, in its colour.
+    const [top, topLabel] = GROUPS.reduce((a, b) => (m[b[0]] > m[a[0]] ? b : a));
+    const none = GROUPS.filter(([g]) => !m[g]).map(([, label]) => label);
+    const legend = GROUPS.filter(([g]) => m[g]).map(([g, label]) => `<li>
         <span class="lr-swatch" data-g="${g}" aria-hidden="true"></span>
         <span class="lr-legend__name">${label}${g === "won" ? deltaHtml(wonArrow, ctx) : ""}</span>
         <span class="lr-legend__count">${m[g]}</span>
@@ -2085,35 +2160,10 @@ body::after {
       <div class="lr-ring-wrap">
         <div class="lr-ring">
           <svg viewBox="0 0 100 100" role="img" aria-label="${esc(summary)}"><circle class="lr-ring__track" cx="50" cy="50" r="40"/>${segs}</svg>
-          <div class="lr-ring__centre" aria-hidden="true"><span class="lr-ring__pct">${esc(fmtPct(m.qualifiedPct))}</span><span class="lr-ring__word">qualified</span></div>
+          <div class="lr-ring__centre" data-g="${top}" aria-hidden="true"><span class="lr-ring__pct">${esc(pct(m[top]))}</span><span class="lr-ring__word">${esc(topLabel.toLowerCase())}</span></div>
         </div>
         <ul class="lr-legend" aria-label="Status groups">${legend}</ul>
-      </div>
-    </section>`;
-  }
-
-  /* ---------- C14 Quality row ---------- */
-  function renderQuality(ctx, attrs) {
-    const d = ctx.data;
-    if (!d.erp.available || !d.erp.leads.length) return ""; // states 3 and 4: C18 / C17 take over (S22, S23)
-    const m = erpMetrics(d), g = d.google;
-    const lb = { leadBased: true, leadsCur: m.leads, leadsPrev: d.erp.prevLeadCount };
-    const item = (k, label, value, how) => `<div class="lr-quality__item" data-k="${k}">
-        <h3 class="lr-kpi__label">${label}</h3>${value}<p class="lr-quality__how">${how}</p></div>`;
-    const qualArrow = deltaHtml(arrow("qualifiedPct", m.qualifiedPct, m.prevQualifiedPct, ctx, lb), ctx);
-    const cpql = g.connected
-      ? item("cpql", "Cost per qualified lead",
-          `<div class="lr-quality__value">${valueHtml(fmtMoney(m.cpql))}${deltaHtml(arrow("cpql", m.cpql, m.prevCpql, ctx, { ...lb, google: true }), ctx)}${isPartial(ctx, "cpql") ? partialHtml() : ""}</div>`,
-          m.cpql == null ? "No qualified leads yet" : `${esc(fmtMoney(g.totals.cost))} spend ÷ ${m.qualified} qualified`)
-      : item("cpql", "Cost per qualified lead",
-          `<a class="lr-connect" href="${esc(viewHref(ctx, "google"))}">${icon("link")}Connect Google Ads to see cost</a>`,
-          "Needs the Google Ads spend");
-    return `<section class="lr-card" aria-labelledby="lr-quality-title" ${attrs}>
-      <div class="lr-card__head"><h2 class="lr-card__title" id="lr-quality-title">Lead quality${info("lead quality", "Not junk: every lead except Junk and Duplicate. Qualified: every lead except Junk, Duplicate and Lost. Cost per qualified lead: Google spend divided by qualified leads.")}</h2></div>
-      <div class="lr-quality">
-        ${item("notjunk", "Not junk", `<div class="lr-quality__value">${esc(fmtPct(m.notJunkPct))}</div>`, `${m.notJunk} of ${m.leads} leads`)}
-        ${item("qualified", "Qualified", `<div class="lr-quality__value">${esc(fmtPct(m.qualifiedPct))}${qualArrow}</div>`, `${m.qualified} of ${m.leads} leads`)}
-        ${cpql}
+        ${none.length ? `<p class="lr-legend__none"><span>None yet</span>${none.map((n) => `<b>${esc(n)}</b>`).join("")}</p>` : ""}
       </div>
     </section>`;
   }
@@ -2184,22 +2234,26 @@ body::after {
       return { key: g.connected ? l.googleAdGroupId : `${l.campaign}|${n.name}`, name: n.name, missing: null, sub: campName(l) };
     });
     const keywords = boardRows(d.erp.leads, (l) => (l.keyword ? { key: l.keyword, name: l.keyword, missing: null } : { key: "", name: "No keyword", missing: "keyword" }));
-    const pages = boardRows(d.erp.leads, (l) => ({ key: l.form || "", name: l.form || "Unknown page", missing: null }));
+    const pages = boardRows(d.erp.leads, (l) => ({ key: l.form || "", name: l.form || "Unknown form", missing: null }));
     return [
       campaignsCard,
       boardCard("lr-b-ag", "Ad groups", "Leads per ad group (asset group for Performance Max), with the campaign underneath.", adGroups, 'data-lg="4"', "is-half"),
       boardCard("lr-b-kw", "Keywords", "Leads per search keyword.", keywords, 'data-lg="4"', "is-half"),
-      boardCard("lr-b-pg", "Pages / forms", "Where on the website the form was sent.", pages, 'data-lg="4"', ""), // tablet: full width (no orphan half)
+      boardCard("lr-b-pg", "Forms", "Which website form the lead was sent from.", pages, 'data-lg="4"', ""), // tablet: full width (no orphan half)
     ].join("");
   }
 
   /* ---------- A4 status pill, A5 import badge ---------- */
+  // Most leads are simply being worked, so In progress is quiet text; the exceptions keep a coloured pill:
+  // a new lead nobody has answered yet (copper), Won, Lost, Junk and Duplicate.
+  const NEW_STATUSES = ["Lead", "Open"];
   const pill = (status) => {
     const g = groupOf(status);
-    const lead = g === "lost" ? icon("x") : g === "duplicate" ? icon("copy") : "";
-    return `<span class="lr-pill" data-g="${g}">${lead}${esc(status || DASH)}</span>`;
+    const lead = g === "won" ? icon("trophy") : g === "lost" ? icon("x") : g === "duplicate" ? icon("copy") : "";
+    const tone = g !== "progress" ? "" : NEW_STATUSES.includes(status) ? " data-new" : " data-quiet";
+    return `<span class="lr-pill" data-g="${g}"${tone}>${lead}${esc(status || DASH)}</span>`;
   };
-  const importBadge = `<span class="lr-import">In Google import</span>`;
+  const importBadge = `<span class="lr-import">Counts in Google Ads</span>`;
 
   /* ---------- C16 Lead feed ---------- */
   // Filter state lives in memory; only the rows, count and buttons update, so typing in search keeps focus.
@@ -2223,7 +2277,7 @@ body::after {
     const groupCounts = Object.fromEntries(FEED_GROUPS.map(([g]) => [g, g === "all" ? all.length : all.filter((r) => groupOf(r.l.status) === g).length]));
     return { all, match, shown, count, groupCounts, more: match.length > shown.length };
   }
-  const feedRowsHtml = (rows) => rows.map(({ l, camp, ag, kw }) => `<tr>
+  const feedRowsHtml = (rows) => rows.map(({ l, camp, ag, kw }) => `<tr${groupOf(l.status) === "won" ? " data-won" : ""}>
       <th scope="row"><span class="lr-feed__lead">${esc(l.leadNo)}${l.hasGoogleClickId ? importBadge : ""}</span></th>
       <td>${esc(fmtTime(l.created))}</td>
       <td>${feedCell(camp)}</td><td>${feedCell(ag)}</td><td>${feedCell(kw)}</td>
@@ -2231,15 +2285,11 @@ body::after {
       <td>${pill(l.status)}</td>
     </tr>`).join("");
 
-  const feedCardsHtml = (rows) => rows.map(({ l, camp, ag, kw }) => `<li class="lr-fcard">
-      <div class="lr-fcard__top"><span class="lr-fcard__id"><b>${esc(l.leadNo)}</b>${l.hasGoogleClickId ? importBadge : ""}</span>${pill(l.status)}</div>
-      <dl class="lr-fcard__grid">
-        <div><dt>Received</dt><dd>${esc(fmtTime(l.created))}</dd></div>
-        <div><dt>Page / form</dt><dd>${esc(l.form || DASH)}</dd></div>
-        <div><dt>Campaign</dt><dd>${feedCell(camp)}</dd></div>
-        <div><dt>Ad group</dt><dd>${feedCell(ag)}</dd></div>
-        <div><dt>Keyword</dt><dd>${feedCell(kw)}</dd></div>
-      </dl>
+  // Phone: three short lines per lead (number and status; keyword and time; campaign, ad group and form), not a labelled grid.
+  const feedCardsHtml = (rows) => rows.map(({ l, camp, ag, kw }) => `<li class="lr-fcard"${groupOf(l.status) === "won" ? " data-won" : ""}>
+      <div class="lr-fcard__top"><b class="lr-fcard__no">${esc(l.leadNo)}</b>${pill(l.status)}</div>
+      <p class="lr-fcard__kw"><span>${feedCell(kw)}</span><time>${esc(fmtTime(l.created))}</time></p>
+      <p class="lr-fcard__sub"><span class="lr-sr">Campaign </span>${feedCell(camp)} · ${feedCell(ag)} · ${esc(l.form || DASH)}${l.hasGoogleClickId ? importBadge : ""}</p>
     </li>`).join("");
 
   function renderFeed(ctx, attrs) {
@@ -2248,14 +2298,14 @@ body::after {
     const s = feedState(ctx);
     const chips = FEED_GROUPS.map(([g, label]) => `<button type="button" class="lr-fchip" data-fgroup="${g}" aria-pressed="${feed.group === g}">${esc(label)} <span>${s.groupCounts[g]}</span></button>`).join("");
     return `<section class="lr-card lr-feed-card" aria-labelledby="lr-feed-title" ${attrs}>
-      <div class="lr-card__head"><h2 class="lr-card__title" id="lr-feed-title">New leads${info("the lead feed", "Newest first. \"In Google import\" means the lead has a Google click ID, so it is in tonight's import file; whether Google accepts it isn't known here. No names, phone numbers or emails are shown.")}</h2></div>
+      <div class="lr-card__head"><h2 class="lr-card__title" id="lr-feed-title">New leads${info("the lead feed", "Newest first. \"Counts in Google Ads\" means the lead has a Google click ID, so tonight's file reports it to Google Ads as a conversion; whether Google accepts it isn't known here. No names, phone numbers or emails are shown.")}</h2></div>
       <div class="lr-feed__controls">
         <label class="lr-search"><span class="lr-sr">Search leads</span>${icon("search")}<input class="lr-input" type="search" data-feed-q value="${esc(feed.q)}" placeholder="Search leads, campaigns…" autocomplete="off"></label>
         <div class="lr-fchips" role="group" aria-label="Filter by status">${chips}</div>
       </div>
       <div class="lr-feed-wrap" tabindex="0" role="region" aria-label="Lead table, scrolls sideways on small screens"><table class="lr-feed">
         <caption class="lr-sr">Google Ads leads, newest first</caption>
-        <thead><tr><th scope="col">Lead</th><th scope="col">Received (UAE)</th><th scope="col">Campaign</th><th scope="col">Ad group</th><th scope="col">Keyword</th><th scope="col">Page / form</th><th scope="col">Status</th></tr></thead>
+        <thead><tr><th scope="col">Lead</th><th scope="col">Received (UAE)</th><th scope="col">Campaign</th><th scope="col">Ad group</th><th scope="col">Keyword</th><th scope="col">Form</th><th scope="col">Status</th></tr></thead>
         <tbody data-feed-rows>${feedRowsHtml(s.shown)}</tbody>
       </table></div>
       <ul class="lr-fcards" data-feed-cards aria-label="Google Ads leads, newest first">${feedCardsHtml(s.shown)}</ul>
@@ -2337,12 +2387,12 @@ body::after {
     renderTree(ctx, ""),
   ].join("");
 
+  // The journey carries the lead count, qualified share and cost per qualified lead, so the separate Leads hero and
+  // Lead quality cards (which repeated those numbers) are gone from this view.
   const renderErp = (ctx) => !ctx.data.erp.available ? renderErpError() : [
-    renderHero(ctx, "erp", 'data-lg="4"'),
-    renderJourney(ctx, 'data-lg="8"'),
-    renderRadar(ctx, 'data-lg="8"'),
-    // Laptop: quality is a full-width strip; the ring (legend stacked under it) sits beside Campaigns (S27).
-    renderQuality(ctx, ""),
+    renderJourney(ctx, ""),
+    renderRadar(ctx, ""),
+    // Laptop: the ring (legend stacked under it) sits beside the breakdown (S27).
     renderRing(ctx, 'data-lg="5"'),
     renderBoards(ctx),
     renderFeed(ctx, ""),
@@ -2374,7 +2424,7 @@ body::after {
         </a>
         <nav class="lr-nav" aria-label="Dashboards">
           <p class="lr-nav__label">Dashboards</p>
-          <a class="lr-nav__item" href="${esc(viewHref(ctx, "google"))}" data-view="google"${ctx.view === "google" ? ' aria-current="page"' : ""}>${icon("bars")}<span>Google leads</span>${d.google.connected ? `<b>${esc(fmtCount(d.google.totals.formConversions))}</b>` : ""}</a>
+          <a class="lr-nav__item" href="${esc(viewHref(ctx, "google"))}" data-view="google"${ctx.view === "google" ? ' aria-current="page"' : ""}>${icon("bars")}<span>Google leads</span>${d.google.connected ? `<b>${esc(fmtCount(d.google.totals.formConversions))}</b>` : `<em class="lr-nav__setup">Connect<span class="lr-sr">, not connected yet</span></em>`}</a>
           <a class="lr-nav__item" href="${esc(viewHref(ctx, "erp"))}" data-view="erp"${ctx.view === "erp" ? ' aria-current="page"' : ""}>${icon("db")}<span>ERP status</span>${d.erp.available ? `<b>${esc(fmtCount(d.erp.leads.length))}</b>` : ""}</a>
         </nav>
         <div class="lr-fresh" role="status" aria-label="Data freshness">
@@ -2522,13 +2572,35 @@ body::after {
     </main>`;
   }
 
+  // Laptop heading: the view and range as a small label, and the period's answer as the headline (the tab already names the view).
+  function pageHeadline(ctx) {
+    const d = ctx.data;
+    if (ctx.view === "google") {
+      if (!d.google.connected) return "Until it's connected, your leads are in ERP status";
+      return `${fmtCount(d.google.totals.formConversions)} leads from ${fmtMoney(d.google.totals.cost)}`;
+    }
+    if (!d.erp.available) return "The ERP isn't answering";
+    // The one fact the cards don't show: who still needs a first reply.
+    const leads = d.erp.leads, waiting = leads.filter((l) => NEW_STATUSES.includes(l.status)).length;
+    const won = leads.filter((l) => groupOf(l.status) === "won").length;
+    if (!leads.length) return "No new leads yet";
+    if (waiting) return `${waiting} new lead${waiting === 1 ? " is" : "s are"} waiting for a first reply`;
+    if (won) return `${won} deal${won === 1 ? "" : "s"} won, and every lead has had a reply`;
+    return "Every lead has had a reply";
+  }
+
   function renderPage(ctx) {
     if (ctx.state === 6) return renderSignin(ctx);
+    const viewName = ctx.view === "google" ? "Google leads" : "ERP status";
+    const headline = pageHeadline(ctx);
+    // No date range on the Google view until Google Ads is connected: there is nothing for it to filter.
+    const range = ctx.view === "google" && !ctx.data.google.connected ? "" : renderRange(ctx);
     return `${renderTopbar(ctx)}
     <div class="lr-page">
       <div class="lr-main">
-        <h1 class="lr-sr">Lead Insights: ${ctx.view === "google" ? "Google leads" : "ERP status"}</h1>
-        <div class="lr-controls">${renderSwitch(ctx)}${renderRange(ctx)}</div>
+        <h1 class="lr-sr">Lead Insights: ${viewName}. ${esc(headline)}</h1>
+        <div class="lr-pagehead" aria-hidden="true"><span>${viewName}${range ? ` · ${esc(rangePhrase(ctx))}` : ""}</span><strong>${esc(headline)}</strong></div>
+        <div class="lr-controls">${renderSwitch(ctx)}${range}</div>
         <main class="lr-view lr-bento" id="lr-view">${ctx.view === "google" ? renderGoogle(ctx) : renderErp(ctx)}</main>
       </div>
     </div>`;
@@ -3118,7 +3190,7 @@ body::after {
       };
       const TITLE_IC = [["leads reported", "user"], ["leads in the erp", "db"], ["google conversions", "check"], ["impressions to leads", "filter"],
         ["per day", "pulse"], ["campaigns", "target"], ["journey", "route"], ["quality", "shield"], ["status", "pie"], ["ad groups", "layers"],
-        ["keywords", "key"], ["pages", "file"], ["new leads", "inbox"]];
+        ["keywords", "key"], ["forms", "file"], ["new leads", "inbox"]];
       const KPI_IC = { "spend": "wallet", "cost per lead": "tag", "avg cpc": "mouse", "impressions": "eye", "clicks": "mouse", "ctr": "percent" };
       const chip = (k) => `<span class="lr-tic" aria-hidden="true"><svg viewBox="0 0 24 24">${IC[k]}</svg></span>`;
       document.querySelectorAll(".lr-card__title, .lr-hero__label").forEach((h) => {
@@ -3160,9 +3232,6 @@ body::after {
         const mx = Math.max(1, ...rows.map(val));
         rows.forEach((tr) => { const td = tr.children[ci]; if (!td || td.querySelector(".lr-spendbar")) return; td.insertAdjacentHTML("beforeend", `<span class="lr-spendbar" aria-hidden="true"><i style="--w:${(val(tr) / mx * 100).toFixed(1)}%"></i></span>`); });
       });
-      // Page header subtitle
-      const ph = document.querySelector(".lr-pagehead");
-      if (ph && !ph.querySelector("em")) ph.insertAdjacentHTML("beforeend", `<em>${viewKey() === "erp" ? "What happened to every lead after it arrived" : "How Google Ads turned spend into leads"}</em>`);
       // Daily chart v3: copper tide connecting the lead orbs.
       document.querySelectorAll(".lr-chart__area").forEach((area) => {
         if (area.querySelector(".lr-lead-area")) return;
@@ -3174,12 +3243,6 @@ body::after {
           <linearGradient id="lr-lead-stroke" x1="0" x2="1"><stop offset="0" stop-color="#f2b99b"/><stop offset=".5" stop-color="#cc8667"/><stop offset="1" stop-color="#a85f42"/></linearGradient></defs>
           <path class="lr-lead-fill" d="${r.d} L${r.last[0]},100 L${r.first[0]},100 Z"/><path class="lr-lead-top" d="${r.d}"/></svg>`);
       });
-      const main = document.querySelector(".lr-main");
-      if (main && !main.querySelector(".lr-pagehead")) {
-        const h = document.createElement("div"); h.className = "lr-pagehead"; h.setAttribute("aria-hidden", "true");
-        h.innerHTML = `<span>Lead Insights</span><strong>${viewKey() === "erp" ? "ERP status" : "Google leads"}</strong>`;
-        main.querySelector(".lr-controls")?.before(h);
-      }
       const view = document.getElementById("lr-view"); if (!view) return;
       const key = viewKey(), rk = rangeKey();
       // A new range in the same view: the numbers count up to their new values; the cards stay put.
