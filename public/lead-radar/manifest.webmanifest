@@ -1,0 +1,16 @@
+{
+  "name": "Lead Radar · Best Solution",
+  "short_name": "Lead Radar",
+  "description": "New Google Ads leads and their ERP status.",
+  "start_url": "/ads-report",
+  "scope": "/ads-report",
+  "display": "standalone",
+  "background_color": "#f1ede8",
+  "theme_color": "#f1ede8",
+  "icons": [
+    { "src": "/lead-radar/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/lead-radar/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/lead-radar/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/lead-radar/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
