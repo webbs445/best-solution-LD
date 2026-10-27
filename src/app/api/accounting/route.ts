@@ -1,4 +1,4 @@
-import { AC_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES, clickIdRows } from "@/lib/lead";
+import { AC_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES, clickIdRows, withUaeCode } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
@@ -28,7 +28,8 @@ export const POST = withLeadLog("accounting", async (request, log) => {
 
   const lead_name = str(body.lead_name, 120);
   const email_id = str(body.email_id, 200);
-  const mobile_no = str(body.mobile_no, 40);
+  // A local UAE number ("050 123 4567") is stored as +971.
+  const mobile_no = withUaeCode(str(body.mobile_no, 40));
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
     ...((await emailIsReal(email_id)) ? [] : ["email_id"]),

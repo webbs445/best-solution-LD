@@ -123,14 +123,14 @@ export function AcFooter() {
               </>,
             )}
             <span>
-              Best Solution® is a private business consultancy based in Business Bay, Dubai. We are not affiliated with the
+              Best Solution is a private business consultancy based in Business Bay, Dubai. We are not affiliated with the
               Federal Tax Authority or any other government entity, and we do not issue government documents. Tax
               registrations, assessments, refunds and penalties are decided solely by the relevant UAE authorities. Prices shown are from-prices,
               exclude VAT and are confirmed in a written quote. Reports and figures on this page are illustrations.
             </span>
           </p>
           <div className="f-meta">
-            <span>© {year} Best Solution®</span>
+            <span>© {year} Best Solution</span>
             <a href={SITE.privacy} target="_blank" rel="noopener">
               Privacy policy
             </a>

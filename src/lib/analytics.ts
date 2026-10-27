@@ -38,7 +38,8 @@ export function pushEvent(event: string, payload: Record<string, unknown> = {}):
   if (conversionPending) {
     // GTM merges every push into one data model, so without this the last form_submit's
     // user_data (email, phone) and form_data would ride along on every later event.
-    window.dataLayer.push({ user_data: null, form_data: null });
+    // event_id too: GTM's lead tags only fire for a form_submit that carries the site's own evt_ id.
+    window.dataLayer.push({ user_data: null, form_data: null, event_id: null });
     conversionPending = false;
   }
   window.dataLayer.push({ event, ...payload });

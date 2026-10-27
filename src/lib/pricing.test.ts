@@ -60,9 +60,10 @@ describe("estimate", () => {
 });
 
 describe("lead rules", () => {
-  it("requires a country code on the phone number", () => {
+  it("takes a country code, or a UAE number typed the local way", () => {
     expect(LEAD_RULES.mobile_no("+971 50 000 0000")).toBe(true);
-    expect(LEAD_RULES.mobile_no("050 000 0000")).toBe(false);
+    expect(LEAD_RULES.mobile_no("050 000 0000")).toBe(true);
+    expect(LEAD_RULES.mobile_no("50 000")).toBe(false);
   });
 
   it("accepts ordinary emails and rejects malformed ones", () => {

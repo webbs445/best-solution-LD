@@ -20,10 +20,18 @@ export function emailLooksFake(v: string): boolean {
   return FAKE_NAMES.has(name) || DISPOSABLE_DOMAINS.has(domain);
 }
 
+/** A UAE number typed the local way ("050 123 4567", "04 553 1546") gets +971; "00…" becomes "+…"; anything else is unchanged. */
+export function withUaeCode(v: string): string {
+  const d = v.trim().replace(/[\s()-]/g, "");
+  if (/^0[1-9]\d{7,8}$/.test(d)) return "+971" + d.slice(1);
+  if (/^00[1-9]\d{6,}$/.test(d)) return "+" + d.slice(2);
+  return v.trim();
+}
+
 export const LEAD_RULES = {
   lead_name: (v: string) => v.trim().length > 1,
   email_id: (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) && !emailLooksFake(v),
-  mobile_no: (v: string) => /^\+\d[\d\s()-]{6,18}$/.test(v.trim()),
+  mobile_no: (v: string) => /^\+\d[\d\s()-]{6,18}$/.test(withUaeCode(v)),
 } as const;
 
 export type LeadField = keyof typeof LEAD_RULES;
@@ -31,7 +39,7 @@ export type LeadField = keyof typeof LEAD_RULES;
 export const LEAD_ERRORS: Record<LeadField, string> = {
   lead_name: "Please enter your full name.",
   email_id: "Please enter a real email address you check. Your written copy is sent there.",
-  mobile_no: "Please include your country code, for example +971.",
+  mobile_no: "Enter your WhatsApp number, for example 050 123 4567. Outside the UAE, start with your country code.",
 };
 
 /*

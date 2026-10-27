@@ -71,7 +71,7 @@ export function FzFooter() {
               <i />
               Consultants available
             </span>
-            <h4>Free consultation</h4>
+            <h4>Book a consultation</h4>
             <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
             <CallbackButton className="btn btn-primary" defaultInterest="freezone" ctaLocation="FZ Footer — Book a Callback">
               Book a Callback <ArrowIcon />
@@ -94,7 +94,7 @@ export function FzFooter() {
           <div>
             <b>Important information</b>
             <p>
-              Best Solution&reg; is a private business consultancy based in Business Bay, Dubai, and is not affiliated with
+              Best Solution is a private business consultancy based in Business Bay, Dubai, and is not affiliated with
               any government entity or free zone authority. All licences, permits and residency approvals are issued solely
               by the relevant UAE authorities. Free zone names and logos identify the zones we advise on and do not imply
               affiliation. Prices are indicative from-prices, based on our current rate card, may change, and are
@@ -107,7 +107,7 @@ export function FzFooter() {
       <div className="bs-fbottom">
         <div className="bs-fbin">
           <p>
-            &copy; {year} <strong>Best Solution&reg;</strong>. All rights reserved.
+            &copy; {year} <strong>Best Solution</strong>. All rights reserved.
           </p>
           <nav aria-label="Legal">
             <a href={SITE.privacy} target="_blank" rel="noopener">
