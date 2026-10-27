@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { adsConversionCsv } from "./adsExport";
+import { adsConversionCsv, uploadLeads } from "./adsExport";
 
 describe("Google Ads conversion CSV", () => {
   it("lists real click-id leads in UAE time and skips junk and duplicates", () => {
@@ -15,6 +15,29 @@ describe("Google Ads conversion CSV", () => {
     expect(csv).toBe(
       "Google Click ID,Conversion Name,Conversion Time,Order ID\nCj0KCQabc,Website lead (ERP),2026-10-12 12:04:04+04:00,BSL-1\n",
     );
+  });
+
+  it("uploads the sheet's leads the ERP no longer shows, once each, with the ERP's status where it has one", () => {
+    const sheetLead = (name: string, creation: string, custom_clid: string) => ({ name, creation, custom_clid, source: "Website", custom_platform: "google", custom_campaign: "", custom_ad_set_name: "", custom_ad_name: "", custom_form_name: "" });
+    const leads = uploadLeads(
+      [
+        { name: "BSL-2", creation: "2026-10-12 13:00:00.000000", custom_clid: "Cj0Kjunk", status: "Junk" },
+        { name: "BSL-9", creation: "2026-10-14 09:00:00.000000", custom_clid: "Cj0KmainSite", status: "Lead" },
+      ],
+      [
+        sheetLead("BSL-1", "2026-10-12 12:04:04", "Cj0KCQhidden"), // the ERP hides it now: still uploads
+        sheetLead("BSL-2", "2026-10-12 13:00:00", "Cj0Kjunk"), // the ERP still shows it as Junk: stays out
+        sheetLead("BSL-3", "2026-10-12 14:00:00", ""), // no click id
+        sheetLead("BSL-0", "2026-07-01 10:00:00", "Cj0Kold"), // before Google's 90-day window
+      ],
+      "2026-07-29",
+    );
+    expect(leads.map((l) => l.name)).toEqual(["BSL-1", "BSL-2", "BSL-9"]);
+    expect(adsConversionCsv(leads).trim().split("\n").slice(1)).toEqual([
+      "Cj0KCQhidden,Website lead (ERP),2026-10-12 12:04:04+04:00,BSL-1",
+      "Cj0KmainSite,Website lead (ERP),2026-10-14 09:00:00+04:00,BSL-9",
+    ]);
+    expect(uploadLeads([], null, "2026-07-29")).toEqual([]); // sheet unreachable: the ERP's leads alone
   });
 
   it("shows one marked sample row only while there are no real leads", () => {
