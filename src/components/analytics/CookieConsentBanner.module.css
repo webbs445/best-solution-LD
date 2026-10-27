@@ -202,53 +202,50 @@
   }
 }
 
-/* Phones, first visit: a choice card that holds the page (dimmed, not scrollable) until the visitor taps
-   Accept all or Reject all. Both buttons are the same size and both unlock the page. */
+/* Phones, first visit: a compact sheet at the bottom of the screen (under 30% of it). The page stays
+   readable, scrollable and tappable behind it; tags still wait for a choice (Consent Mode is denied by default).
+   Both buttons are the same size. */
 .overlay {
   position: fixed;
-  inset: 0;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  left: 12px;
   z-index: 9999;
-  display: grid;
-  place-items: center;
-  padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px));
-  background: rgba(10, 20, 36, 0.55);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  overscroll-behavior: contain;
-  touch-action: none;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
   animation: fade 0.25s ease-out;
 }
 
 .choice {
   width: 100%;
-  max-width: 380px;
-  padding: 24px 20px 20px;
+  max-width: 420px;
+  padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 18px;
   background: linear-gradient(var(--navy), var(--navy-deep));
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
   color: var(--on-navy);
-  text-align: center;
-  touch-action: auto;
+  pointer-events: auto;
   animation: pop 0.3s var(--ease-out);
 }
 
 .choice .icon {
-  margin: 0 auto 12px;
+  display: none;
 }
 
 .choice h2 {
   color: var(--on-navy);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
 
 .choice p {
-  margin-top: 8px;
-  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.75);
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
 .choice a {
@@ -260,14 +257,54 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 12px;
 }
 
 .choiceActions button {
-  min-height: 50px;
+  min-height: 48px;
   border-radius: 12px;
   font: 700 15px/1 var(--font);
   cursor: pointer;
+}
+
+/* Short phones (iPhone SE and smaller): a tighter sheet, so less of the first screen sits under it. */
+@media (max-height: 700px) {
+  .overlay {
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    left: 8px;
+  }
+
+  .choice {
+    padding: 12px;
+  }
+
+  /* The sentence says it all; the title stays for screen readers (it labels the sheet). */
+  .choice h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .choice p {
+    margin-top: 0;
+  }
+
+  .choice p {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .choiceActions {
+    margin-top: 10px;
+  }
+
+  .choiceActions button {
+    min-height: 44px;
+  }
 }
 
 .reject {

@@ -15,6 +15,11 @@ export const SITE = {
   mark: "/brand/mark.webp",
   /** Opening hours, shared by the home page and /freezone. */
   hours: { long: "Monday to Friday, 9am to 6pm", short: "Mon to Fri, 9AM to 6PM" },
+  /**
+   * [reply time]: how soon a consultant calls back, e.g. "one working hour". Empty until sales confirms it; while
+   * empty, the callback thank-you keeps its current wording.
+   */
+  replyTime: "",
   /** Founding year, shared by the home page and /freezone. */
   founded: 2014,
 };

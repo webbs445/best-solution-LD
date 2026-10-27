@@ -493,7 +493,7 @@ export function FzPlanner() {
                 <div className={`${s.results} ${pane(3)}`}>
                   <div className={s.resHead}>
                     <div>
-                      <h3 className={s.resTitle}>Your best matches</h3>
+                      <h3 className={s.resTitle}>Your top matches</h3>
                       <p>{actNames.length ? `Ranked for ${actNames.join(", ")}. Pick one to see its cost.` : "Pick an activity to rank the zones for you."}</p>
                     </div>
                     {showAll ? null : (
@@ -505,7 +505,7 @@ export function FzPlanner() {
 
                   <ol className={s.matches} aria-live="polite">
                     {matches.map((m, i) => {
-                      const tag = !m.fits ? "Partial fit" : i === 0 ? "Best fit" : "Also fits";
+                      const tag = !m.fits ? "Partial fit" : i === 0 ? "Top match" : "Also fits";
                       const on = m.zone.id === state.zone;
                       return (
                         <li key={`${m.zone.id}-${state.acts.join()}-${state.pri}`} style={{ "--i": i } as CSSProperties}>
@@ -516,7 +516,7 @@ export function FzPlanner() {
                                 <b>{m.zone.name}</b>
                                 <small>{m.zone.emirate}</small>
                               </span>
-                              <span className={`${s.tag} ${tag === "Best fit" ? s.tagBest : tag === "Also fits" ? s.tagAlso : s.tagPart}`}>{tag}</span>
+                              <span className={`${s.tag} ${tag === "Top match" ? s.tagBest : tag === "Also fits" ? s.tagAlso : s.tagPart}`}>{tag}</span>
                             </span>
                             <span className={s.mBlurb}>{m.zone.d}</span>
                             <span className={s.mPick}>

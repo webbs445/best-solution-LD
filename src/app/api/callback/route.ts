@@ -1,4 +1,4 @@
-import { CALLBACK_FORM_ID, LEAD_RULES, clickIdRows } from "@/lib/lead";
+import { CALLBACK_FORM_ID, LEAD_RULES, clickIdRows, withUaeCode } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
@@ -31,7 +31,8 @@ export const POST = withLeadLog("callback", async (request, log) => {
   if (str(body.website)) return Response.json({ ok: true, created: false });
 
   const lead_name = str(body.lead_name, 120);
-  const mobile_no = str(body.mobile_no, 40);
+  // A local UAE number ("050 123 4567") is stored as +971.
+  const mobile_no = withUaeCode(str(body.mobile_no, 40));
   const email_id = str(body.email_id, 200);
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),

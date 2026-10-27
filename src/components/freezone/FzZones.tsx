@@ -813,13 +813,13 @@ export function FzZones() {
           ) : null}
         </div>
 
-        {/* One quick form unlocks every price */}
+        {/* One short form unlocks every price */}
         {unlocked ? null : (
           <div className={s.unlockStrip}>
             <span className={s.unlockIc}>{LOCK_ICON}</span>
             <span className={s.unlockText}>
               <b>Prices for all 28 zones are locked</b>
-              <small>One quick form shows every price, renewal and multi-year package.</small>
+              <small>One short form shows every price, renewal and multi-year package.</small>
             </span>
             <button type="button" className={s.cta} onClick={() => current && cost(current.id, "unlock_strip")}>
               Unlock all prices {ARROW}
@@ -835,7 +835,7 @@ export function FzZones() {
               </p>
               <div className={s.sort} role="group" aria-label="Sort">
                 <button type="button" aria-pressed={sort === "price"} onClick={() => setSort("price")}>
-                  Lowest cost first
+                  Cost: low to high
                 </button>
                 <button type="button" aria-pressed={sort === "name"} onClick={() => setSort("name")}>
                   A to Z

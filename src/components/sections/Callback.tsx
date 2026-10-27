@@ -245,7 +245,10 @@ export function CallbackButton({
               </a>
             </p>
             <p className={styles.status} role="status" hidden={status.kind === "idle" || status.kind === "sending"}>
-              {status.kind === "sent" && "Thank you. A consultant will call you back."}
+              {status.kind === "sent" &&
+                (SITE.replyTime
+                  ? `Thank you. A consultant will call you within ${SITE.replyTime}, ${SITE.hours.long}.`
+                  : "Thank you. A consultant will call you back.")}
               {status.kind === "error" && status.text}
             </p>
           </form>

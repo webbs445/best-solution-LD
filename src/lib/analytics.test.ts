@@ -113,7 +113,7 @@ describe("pushFormSubmit", () => {
     const { pushFormSubmit, trackScrollDepth } = (await load()).analytics;
     pushFormSubmit({ formId: "LP Callback Request", email: "a@b.co" });
     trackScrollDepth(50);
-    expect(dataLayer[1]).toEqual({ user_data: null, form_data: null });
+    expect(dataLayer[1]).toEqual({ user_data: null, form_data: null, event_id: null });
     expect(dataLayer[2]).toMatchObject({ event: "scroll_depth", percent: 50 });
     trackScrollDepth(75);
     expect(dataLayer).toHaveLength(4);
@@ -201,7 +201,7 @@ describe("lead standard events", () => {
       user_data: { email: "layla@example.com", phone_number: "+971501234567" },
     });
     const i = dataLayer.indexOf(lead);
-    expect(dataLayer[i + 1]).toEqual({ user_data: null, form_data: null });
+    expect(dataLayer[i + 1]).toEqual({ user_data: null, form_data: null, event_id: null });
   });
 
   it("sends calculator_step once per step and calculator_result_view once per page view", async () => {
