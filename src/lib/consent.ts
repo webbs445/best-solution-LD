@@ -12,11 +12,13 @@
 
 export const CONSENT_COOKIE = "bs_consent";
 // Bump when the category set changes: older cookies become invalid and the banner re-prompts.
-export const CONSENT_VERSION = 1;
+// v2 (Oct 2026): Necessary, Analytics, Marketing; the Functional category is gone.
+export const CONSENT_VERSION = 2;
 const CONSENT_MAX_AGE = 60 * 60 * 24 * 180; // 180 days, in seconds
 
 // `necessary` is always on (not stored as a choice) and maps to security_storage only.
-export type ConsentCategory = "analytics" | "marketing" | "functional";
+/** Analytics: Google Analytics and Microsoft Clarity. Marketing: Google Ads and Meta. */
+export type ConsentCategory = "analytics" | "marketing";
 
 export type ConsentChoices = Record<ConsentCategory, boolean>;
 
@@ -25,10 +27,10 @@ export interface StoredConsent extends ConsentChoices {
   ts: number;
 }
 
-export const ALL_GRANTED: ConsentChoices = { analytics: true, marketing: true, functional: true };
-export const ALL_DENIED: ConsentChoices = { analytics: false, marketing: false, functional: false };
+export const ALL_GRANTED: ConsentChoices = { analytics: true, marketing: true };
+export const ALL_DENIED: ConsentChoices = { analytics: false, marketing: false };
 
-/** Map the categories onto Google Consent Mode v2 signals. security_storage is always granted. */
+/** Map the categories onto Google Consent Mode v2 signals. security_storage is always granted; nothing uses the functionality signals, so they stay denied. */
 export function toConsentSignals(c: ConsentChoices): Record<string, "granted" | "denied"> {
   const g = (v: boolean) => (v ? "granted" : "denied");
   return {
@@ -37,8 +39,8 @@ export function toConsentSignals(c: ConsentChoices): Record<string, "granted" | 
     ad_storage: g(c.marketing),
     ad_user_data: g(c.marketing),
     ad_personalization: g(c.marketing),
-    functionality_storage: g(c.functional),
-    personalization_storage: g(c.functional),
+    functionality_storage: "denied",
+    personalization_storage: "denied",
   };
 }
 
@@ -55,7 +57,7 @@ export function readConsent(): ConsentChoices | null {
   try {
     const parsed = JSON.parse(decodeURIComponent(raw)) as Partial<StoredConsent>;
     if (parsed.v !== CONSENT_VERSION) return null;
-    return { analytics: !!parsed.analytics, marketing: !!parsed.marketing, functional: !!parsed.functional };
+    return { analytics: !!parsed.analytics, marketing: !!parsed.marketing };
   } catch {
     return null;
   }

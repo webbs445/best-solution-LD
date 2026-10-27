@@ -27,6 +27,8 @@ export const metadata: Metadata = {
   robots: {
     index: false,
   },
+  // Yandex Webmaster ownership check, as a plain meta tag: it used to come from a GTM script that loaded before consent.
+  verification: { yandex: "901072505b2e9418" },
   // Each page sets its own canonical (alternates) in its metadata.
   openGraph: {
     type: "website",

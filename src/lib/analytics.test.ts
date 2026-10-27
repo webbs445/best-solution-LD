@@ -152,25 +152,25 @@ describe("calculator events", () => {
 });
 
 describe("consent and click ids", () => {
-  it("maps categories onto the seven Consent Mode signals", async () => {
+  it("maps the two choosable categories onto the seven Consent Mode signals", async () => {
     const { toConsentSignals } = (await load()).consent;
-    expect(toConsentSignals({ analytics: true, marketing: false, functional: true })).toEqual({
+    expect(toConsentSignals({ analytics: true, marketing: false })).toEqual({
       security_storage: "granted",
       analytics_storage: "granted",
       ad_storage: "denied",
       ad_user_data: "denied",
       ad_personalization: "denied",
-      functionality_storage: "granted",
-      personalization_storage: "granted",
+      functionality_storage: "denied",
+      personalization_storage: "denied",
     });
   });
 
   it("round-trips the bs_consent cookie and pushes consent_update", async () => {
     const { setConsent, readConsent } = (await load()).consent;
     expect(readConsent()).toBeNull();
-    setConsent({ analytics: true, marketing: true, functional: false });
-    expect(readConsent()).toEqual({ analytics: true, marketing: true, functional: false });
-    expect(dataLayer).toContainEqual({ event: "consent_update", consent: { analytics: true, marketing: true, functional: false } });
+    setConsent({ analytics: true, marketing: true });
+    expect(readConsent()).toEqual({ analytics: true, marketing: true });
+    expect(dataLayer).toContainEqual({ event: "consent_update", consent: { analytics: true, marketing: true } });
   });
 
   it("stores click ids only after marketing consent", async () => {
@@ -178,7 +178,7 @@ describe("consent and click ids", () => {
     const { analytics, consent } = await load();
     analytics.captureClickIds();
     expect(analytics.getClid()).toBe("");
-    consent.setConsent({ analytics: true, marketing: true, functional: true });
+    consent.setConsent({ analytics: true, marketing: true });
     analytics.captureClickIds();
     expect(analytics.getClid()).toBe("abc123");
     expect(analytics.getClickIds()).toEqual({ gclid: "abc123", fbclid: "fb9", li_fat_id: "" });
