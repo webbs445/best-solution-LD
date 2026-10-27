@@ -93,8 +93,7 @@ export function CookieConsentBanner() {
           </span>
           <h2 id="consent-title">Your privacy choice</h2>
           <p id="consent-text">
-            We use cookies to run the site, measure visits and improve your experience. You can change this later in
-            Cookie Settings.{" "}
+            We use cookies to measure visits and improve the site.{" "}
             <a href={SITE.privacy} target="_blank" rel="noopener">
               Privacy Policy
             </a>

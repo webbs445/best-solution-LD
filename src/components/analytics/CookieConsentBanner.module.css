@@ -279,8 +279,18 @@
     padding: 12px;
   }
 
+  /* The sentence says it all; the title stays for screen readers (it labels the sheet). */
   .choice h2 {
-    font-size: 15px;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .choice p {
+    margin-top: 0;
   }
 
   .choice p {
