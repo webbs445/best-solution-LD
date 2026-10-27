@@ -8,7 +8,7 @@ export function SpvConsultCard() {
     <section className="cc-band" aria-labelledby="ccTitle">
       <div className="wrap cc-card rv">
         <div>
-          <span className="eyebrow">Free consultation</span>
+          <span className="eyebrow">Book a Consultation</span>
           <h2 id="ccTitle">Talk it through with a structuring advisor.</h2>
           <p>A private conversation about what you want to hold, protect or pass on. No obligation.</p>
         </div>
@@ -25,13 +25,13 @@ export function SpvConsultCard() {
   );
 }
 
-/* Free consultation: what happens next, quick contact, and the form. */
+/* Book a Consultation: what happens next, quick contact, and the form. */
 export function SpvConsult() {
   return (
     <section className="sec dark-2 sheet" id="consult">
       <div className="wrap cs">
         <div className="cs-left rv">
-          <span className="eyebrow">Free consultation</span>
+          <span className="eyebrow">Book a Consultation</span>
           <h2>Get it right from day one.</h2>
           <p className="lede" style={{ marginTop: "18px" }}>
             Tell us a little about your situation. A member of our structuring team will contact you to arrange a private
