@@ -19,7 +19,7 @@ export function SpvChrome() {
   </div>
 </header>
 <nav className="drawer" id="drawer" aria-label="Menu">
-  <a href="#why">Why a structure</a><a href="#compare">Structures</a><a href="#fit">Find your fit</a><a href="#layers">How it works</a><a href="#faq">FAQ</a><a className="dcta" href="#consult" data-cta-location="SPV Drawer Book">Book a free consultation</a>
+  <a href="#why">Why a structure</a><a href="#compare">Structures</a><a href="#fit">Find your fit</a><a href="#layers">How it works</a><a href="#faq">FAQ</a><a className="dcta" href="#consult" data-cta-location="SPV Drawer Book">Book a consultation</a>
 </nav>
     </>
   );

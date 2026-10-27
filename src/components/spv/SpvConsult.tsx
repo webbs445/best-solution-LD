@@ -14,7 +14,7 @@ export function SpvConsultCard() {
         </div>
         <div className="cc-acts">
           <a className="btn btn-cu" href="#fm" data-cta-location="SPV Card Book">
-            Book a free consultation
+            Book a consultation
           </a>
           <a className="btn btn-wh" href={SPV_WA_HREF} target="_blank" rel="noopener" data-area="SPV Card">
             WhatsApp us

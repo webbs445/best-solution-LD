@@ -10,7 +10,7 @@ export function SpvHero() {
       <h1 id="h1">Your assets need <br />a <span className="cu">structure,</span> <br /><span className="light-w">not just a bank account.</span></h1>
       <p className="lede">Foundations, SPVs and holding companies decide who controls your assets, how they pass to your family and how you grow across borders. We help you choose the right one.</p>
       <div className="hero-cta">
-        <a className="btn btn-cu" href="#consult" data-cta-location="SPV Hero Book">Book a free consultation <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
+        <a className="btn btn-cu" href="#consult" data-cta-location="SPV Hero Book">Book a consultation <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
         <a className="btn btn-ln" href="#fit" data-cta-location="SPV Hero Find">Find your structure</a>
       </div>
       <div className="hero-facts">

@@ -117,7 +117,7 @@ export function SpvConsultForm() {
   return (
     <div className={`fm${done ? " done" : ""}`} id="fm">
       <form id="form" noValidate onSubmit={onSubmit} data-track={SPV_FORM_ID} aria-busy={sending}>
-        <h3>Book your free consultation</h3>
+        <h3>Book your consultation</h3>
         <p className="fm-sub">Fees depend on jurisdiction and the number of entities. You receive them in writing before any work begins.</p>
         <p className="fm-sub">Takes a few moments. We only use your details to contact you.</p>
         <div className="fg">
@@ -188,7 +188,7 @@ export function SpvConsultForm() {
           </p>
         ) : null}
         <button className="btn btn-cu" type="submit" disabled={sending}>
-          {sending ? "Sending..." : "Book my free consultation"}
+          {sending ? "Sending..." : "Book my consultation"}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>
