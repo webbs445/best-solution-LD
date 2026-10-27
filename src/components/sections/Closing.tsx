@@ -163,7 +163,7 @@ export function Footer() {
                 <i aria-hidden="true" />
                 Consultants available
               </span>
-              <h2>Free consultation</h2>
+              <h2>Book a Consultation</h2>
               <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
               <CallbackButton className="btn btn-primary">
                 Book a Callback <ArrowIcon />

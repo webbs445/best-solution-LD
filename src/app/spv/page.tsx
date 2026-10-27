@@ -20,7 +20,7 @@ import "./spv.css";
 
 const TITLE = "Foundations, SPVs and Holding Structures | Best Solution";
 const DESCRIPTION =
-  "Plan who controls your assets and how they pass to your family. Advice on foundations, SPVs, holding and offshore companies in the UAE. Free consultation.";
+  "Plan who controls your assets and how they pass to your family. Advice on foundations, SPVs, holding and offshore companies in the UAE. Book a consultation.";
 const SHARE_TITLE = "Your assets need a structure, not just a bank account.";
 
 export const metadata: Metadata = {
