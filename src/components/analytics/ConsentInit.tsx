@@ -5,7 +5,7 @@
   choice -> GTM loads.
 
   The cookie name, shape and version MUST stay in sync with src/lib/consent.ts (CONSENT_COOKIE =
-  "bs_consent", CONSENT_VERSION = 1). Inlined as a string because it must run before any module
+  "bs_consent", CONSENT_VERSION = 2). Inlined as a string because it must run before any module
   loads.
 */
 export const CONSENT_INIT_SCRIPT = `
@@ -59,15 +59,15 @@ export const CONSENT_INIT_SCRIPT = `
     var m = document.cookie.match(/(?:^|; )bs_consent=([^;]*)/);
     if (m) {
       var c = JSON.parse(decodeURIComponent(m[1]));
-      if (c && c.v === 1) {
+      if (c && c.v === 2) {
         var g = function(v){ return v ? 'granted' : 'denied'; };
         gtag('consent', 'update', {
           ad_storage: g(c.marketing),
           ad_user_data: g(c.marketing),
           ad_personalization: g(c.marketing),
           analytics_storage: g(c.analytics),
-          functionality_storage: g(c.functional),
-          personalization_storage: g(c.functional),
+          functionality_storage: 'denied',
+          personalization_storage: 'denied',
           security_storage: 'granted'
         });
         window.clarity('consentv2', { ad_Storage: g(c.marketing), analytics_Storage: g(c.analytics) });
