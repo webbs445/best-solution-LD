@@ -21,6 +21,9 @@ const COLUMNS = [
   ["custom_platform", "Platform (utm_source)"],
   ["source", "Source"],
   ["custom_clid", "Google click ID"],
+  // The visitor's cookie choice when sending the form: Accepted all, Rejected all, Analytics only, Marketing only,
+  // No choice yet, or Unknown. Blank on rows from before this column. Only Accepted all and Marketing only go to Google Ads.
+  ["consent", "Cookie consent"],
 ];
 
 const reply = (obj) => ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
@@ -37,6 +40,13 @@ function sheet() {
     s.appendRow(COLUMNS.map((c) => c[1]));
     s.setFrozenRows(1);
     s.getRange(1, 1, 1, COLUMNS.length).setFontWeight("bold");
+  }
+  // A column added later (Cookie consent): give the existing sheet its header once.
+  const head = s.getRange(1, 1, 1, COLUMNS.length);
+  const titles = head.getDisplayValues()[0];
+  if (titles.some((t, i) => t !== COLUMNS[i][1])) {
+    head.setValues([COLUMNS.map((c) => c[1])]);
+    head.setFontWeight("bold");
   }
   return s;
 }

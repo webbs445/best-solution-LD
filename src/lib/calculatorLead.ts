@@ -1,5 +1,5 @@
 import { estimate, type Answers, type Estimate } from "@/lib/pricing";
-import { FORM_ID, FZ_FORM_ID, clickIdRows } from "@/lib/lead";
+import { FORM_ID, FZ_FORM_ID, clickIdRows, leadConsent } from "@/lib/lead";
 import { cleanPlanner, plannerEstimate, type PlannerInput } from "@/lib/freezone";
 import { ACT_LABEL, PRIORITIES } from "@/content/freezone";
 import { STEPS } from "@/content/calculator";
@@ -58,6 +58,7 @@ export function trackingFields(body: Record<string, unknown>) {
     utm_content: str(body.utm_content, 200),
     utm_term: str(body.utm_term, 200),
     click_id: str(body.click_id, 500),
+    consent: leadConsent(body.consent),
     event_id: str(body.event_id, 60),
     landing_page: str(body.landing_page, 1000),
     submission_timestamp: str(body.submission_timestamp, 40) || new Date().toISOString(),

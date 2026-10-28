@@ -28,6 +28,13 @@ export function withUaeCode(v: string): string {
   return v.trim();
 }
 
+/** The visitor's cookie choice when they sent the lead ("Cookie choice" in the ERP notes, "Cookie consent" in the lead log). */
+export const LEAD_CONSENT = ["Accepted all", "Rejected all", "Analytics only", "Marketing only", "No choice yet"] as const;
+/** Only these leads may go in the Google Ads conversion upload: the privacy policy makes Marketing opt-in. */
+export const MARKETING_ACCEPTED: ReadonlySet<string> = new Set(["Accepted all", "Marketing only"]);
+/** A request's consent value, checked against LEAD_CONSENT; anything else is "Unknown". */
+export const leadConsent = (v: unknown): string => ((LEAD_CONSENT as readonly unknown[]).includes(v) ? (v as string) : "Unknown");
+
 export const LEAD_RULES = {
   lead_name: (v: string) => v.trim().length > 1,
   email_id: (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) && !emailLooksFake(v),

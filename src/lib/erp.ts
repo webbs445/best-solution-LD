@@ -21,6 +21,8 @@ export interface LeadInput {
   utm_content: string;
   utm_term: string;
   click_id: string;
+  /** The visitor's cookie choice when they sent the lead (lib/lead LEAD_CONSENT). */
+  consent?: string;
   /** The dataLayer form_submit event_id, kept on the lead to match offline conversion uploads. */
   event_id?: string;
   landing_page: string;
@@ -99,6 +101,7 @@ function requirementHtml(input: LeadInput): string {
     ["UTM medium", input.utm_medium],
     ["Event ID", input.event_id],
     ["Submitted", input.submission_timestamp],
+    ["Cookie choice", input.consent],
   ].filter((row): row is [string, string] => !!row[1]);
   parts.push(`<p>${tracking.map(([k, v]) => `${k}: ${esc(v)}`).join("<br>")}</p>`);
   return parts.join("");
@@ -266,7 +269,7 @@ export async function updateErpLead(name: string, fields: Record<string, unknown
 }
 
 /** Google Ads leads also go to the lead log sheet (lib/adsSheet), after the response so the form is not slowed. */
-function logGoogleAdsLead(name: string, l: ReturnType<typeof toLead>) {
+function logGoogleAdsLead(name: string, l: ReturnType<typeof toLead>, consent = "") {
   const row: SheetLead = {
     name,
     creation: uaeNow(),
@@ -277,6 +280,7 @@ function logGoogleAdsLead(name: string, l: ReturnType<typeof toLead>) {
     custom_ad_name: l.custom_ad_name ?? "",
     custom_clid: l.custom_clid ?? "",
     custom_form_name: l.custom_form_name,
+    consent,
   };
   if (!isGoogleAdsLead({ ...row, status: "" })) return;
   try {
@@ -310,7 +314,7 @@ export async function createErpLead(input: LeadInput): Promise<LeadResult> {
     }
     const json = (await res.json().catch(() => null)) as { data?: { name?: string } } | null;
     const name = json?.data?.name;
-    if (name) logGoogleAdsLead(name, toLead(input));
+    if (name) logGoogleAdsLead(name, toLead(input), input.consent);
     return { ok: true, name };
   } catch (err) {
     console.error("ERPNext unreachable", err);
