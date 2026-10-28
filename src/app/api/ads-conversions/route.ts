@@ -6,28 +6,20 @@ import { listClickLeads } from "@/lib/erp";
 /*
   The CSV Google Ads fetches every night (Data Manager, HTTPS source) at /ads-conversions.csv, as Google needs the
   .csv ending, to import website leads as "Website lead (ERP)" conversions. Basic auth (lib/adsAuth).
-  Leads from the last 90 days (Google's click window): the lead log sheet, which keeps a lead's click id after the
-  ERP hides it from the website's API user, plus the ERP's own click-id leads. The same data, readable, is at /ads-report.
+  Leads from the last 90 days (Google's click window) in the lead log sheet, which keeps a lead's click id after the
+  ERP hides it from the website's API user, and only those whose visitor accepted Marketing when sending the form
+  (the privacy policy makes it opt-in). The same data, readable, is at /ads-report.
 */
 export const dynamic = "force-dynamic";
 
 const DAYS = 90;
-const UPLOAD_PAUSED = true;
 
 export async function GET(request: Request) {
   const refused = adsAuthFailure(request);
   if (refused) return refused;
 
-  // Paused (28 Oct 2026) until each lead records the visitor's cookie choice: the privacy policy makes Marketing
-  // opt-in, so only leads that accepted Marketing may be uploaded. Meanwhile Google gets the header and the marked
-  // sample row it rejects, so nothing is imported.
-  if (UPLOAD_PAUSED) {
-    console.info(JSON.stringify({ msg: "ads_export", paused: true }));
-    return new Response(adsConversionCsv([]), { headers: { "Content-Type": "text/csv; charset=utf-8", "Cache-Control": "no-store" } });
-  }
-
   // ERP down: no file tonight (Google tries again tomorrow) rather than a file that can't skip Junk and Duplicate leads.
-  // Sheet down: the ERP's leads still go, as before.
+  // Sheet down: nothing has a recorded cookie choice, so only the marked sample row goes (Google rejects it).
   const [erp, sheet] = await Promise.all([listClickLeads(DAYS), readAdsSheet()]);
   if (!erp) return new Response("ERP unavailable", { status: 502 });
   const since = new Date(Date.now() + 4 * 3_600_000 - DAYS * 86_400_000).toISOString().slice(0, 10);

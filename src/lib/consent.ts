@@ -61,6 +61,16 @@ export function readConsent(): ConsentChoices | null {
   }
 }
 
+/** The saved choice as the label every lead carries (lib/lead LEAD_CONSENT). */
+export function consentLabel(): string {
+  const c = readConsent();
+  if (!c) return "No choice yet";
+  if (c.analytics && c.marketing) return "Accepted all";
+  if (c.marketing) return "Marketing only";
+  if (c.analytics) return "Analytics only";
+  return "Rejected all";
+}
+
 /** Persist the choice. Host-only like the main site, so the two never hold clashing copies. */
 export function saveConsent(choices: ConsentChoices): void {
   if (typeof document === "undefined") return;

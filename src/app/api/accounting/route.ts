@@ -1,4 +1,4 @@
-import { AC_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES, clickIdRows, withUaeCode } from "@/lib/lead";
+import { AC_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES, clickIdRows, leadConsent, withUaeCode } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
@@ -62,6 +62,7 @@ export const POST = withLeadLog("accounting", async (request, log) => {
     utm_content: str(body.utm_content, 200),
     utm_term: str(body.utm_term, 200),
     click_id: str(body.click_id, 500),
+    consent: leadConsent(body.consent),
     event_id: str(body.event_id, 60),
     landing_page: str(body.landing_page, 1000),
     form_id: AC_FORM_ID,

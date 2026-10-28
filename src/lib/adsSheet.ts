@@ -8,10 +8,10 @@ import type { ReportLead } from "@/lib/erp";
   Off unless ADS_SHEET_URL and ADS_SHEET_SECRET are set.
 */
 
-/** The tracking fields the sheet stores: a ReportLead without the status, which only the ERP knows. */
-export type SheetLead = Omit<ReportLead, "status">;
+/** The tracking fields the sheet stores: a ReportLead without the status, which only the ERP knows, plus the cookie choice. */
+export type SheetLead = Omit<ReportLead, "status"> & { consent?: string };
 
-const FIELDS = ["name", "creation", "custom_campaign", "custom_ad_set_name", "custom_ad_name", "custom_form_name", "custom_platform", "source", "custom_clid"] as const;
+const FIELDS = ["name", "creation", "custom_campaign", "custom_ad_set_name", "custom_ad_name", "custom_form_name", "custom_platform", "source", "custom_clid", "consent"] as const;
 
 function config() {
   const url = process.env.ADS_SHEET_URL, secret = process.env.ADS_SHEET_SECRET;

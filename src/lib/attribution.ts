@@ -1,4 +1,5 @@
 import { getClid } from "./analytics";
+import { consentLabel } from "./consent";
 
 /*
   Lead attribution for the visit, without cookies: Google Ads click IDs (gclid, gbraid, wbraid) and the
@@ -42,10 +43,11 @@ export function getAttribution(): Attribution {
 
 /**
   The attribution fields every lead form sends. click_id is the Google click ID (gclid, then gbraid,
-  then wbraid); without one it falls back to the consented ad cookies (gclid, fbclid, li_fat_id).
+  then wbraid); without one it falls back to the consented ad cookies (gclid, fbclid, li_fat_id). consent is the
+  visitor's cookie choice at this moment, so the lead log and the Ads upload can respect it.
 */
-export function attributionFields(): Attribution & { click_id: string } {
+export function attributionFields(): Attribution & { click_id: string; consent: string } {
   captureAttribution();
   const a = getAttribution();
-  return { ...a, click_id: a.gclid || a.gbraid || a.wbraid || getClid() };
+  return { ...a, click_id: a.gclid || a.gbraid || a.wbraid || getClid(), consent: consentLabel() };
 }
