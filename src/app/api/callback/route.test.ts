@@ -30,6 +30,13 @@ describe("POST /api/callback", () => {
     expect(String(sent[0].mobile_no).replace(/\s/g, "")).toBe("+971500000000");
   });
 
+  it("notes the visitor's cookie choice on the lead, and only a known one", async () => {
+    await post({ lead_name: "Test", mobile_no: "050 000 0000", email_id: "test.lead@example.com", consent: "Rejected all" });
+    expect(String(sent[0].custom_client_profile_and_requirement)).toContain("Cookie choice: Rejected all");
+    await post({ lead_name: "Test", mobile_no: "050 000 0000", email_id: "test.lead@example.com", consent: "<b>yes</b>" });
+    expect(String(sent[1].custom_client_profile_and_requirement)).toContain("Cookie choice: Unknown");
+  });
+
   it("still refuses a number that is not one", async () => {
     const res = await post({ lead_name: "Test", mobile_no: "12", email_id: "test.lead@example.com" });
     expect(res.status).toBe(422);
