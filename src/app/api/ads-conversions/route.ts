@@ -12,10 +12,19 @@ import { listClickLeads } from "@/lib/erp";
 export const dynamic = "force-dynamic";
 
 const DAYS = 90;
+const UPLOAD_PAUSED = true;
 
 export async function GET(request: Request) {
   const refused = adsAuthFailure(request);
   if (refused) return refused;
+
+  // Paused (28 Oct 2026) until each lead records the visitor's cookie choice: the privacy policy makes Marketing
+  // opt-in, so only leads that accepted Marketing may be uploaded. Meanwhile Google gets the header and the marked
+  // sample row it rejects, so nothing is imported.
+  if (UPLOAD_PAUSED) {
+    console.info(JSON.stringify({ msg: "ads_export", paused: true }));
+    return new Response(adsConversionCsv([]), { headers: { "Content-Type": "text/csv; charset=utf-8", "Cache-Control": "no-store" } });
+  }
 
   // ERP down: no file tonight (Google tries again tomorrow) rather than a file that can't skip Junk and Duplicate leads.
   // Sheet down: the ERP's leads still go, as before.
