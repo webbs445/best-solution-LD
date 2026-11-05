@@ -1,12 +1,28 @@
-import { DATA } from "@/lib/pricing";
-import { AC_CLAIMS } from "@/content/accounting";
 import { ZONES } from "@/content/freezone";
 import { FAQS } from "@/content/site";
 
-/*
-  The /services hub: one entry per service page. Prices come from the same sources the service pages use
-  (pricing.ts rate card, accounting claims), so the hub never shows a different figure from the page it links to.
-*/
+/* The /services hub: one entry per service page, the hero picker's goals, the journey, the FAQ and the team. */
+
+/**
+ * Every price and timing the hub shows, in one place: change them here only. They are set by hand on purpose, and
+ * other pages keep their own figures (sources and conflicts: services hub report, Nov 2026).
+ */
+export const HUB_PRICES = {
+  /** Dubai mainland LLC, as on the home page calculator. */
+  setup: 13000,
+  /** Ajman Nu Venture, as on the /freezone page. */
+  freezone: 4898,
+  /** Bookkeeping, per month, as on /accounting. */
+  accounting: 800,
+};
+/** Setup timings as published on www.best-solution.ae. */
+export const HUB_TIMING = {
+  setup: "3 to 10 working days",
+  freezone: "3 to 7 working days",
+};
+
+/** The team block stays hidden until photo consent for landing pages is confirmed. */
+export const SHOW_TEAM = false;
 
 /**
  * Company setup has no page of its own yet: it opens the home page calculator. When /mainland ships, change this
@@ -26,6 +42,7 @@ export interface Service {
   from: number | null;
   /** Shown after the price ("/month"), or instead of it when `from` is null. */
   priceNote?: string;
+  timing?: string;
   tool: { label: string; tag: ToolTag; href: string };
   /** Larger tile in the grid: the services that bring the most leads. */
   big?: boolean;
@@ -37,8 +54,8 @@ export const SERVICES: Service[] = [
     name: "Company setup",
     line: "A mainland company to trade directly across the UAE.",
     href: MAINLAND_HREF,
-    // The Dubai mainland LLC: the same "from" the home page calculator shows (the E-Trader licence suits few setups).
-    from: DATA.mainland.find((o) => o.id === "m0")!.price,
+    from: HUB_PRICES.setup,
+    timing: HUB_TIMING.setup,
     tool: { label: "Setup cost calculator", tag: "calculator", href: MAINLAND_HREF },
     big: true,
   },
@@ -47,8 +64,8 @@ export const SERVICES: Service[] = [
     name: "Free zone company",
     line: `Compare ${ZONES.length} free zones by activity, office and first-year cost.`,
     href: "/freezone",
-    // The /freezone page's own rate card (its entry price differs slightly from the home calculator's list).
-    from: Math.min(...ZONES.map((z) => z.price)),
+    from: HUB_PRICES.freezone,
+    timing: HUB_TIMING.freezone,
     tool: { label: "Free zone planner", tag: "planner", href: "/freezone#planner" },
     big: true,
   },
@@ -57,7 +74,7 @@ export const SERVICES: Service[] = [
     name: "Accounting & bookkeeping",
     line: "Bookkeeping, bank reconciliation and financial statements.",
     href: "/accounting",
-    from: AC_CLAIMS.prices.bookkeeping,
+    from: HUB_PRICES.accounting,
     priceNote: "/month",
     tool: { label: "Accounting quote", tag: "quote", href: "/accounting#contact" },
   },
@@ -94,14 +111,21 @@ export const SERVICES: Service[] = [
 
 export const serviceById = (id: ServiceId): Service => SERVICES.find((s) => s.id === id)!;
 
-/** The hero picker's goals, in display order. "unsure" opens the 3-question helper. */
-export const GOALS: { id: ServiceId | "unsure"; label: string }[] = [
+/** "Start a company" shows both routes side by side, each with its own price, timing and links. */
+export type SetupOption = "mainland" | "freezone";
+export const SETUP_OPTIONS: { id: SetupOption; label: string; service: Service }[] = [
+  { id: "mainland", label: "Mainland", service: serviceById("setup") },
+  { id: "freezone", label: "Free zone", service: serviceById("freezone") },
+];
+
+/** The hero picker's goals, in the visitor's words. "unsure" opens the 3-question helper. */
+export type GoalId = "setup" | "accounting" | "tax" | "spv";
+export const GOALS: { id: GoalId | "unsure"; label: string }[] = [
   { id: "setup", label: "Start a company" },
-  { id: "freezone", label: "Free zone" },
   { id: "accounting", label: "Keep my books" },
-  { id: "tax", label: "Corporate tax" },
-  { id: "spv", label: "Protect my assets (SPV)" },
-  { id: "unsure", label: "Not sure" },
+  { id: "tax", label: "Sort out corporate tax and VAT" },
+  { id: "spv", label: "Protect my assets" },
+  { id: "unsure", label: "I'm not sure yet" },
 ];
 
 /** "Your business journey": each stage opens the page that serves it. Visa & bank goes to setup until it has a page. */
@@ -113,22 +137,16 @@ export const JOURNEY: { title: string; body: string; href: string }[] = [
   { title: "Structuring", body: "Holding companies and SPVs as you grow.", href: "/spv" },
 ];
 
-/** The free tools strip: one tap opens each tool on its page. */
-export const TOOLS = (["calculator", "freezone", "tax", "accounting"] as const).map((id) => {
-  const s = serviceById(id);
-  return { ...s.tool, service: s.name };
-});
-
 /*
   Six general questions. Cost, consultation, enquiry and government answers are this site's own (content/site FAQS);
-  timing and "do I need to be in the UAE" are from www.best-solution.ae's home page FAQ.
+  timing and "do I need to be in the UAE" are from www.best-solution.ae.
 */
 const siteFaq = (q: string) => FAQS.find((f) => f.q === q)!;
 export const HUB_FAQS: { q: string; a: string }[] = [
   siteFaq("How much does a UAE company cost?"),
   {
     q: "How long does company formation take?",
-    a: "Usually 2 to 5 working days. Some free zones approve on the same day, and mainland licences take 3 to 5 days. Activities that need special approvals can take 2 to 3 weeks.",
+    a: `A company setup usually takes ${HUB_TIMING.setup}, and a free zone company ${HUB_TIMING.freezone}, once your documents are complete. Activities that need extra approvals can take longer.`,
   },
   {
     q: "Do I need to be in the UAE to start a company?",
@@ -139,7 +157,7 @@ export const HUB_FAQS: { q: string; a: string }[] = [
   siteFaq("Is Best Solution a government entity?"),
 ];
 
-/* Current team members as shown on www.best-solution.ae/about-us/ (names, roles and photos as published there). */
+/* Current team members as shown on www.best-solution.ae/about-us/. The founder's surname is spelt "Harthi". */
 export const TEAM: { name: string; role: string; photo: string }[] = [
   { name: "Essa Al Harthi", role: "Founder and Chief Executive Officer", photo: "/team/essa.webp" },
   { name: "Vipin Kumar", role: "General Manager", photo: "/team/vipin.webp" },

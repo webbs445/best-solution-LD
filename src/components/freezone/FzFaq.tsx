@@ -30,22 +30,22 @@ export function FzFaq({
         <div className="fq-head">
           <h2 id="faqTitle">{title}</h2>
           {tabs && (
-          <div className="fq-tabs" role="tablist" aria-label="Question topics">
-            {FZ_FAQ_TOPICS.map((t) => (
-              <button
-                key={t.c}
-                type="button"
-                role="tab"
-                aria-selected={topic === t.c}
-                onClick={() => {
-                  setTopic(t.c);
-                  trackEvent("faq_tab", { topic: t.c });
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+            <div className="fq-tabs" role="tablist" aria-label="Question topics">
+              {FZ_FAQ_TOPICS.map((t) => (
+                <button
+                  key={t.c}
+                  type="button"
+                  role="tab"
+                  aria-selected={topic === t.c}
+                  onClick={() => {
+                    setTopic(t.c);
+                    trackEvent("faq_tab", { topic: t.c });
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
           )}
         </div>
         {/* Re-keyed per topic so the visible questions replay their entrance animation. */}

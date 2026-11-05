@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { SITE, TRUST, WHY } from "@/content/site";
-import { JOURNEY, SERVICES, TEAM, TOOLS } from "@/content/services";
+import { JOURNEY, SERVICES, SHOW_TEAM, TEAM } from "@/content/services";
 import { formatAED } from "@/lib/pricing";
 import { ArrowIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
@@ -21,21 +21,29 @@ export function SvGrid() {
         </div>
         <ul className="sv-grid">
           {SERVICES.map((s) => (
+            // The whole tile opens the service page (stretched link); the tool tag is its own link to the tool.
             <li key={s.id} className={s.big ? "big" : undefined}>
-              <a className="sv-tile spot" href={s.href} data-cta-location={`SV Grid — ${s.name}`}>
+              <article className="sv-tile spot">
                 <span className="sv-tile-ico">
                   <ServiceIcon id={s.id} />
                 </span>
-                <span className="sv-chip">2-minute {s.tool.tag}</span>
-                <h3>{s.name}</h3>
+                <a className="sv-chip sv-tile-tool" href={s.tool.href} data-cta-location={`SV Grid — Tool: ${s.tool.label}`}>
+                  2-minute {s.tool.tag}
+                </a>
+                <h3>
+                  <a className="sv-tile-main" href={s.href} data-cta-location={`SV Grid — ${s.name}`}>
+                    {s.name}
+                  </a>
+                </h3>
                 <p>{s.line}</p>
+                {s.timing && <p className="sv-tile-time">{s.timing}</p>}
                 <span className="sv-tile-foot">
                   <b>{price(s)}</b>
                   <span className="sv-tile-go" aria-hidden="true">
                     <ArrowIcon />
                   </span>
                 </span>
-              </a>
+              </article>
             </li>
           ))}
         </ul>
@@ -72,43 +80,14 @@ export function SvJourney() {
   );
 }
 
-/* The free tools strip: one tap opens each tool on its page. */
-export function SvTools() {
-  return (
-    <section className="sv-tools" aria-labelledby="svToolsTitle">
-      <div className="wrap sv-tools-in">
-        <div>
-          <h2 id="svToolsTitle">Free tools</h2>
-          <p>Two minutes each. No sign-up.</p>
-        </div>
-        <ul>
-          {TOOLS.map((t) => (
-            <li key={t.href}>
-              <a href={t.href} data-cta-location={`SV Tools — ${t.label}`}>
-                <span>
-                  <b>{t.label}</b>
-                  <small>2-minute {t.tag}</small>
-                </span>
-                <span className="sv-tool-go">
-                  Start <ArrowIcon />
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
 const WHY3 = WHY.slice(0, 3);
 const countries = TRUST.find((t) => t.label === "Client countries")!;
 
-/* Why us (three points) and the team, as published on www.best-solution.ae. */
+/* Why us (three points) and the team as published on www.best-solution.ae, shown only when SHOW_TEAM is on. */
 export function SvTrust() {
   return (
     <section className="fz-block sv-trust-sec" id="team" aria-labelledby="svTeamTitle">
-      <div className="wrap sv-trust-grid">
+      <div className={`wrap sv-trust-grid${SHOW_TEAM ? "" : " no-team"}`}>
         <div>
           <p className="fz-tag">
             <span />
@@ -131,15 +110,17 @@ export function SvTrust() {
             ))}
           </ol>
         </div>
-        <ul className="sv-team">
-          {TEAM.map((m) => (
-            <li key={m.name}>
-              <Image src={m.photo} alt={`${m.name}, ${m.role}, Best Solution`} width={320} height={320} sizes="(max-width: 640px) 50vw, 260px" />
-              <b>{m.name}</b>
-              <span>{m.role}</span>
-            </li>
-          ))}
-        </ul>
+        {SHOW_TEAM && (
+          <ul className="sv-team">
+            {TEAM.map((m) => (
+              <li key={m.name}>
+                <Image src={m.photo} alt={`${m.name}, ${m.role}, Best Solution`} width={320} height={320} sizes="(max-width: 640px) 50vw, 260px" />
+                <b>{m.name}</b>
+                <span>{m.role}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
   );

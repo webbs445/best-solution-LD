@@ -10,7 +10,7 @@ import { FzFooter } from "@/components/freezone/FzFooter";
 import { MobileEstimateBar } from "@/components/ui/MobileEstimateBar";
 import { SvHeader } from "@/components/services/SvHeader";
 import { SvHero } from "@/components/services/SvHero";
-import { SvClosing, SvGrid, SvJourney, SvTools, SvTrust } from "@/components/services/SvSections";
+import { SvClosing, SvGrid, SvJourney, SvTrust } from "@/components/services/SvSections";
 import "@/app/freezone/freezone.css";
 import "./services.css";
 
@@ -45,7 +45,6 @@ export default function ServicesPage() {
         <SvHero />
         <SvGrid />
         <SvJourney />
-        <SvTools />
         <SvTrust />
         <FzPartners title="Free zones and authorities we work with" sub="Across all seven emirates, matched to your activity and budget." />
         <FzReviews />

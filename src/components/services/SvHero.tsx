@@ -2,31 +2,31 @@
 
 import { useState } from "react";
 import { SITE, TRUST } from "@/content/site";
-import { GOALS, serviceById, type ServiceId } from "@/content/services";
-import { HELPER_QUESTIONS, recommend, type HelperAnswers } from "@/lib/services";
+import { GOALS, SETUP_OPTIONS, serviceById, type GoalId, type SetupOption } from "@/content/services";
+import { HELPER_QUESTIONS, recommend, type HelperAnswers, type Recommendation } from "@/lib/services";
 import { formatAED } from "@/lib/pricing";
 import { trackEvent } from "@/lib/analytics";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import { ServiceIcon } from "./ServiceIcon";
 
-const TAG_LABEL = { calculator: "calculator", planner: "planner", quote: "quote", estimator: "estimator" } as const;
 const advised = TRUST.find((t) => t.label === "Businesses advised")!;
+const price = (s: { from: number | null; priceNote?: string }) => (s.from !== null ? `From AED ${formatAED(s.from)}${s.priceNote ?? ""}` : s.priceNote);
 
-/* The service a goal (or the helper) points to: name, price, free tool and a Go link to its page. */
-function ServiceCard({ id, from }: { id: ServiceId; from: "picker" | "helper" }) {
+/* A single service: name, price, free tool and a Go link to its page. */
+function ServiceCard({ id, helper }: { id: Exclude<GoalId, "setup">; helper: boolean }) {
   const s = serviceById(id);
   return (
     <div className="sv-card-svc" key={id}>
       <span className="sv-card-ico">
         <ServiceIcon id={id} />
       </span>
-      <p className="sv-card-k">{from === "helper" ? "We recommend" : "Your service"}</p>
+      <p className="sv-card-k">{helper ? "We recommend" : "Your service"}</p>
       <h2 className="sv-card-name">{s.name}</h2>
       <p className="sv-card-line">{s.line}</p>
       <dl className="sv-card-facts">
         <div>
           <dt>Starting price</dt>
-          <dd>{s.from !== null ? `From AED ${formatAED(s.from)}${s.priceNote ?? ""}` : s.priceNote}</dd>
+          <dd>{price(s)}</dd>
         </div>
         <div>
           <dt>Free tool</dt>
@@ -34,7 +34,7 @@ function ServiceCard({ id, from }: { id: ServiceId; from: "picker" | "helper" })
             <a href={s.tool.href} data-cta-location={`SV Hero — Tool: ${s.name}`}>
               {s.tool.label}
             </a>
-            <span className="sv-chip">2-minute {TAG_LABEL[s.tool.tag]}</span>
+            <span className="sv-chip">2-minute {s.tool.tag}</span>
           </dd>
         </div>
       </dl>
@@ -45,22 +45,62 @@ function ServiceCard({ id, from }: { id: ServiceId; from: "picker" | "helper" })
   );
 }
 
-/* "Not sure": three questions, one at a time, then the recommended service. */
+/*
+  "Start a company": Mainland and Free zone side by side, each with its price, timing, tool and Go link. Following
+  either route reports service_pick with the route as `option`, so free zone picks stay measurable.
+*/
+function SetupPanel({ recommended }: { recommended?: SetupOption }) {
+  const pickRoute = (option: SetupOption) => trackEvent("service_pick", { service: "setup", option });
+  return (
+    <div className="sv-card-svc" key={`setup-${recommended ?? ""}`}>
+      <span className="sv-card-ico">
+        <ServiceIcon id="setup" />
+      </span>
+      <p className="sv-card-k">{recommended ? "We recommend" : "Your service"}</p>
+      <h2 className="sv-card-name">Start a company</h2>
+      <p className="sv-card-line">Two routes. Choose the one that fits how you trade.</p>
+      <div className="sv-opts">
+        {SETUP_OPTIONS.map(({ id, label, service: s }) => (
+          <div key={id} className={`sv-opt${recommended === id ? " is-rec" : ""}`}>
+            <div className="sv-opt-top">
+              <h3>{label}</h3>
+              {recommended === id && <span className="sv-chip">Recommended</span>}
+            </div>
+            <p className="sv-opt-price">{price(s)}</p>
+            <p className="sv-opt-time">{s.timing}</p>
+            <a className="sv-opt-tool" href={s.tool.href} data-cta-location={`SV Hero — Tool: ${label}`} onClick={() => pickRoute(id)}>
+              {s.tool.label}
+            </a>
+            <a className="btn btn-primary sv-opt-go" href={s.href} data-cta-location={`SV Hero — Go: ${label}`} onClick={() => pickRoute(id)}>
+              Go to {label} <ArrowIcon />
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Panel({ r, helper }: { r: Recommendation; helper: boolean }) {
+  return r.goal === "setup" ? <SetupPanel recommended={helper ? r.option : undefined} /> : <ServiceCard id={r.goal} helper={helper} />;
+}
+
+/* "I'm not sure yet": three questions, one at a time, then the recommendation. */
 function Helper({ onReset }: { onReset: () => void }) {
   const [a, setA] = useState<HelperAnswers>({});
-  // With all three answered, recommend() returns a service and the card below replaces the questions.
-  const step = !a.stage ? 0 : !a.focus ? 1 : 2;
   const pick = recommend(a);
   if (pick) {
     return (
       <>
-        <ServiceCard id={pick} from="helper" />
+        <Panel r={pick} helper />
         <button type="button" className="sv-again" onClick={() => setA({})}>
           Answer again
         </button>
       </>
     );
   }
+  // With all three answered, recommend() returns a goal and the panel above replaces the questions.
+  const step = !a.stage ? 0 : !a.focus ? 1 : 2;
   const qd = HELPER_QUESTIONS[step];
   const q = typeof qd.q === "function" ? qd.q(a) : qd.q;
   const options = typeof qd.options === "function" ? qd.options(a) : qd.options;
@@ -86,7 +126,7 @@ function Helper({ onReset }: { onReset: () => void }) {
               const next = { ...a, [qd.key]: o.v } as HelperAnswers;
               setA(next);
               const r = recommend(next);
-              if (r) trackEvent("service_recommend", { service: r });
+              if (r) trackEvent("service_recommend", { service: r.goal, option: r.option });
             }}
           >
             {o.label}
@@ -102,7 +142,7 @@ function Helper({ onReset }: { onReset: () => void }) {
 }
 
 export function SvHero() {
-  const [goal, setGoal] = useState<ServiceId | "unsure">("setup");
+  const [goal, setGoal] = useState<GoalId | "unsure">("setup");
   return (
     <section className="fz-hero sv-hero" aria-labelledby="svTitle">
       <div className="fz-hero-bg" aria-hidden="true">
@@ -158,7 +198,7 @@ export function SvHero() {
           </ul>
         </div>
         <div className="sv-card spot" id="svPanel" aria-live="polite">
-          {goal === "unsure" ? <Helper onReset={() => setGoal("setup")} /> : <ServiceCard id={goal} from="picker" />}
+          {goal === "unsure" ? <Helper onReset={() => setGoal("setup")} /> : <Panel r={{ goal }} helper={false} />}
         </div>
       </div>
     </section>
