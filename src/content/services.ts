@@ -44,8 +44,9 @@ export interface Service {
   priceNote?: string;
   timing?: string;
   tool: { label: string; tag: ToolTag; href: string };
-  /** Larger tile in the grid: the services that bring the most leads. */
+  /** Larger tile in the grid: the services that bring the most leads. They carry a photo. */
   big?: boolean;
+  photo?: string;
 }
 
 export const SERVICES: Service[] = [
@@ -58,6 +59,7 @@ export const SERVICES: Service[] = [
     timing: HUB_TIMING.setup,
     tool: { label: "Setup cost calculator", tag: "calculator", href: MAINLAND_HREF },
     big: true,
+    photo: "/images/mainland-dubai-economy-tourism.webp",
   },
   {
     id: "freezone",
@@ -68,6 +70,7 @@ export const SERVICES: Service[] = [
     timing: HUB_TIMING.freezone,
     tool: { label: "Free zone planner", tag: "planner", href: "/freezone#planner" },
     big: true,
+    photo: "/images/free-zone-business-park-office.webp",
   },
   {
     id: "accounting",
@@ -85,7 +88,7 @@ export const SERVICES: Service[] = [
     href: "/corporate-tax",
     // The corporate tax page publishes no fee: a written fee follows a free review.
     from: null,
-    priceNote: "Written fee after a free review",
+    priceNote: "Fee after a free review",
     tool: { label: "Tax estimator", tag: "estimator", href: "/corporate-tax#estimate" },
   },
   {
@@ -95,7 +98,7 @@ export const SERVICES: Service[] = [
     href: "/spv",
     // The SPV page publishes no fee: a written breakdown follows the consultation.
     from: null,
-    priceNote: "Written breakdown after your consultation",
+    priceNote: "Priced after a consultation",
     tool: { label: "Structure finder", tag: "planner", href: "/spv#fit" },
   },
   {

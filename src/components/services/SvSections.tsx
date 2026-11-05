@@ -24,6 +24,12 @@ export function SvGrid() {
             // The whole tile opens the service page (stretched link); the tool tag is its own link to the tool.
             <li key={s.id} className={s.big ? "big" : undefined}>
               <article className="sv-tile spot">
+                {s.photo && (
+                  <>
+                    <Image className="sv-tile-photo" src={s.photo} alt="" fill sizes="(max-width: 640px) 100vw, 560px" />
+                    <span className="sv-tile-shade" aria-hidden="true" />
+                  </>
+                )}
                 <span className="sv-tile-ico">
                   <ServiceIcon id={s.id} />
                 </span>
@@ -57,7 +63,7 @@ export function SvJourney() {
   return (
     <section className="fz-block sv-journey" id="journey" aria-labelledby="svJourneyTitle">
       <div className="wrap">
-        <div className="fz-head-split fz-on-navy">
+        <div className="fz-head-split">
           <h2 id="svJourneyTitle">Your business journey</h2>
           <p>We stay with you from the first licence onwards. Tap a stage to see how we help.</p>
         </div>
@@ -81,6 +87,12 @@ export function SvJourney() {
 }
 
 const WHY3 = WHY.slice(0, 3);
+/* One line icon per point: a consultant, a written fee, a team of specialists. */
+const WHY_ICONS = [
+  "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 3.6-7 8-7s8 3 8 7",
+  "M6 3h9l4 4v14H6zM9 12h7M9 16h5M14 3v5h5",
+  "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c0-3 2.7-5 6-5s6 2 6 5M15 15c3.3 0 6 2 6 5",
+];
 const countries = TRUST.find((t) => t.label === "Client countries")!;
 
 /* Why us (three points) and the team as published on www.best-solution.ae, shown only when SHOW_TEAM is on. */
@@ -101,7 +113,11 @@ export function SvTrust() {
           <ol className="sv-why">
             {WHY3.map((w, i) => (
               <li key={w.title}>
-                <span>0{i + 1}</span>
+                <span className="sv-why-ico">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d={WHY_ICONS[i]} />
+                  </svg>
+                </span>
                 <div>
                   <h3>{w.title}</h3>
                   <p>{w.body}</p>

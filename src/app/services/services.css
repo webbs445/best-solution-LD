@@ -39,37 +39,46 @@
 .sv-page .sv-stars svg {width:14px;height:14px}
 
 
-/* Services grid: two large tiles, then four. */
 .sv-page .sv-chip {display:inline-block;padding:4px 10px;border-radius:999px;background:var(--tint);font:700 11.5px/1.3 var(--font);letter-spacing:.02em;color:var(--copper-ink)}
+/* Services bento: two photo tiles, then four clean cards. The whole tile opens the page; the tool tag is its own link. */
 .sv-page .sv-grid-sec {background:var(--ground)}
 .sv-page .sv-grid {list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
 .sv-page .sv-grid li.big {grid-column:span 2}
-.sv-page .sv-tile {display:flex;flex-direction:column;height:100%;padding:26px;border-radius:20px;border:1px solid var(--card-border,rgba(204,134,103,.16));background:#fff;color:var(--ink);text-decoration:none;box-shadow:0 1px 2px rgba(20,37,62,.04),0 14px 36px rgba(20,37,62,.07);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
-.sv-page .sv-tile:hover {transform:translateY(-6px);border-color:rgba(204,134,103,.4);box-shadow:0 2px 4px rgba(20,37,62,.05),0 26px 56px rgba(20,37,62,.14)}
-.sv-page .sv-tile-ico {display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--tint);color:var(--copper-ink);transition:background .25s ease,color .25s ease}
+.sv-page .sv-tile {position:relative;isolation:isolate;display:flex;flex-direction:column;height:100%;min-height:250px;padding:24px;border-radius:24px;border:1px solid rgba(204,134,103,.16);background:#fff;color:var(--ink);overflow:hidden;box-shadow:0 1px 2px rgba(20,37,62,.04),0 14px 36px rgba(20,37,62,.07);transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
+.sv-page .sv-tile:hover {transform:translateY(-6px);border-color:rgba(204,134,103,.45);box-shadow:0 2px 4px rgba(20,37,62,.05),0 28px 60px rgba(120,70,40,.16)}
+.sv-page .sv-tile-ico {display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:var(--tint);color:var(--copper-ink);transition:background .3s ease,color .3s ease}
 .sv-page .sv-tile:hover .sv-tile-ico {background:var(--copper-grad);color:#fff}
-.sv-page .sv-tile-ico svg {width:24px;height:24px}
-.sv-page .sv-tile {position:relative}
+.sv-page .sv-tile-ico svg {width:26px;height:26px}
 .sv-page .sv-tile-main {color:inherit;text-decoration:none}
-/* Stretched link: the whole tile opens the service page; the tool tag sits above it as its own link. */
 .sv-page .sv-tile-main::after {content:"";position:absolute;inset:0;border-radius:inherit;z-index:1}
 .sv-page .sv-tile-main:focus-visible {outline:none}
 .sv-page .sv-tile:has(.sv-tile-main:focus-visible) {outline:3px solid var(--copper);outline-offset:3px}
-.sv-page .sv-tile .sv-tile-tool {position:relative;z-index:2;align-self:flex-start;margin-top:18px;text-decoration:none;transition:background .2s ease,color .2s ease}
+.sv-page .sv-tile .sv-tile-tool {position:absolute;z-index:2;top:24px;right:24px;text-decoration:none;transition:background .2s ease,color .2s ease}
 .sv-page .sv-tile .sv-tile-tool:hover {background:var(--copper);color:#fff}
-.sv-page .sv-tile h3 {margin-top:12px;font-size:20px;line-height:1.2;color:var(--navy)}
-.sv-page .sv-tile .sv-tile-time {margin-top:10px;font:600 14px var(--font);color:var(--copper-ink);flex:none}
-.sv-page .big .sv-tile h3 {font-size:26px}
-.sv-page .sv-tile p {margin-top:8px;color:var(--ink-soft);font-size:15px;flex:1}
-.sv-page .sv-tile-foot {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;padding-top:16px;border-top:1px solid var(--rule)}
-.sv-page .sv-tile-foot b {font-size:15px;color:var(--navy)}
-.sv-page .big .sv-tile-foot b {font-size:18px}
-.sv-page .sv-tile-go {display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;transition:transform .25s ease,background .25s ease}
-.sv-page .sv-tile:hover .sv-tile-go {transform:translateX(4px);background:var(--copper)}
+.sv-page .sv-tile h3 {margin-top:22px;font-size:20px;line-height:1.2;letter-spacing:-.01em;color:var(--navy)}
+.sv-page .sv-tile p {margin-top:8px;color:var(--ink-soft);font-size:15px;line-height:1.5;flex:1}
+.sv-page .sv-tile .sv-tile-time {flex:none;margin-top:12px;font:700 13.5px var(--font);color:var(--copper-ink)}
+.sv-page .sv-tile-foot {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--rule)}
+.sv-page .sv-tile-foot b {font-size:15px;line-height:1.3;color:var(--navy)}
+.sv-page .sv-tile-go {display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:50%;background:var(--navy);color:#fff;transition:transform .3s ease,background .3s ease}
+.sv-page .sv-tile:hover .sv-tile-go {transform:translateX(4px) rotate(-45deg);background:var(--copper)}
 .sv-page .sv-tile-go svg {width:18px;height:18px}
 
+/* The two photo tiles: the picture under a navy shade, white text at the bottom, a glass price pill. */
+.sv-page .big .sv-tile {min-height:340px;padding:28px;border:0;background:var(--navy);color:#fff}
+.sv-page .sv-tile-photo {z-index:-2;object-fit:cover;transition:transform .8s ease}
+.sv-page .big .sv-tile:hover .sv-tile-photo {transform:scale(1.06)}
+.sv-page .sv-tile-shade {position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(12,26,51,.2) 0%,rgba(12,26,51,.5) 40%,rgba(12,26,51,.92) 100%)}
+.sv-page .big .sv-tile-ico {margin-bottom:auto;background:rgba(255,255,255,.16);color:#fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.sv-page .big .sv-tile .sv-tile-tool {top:28px;right:28px;background:rgba(255,255,255,.9)}
+.sv-page .big .sv-tile h3 {font-size:28px;color:#fff}
+.sv-page .big .sv-tile p {flex:none;color:rgba(255,255,255,.82)}
+.sv-page .big .sv-tile .sv-tile-time {color:#f0c4ac}
+.sv-page .big .sv-tile-foot {border-top-color:rgba(255,255,255,.2)}
+.sv-page .big .sv-tile-foot b {padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:16px;color:#fff}
+.sv-page .big .sv-tile-go {background:var(--copper-grad)}
+
 /* Journey: five linked stages on a line. */
-.sv-page .sv-journey {background:var(--navy);color:#fff}
 .sv-page .sv-steps {list-style:none;position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
 .sv-page .sv-steps::before {content:"";position:absolute;left:24px;right:24px;top:24px;height:2px;background:linear-gradient(90deg,var(--copper),rgba(204,134,103,.15))}
 .sv-page .sv-steps a {position:relative;display:flex;flex-direction:column;gap:8px;height:100%;padding:0 4px 8px;color:#fff;text-decoration:none}
@@ -126,12 +135,21 @@
   .sv-page .sv-stats li > span {font-size:12.5px}
   .sv-page .sv-keep {white-space:normal}
   .sv-page .sv-hero-cta .btn,.sv-page .sv-hero-cta .fz-btn-ghost {flex:1 1 100%;justify-content:center}
-  .sv-page .sv-grid {display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-20px;padding:4px 20px 18px;scrollbar-width:none}
-  .sv-page .sv-grid::-webkit-scrollbar {display:none}
-  .sv-page .sv-grid li {flex:0 0 82%;scroll-snap-align:start}
-  .sv-page .sv-tile {padding:22px}
   .sv-page .sv-tile:hover {transform:none}
-  .sv-page .big .sv-tile h3 {font-size:22px}
+  .sv-page .sv-grid {gap:12px}
+  .sv-page .sv-tile {min-height:0;padding:16px;border-radius:20px}
+  .sv-page .sv-tile-ico {width:44px;height:44px;border-radius:13px}
+  .sv-page .sv-tile .sv-tile-tool {position:static;align-self:flex-start;margin-top:10px;font-size:10.5px;padding:3px 8px}
+  .sv-page .sv-tile h3 {margin-top:14px;font-size:16px}
+  .sv-page .sv-grid li:not(.big) .sv-tile p {display:none}
+  .sv-page .sv-tile-foot {margin-top:auto;padding-top:12px;gap:8px}
+  .sv-page .sv-grid li:not(.big) .sv-tile h3 {flex:1;margin-bottom:12px}
+  .sv-page .sv-tile-foot b {font-size:13px}
+  .sv-page .sv-tile-go {width:34px;height:34px}
+  .sv-page .big .sv-tile {min-height:300px;padding:20px}
+  .sv-page .big .sv-tile .sv-tile-tool {position:absolute;top:20px;right:20px;margin:0}
+  .sv-page .big .sv-tile h3 {font-size:24px}
+  .sv-page .big .sv-tile-foot b {font-size:14px}
   .sv-page .sv-dd-panel {display:none}
 }
 
@@ -151,10 +169,6 @@
 .sv-page .sv-hero .fz-hero-bg i:last-child {width:600px;height:600px;left:-6%;bottom:-30%;background:radial-gradient(circle,rgba(70,110,180,.35),transparent 65%);animation:sv-drift 22s ease-in-out infinite alternate-reverse}
 @keyframes sv-drift {from {transform:translate(0,0) scale(1)} to {transform:translate(-60px,40px) scale(1.12)}}
 .sv-page .sv-hero-note {margin-top:16px;font-size:13.5px;color:var(--on-navy-soft)}
-.sv-page .sv-journey {background:
-  radial-gradient(50% 80% at 100% 0%,rgba(204,134,103,.22),transparent 70%),
-  radial-gradient(50% 80% at 0% 100%,rgba(52,92,160,.35),transparent 70%),
-  linear-gradient(160deg,#0f1f3d,#14284a)}
 .sv-page .fz-close-in::after {display:none}
 @media (max-width:640px) {
   .sv-page .sv-hero {border-radius:0 0 28px 28px}
@@ -223,3 +237,33 @@
   .sv-page .sv-seal-ring {animation:none}
 }
 .sv-page .sv-live.is-closed i {background:#aab6ca;box-shadow:none;animation:none}
+
+/* Journey, light: champagne background, each stage a white card with a copper number. */
+.sv-page .sv-journey {background:linear-gradient(165deg,#fffaf5 0%,#f8ece3 60%,#f3e1d3 100%);color:var(--navy)}
+.sv-page .sv-steps {gap:14px}
+.sv-page .sv-steps::before {top:47px;left:40px;right:40px;background:linear-gradient(90deg,rgba(204,134,103,.55),rgba(204,134,103,.12))}
+.sv-page .sv-steps a {padding:22px 20px;border-radius:22px;background:#fff;border:1px solid rgba(204,134,103,.16);box-shadow:0 12px 30px rgba(120,70,40,.08);color:var(--navy);transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
+.sv-page .sv-steps a:hover {transform:translateY(-4px);border-color:rgba(204,134,103,.45);box-shadow:0 22px 44px rgba(120,70,40,.15)}
+.sv-page .sv-step-n {background:var(--tint);color:var(--copper-ink)}
+.sv-page .sv-steps span {color:var(--ink-soft)}
+.sv-page .sv-steps .sv-step-go {color:var(--copper-ink)}
+@media (max-width:1020px) {
+  .sv-page .sv-steps {gap:10px}
+  .sv-page .sv-steps::before {top:40px;bottom:40px;left:44px}
+  .sv-page .sv-steps a {padding:16px 18px}
+}
+
+/* Why us: icon cards. */
+.sv-page .sv-why li {flex-direction:column;gap:14px;padding:24px;border-radius:22px;background:#fff;border:1px solid rgba(204,134,103,.16);box-shadow:0 12px 30px rgba(120,70,40,.06)}
+.sv-page .sv-why-ico {display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--copper-grad);color:#fff}
+.sv-page .sv-why-ico svg {width:24px;height:24px}
+.sv-page .sv-trust-sec {background:var(--ground)}
+
+/* Closing: a copper panel, the last call to action on the page. */
+.sv-page .fz-close-in {background:linear-gradient(130deg,#a8694c 0%,#c98463 45%,#d9a07c 100%)}
+.sv-page .fz-close-in::before {background:radial-gradient(500px circle at 90% 0%,rgba(255,255,255,.28),transparent 60%),radial-gradient(420px circle at 0% 100%,rgba(120,60,35,.35),transparent 60%)}
+.sv-page .fz-close-in > div > p,.sv-page .fz-close-cta p {color:rgba(255,255,255,.88)}
+.sv-page .fz-close .btn-primary {background:#fff;color:var(--copper-ink);box-shadow:0 14px 30px rgba(90,45,25,.25)}
+.sv-page .fz-close .btn-primary:hover {background:#fffaf5}
+.sv-page .fz-close .fz-btn-ghost {border-color:rgba(255,255,255,.6)}
+.sv-page .fz-close .fz-btn-ghost:hover {background:rgba(255,255,255,.14);border-color:#fff}
