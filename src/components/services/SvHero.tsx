@@ -8,8 +8,10 @@ const advised = TRUST.find((t) => t.label === "Businesses advised")!;
 const countries = TRUST.find((t) => t.label === "Client countries")!;
 /* The hero review: a verified Google review already shown on /freezone. */
 const REVIEW = REVIEW_ROWS.flat().find((r) => r.name === "Michael Doherty")!;
+/* Its closing sentence, word for word. */
+const QUOTE_LINE = REVIEW.quote.slice(REVIEW.quote.indexOf("From day one"));
 
-/* The hero: headline, buttons and a stat strip on the left; the Best Solution office with a client review on the right. */
+/* The hero: headline, buttons and a stat strip on the left; the Best Solution office in an arch, with a rating seal and a client quote, on the right. */
 export function SvHero() {
   return (
     <section className="fz-hero sv-hero" aria-labelledby="svTitle">
@@ -58,33 +60,40 @@ export function SvHero() {
           </ul>
         </div>
         <div className="sv-visual">
-          <div className="sv-photo">
-            <Image src="/images/about-office.webp" alt="Best Solution office reception in Business Bay, Dubai" fill priority sizes="(max-width: 1020px) 100vw, 480px" />
-          </div>
-          <span className="sv-live qc-live">
-            <i />
-            Consultants available
-          </span>
-          <figure className="sv-review">
-            <div className="sv-review-top">
-              <span className="sv-stars" role="img" aria-label="5 out of 5 stars">
-                {Array.from({ length: 5 }, (_, i) => (
-                  <StarIcon key={i} />
-                ))}
-              </span>
-              <span className="sv-review-src">Google review</span>
+          <div className="sv-arch">
+            <div className="sv-photo">
+              <Image src="/images/about-office.webp" alt="Best Solution office reception in Business Bay, Dubai" fill priority sizes="(max-width: 1020px) 90vw, 440px" />
             </div>
-            <blockquote>&ldquo;{REVIEW.quote}&rdquo;</blockquote>
-            <figcaption>
-              <Image src={REVIEW.photo} alt="" width={44} height={44} />
-              <span>
-                <b>{REVIEW.name}</b>
-                {REVIEW.role}, {REVIEW.company}
-              </span>
-            </figcaption>
-            <a className="sv-review-all" href={SITE.googleReviews} target="_blank" rel="noopener" data-cta-location="SV Hero — Google Reviews">
-              <b>{SITE.rating.score}</b> from {SITE.rating.count}+ Google reviews <ArrowIcon />
-            </a>
+            <span className="sv-live qc-live">
+              <i />
+              Consultants available
+            </span>
+          </div>
+          {/* Rotating seal: the rating in the middle, the consultation promise turning around it. */}
+          <a className="sv-seal" href={SITE.googleReviews} target="_blank" rel="noopener" data-cta-location="SV Hero — Google Reviews" aria-label={`Rated ${SITE.rating.score} from ${SITE.rating.count}+ Google reviews`}>
+            <svg className="sv-seal-ring" viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <path id="svSealPath" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
+              </defs>
+              <text>
+                <textPath href="#svSealPath" textLength="286">
+                  FREE CONSULTATION • NO OBLIGATION •
+                </textPath>
+              </text>
+            </svg>
+            <span className="sv-seal-c" aria-hidden="true">
+              <b>{SITE.rating.score}</b>
+              <StarIcon />
+            </span>
+          </a>
+          <figure className="sv-quote">
+            <Image src={REVIEW.photo} alt="" width={44} height={44} />
+            <div>
+              <blockquote>&ldquo;{QUOTE_LINE}&rdquo;</blockquote>
+              <figcaption>
+                {REVIEW.name}, {REVIEW.company}
+              </figcaption>
+            </div>
           </figure>
         </div>
       </div>
