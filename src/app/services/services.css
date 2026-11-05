@@ -163,3 +163,28 @@
 @media (prefers-reduced-motion:reduce) {
   .sv-page .sv-tile,.sv-page .sv-tile-go,.sv-page .sv-step-n {transition:none}
 }
+
+/* Modern backgrounds: soft colour fields and a slow glow instead of the /freezone grid lines (this page only). */
+.sv-page .sv-hero {background:#0c1a33;border-radius:0 0 40px 40px}
+.sv-page .sv-hero .fz-hero-bg {overflow:hidden;background:
+  radial-gradient(55% 65% at 88% 15%,rgba(204,134,103,.30),transparent 70%),
+  radial-gradient(50% 60% at 6% 95%,rgba(52,92,160,.42),transparent 70%),
+  radial-gradient(35% 35% at 45% 0%,rgba(255,255,255,.07),transparent 70%),
+  linear-gradient(165deg,#0b1730 0%,#12264a 55%,#0d1d3a 100%)}
+.sv-page .sv-hero .fz-hero-bg i {display:block;filter:blur(40px)}
+.sv-page .sv-hero .fz-hero-bg i:first-child {width:520px;height:520px;right:8%;top:10%;background:radial-gradient(circle,rgba(230,160,125,.28),transparent 65%);animation:sv-drift 18s ease-in-out infinite alternate}
+.sv-page .sv-hero .fz-hero-bg i:last-child {width:600px;height:600px;left:-6%;bottom:-30%;background:radial-gradient(circle,rgba(70,110,180,.35),transparent 65%);animation:sv-drift 22s ease-in-out infinite alternate-reverse}
+@keyframes sv-drift {from {transform:translate(0,0) scale(1)} to {transform:translate(-60px,40px) scale(1.12)}}
+.sv-page .sv-hero-note {margin-top:16px;font-size:13.5px;color:var(--on-navy-soft)}
+.sv-page .sv-journey {background:
+  radial-gradient(50% 80% at 100% 0%,rgba(204,134,103,.22),transparent 70%),
+  radial-gradient(50% 80% at 0% 100%,rgba(52,92,160,.35),transparent 70%),
+  linear-gradient(160deg,#0f1f3d,#14284a)}
+.sv-page .fz-close-in::after {display:none}
+@media (max-width:640px) {
+  .sv-page .sv-hero {border-radius:0 0 28px 28px}
+}
+@media (prefers-reduced-motion:reduce) {
+  .sv-page .sv-hero .fz-hero-bg i {animation:none}
+}
+.sv-page .sv-hero-h2 {max-width:560px;text-wrap:pretty}

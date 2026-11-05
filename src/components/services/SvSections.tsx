@@ -17,7 +17,7 @@ export function SvGrid() {
       <div className="wrap">
         <div className="fz-head-split">
           <h2 id="svGridTitle">Every service, one consultant</h2>
-          <p>Choose a service to see how it works, what it costs and the free tool that gets you started.</p>
+          <p>Pick a service to see its starting price and a free tool to get started.</p>
         </div>
         <ul className="sv-grid">
           {SERVICES.map((s) => (
@@ -59,7 +59,7 @@ export function SvJourney() {
       <div className="wrap">
         <div className="fz-head-split fz-on-navy">
           <h2 id="svJourneyTitle">Your business journey</h2>
-          <p>From the first licence to the right structure as you grow. Tap a stage to see how we help.</p>
+          <p>We stay with you from the first licence onwards. Tap a stage to see how we help.</p>
         </div>
         <ol className="sv-steps">
           {JOURNEY.map((j, i) => (

@@ -32,8 +32,7 @@ export function SvHero() {
           <h1 id="svTitle">
             Set up and run your UAE business, <span className="accent sv-keep">with one consultant.</span>
           </h1>
-          <h2 className="sv-hero-h2">Company setup, accounting, corporate tax and structuring, under one roof.</h2>
-          <p className="fz-sub">See every service, its starting price and a free tool to begin with. Your costs are confirmed in writing before you proceed.</p>
+          <h2 className="sv-hero-h2">Company setup, accounting, corporate tax and structuring. Your costs are confirmed in writing before you start.</h2>
           <div className="sv-hero-cta">
             <CallbackTrigger className="btn btn-primary" location="SV Hero — Book a Consultation">
               Book a Consultation <ArrowIcon />
@@ -42,6 +41,7 @@ export function SvHero() {
               See all services
             </a>
           </div>
+          <p className="sv-hero-note">Free consultation · No obligation · We reply by phone, WhatsApp or email</p>
           <ul className="sv-stats">
             <li>
               <b>
