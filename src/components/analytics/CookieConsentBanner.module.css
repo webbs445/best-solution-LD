@@ -310,3 +310,39 @@
     font-size: 14px;
   }
 }
+
+/* Phones: a notification card. The text on the left, the two equal choices stacked on the right. */
+@media (max-width: 640px) {
+  .card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 12px;
+    padding: 12px 12px 12px 14px;
+  }
+
+  .card > .text {
+    grid-column: 1;
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+
+  .choices {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-top: 0;
+  }
+
+  .choice {
+    min-width: 104px;
+    min-height: 36px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+
+  .prefs {
+    grid-column: 1 / -1;
+  }
+}
