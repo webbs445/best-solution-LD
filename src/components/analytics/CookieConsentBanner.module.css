@@ -242,3 +242,71 @@
     animation: none;
   }
 }
+
+/* Compact layout. Desktop: one row, the choice on the right. Phones: a slim bar; the title stays for screen readers. */
+@media (min-width: 641px) {
+  .card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 20px;
+    max-width: 780px;
+  }
+
+  .card > h2,
+  .card > .text {
+    grid-column: 1;
+  }
+
+  .choices {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    grid-template-columns: auto auto;
+    margin-top: 0;
+  }
+
+  .choice {
+    padding: 0 24px;
+  }
+
+  .prefs {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .banner {
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    left: 10px;
+  }
+
+  .card {
+    padding: 12px 14px;
+    border-radius: 18px;
+  }
+
+  .card h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .text {
+    margin-top: 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .choices {
+    margin-top: 10px;
+  }
+
+  .choice {
+    min-height: 40px;
+    font-size: 14px;
+  }
+}
