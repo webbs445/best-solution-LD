@@ -311,38 +311,88 @@
   }
 }
 
-/* Phones: a notification card. The text on the left, the two equal choices stacked on the right. */
+/* The short text and the settings gear are for the phone pill only. */
+.short,
+.gear {
+  display: none;
+}
+
+/* Phones: a slim floating pill (cookie mark, "We use cookies", settings, two equal choices).
+   Opening the settings turns it back into the full card with the Privacy Policy link. */
 @media (max-width: 640px) {
-  .card {
-    display: grid;
-    grid-template-columns: 1fr auto;
+  .card:not(.open) {
+    display: flex;
     align-items: center;
-    column-gap: 12px;
-    padding: 12px 12px 12px 14px;
-  }
-
-  .card > .text {
-    grid-column: 1;
-    font-size: 12.5px;
-    line-height: 1.45;
-  }
-
-  .choices {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    grid-template-columns: 1fr;
     gap: 6px;
-    margin-top: 0;
+    padding: 7px 7px 7px 14px;
+    border-radius: 999px;
   }
 
-  .choice {
-    min-width: 104px;
-    min-height: 36px;
-    padding: 0 14px;
+  .card:not(.open) .long {
+    display: none;
+  }
+
+  .card:not(.open) .text {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    margin: 0;
     font-size: 13px;
   }
 
-  .prefs {
-    grid-column: 1 / -1;
+  .card:not(.open) .short {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--navy);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .card:not(.open) .short::before {
+    content: "";
+    flex: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff 0 1.5px, transparent 2px), radial-gradient(circle at 65% 60%, #fff 0 1.5px, transparent 2px), radial-gradient(circle at 40% 70%, #fff 0 1.2px, transparent 1.7px), var(--copper-grad, var(--copper));
+  }
+
+  .card:not(.open) .manage {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: var(--ink-soft, #5b6678);
+  }
+
+  .card:not(.open) .manage:hover {
+    background: rgba(20, 37, 62, 0.06);
+  }
+
+  .card:not(.open) .gear {
+    display: block;
+    width: 17px;
+    height: 17px;
+  }
+
+  /* Two equal columns: both choices always the same width. */
+  .card:not(.open) .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: none;
+    gap: 6px;
+    margin: 0;
+  }
+
+  .card:not(.open) .choice {
+    min-width: 0;
+    min-height: 36px;
+    padding: 0 13px;
+    font-size: 13px;
   }
 }

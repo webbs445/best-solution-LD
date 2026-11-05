@@ -60,18 +60,27 @@ export function CookieConsentBanner() {
 
   return (
     <div className={styles.banner}>
-      <div className={styles.card} role="region" aria-labelledby="consent-title">
+      <div className={`${styles.card}${showPrefs ? ` ${styles.open}` : ""}`} role="region" aria-labelledby="consent-title">
         <h2 id="consent-title">Your privacy choice</h2>
+        {/* Phones show a slim pill: "We use cookies", a settings button and the two choices. The full sentence and the
+            Privacy Policy link show on wider screens and once the settings are open. */}
         <p className={styles.text}>
-          We use cookies to measure visits and improve the site.{" "}
-          <a href={SITE.privacy} target="_blank" rel="noopener">
-            Privacy Policy
-          </a>
+          <span className={styles.long}>We use cookies to measure visits and improve the site. </span>
+          <span className={styles.short}>We use cookies</span>
+          <span className={styles.long}>
+            <a href={SITE.privacy} target="_blank" rel="noopener">
+              Privacy Policy
+            </a>
+          </span>
           {!showPrefs && (
             <>
-              {" · "}
-              <button type="button" className={styles.manage} aria-expanded={false} onClick={() => setShowPrefs(true)}>
-                Manage preferences
+              <span className={styles.long}>{" · "}</span>
+              <button type="button" className={styles.manage} aria-label="Manage preferences" aria-expanded={false} onClick={() => setShowPrefs(true)}>
+                <span className={styles.long}>Manage preferences</span>
+                <svg className={styles.gear} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+                </svg>
               </button>
             </>
           )}
