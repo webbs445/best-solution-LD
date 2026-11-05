@@ -36,6 +36,17 @@ describe("createErpLead", () => {
     vi.restoreAllMocks();
   });
 
+  it("on a Vercel preview returns a PREVIEW lead and calls nothing; in production it calls the ERP", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ data: { name: "CRM-LEAD-1" } }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubEnv("VERCEL_ENV", "preview");
+    expect(await createErpLead(input)).toEqual({ ok: true, name: expect.stringMatching(/^PREVIEW-\d+$/) });
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.stubEnv("VERCEL_ENV", "production");
+    expect(await createErpLead(input)).toEqual({ ok: true, name: "CRM-LEAD-1" });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("reports not_configured when credentials are missing", async () => {
     vi.stubEnv("ERPNEXT_API_SECRET", "");
     expect(await createErpLead(input)).toEqual({ ok: false, reason: "not_configured" });

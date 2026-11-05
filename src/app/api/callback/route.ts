@@ -1,7 +1,8 @@
-import { CALLBACK_FORM_ID, LEAD_RULES, clickIdRows, leadConsent, withUaeCode } from "@/lib/lead";
+import { CALLBACK_FORM_ID, LEAD_RULES, SERVICES_FORM_ID, clickIdRows, leadConsent, withUaeCode } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
+import { isPreviewDeployment, previewLeadId } from "@/lib/preview";
 import type { JurisdictionChoice } from "@/lib/pricing";
 
 /*
@@ -37,10 +38,19 @@ export const POST = withLeadLog("callback", async (request, log) => {
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
     ...(LEAD_RULES.mobile_no(mobile_no) ? [] : ["mobile_no"]),
-    ...((await emailIsReal(email_id)) ? [] : ["email_id"]),
+    // A preview checks the email format only: the real check looks up the domain's mail servers (DNS).
+    ...((isPreviewDeployment() ? LEAD_RULES.email_id(email_id) : await emailIsReal(email_id)) ? [] : ["email_id"]),
   ];
   if (invalid.length) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });
 
+  // Preview deployments answer with a mock lead and call nothing outside (lib/preview).
+  if (isPreviewDeployment()) {
+    log.erp_id = previewLeadId();
+    return Response.json({ ok: true, created: true, lead_id: log.erp_id, preview: true });
+  }
+
+  // The /services hub sends form "services"; anything else is the regular callback popup.
+  const hub = body.form === "services";
   const result = await createErpLead({
     lead_name,
     email_id,
@@ -54,8 +64,8 @@ export const POST = withLeadLog("callback", async (request, log) => {
     consent: leadConsent(body.consent),
     event_id: str(body.event_id, 60),
     landing_page: str(body.landing_page, 1000),
-    form_id: CALLBACK_FORM_ID,
-    form_name: "Callback Request",
+    form_id: hub ? SERVICES_FORM_ID : CALLBACK_FORM_ID,
+    form_name: hub ? SERVICES_FORM_ID : "Callback Request",
     button_name: "Request a Callback",
     submission_timestamp: new Date().toISOString(),
     answers: { jurisdiction: INTERESTS[str(body.interest, 20)] ?? "undecided" },

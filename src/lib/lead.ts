@@ -56,6 +56,8 @@ export const LEAD_ERRORS: Record<LeadField, string> = {
 */
 export const FORM_ID = "LP Cost Calculator";
 export const CALLBACK_FORM_ID = "LP Callback Request";
+/** The /services hub's callback popup: its leads reach the ERP under this form name too (callback route, form "services"). */
+export const SERVICES_FORM_ID = "LP Services Hub";
 /** The /freezone page's planner ("Request My Estimate"). */
 export const FZ_FORM_ID = "LP Free Zone Planner";
 /** The /accounting page's quote builder ("Send my quote request"). */

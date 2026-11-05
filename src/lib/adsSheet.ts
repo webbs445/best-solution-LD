@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import type { ReportLead } from "@/lib/erp";
+import { isPreviewDeployment } from "@/lib/preview";
 
 /*
   The Google Ads lead log: a Google Sheet behind a small Apps Script web app (scripts/ads-leads-sheet.gs). Each new
@@ -20,6 +21,7 @@ function config() {
 
 /** Adds one lead to the sheet. Never throws: a failure is logged and the lead is still safe in the ERP. */
 export async function recordAdsLead(lead: SheetLead): Promise<void> {
+  if (isPreviewDeployment()) return; // previews write nothing to the lead log sheet
   const c = config();
   if (!c) return;
   try {
