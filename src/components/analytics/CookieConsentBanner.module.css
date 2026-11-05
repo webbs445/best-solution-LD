@@ -261,7 +261,7 @@
   .choices {
     grid-column: 2;
     grid-row: 1 / span 2;
-    grid-template-columns: auto auto;
+    grid-template-columns: 1fr 1fr;
     margin-top: 0;
   }
 
@@ -394,5 +394,61 @@
     min-height: 36px;
     padding: 0 13px;
     font-size: 13px;
+  }
+}
+
+/* Laptops and desktops: the same slim pill, wider: cookie mark, the full sentence and links on one line, the two
+   equal choices on the right. The title stays for screen readers. Opening the settings shows the full card. */
+@media (min-width: 900px) {
+  .card:not(.open) {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    max-width: 1000px;
+    padding: 8px 8px 8px 20px;
+    border-radius: 999px;
+  }
+
+  .card:not(.open) h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .card:not(.open) .text {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 4px;
+    min-width: 0;
+    margin: 0;
+    font-size: 13.5px;
+  }
+
+  .card:not(.open) .text::before {
+    content: "";
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff 0 1.5px, transparent 2px), radial-gradient(circle at 65% 60%, #fff 0 1.5px, transparent 2px), radial-gradient(circle at 40% 70%, #fff 0 1.2px, transparent 1.7px), var(--copper-grad, var(--copper));
+  }
+
+  .card:not(.open) .choices {
+    display: grid;
+    flex: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0;
+  }
+
+  .card:not(.open) .choice {
+    min-height: 40px;
+    padding: 0 22px;
   }
 }
