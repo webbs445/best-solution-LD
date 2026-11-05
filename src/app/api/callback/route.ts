@@ -2,6 +2,7 @@ import { CALLBACK_FORM_ID, LEAD_RULES, SERVICES_FORM_ID, clickIdRows, leadConsen
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
+import { isPreviewDeployment, previewLeadId } from "@/lib/preview";
 import type { JurisdictionChoice } from "@/lib/pricing";
 
 /*
@@ -37,9 +38,16 @@ export const POST = withLeadLog("callback", async (request, log) => {
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
     ...(LEAD_RULES.mobile_no(mobile_no) ? [] : ["mobile_no"]),
-    ...((await emailIsReal(email_id)) ? [] : ["email_id"]),
+    // A preview checks the email format only: the real check looks up the domain's mail servers (DNS).
+    ...((isPreviewDeployment() ? LEAD_RULES.email_id(email_id) : await emailIsReal(email_id)) ? [] : ["email_id"]),
   ];
   if (invalid.length) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });
+
+  // Preview deployments answer with a mock lead and call nothing outside (lib/preview).
+  if (isPreviewDeployment()) {
+    log.erp_id = previewLeadId();
+    return Response.json({ ok: true, created: true, lead_id: log.erp_id, preview: true });
+  }
 
   // The /services hub sends form "services"; anything else is the regular callback popup.
   const hub = body.form === "services";

@@ -4,6 +4,7 @@ import { after } from "next/server";
 import { uaeNow } from "@/lib/adsExport";
 import { isGoogleAdsLead } from "@/lib/adsReport";
 import { recordAdsLead, type SheetLead } from "@/lib/adsSheet";
+import { isPreviewDeployment, previewLeadId } from "@/lib/preview";
 
 /*
   Creates a Lead in Best Solution's ERPNext (POST /api/resource/Lead), mapped to its Lead doctype.
@@ -248,6 +249,7 @@ export async function listLeads(since: string): Promise<ReportLead[] | null> {
 
 /** Updates fields on an existing lead (PUT /api/resource/Lead/<name>). */
 export async function updateErpLead(name: string, fields: Record<string, unknown>): Promise<LeadResult> {
+  if (isPreviewDeployment()) return { ok: true, name };
   const cfg = erpConfig();
   if (!cfg) return { ok: false, reason: "not_configured" };
   try {
@@ -291,6 +293,8 @@ function logGoogleAdsLead(name: string, l: ReturnType<typeof toLead>, consent = 
 }
 
 export async function createErpLead(input: LeadInput): Promise<LeadResult> {
+  // Second line of defence for every lead route: a preview deployment never writes to the ERP.
+  if (isPreviewDeployment()) return { ok: true, name: previewLeadId() };
   const base = process.env.ERPNEXT_URL?.replace(/\/+$/, "");
   const key = process.env.ERPNEXT_API_KEY;
   const secret = process.env.ERPNEXT_API_SECRET;
