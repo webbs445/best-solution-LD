@@ -44,7 +44,7 @@ export function SvGrid() {
                   </a>
                 )}
                 <h3>
-                  <a className="sv-tile-main" href={s.href} data-cta-location={`SV Grid — ${s.name}`}>
+                  <a className="sv-tile-main" href={s.href} data-service-card={s.name}>
                     {s.name}
                   </a>
                 </h3>

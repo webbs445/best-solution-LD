@@ -9,6 +9,7 @@ import {
   trackContentView,
   trackEmailClick,
   trackEngagedTime,
+  trackEvent,
   trackFaqExpand,
   trackFileDownload,
   trackFormAbandon,
@@ -25,7 +26,8 @@ import {
   Page-wide dataLayer wiring, ported from best-solution.ae AnalyticsInit (minus interest scoring and
   locale handling). Mounted once in the layout:
   - content_view on load, plus click-id capture on load and whenever consent changes;
-  - one delegated click listener: [data-cta-location] CTAs, FAQ opens, tel / wa.me / mailto / Maps /
+  - one delegated click listener: [data-cta-location] CTAs, [data-service-card] service cards (service_card_click,
+    the main site's event), FAQ opens, tel / wa.me / mailto / Maps /
     pdf / other outbound links. Anchors with data-no-track opt out;
   - form_start / form_error / form_abandon for every <form>, using its data-track value as form_id
     (abandon carries where the visitor stopped: field names, errors, attempts, time; never typed values);
@@ -72,6 +74,10 @@ export function AnalyticsInit() {
       // the anchor lookup because some CTAs are <button>s.
       const cta = target?.closest?.("[data-cta-location]") as HTMLElement | null;
       if (cta && !cta.hasAttribute("data-no-track")) trackConsultationCta(cta.getAttribute("data-cta-location") || "");
+
+      // Service cards (the /services hub grid) report which service was opened, as on best-solution.ae.
+      const card = target?.closest?.("[data-service-card]");
+      if (card) trackEvent("service_card_click", { service: card.getAttribute("data-service-card") || "" });
 
       // FAQ: a click on a closed question's <summary> opens it (keyboard Enter/Space also fires click).
       // Not a `toggle` listener, which would also count the question that starts open.
