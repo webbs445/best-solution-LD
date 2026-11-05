@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { SITE, TRUST, WHY } from "@/content/site";
-import { JOURNEY, SERVICES, SHOW_TEAM, TEAM } from "@/content/services";
+import { JOURNEY, SERVICES, SHOW_TEAM, TEAM, type ServiceId } from "@/content/services";
 import { formatAED } from "@/lib/pricing";
 import { ArrowIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
@@ -85,20 +85,28 @@ export function SvGrid() {
   );
 }
 
-/* "Your business journey": five stages, each opening the page that serves it. */
+/* "Your business journey": five stages on one copper path, each opening the page that serves it. */
+const STAGE_ICONS: ServiceId[] = ["setup", "freezone", "accounting", "tax", "spv"];
 export function SvJourney() {
   return (
     <section className="fz-block sv-journey" id="journey" aria-labelledby="svJourneyTitle">
       <div className="wrap">
-        <div className="fz-head-split">
+        <div className="fz-head-split sv-grid-head">
+          <p className="fz-tag">
+            <span />
+            How we help
+          </p>
           <h2 id="svJourneyTitle">Your business journey</h2>
           <p>We stay with you from the first licence onwards. Tap a stage to see how we help.</p>
         </div>
-        <ol className="sv-steps">
+        <ol className="sv-steps sv-path">
           {JOURNEY.map((j, i) => (
             <li key={j.title}>
               <a href={j.href} data-cta-location={`SV Journey — ${j.title}`}>
-                <span className="sv-step-n">{String(i + 1).padStart(2, "0")}</span>
+                <span className="sv-node" aria-hidden="true">
+                  <ServiceIcon id={STAGE_ICONS[i]} />
+                </span>
+                <small className="sv-step-k">Step {String(i + 1).padStart(2, "0")}</small>
                 <b>{j.title}</b>
                 <span>{j.body}</span>
                 <span className="sv-step-go">
