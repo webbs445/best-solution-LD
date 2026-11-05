@@ -6,8 +6,21 @@ import { trackEvent } from "@/lib/analytics";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
 
-/* Free zone FAQ: topic tabs, one question open at a time. Opens are reported by AnalyticsInit (data-faq-question). */
-export function FzFaq() {
+/*
+  Free zone FAQ: topic tabs, one question open at a time. Opens are reported by AnalyticsInit (data-faq-question).
+  /services reuses it with its own questions and no tabs.
+*/
+export function FzFaq({
+  faqs = FZ_FAQS,
+  title = "Free zone questions, answered",
+  tabs = true,
+  ctaLocation = "FZ FAQ — Request a Callback",
+}: {
+  faqs?: { c?: FaqTopic; q: string; a: string }[];
+  title?: string;
+  tabs?: boolean;
+  ctaLocation?: string;
+} = {}) {
   const [topic, setTopic] = useState<FaqTopic | "all">("all");
   const [open, setOpen] = useState<number | null>(null);
 
@@ -15,7 +28,8 @@ export function FzFaq() {
     <section className="fz-block fq" id="faq" aria-labelledby="faqTitle">
       <div className="wrap">
         <div className="fq-head">
-          <h2 id="faqTitle">Free zone questions, answered</h2>
+          <h2 id="faqTitle">{title}</h2>
+          {tabs && (
           <div className="fq-tabs" role="tablist" aria-label="Question topics">
             {FZ_FAQ_TOPICS.map((t) => (
               <button
@@ -32,10 +46,11 @@ export function FzFaq() {
               </button>
             ))}
           </div>
+          )}
         </div>
         {/* Re-keyed per topic so the visible questions replay their entrance animation. */}
         <div className="fq-grid" key={topic}>
-          {FZ_FAQS.map((f, i) => (
+          {faqs.map((f, i) => (
             <details
               key={f.q}
               data-c={f.c}
@@ -60,7 +75,7 @@ export function FzFaq() {
             <b>Still have a question?</b>
             <span>Your advisor can answer it on a short call.</span>
           </div>
-          <CallbackTrigger className="btn btn-primary" location="FZ FAQ — Request a Callback">
+          <CallbackTrigger className="btn btn-primary" location={ctaLocation}>
             Request a Callback <ArrowIcon />
           </CallbackTrigger>
         </div>

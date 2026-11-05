@@ -37,6 +37,13 @@ describe("POST /api/callback", () => {
     expect(String(sent[1].custom_client_profile_and_requirement)).toContain("Cookie choice: Unknown");
   });
 
+  it("files /services hub leads under LP Services Hub, and every other form as Callback Request", async () => {
+    await post({ lead_name: "Test", mobile_no: "050 000 0000", email_id: "test.lead@example.com", form: "services" });
+    expect(sent[0].custom_form_name).toBe("LP Services Hub");
+    await post({ lead_name: "Test", mobile_no: "050 000 0000", email_id: "test.lead@example.com", form: "anything else" });
+    expect(sent[1].custom_form_name).toBe("Callback Request");
+  });
+
   it("still refuses a number that is not one", async () => {
     const res = await post({ lead_name: "Test", mobile_no: "12", email_id: "test.lead@example.com" });
     expect(res.status).toBe(422);

@@ -22,6 +22,8 @@ export const SITE = {
   replyTime: "",
   /** Founding year, shared by the home page and /freezone. */
   founded: 2014,
+  /** Google rating, shared by /freezone and /services: update here only. */
+  rating: { score: 4.8, count: 200 },
 };
 
 /* Free zone and authority logos shown in the "jurisdictions we advise on" marquee. */

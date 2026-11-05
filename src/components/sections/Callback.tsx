@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
-import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
+import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES, SERVICES_FORM_ID } from "@/lib/lead";
 import { SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, jurisdictionLabel, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
@@ -26,12 +26,15 @@ export function CallbackButton({
   children,
   defaultInterest = "not_sure",
   ctaLocation = "LP Footer — Book a Callback",
+  formId = CALLBACK_FORM_ID,
 }: {
   className: string;
   children: ReactNode;
   /** The interest preselected in the popup, e.g. "freezone" on the free zone page. */
   defaultInterest?: (typeof INTERESTS)[number][0];
   ctaLocation?: string;
+  /** The dataLayer form_id and ERP form name: CALLBACK_FORM_ID, or SERVICES_FORM_ID on the /services hub. */
+  formId?: typeof CALLBACK_FORM_ID | typeof SERVICES_FORM_ID;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -93,6 +96,7 @@ export function CallbackButton({
           mobile_no: phone,
           email_id: email,
           interest,
+          form: formId === SERVICES_FORM_ID ? "services" : undefined,
           // First-touch UTMs and Google click IDs for the visit (lib/attribution); click_id falls back to the consented ad cookies.
           ...attributionFields(),
           event_id: eventId,
@@ -105,7 +109,7 @@ export function CallbackButton({
       setStatus({ kind: "sent" });
       if (!isConfirmedLeadResponse(responseBody)) return;
       pushFormSubmit({
-        formId: CALLBACK_FORM_ID,
+        formId,
         formType: "callback",
         serviceInterest: interest === "not_sure" ? undefined : jurisdictionLabel(interest),
         email,
@@ -115,7 +119,7 @@ export function CallbackButton({
         eventId,
       });
       pushGenerateLead({
-        formId: CALLBACK_FORM_ID,
+        formId,
         service: interest === "not_sure" ? "not_sure" : jurisdictionLabel(interest),
         email,
         phone,
@@ -157,7 +161,7 @@ export function CallbackButton({
             Leave your number. We&apos;ll call you back.
           </p>
 
-          <form className={styles.form} onSubmit={submit} noValidate data-track={CALLBACK_FORM_ID}>
+          <form className={styles.form} onSubmit={submit} noValidate data-track={formId}>
             <div className={styles.row}>
               <div>
                 <label htmlFor="cb-name">Full name</label>

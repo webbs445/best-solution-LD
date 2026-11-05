@@ -29,7 +29,21 @@ const CONTACTS = [
 
 /* The /freezone page footer. Its "Book a Callback" button owns the page's one callback popup;
    every other "callback" button opens it through CallbackTrigger. */
-export function FzFooter() {
+export function FzFooter({
+  blurb = "Independent free zone advice from Business Bay, Dubai. One consultant, every step, with costs confirmed in writing.",
+  nav = FZ_NAV,
+  navLabel = "This page",
+  defaultInterest = "freezone",
+  ctaLocation = "FZ Footer — Book a Callback",
+  formId,
+}: {
+  blurb?: string;
+  nav?: { href: string; label: string }[];
+  navLabel?: string;
+  defaultInterest?: Parameters<typeof CallbackButton>[0]["defaultInterest"];
+  ctaLocation?: string;
+  formId?: Parameters<typeof CallbackButton>[0]["formId"];
+} = {}) {
   const year = new Date().getFullYear();
   return (
     <footer className="bs-footer f4">
@@ -43,7 +57,7 @@ export function FzFooter() {
             <a className="bs-flogo" href="#top" aria-label="Best Solution, back to top">
               <Image src={SITE.mark} alt="Best Solution" width={160} height={75} />
             </a>
-            <p>Independent free zone advice from Business Bay, Dubai. One consultant, every step, with costs confirmed in writing.</p>
+            <p>{blurb}</p>
             <div className="bs-social">
               {SOCIAL_LINKS.map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener" aria-label={s.label}>
@@ -73,14 +87,14 @@ export function FzFooter() {
             </span>
             <h4>Book a consultation</h4>
             <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
-            <CallbackButton className="btn btn-primary" defaultInterest="freezone" ctaLocation="FZ Footer — Book a Callback">
+            <CallbackButton className="btn btn-primary" defaultInterest={defaultInterest} ctaLocation={ctaLocation} formId={formId}>
               Book a Callback <ArrowIcon />
             </CallbackButton>
             <small>No obligation</small>
           </div>
         </div>
-        <nav className="f5-nav" aria-label="This page">
-          {FZ_NAV.map((n) => (
+        <nav className="f5-nav" aria-label={navLabel}>
+          {nav.map((n) => (
             <a key={n.href} href={n.href}>
               {n.label}
             </a>

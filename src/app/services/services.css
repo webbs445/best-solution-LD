@@ -1,0 +1,163 @@
+/* /services hub: the parts the /freezone stylesheet does not have. Everything sits under .sv-page (with .fz-page). */
+
+/* Header: Services dropdown and the button-based CTA. */
+.sv-page .sv-dd {position:relative}
+.sv-page .sv-dd-btn {display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:0;border-radius:8px;background:transparent;font:600 14px/1.2 var(--font);color:var(--navy);cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.sv-page .sv-dd-btn:hover,.sv-page .sv-dd-btn[aria-expanded="true"] {background:rgba(204,134,103,.1);color:#a86b52}
+.sv-page .sv-dd-btn svg {width:16px;height:16px;transition:transform .2s ease}
+.sv-page .sv-dd-btn[aria-expanded="true"] svg {transform:rotate(180deg)}
+.sv-page .sv-dd-panel {position:absolute;top:calc(100% + 14px);left:-12px;width:560px;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:12px;border-radius:16px;border:1px solid rgba(204,134,103,.14);background:linear-gradient(#fff,#f5e8e2);box-shadow:0 24px 60px rgba(20,37,62,.18);animation:sv-drop .18s ease}
+.sv-page .sv-dd-panel[hidden] {display:none}
+.sv-page .bs-nav .sv-dd-panel a {display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:12px}
+.sv-page .sv-dd-panel b {display:block;font:700 14px/1.25 var(--font);color:var(--navy)}
+.sv-page .sv-dd-panel small {display:block;margin-top:3px;font:500 12.5px/1.4 var(--font);color:var(--ink-soft)}
+.sv-page .sv-ico {display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;background:var(--tint);color:var(--copper-ink)}
+.sv-page .sv-ico svg {width:18px;height:18px}
+.sv-page button.bs-cta {border:0;cursor:pointer}
+.sv-page .sv-menu-h {padding:6px 14px 2px;font:700 11.5px/1 var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--copper-ink)}
+.sv-page .bs-menu .sv-menu-svc {display:flex;align-items:center;gap:12px;padding:8px 14px}
+.sv-page .sv-menu-div {height:1px;margin:6px 14px;background:rgba(20,37,62,.1)}
+.sv-page .bs-menu {max-height:calc(100dvh - 90px);overflow-y:auto}
+@keyframes sv-drop {from {opacity:0;transform:translateY(-6px)}}
+
+/* Hero: goal picker and the service card. */
+.sv-page .sv-hero-grid {align-items:start}
+.sv-page .sv-goals {display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.sv-page .sv-goals button {display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 18px;border-radius:999px;border:1.5px solid rgba(255,255,255,.22);background:rgba(255,255,255,.05);color:#fff;font:600 15px/1 var(--font);cursor:pointer;transition:background-color .2s ease,border-color .2s ease,transform .2s ease}
+.sv-page .sv-goals button:hover {border-color:var(--copper);transform:translateY(-1px)}
+.sv-page .sv-goals button[aria-pressed="true"] {background:var(--copper-grad);border-color:transparent;box-shadow:0 10px 24px rgba(204,134,103,.35)}
+.sv-page .sv-goals svg {width:18px;height:18px}
+.sv-page .sv-trust {list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:32px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12);font-size:14px;color:var(--on-navy-soft)}
+.sv-page .sv-trust b {color:#fff}
+.sv-page .sv-trust li {display:inline-flex;align-items:center;gap:6px}
+.sv-page .sv-stars {display:inline-flex;gap:1px;color:#f5b545}
+.sv-page .sv-stars svg {width:14px;height:14px}
+
+.sv-page .sv-card {min-height:440px;padding:32px;border-radius:24px;background:linear-gradient(#fff,#faf7f5);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.sv-page .sv-card-svc,.sv-page .sv-helper {animation:sv-in .35s ease both}
+@keyframes sv-in {from {opacity:0;transform:translateY(10px)}}
+.sv-page .sv-card-ico {display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--copper-grad);color:#fff;box-shadow:0 10px 24px rgba(204,134,103,.35)}
+.sv-page .sv-card-ico svg {width:26px;height:26px}
+.sv-page .sv-card-k {margin-top:20px;font:700 12px/1 var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--copper-ink)}
+.sv-page .sv-card-name {margin-top:8px;font-size:clamp(24px,2.4vw,30px);line-height:1.15;letter-spacing:-.02em;color:var(--navy)}
+.sv-page .sv-card-line {margin-top:8px;color:var(--ink-soft);font-size:16px}
+.sv-page .sv-card-facts {margin-top:22px;border-top:1px solid var(--rule)}
+.sv-page .sv-card-facts div {display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.sv-page .sv-card-facts dt {font-size:14px;color:var(--ink-soft)}
+.sv-page .sv-card-facts dd {display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px;text-align:right;font-weight:700;color:var(--navy)}
+.sv-page .sv-card-facts a {color:var(--copper-ink);text-decoration:underline;text-underline-offset:3px}
+.sv-page .sv-chip {display:inline-block;padding:4px 10px;border-radius:999px;background:var(--tint);font:700 11.5px/1.3 var(--font);letter-spacing:.02em;color:var(--copper-ink)}
+.sv-page .sv-go {width:100%;margin-top:24px}
+.sv-page .sv-again {display:block;margin:14px auto 0;padding:8px 12px;border:0;background:none;font:600 14px var(--font);color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.sv-page .sv-again:hover {color:var(--navy)}
+.sv-page .sv-helper-top {display:flex;justify-content:space-between;align-items:center;margin-top:-4px}
+.sv-page .sv-helper-top .sv-card-k {margin-top:0}
+.sv-page .sv-dots {list-style:none;display:flex;gap:6px}
+.sv-page .sv-dots li {width:28px;height:4px;border-radius:4px;background:var(--rule)}
+.sv-page .sv-dots li.on {background:var(--copper)}
+.sv-page .sv-helper-opts {display:grid;gap:10px;margin-top:24px}
+.sv-page .sv-helper-opts button {display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:58px;padding:0 20px;border-radius:14px;border:1.5px solid var(--rule);background:#fff;font:600 16px var(--font);color:var(--navy);text-align:left;cursor:pointer;transition:border-color .2s ease,background-color .2s ease,transform .2s ease}
+.sv-page .sv-helper-opts button:hover {border-color:var(--copper);background:var(--tint);transform:translateX(2px)}
+.sv-page .sv-helper-opts svg {width:18px;height:18px;flex:none;color:var(--copper)}
+
+/* Services grid: two large tiles, then four. */
+.sv-page .sv-grid-sec {background:var(--ground)}
+.sv-page .sv-grid {list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.sv-page .sv-grid li.big {grid-column:span 2}
+.sv-page .sv-tile {display:flex;flex-direction:column;height:100%;padding:26px;border-radius:20px;border:1px solid var(--card-border,rgba(204,134,103,.16));background:#fff;color:var(--ink);text-decoration:none;box-shadow:0 1px 2px rgba(20,37,62,.04),0 14px 36px rgba(20,37,62,.07);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.sv-page .sv-tile:hover {transform:translateY(-6px);border-color:rgba(204,134,103,.4);box-shadow:0 2px 4px rgba(20,37,62,.05),0 26px 56px rgba(20,37,62,.14)}
+.sv-page .sv-tile-ico {display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--tint);color:var(--copper-ink);transition:background .25s ease,color .25s ease}
+.sv-page .sv-tile:hover .sv-tile-ico {background:var(--copper-grad);color:#fff}
+.sv-page .sv-tile-ico svg {width:24px;height:24px}
+.sv-page .sv-tile .sv-chip {align-self:flex-start;margin-top:18px}
+.sv-page .sv-tile h3 {margin-top:12px;font-size:20px;line-height:1.2;color:var(--navy)}
+.sv-page .big .sv-tile h3 {font-size:26px}
+.sv-page .sv-tile p {margin-top:8px;color:var(--ink-soft);font-size:15px;flex:1}
+.sv-page .sv-tile-foot {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;padding-top:16px;border-top:1px solid var(--rule)}
+.sv-page .sv-tile-foot b {font-size:15px;color:var(--navy)}
+.sv-page .big .sv-tile-foot b {font-size:18px}
+.sv-page .sv-tile-go {display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;transition:transform .25s ease,background .25s ease}
+.sv-page .sv-tile:hover .sv-tile-go {transform:translateX(4px);background:var(--copper)}
+.sv-page .sv-tile-go svg {width:18px;height:18px}
+
+/* Journey: five linked stages on a line. */
+.sv-page .sv-journey {background:var(--navy);color:#fff}
+.sv-page .sv-steps {list-style:none;position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.sv-page .sv-steps::before {content:"";position:absolute;left:24px;right:24px;top:24px;height:2px;background:linear-gradient(90deg,var(--copper),rgba(204,134,103,.15))}
+.sv-page .sv-steps a {position:relative;display:flex;flex-direction:column;gap:8px;height:100%;padding:0 4px 8px;color:#fff;text-decoration:none}
+.sv-page .sv-step-n {display:grid;place-items:center;width:50px;height:50px;margin-bottom:10px;border-radius:50%;border:2px solid var(--copper);background:var(--navy);font:800 15px var(--font);color:var(--copper);transition:background .25s ease,color .25s ease,transform .25s ease}
+.sv-page .sv-steps a:hover .sv-step-n {background:var(--copper);color:#fff;transform:scale(1.08)}
+.sv-page .sv-steps b {font-size:18px}
+.sv-page .sv-steps span {color:var(--on-navy-soft);font-size:14.5px}
+.sv-page .sv-steps .sv-step-go {display:inline-flex;align-items:center;gap:6px;margin-top:auto;padding-top:6px;font:700 14px var(--font);color:var(--copper)}
+.sv-page .sv-step-go svg {width:16px;height:16px;transition:transform .2s ease}
+.sv-page .sv-steps a:hover .sv-step-go svg {transform:translateX(4px)}
+
+/* Free tools strip. */
+.sv-page .sv-tools {padding:48px 0;background:var(--tint)}
+.sv-page .sv-tools-in {display:grid;grid-template-columns:220px 1fr;gap:32px;align-items:center}
+.sv-page .sv-tools h2 {font-size:28px;color:var(--navy)}
+.sv-page .sv-tools-in > div > p {margin-top:6px;color:var(--ink-soft)}
+.sv-page .sv-tools ul {list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sv-page .sv-tools a {display:flex;flex-direction:column;justify-content:space-between;gap:16px;height:100%;padding:18px;border-radius:16px;background:#fff;color:var(--navy);text-decoration:none;box-shadow:0 8px 24px rgba(20,37,62,.06);transition:transform .2s ease,box-shadow .2s ease}
+.sv-page .sv-tools a:hover {transform:translateY(-3px);box-shadow:0 16px 36px rgba(20,37,62,.12)}
+.sv-page .sv-tools b {display:block;font-size:16px}
+.sv-page .sv-tools small {display:block;margin-top:4px;color:var(--ink-soft);font-size:13px}
+.sv-page .sv-tool-go {display:inline-flex;align-items:center;gap:6px;font:700 14px var(--font);color:var(--copper-ink)}
+.sv-page .sv-tool-go svg {width:16px;height:16px}
+
+/* Why us and the team. */
+.sv-page .sv-trust-grid {display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+.sv-page .sv-trust-sec h2 {font-size:clamp(30px,3.6vw,44px);color:var(--navy)}
+.sv-page .sv-trust-lede {margin-top:14px;font-size:17px;color:var(--ink-soft)}
+.sv-page .sv-why {list-style:none;display:grid;gap:12px;margin-top:28px}
+.sv-page .sv-why li {display:flex;gap:16px;padding:18px 20px;border-radius:16px;background:var(--ground);border:1px solid var(--rule)}
+.sv-page .sv-why li > span {font:800 14px var(--font);color:var(--copper)}
+.sv-page .sv-why h3 {font-size:17px;color:var(--navy)}
+.sv-page .sv-why p {margin-top:4px;font-size:15px;color:var(--ink-soft)}
+.sv-page .sv-team {list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.sv-page .sv-team li {display:flex;flex-direction:column;gap:2px;padding:12px 12px 18px;border-radius:20px;background:#fff;box-shadow:0 14px 36px rgba(20,37,62,.1);text-align:center}
+.sv-page .sv-team img {width:100%;height:auto;aspect-ratio:1;object-fit:cover;object-position:top;border-radius:14px;margin-bottom:12px;background:var(--tint)}
+.sv-page .sv-team b {font-size:17px;color:var(--navy)}
+.sv-page .sv-team span {font-size:14px;color:var(--ink-soft)}
+
+/* Closing: the WhatsApp button keeps the ghost style. */
+.sv-page .sv-wa {text-decoration:none}
+
+/* Tablets. */
+@media (max-width:1020px) {
+  .sv-page .sv-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sv-page .sv-steps {grid-template-columns:1fr;gap:4px}
+  .sv-page .sv-steps::before {left:24px;right:auto;top:24px;bottom:24px;width:2px;height:auto;background:linear-gradient(var(--copper),rgba(204,134,103,.15))}
+  .sv-page .sv-steps a {display:grid;grid-template-columns:50px 1fr;column-gap:18px;row-gap:4px;padding:6px 0 16px}
+  .sv-page .sv-step-n {grid-row:span 3;margin-bottom:0}
+  .sv-page .sv-steps .sv-step-go {margin-top:0;padding-top:0}
+  .sv-page .sv-tools-in {grid-template-columns:1fr;gap:20px}
+  .sv-page .sv-tools ul {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sv-page .sv-trust-grid {grid-template-columns:1fr;gap:36px}
+}
+
+/* Phones: the grid becomes a swipeable row. */
+@media (max-width:640px) {
+  .sv-page .sv-hero .fz-hero-grid {gap:32px}
+  .sv-page .sv-goals {gap:8px;margin-top:24px}
+  .sv-page .sv-goals button {min-height:44px;padding:0 14px;font-size:14px}
+  .sv-page .sv-card {min-height:0;padding:24px 20px;border-radius:20px}
+  .sv-page .sv-card-facts div {flex-direction:column;align-items:flex-start;gap:6px}
+  .sv-page .sv-card-facts dd {justify-content:flex-start;text-align:left}
+  .sv-page .sv-trust {gap:8px 16px;font-size:13.5px}
+  .sv-page .sv-grid {display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-20px;padding:4px 20px 18px;scrollbar-width:none}
+  .sv-page .sv-grid::-webkit-scrollbar {display:none}
+  .sv-page .sv-grid li {flex:0 0 82%;scroll-snap-align:start}
+  .sv-page .sv-tile {padding:22px}
+  .sv-page .sv-tile:hover {transform:none}
+  .sv-page .big .sv-tile h3 {font-size:22px}
+  .sv-page .sv-tools ul {grid-template-columns:1fr}
+  .sv-page .sv-tools a {flex-direction:row;align-items:center}
+  .sv-page .sv-dd-panel {display:none}
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .sv-page .sv-card-svc,.sv-page .sv-helper,.sv-page .sv-dd-panel {animation:none}
+  .sv-page .sv-tile,.sv-page .sv-tile-go,.sv-page .sv-step-n,.sv-page .sv-goals button,.sv-page .sv-helper-opts button,.sv-page .sv-tools a {transition:none}
+}

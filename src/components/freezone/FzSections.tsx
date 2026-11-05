@@ -228,10 +228,10 @@ export function FzReviews() {
           <p className="lede">Google reviews from our clients.</p>
         </div>
         <div className="t-score">
-          <b>4.8</b>
+          <b>{SITE.rating.score}</b>
           <div>
             <Stars />
-            <span>from more than 200 Google reviews</span>
+            <span>from more than {SITE.rating.count} Google reviews</span>
           </div>
           <a className="t-all" href={SITE.googleReviews} target="_blank" rel="noopener">
             Read all Google reviews <ArrowIcon />
