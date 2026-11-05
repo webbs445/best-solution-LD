@@ -3,7 +3,6 @@ import { REVIEW_ROWS, SITE, TRUST } from "@/content/site";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
 import { FzCount } from "@/components/freezone/FzCount";
-import { SvLive } from "./SvLive";
 
 const advised = TRUST.find((t) => t.label === "Businesses advised")!;
 
@@ -60,7 +59,6 @@ export function SvHero() {
             <div className="sv-photo">
               <Image src="/images/about-office.webp" alt="Best Solution office reception in Business Bay, Dubai" fill priority sizes="(max-width: 1020px) 90vw, 440px" />
             </div>
-            <SvLive />
           </div>
           {/* Rotating seal: the rating in the middle, the consultation promise turning around it. */}
           <a className="sv-seal" href={SITE.googleReviews} target="_blank" rel="noopener" data-cta-location="SV Hero — Google Reviews" aria-label={`Rated ${SITE.rating.score} from ${SITE.rating.count}+ Google reviews`}>

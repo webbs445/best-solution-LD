@@ -194,7 +194,6 @@
 .sv-page .sv-photo {position:absolute;inset:0;overflow:hidden;border-radius:50% 50% 26px 26px / 40% 40% 26px 26px;box-shadow:0 40px 80px rgba(120,70,40,.3)}
 .sv-page .sv-photo img {object-fit:cover;object-position:32% 50%}
 .sv-page .sv-photo::after {content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,31,61,0) 60%,rgba(15,31,61,.35))}
-.sv-page .sv-live {position:absolute;z-index:2;top:17%;left:50%;transform:translateX(-50%);white-space:nowrap;padding:9px 14px;border-radius:999px;background:rgba(15,31,61,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14)}
 .sv-page .sv-seal {position:absolute;z-index:3;left:-64px;bottom:120px;display:grid;place-items:center;width:132px;height:132px;border-radius:50%;background:#fffaf5;box-shadow:0 20px 44px rgba(120,70,40,.28),0 0 0 1px rgba(168,105,76,.18);text-decoration:none;transition:transform .3s ease}
 .sv-page .sv-seal:hover {transform:scale(1.05)}
 .sv-page .sv-seal-ring {position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);animation:sv-spin 24s linear infinite}
@@ -220,7 +219,6 @@
 @media (prefers-reduced-motion:reduce) {
   .sv-page .sv-seal-ring {animation:none}
 }
-.sv-page .sv-live.is-closed i {background:#aab6ca;box-shadow:none;animation:none}
 
 /* Journey, light: champagne background, each stage a white card with a copper number. */
 .sv-page .sv-journey {background:linear-gradient(165deg,#fffaf5 0%,#f8ece3 60%,#f3e1d3 100%);color:var(--navy)}
@@ -384,3 +382,13 @@
 @media (prefers-reduced-motion:reduce) {
   .sv-page .sv-node {transition:none}
 }
+
+/* FAQ: a soft champagne shade so it separates clearly from the white reviews section above. */
+.sv-page .fq {background:linear-gradient(180deg,#f6e9df 0%,#faf2ec 55%,#fdf9f6 100%);border-top:1px solid rgba(204,134,103,.2)}
+
+/* Closing: the buttons and the two reassurance lines line up on the left of their column. */
+.sv-page .fz-close-cta {flex-direction:column;align-items:flex-start;justify-content:center;gap:18px}
+.sv-page .sv-close-btns {display:flex;flex-wrap:wrap;gap:12px}
+.sv-page .sv-close-notes {list-style:none;display:grid;gap:6px;margin:0;padding:0;font-size:14px;color:rgba(255,255,255,.92)}
+.sv-page .sv-close-notes li {display:flex;align-items:center;gap:8px}
+.sv-page .sv-close-notes svg {flex:none;width:16px;height:16px;color:#fff}

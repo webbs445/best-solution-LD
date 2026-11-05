@@ -2,7 +2,7 @@ import Image from "next/image";
 import { SITE, TRUST, WHY } from "@/content/site";
 import { JOURNEY, SERVICES, SHOW_TEAM, TEAM, type ServiceId } from "@/content/services";
 import { formatAED } from "@/lib/pricing";
-import { ArrowIcon, WhatsAppIcon } from "@/components/ui/Icons";
+import { ArrowIcon, CheckIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
 import { ServiceIcon } from "./ServiceIcon";
 
@@ -193,13 +193,22 @@ export function SvClosing() {
             <p>Tell us what you are planning. A consultant recommends the right service and confirms the costs in writing.</p>
           </div>
           <div className="fz-close-cta">
-            <CallbackTrigger className="btn btn-primary" location="SV Closing — Book a Consultation">
-              Book a Consultation <ArrowIcon />
-            </CallbackTrigger>
-            <a className="fz-btn-ghost sv-wa" href={SITE.whatsapp} target="_blank" rel="noopener" data-area="SV Closing">
-              <WhatsAppIcon /> WhatsApp us
-            </a>
-            <p>Complimentary · No obligation · We reply by phone, WhatsApp or email</p>
+            <div className="sv-close-btns">
+              <CallbackTrigger className="btn btn-primary" location="SV Closing — Book a Consultation">
+                Book a Consultation <ArrowIcon />
+              </CallbackTrigger>
+              <a className="fz-btn-ghost sv-wa" href={SITE.whatsapp} target="_blank" rel="noopener" data-area="SV Closing">
+                <WhatsAppIcon /> WhatsApp us
+              </a>
+            </div>
+            <ul className="sv-close-notes">
+              <li>
+                <CheckIcon /> Complimentary · No obligation
+              </li>
+              <li>
+                <CheckIcon /> We reply by phone, WhatsApp or email
+              </li>
+            </ul>
           </div>
         </div>
       </div>
