@@ -1,21 +1,15 @@
 import Image from "next/image";
-import { SITE, TRUST } from "@/content/site";
-import { serviceById, type ServiceId } from "@/content/services";
-import { formatAED } from "@/lib/pricing";
+import { REVIEW_ROWS, SITE, TRUST } from "@/content/site";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
-import { ServiceIcon } from "./ServiceIcon";
 
 const advised = TRUST.find((t) => t.label === "Businesses advised")!;
 
-/* The "Starting prices" panel over the office photo: label, and the line under it (timing where published). */
-const PLAN: [ServiceId, string, string?][] = [
-  ["freezone", "Free zone company"],
-  ["setup", "Mainland company"],
-  ["accounting", "Accounting", "Bookkeeping and statements"],
-];
+const countries = TRUST.find((t) => t.label === "Client countries")!;
+/* The hero review: a verified Google review already shown on /freezone. */
+const REVIEW = REVIEW_ROWS.flat().find((r) => r.name === "Michael Doherty")!;
 
-/* The hero: headline, buttons and a stat strip on the left; the Best Solution office with a starting-prices panel on the right. */
+/* The hero: headline, buttons and a stat strip on the left; the Best Solution office with a client review on the right. */
 export function SvHero() {
   return (
     <section className="fz-hero sv-hero" aria-labelledby="svTitle">
@@ -44,17 +38,6 @@ export function SvHero() {
           <p className="sv-hero-note">Free consultation · No obligation · We reply by phone, WhatsApp or email</p>
           <ul className="sv-stats">
             <li>
-              <b>
-                {SITE.rating.score}
-                <span className="sv-stars" aria-hidden="true">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <StarIcon key={i} />
-                  ))}
-                </span>
-              </b>
-              <span>From {SITE.rating.count}+ Google reviews</span>
-            </li>
-            <li>
               <b>{SITE.founded}</b>
               <span>Advising since</span>
             </li>
@@ -64,6 +47,13 @@ export function SvHero() {
                 {advised.suffix}
               </b>
               <span>Businesses advised</span>
+            </li>
+            <li>
+              <b>
+                {countries.count}
+                {countries.suffix}
+              </b>
+              <span>Client countries</span>
             </li>
           </ul>
         </div>
@@ -75,35 +65,27 @@ export function SvHero() {
             <i />
             Consultants available
           </span>
-          <div className="sv-plan">
-            <p className="sv-plan-h">
-              Starting prices
-              <small>Confirmed in writing</small>
-            </p>
-            <ul>
-              {PLAN.map(([id, label, note]) => {
-                const s = serviceById(id);
-                return (
-                  <li key={id}>
-                    <a href={s.href} data-cta-location={`SV Hero — Price: ${label}`}>
-                      <span className="sv-plan-ico">
-                        <ServiceIcon id={id} />
-                      </span>
-                      <span className="sv-plan-name">
-                        <b>{label}</b>
-                        <small>{s.timing ?? note}</small>
-                      </span>
-                      <span className="sv-plan-price">
-                        <small>from</small>
-                        AED {formatAED(s.from!)}
-                        {s.priceNote && <small>{s.priceNote}</small>}
-                      </span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+          <figure className="sv-review">
+            <div className="sv-review-top">
+              <span className="sv-stars" role="img" aria-label="5 out of 5 stars">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <StarIcon key={i} />
+                ))}
+              </span>
+              <span className="sv-review-src">Google review</span>
+            </div>
+            <blockquote>&ldquo;{REVIEW.quote}&rdquo;</blockquote>
+            <figcaption>
+              <Image src={REVIEW.photo} alt="" width={44} height={44} />
+              <span>
+                <b>{REVIEW.name}</b>
+                {REVIEW.role}, {REVIEW.company}
+              </span>
+            </figcaption>
+            <a className="sv-review-all" href={SITE.googleReviews} target="_blank" rel="noopener" data-cta-location="SV Hero — Google Reviews">
+              <b>{SITE.rating.score}</b> from {SITE.rating.count}+ Google reviews <ArrowIcon />
+            </a>
+          </figure>
         </div>
       </div>
     </section>
