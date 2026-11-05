@@ -301,3 +301,8 @@
 @media (prefers-reduced-motion:reduce) {
   .sv-page .sv-banner,.sv-page .sv-banner::before,.sv-page .mid .sv-tile::after {transition:none}
 }
+
+/* Polish: lighter outline arrows on the service cards (copper on hover), crisper text on the photo tiles. */
+.sv-page .mid .sv-tile-go {background:transparent;border:1.5px solid rgba(20,37,62,.18);color:var(--navy)}
+.sv-page .mid .sv-tile:hover .sv-tile-go {background:var(--copper-grad);border-color:transparent;color:#fff}
+.sv-page .big .sv-tile h3,.sv-page .big .sv-tile p,.sv-page .big .sv-tile .sv-tile-time {text-shadow:0 1px 12px rgba(8,18,38,.55)}
