@@ -320,3 +320,35 @@
 .sv-page .sv-tile-toollink svg {width:15px;height:15px;transition:transform .2s ease}
 .sv-page .sv-tile-toollink:hover {text-decoration:underline;text-underline-offset:3px}
 .sv-page .sv-tile-toollink:hover svg {transform:translateX(3px)}
+
+/* Why us: pitch on the left, three horizontal cards on the right with a large faint number behind each. */
+.sv-page .sv-trust-grid,.sv-page .sv-trust-grid.no-team {grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center}
+.sv-page .sv-why-cta {margin-top:28px}
+.sv-page .sv-why,.sv-page .no-team .sv-why {grid-template-columns:1fr;gap:14px;margin-top:0;counter-reset:why}
+.sv-page .sv-why li {position:relative;overflow:hidden;flex-direction:row;align-items:flex-start;gap:18px;padding:24px 90px 24px 24px;counter-increment:why;border:1px solid transparent;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(150deg,rgba(204,134,103,.5),rgba(204,134,103,.08) 45%,rgba(20,37,62,.06)) border-box;transition:transform .3s ease,box-shadow .3s ease}
+.sv-page .sv-why li:hover {transform:translateX(6px);box-shadow:0 22px 44px rgba(120,70,40,.14)}
+.sv-page .sv-why li::after {content:"0" counter(why);position:absolute;right:22px;top:50%;transform:translateY(-50%);font:800 64px/1 var(--font);letter-spacing:-.04em;color:var(--tint);transition:color .3s ease}
+.sv-page .sv-why li:hover::after {color:#efd6c8}
+.sv-page .sv-why li > .sv-why-ico {flex:none;width:52px;height:52px;border-radius:15px;background:var(--copper-grad);color:#fff;box-shadow:0 10px 22px rgba(168,105,76,.3)}
+.sv-page .sv-why li > .sv-why-ico svg {width:24px;height:24px}
+.sv-page .sv-why h3 {font-size:18px}
+@media (max-width:1020px) {
+  .sv-page .sv-trust-grid,.sv-page .sv-trust-grid.no-team {grid-template-columns:1fr;gap:32px}
+}
+@media (max-width:640px) {
+  .sv-page .sv-why-cta {width:100%;justify-content:center}
+  .sv-page .sv-why li {padding:20px 64px 20px 18px;gap:14px}
+  .sv-page .sv-why li::after {right:14px;font-size:44px}
+  .sv-page .sv-why li > .sv-why-ico {width:44px;height:44px;border-radius:13px}
+  .sv-page .sv-why li:hover {transform:none}
+}
+@media (prefers-reduced-motion:reduce) {
+  .sv-page .sv-why li {transition:none}
+}
+/* The faint number sits behind the card text, never over it. */
+.sv-page .sv-why li {isolation:isolate}
+.sv-page .sv-why li::after {z-index:-1}
+@media (max-width:640px) {
+  .sv-page .sv-why li {padding-right:18px}
+  .sv-page .sv-why li::after {top:12px;transform:none;font-size:40px}
+}

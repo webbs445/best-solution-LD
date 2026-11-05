@@ -122,7 +122,7 @@ const WHY_ICONS = [
 ];
 const countries = TRUST.find((t) => t.label === "Client countries")!;
 
-/* Why us (three points) and the team as published on www.best-solution.ae, shown only when SHOW_TEAM is on. */
+/* Why us: the pitch and a consultation button on the left, three points (and the team, when SHOW_TEAM is on) on the right. */
 export function SvTrust() {
   return (
     <section className="fz-block sv-trust-sec" id="team" aria-labelledby="svTeamTitle">
@@ -137,6 +137,11 @@ export function SvTrust() {
             Emirati-owned and advising since {SITE.founded}, with clients from {countries.count}
             {countries.suffix} countries.
           </p>
+          <CallbackTrigger className="btn btn-primary sv-why-cta" location="SV Why — Book a Consultation">
+            Book a Consultation <ArrowIcon />
+          </CallbackTrigger>
+        </div>
+        <div className="sv-why-side">
           <ol className="sv-why">
             {WHY3.map((w, i) => (
               <li key={w.title}>
@@ -152,18 +157,18 @@ export function SvTrust() {
               </li>
             ))}
           </ol>
+          {SHOW_TEAM && (
+            <ul className="sv-team">
+              {TEAM.map((m) => (
+                <li key={m.name}>
+                  <Image src={m.photo} alt={`${m.name}, ${m.role}, Best Solution`} width={320} height={320} sizes="(max-width: 640px) 50vw, 260px" />
+                  <b>{m.name}</b>
+                  <span>{m.role}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        {SHOW_TEAM && (
-          <ul className="sv-team">
-            {TEAM.map((m) => (
-              <li key={m.name}>
-                <Image src={m.photo} alt={`${m.name}, ${m.role}, Best Solution`} width={320} height={320} sizes="(max-width: 640px) 50vw, 260px" />
-                <b>{m.name}</b>
-                <span>{m.role}</span>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
     </section>
   );
