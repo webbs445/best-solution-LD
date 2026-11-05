@@ -16,7 +16,11 @@ export function SvGrid() {
   return (
     <section className="fz-block sv-grid-sec" id="services" aria-labelledby="svGridTitle">
       <div className="wrap">
-        <div className="fz-head-split">
+        <div className="fz-head-split sv-grid-head">
+          <p className="fz-tag">
+            <span />
+            Our services
+          </p>
           <h2 id="svGridTitle">Every service, one consultant</h2>
           <p>Pick a service to see its starting price and a free tool to get started.</p>
         </div>
@@ -34,15 +38,22 @@ export function SvGrid() {
                 <span className="sv-tile-ico">
                   <ServiceIcon id={s.id} />
                 </span>
-                <a className="sv-chip sv-tile-tool" href={s.tool.href} data-cta-location={`SV Grid — Tool: ${s.tool.label}`}>
-                  2-minute {s.tool.tag}
-                </a>
+                {s.big && (
+                  <a className="sv-chip sv-tile-tool" href={s.tool.href} data-cta-location={`SV Grid — Tool: ${s.tool.label}`}>
+                    2-minute {s.tool.tag}
+                  </a>
+                )}
                 <h3>
                   <a className="sv-tile-main" href={s.href} data-cta-location={`SV Grid — ${s.name}`}>
                     {s.name}
                   </a>
                 </h3>
                 <p>{s.line}</p>
+                {!s.big && (
+                  <a className="sv-tile-toollink" href={s.tool.href} data-cta-location={`SV Grid — Tool: ${s.tool.label}`}>
+                    Try the 2-minute {s.tool.tag} <ArrowIcon />
+                  </a>
+                )}
                 {s.timing && <p className="sv-tile-time">{s.timing}</p>}
                 <span className="sv-tile-foot">
                   <b>{price(s)}</b>

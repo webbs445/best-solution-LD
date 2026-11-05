@@ -59,7 +59,7 @@ export const SERVICES: Service[] = [
     timing: HUB_TIMING.setup,
     tool: { label: "Setup cost calculator", tag: "calculator", href: MAINLAND_HREF },
     big: true,
-    photo: "/images/mainland-dubai-economy-tourism.webp",
+    photo: "/images/main.webp",
   },
   {
     id: "freezone",

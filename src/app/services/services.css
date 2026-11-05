@@ -306,3 +306,17 @@
 .sv-page .mid .sv-tile-go {background:transparent;border:1.5px solid rgba(20,37,62,.18);color:var(--navy)}
 .sv-page .mid .sv-tile:hover .sv-tile-go {background:var(--copper-grad);border-color:transparent;color:#fff}
 .sv-page .big .sv-tile h3,.sv-page .big .sv-tile p,.sv-page .big .sv-tile .sv-tile-time {text-shadow:0 1px 12px rgba(8,18,38,.55)}
+
+/* Grid header: tag, title and intro stacked on the left. */
+.sv-page .sv-grid-head {grid-template-columns:1fr;gap:0;max-width:680px}
+.sv-page .sv-grid-head .fz-tag {margin-bottom:14px;font-size:13px;color:var(--copper-ink)}
+.sv-page .sv-grid-head .fz-tag span {background:var(--copper-ink)}
+.sv-page .sv-grid-head h2 + p {margin-top:14px}
+/* Photo tiles: the Downtown skyline is a portrait photo, so keep the tower in frame. */
+.sv-page .sv-grid li.big:first-child .sv-tile-photo {object-position:50% 38%}
+/* Service cards: a gradient hairline border and a quiet text link to the tool. */
+.sv-page .mid .sv-tile {border:1px solid transparent;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(150deg,rgba(204,134,103,.55),rgba(204,134,103,.08) 45%,rgba(20,37,62,.06)) border-box}
+.sv-page .sv-tile-toollink {position:relative;z-index:2;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin-top:12px;font:700 13.5px var(--font);color:var(--copper-ink);text-decoration:none}
+.sv-page .sv-tile-toollink svg {width:15px;height:15px;transition:transform .2s ease}
+.sv-page .sv-tile-toollink:hover {text-decoration:underline;text-underline-offset:3px}
+.sv-page .sv-tile-toollink:hover svg {transform:translateX(3px)}
