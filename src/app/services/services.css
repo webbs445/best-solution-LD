@@ -114,7 +114,6 @@
 /* Tablets. */
 @media (max-width:1020px) {
   .sv-page .sv-hero-grid {grid-template-columns:1fr;gap:48px}
-  .sv-page .sv-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
   .sv-page .sv-steps {grid-template-columns:1fr;gap:4px}
   .sv-page .sv-steps::before {left:24px;right:auto;top:24px;bottom:24px;width:2px;height:auto;background:linear-gradient(var(--copper),rgba(204,134,103,.15))}
   .sv-page .sv-steps a {display:grid;grid-template-columns:50px 1fr;column-gap:18px;row-gap:4px;padding:6px 0 16px}
@@ -135,21 +134,6 @@
   .sv-page .sv-stats li > span {font-size:12.5px}
   .sv-page .sv-keep {white-space:normal}
   .sv-page .sv-hero-cta .btn,.sv-page .sv-hero-cta .fz-btn-ghost {flex:1 1 100%;justify-content:center}
-  .sv-page .sv-tile:hover {transform:none}
-  .sv-page .sv-grid {gap:12px}
-  .sv-page .sv-tile {min-height:0;padding:16px;border-radius:20px}
-  .sv-page .sv-tile-ico {width:44px;height:44px;border-radius:13px}
-  .sv-page .sv-tile .sv-tile-tool {position:static;align-self:flex-start;margin-top:10px;font-size:10.5px;padding:3px 8px}
-  .sv-page .sv-tile h3 {margin-top:14px;font-size:16px}
-  .sv-page .sv-grid li:not(.big) .sv-tile p {display:none}
-  .sv-page .sv-tile-foot {margin-top:auto;padding-top:12px;gap:8px}
-  .sv-page .sv-grid li:not(.big) .sv-tile h3 {flex:1;margin-bottom:12px}
-  .sv-page .sv-tile-foot b {font-size:13px}
-  .sv-page .sv-tile-go {width:34px;height:34px}
-  .sv-page .big .sv-tile {min-height:300px;padding:20px}
-  .sv-page .big .sv-tile .sv-tile-tool {position:absolute;top:20px;right:20px;margin:0}
-  .sv-page .big .sv-tile h3 {font-size:24px}
-  .sv-page .big .sv-tile-foot b {font-size:14px}
   .sv-page .sv-dd-panel {display:none}
 }
 
@@ -267,3 +251,53 @@
 .sv-page .fz-close .btn-primary:hover {background:#fffaf5}
 .sv-page .fz-close .fz-btn-ghost {border-color:rgba(255,255,255,.6)}
 .sv-page .fz-close .fz-btn-ghost:hover {background:rgba(255,255,255,.14);border-color:#fff}
+
+/* Bento rhythm: 2 photo tiles, 3 service cards, 1 wide banner (6-column grid). */
+.sv-page .sv-grid {grid-template-columns:repeat(6,minmax(0,1fr))}
+.sv-page .sv-grid li.big {grid-column:span 3}
+.sv-page .sv-grid li.mid {grid-column:span 2}
+.sv-page .sv-grid li.wide {grid-column:1/-1}
+/* Service cards: a copper bar draws across the top on hover. */
+.sv-page .mid .sv-tile::after {content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--copper-grad);transform:scaleX(0);transform-origin:left;transition:transform .45s ease}
+.sv-page .mid .sv-tile:hover::after {transform:scaleX(1)}
+.sv-page .mid .sv-tile:hover .sv-tile-ico {transform:rotate(-6deg) scale(1.05)}
+.sv-page .sv-tile-ico {transition:background .3s ease,color .3s ease,transform .3s ease}
+
+/* The cost calculator banner: copper, a sheen that sweeps across on hover, a soft ring behind. */
+.sv-page .sv-banner {position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;gap:24px;padding:28px 32px;border-radius:24px;background:linear-gradient(120deg,#a8694c 0%,#c98463 45%,#e0a983 100%);color:#fff;text-decoration:none;box-shadow:0 24px 50px rgba(150,90,60,.28);transition:transform .3s ease,box-shadow .3s ease}
+.sv-page .sv-banner:hover {transform:translateY(-4px);box-shadow:0 32px 64px rgba(150,90,60,.36)}
+.sv-page .sv-banner::before {content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.32) 50%,transparent 70%);transform:translateX(-100%);transition:transform 1s ease}
+.sv-page .sv-banner:hover::before {transform:translateX(100%)}
+.sv-page .sv-banner::after {content:"";position:absolute;z-index:-1;right:-70px;top:-120px;width:300px;height:300px;border-radius:50%;border:40px solid rgba(255,255,255,.1)}
+.sv-page .sv-banner-ico {display:grid;place-items:center;flex:none;width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.sv-page .sv-banner-ico svg {width:30px;height:30px}
+.sv-page .sv-banner-txt {display:flex;flex-direction:column;gap:4px;min-width:0}
+.sv-page .sv-banner-txt small {font:700 11.5px/1 var(--font);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.sv-page .sv-banner-txt b {margin-top:4px;font:800 26px/1.15 var(--font);letter-spacing:-.02em}
+.sv-page .sv-banner-txt > span {font-size:15px;color:rgba(255,255,255,.9)}
+.sv-page .sv-banner-cta {display:inline-flex;align-items:center;gap:8px;flex:none;margin-left:auto;padding:15px 24px;border-radius:999px;background:#fff;color:var(--copper-ink);font:700 15px/1 var(--font);box-shadow:0 10px 24px rgba(90,45,25,.2)}
+.sv-page .sv-banner-cta svg {width:17px;height:17px;transition:transform .25s ease}
+.sv-page .sv-banner:hover .sv-banner-cta svg {transform:translateX(4px)}
+
+@media (max-width:1020px) {
+  .sv-page .sv-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sv-page .sv-grid li.big {grid-column:span 1}
+  .sv-page .sv-grid li.mid {grid-column:1/-1}
+  .sv-page .mid .sv-tile {min-height:0}
+}
+@media (max-width:640px) {
+  .sv-page .sv-grid {gap:12px}
+  .sv-page .sv-grid li.big {grid-column:1/-1}
+  .sv-page .sv-tile {padding:20px;border-radius:20px}
+  .sv-page .sv-tile:hover {transform:none}
+  .sv-page .sv-tile .sv-tile-tool {top:20px;right:20px}
+  .sv-page .sv-tile h3 {margin-top:16px;font-size:18px}
+  .sv-page .big .sv-tile {min-height:300px}
+  .sv-page .big .sv-tile h3 {font-size:24px}
+  .sv-page .sv-banner {flex-direction:column;align-items:flex-start;gap:16px;padding:24px 22px}
+  .sv-page .sv-banner-txt b {font-size:22px}
+  .sv-page .sv-banner-cta {margin-left:0;width:100%;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce) {
+  .sv-page .sv-banner,.sv-page .sv-banner::before,.sv-page .mid .sv-tile::after {transition:none}
+}

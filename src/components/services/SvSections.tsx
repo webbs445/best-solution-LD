@@ -10,7 +10,8 @@ import { ServiceIcon } from "./ServiceIcon";
 
 const price = (s: (typeof SERVICES)[number]) => (s.from !== null ? `From AED ${formatAED(s.from)}${s.priceNote ?? ""}` : s.priceNote);
 
-/* The hub: one tile per service page. Company setup and Free zone are the large tiles. */
+/* The hub: two photo tiles, three service cards, and the cost calculator as a wide banner (it is a tool, not a service). */
+const CALC = SERVICES.find((s) => s.id === "calculator")!;
 export function SvGrid() {
   return (
     <section className="fz-block sv-grid-sec" id="services" aria-labelledby="svGridTitle">
@@ -20,9 +21,9 @@ export function SvGrid() {
           <p>Pick a service to see its starting price and a free tool to get started.</p>
         </div>
         <ul className="sv-grid">
-          {SERVICES.map((s) => (
+          {SERVICES.filter((s) => s !== CALC).map((s) => (
             // The whole tile opens the service page (stretched link); the tool tag is its own link to the tool.
-            <li key={s.id} className={s.big ? "big" : undefined}>
+            <li key={s.id} className={s.big ? "big" : "mid"}>
               <article className="sv-tile spot">
                 {s.photo && (
                   <>
@@ -52,6 +53,21 @@ export function SvGrid() {
               </article>
             </li>
           ))}
+          <li className="wide">
+            <a className="sv-banner" href={CALC.tool.href} data-cta-location="SV Grid — Cost calculator">
+              <span className="sv-banner-ico">
+                <ServiceIcon id="calculator" />
+              </span>
+              <span className="sv-banner-txt">
+                <small>Free · 2-minute calculator</small>
+                <b>Not sure what it costs?</b>
+                <span>{CALC.line}</span>
+              </span>
+              <span className="sv-banner-cta">
+                Get my estimate <ArrowIcon />
+              </span>
+            </a>
+          </li>
         </ul>
       </div>
     </section>

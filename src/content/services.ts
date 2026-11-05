@@ -98,7 +98,7 @@ export const SERVICES: Service[] = [
     href: "/spv",
     // The SPV page publishes no fee: a written breakdown follows the consultation.
     from: null,
-    priceNote: "Priced after a consultation",
+    priceNote: "Quote after a consultation",
     tool: { label: "Structure finder", tag: "planner", href: "/spv#fit" },
   },
   {
