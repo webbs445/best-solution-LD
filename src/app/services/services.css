@@ -222,3 +222,4 @@
 @media (prefers-reduced-motion:reduce) {
   .sv-page .sv-seal-ring {animation:none}
 }
+.sv-page .sv-live.is-closed i {background:#aab6ca;box-shadow:none;animation:none}

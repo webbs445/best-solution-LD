@@ -2,6 +2,8 @@ import Image from "next/image";
 import { REVIEW_ROWS, SITE, TRUST } from "@/content/site";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
+import { FzCount } from "@/components/freezone/FzCount";
+import { SvLive } from "./SvLive";
 
 const advised = TRUST.find((t) => t.label === "Businesses advised")!;
 
@@ -23,7 +25,7 @@ export function SvHero() {
         <div className="sv-hero-copy">
           <p className="fz-tag">
             <span />
-            Best Solution services
+            UAE business services
           </p>
           <h1 id="svTitle">
             Set up and run your UAE business, <span className="accent sv-keep">with one consultant.</span>
@@ -44,17 +46,11 @@ export function SvHero() {
               <span>Advising since</span>
             </li>
             <li>
-              <b>
-                {advised.count.toLocaleString("en-US")}
-                {advised.suffix}
-              </b>
+              <FzCount to={advised.count} suffix={advised.suffix} />
               <span>Businesses advised</span>
             </li>
             <li>
-              <b>
-                {countries.count}
-                {countries.suffix}
-              </b>
+              <FzCount to={countries.count} suffix={countries.suffix} delay={150} />
               <span>Client countries</span>
             </li>
           </ul>
@@ -64,10 +60,7 @@ export function SvHero() {
             <div className="sv-photo">
               <Image src="/images/about-office.webp" alt="Best Solution office reception in Business Bay, Dubai" fill priority sizes="(max-width: 1020px) 90vw, 440px" />
             </div>
-            <span className="sv-live qc-live">
-              <i />
-              Consultants available
-            </span>
+            <SvLive />
           </div>
           {/* Rotating seal: the rating in the middle, the consultation promise turning around it. */}
           <a className="sv-seal" href={SITE.googleReviews} target="_blank" rel="noopener" data-cta-location="SV Hero — Google Reviews" aria-label={`Rated ${SITE.rating.score} from ${SITE.rating.count}+ Google reviews`}>
