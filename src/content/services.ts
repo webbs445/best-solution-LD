@@ -111,23 +111,6 @@ export const SERVICES: Service[] = [
 
 export const serviceById = (id: ServiceId): Service => SERVICES.find((s) => s.id === id)!;
 
-/** "Start a company" shows both routes side by side, each with its own price, timing and links. */
-export type SetupOption = "mainland" | "freezone";
-export const SETUP_OPTIONS: { id: SetupOption; label: string; service: Service }[] = [
-  { id: "mainland", label: "Mainland", service: serviceById("setup") },
-  { id: "freezone", label: "Free zone", service: serviceById("freezone") },
-];
-
-/** The hero picker's goals, in the visitor's words. "unsure" opens the 3-question helper. */
-export type GoalId = "setup" | "accounting" | "tax" | "spv";
-export const GOALS: { id: GoalId | "unsure"; label: string }[] = [
-  { id: "setup", label: "Start a company" },
-  { id: "accounting", label: "Keep my books" },
-  { id: "tax", label: "Sort out corporate tax and VAT" },
-  { id: "spv", label: "Protect my assets" },
-  { id: "unsure", label: "I'm not sure yet" },
-];
-
 /** "Your business journey": each stage opens the page that serves it. Visa & bank goes to setup until it has a page. */
 export const JOURNEY: { title: string; body: string; href: string }[] = [
   { title: "Setup", body: "Choose mainland or a free zone and get licensed.", href: MAINLAND_HREF },

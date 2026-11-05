@@ -20,59 +20,48 @@
 .sv-page .bs-menu {max-height:calc(100dvh - 90px);overflow-y:auto}
 @keyframes sv-drop {from {opacity:0;transform:translateY(-6px)}}
 
-/* Hero: goal picker and the service card. */
-.sv-page .sv-hero-grid {align-items:start}
-.sv-page .sv-goals {display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
-.sv-page .sv-goals button {display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 18px;border-radius:999px;border:1.5px solid rgba(255,255,255,.22);background:rgba(255,255,255,.05);color:#fff;font:600 15px/1 var(--font);cursor:pointer;transition:background-color .2s ease,border-color .2s ease,transform .2s ease}
-.sv-page .sv-goals button:hover {border-color:var(--copper);transform:translateY(-1px)}
-.sv-page .sv-goals button[aria-pressed="true"] {background:var(--copper-grad);border-color:transparent;box-shadow:0 10px 24px rgba(204,134,103,.35)}
-.sv-page .sv-goals svg {width:18px;height:18px}
-.sv-page .sv-trust {list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:32px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12);font-size:14px;color:var(--on-navy-soft)}
-.sv-page .sv-trust b {color:#fff}
-.sv-page .sv-trust li {display:inline-flex;align-items:center;gap:6px}
+/* Hero: headline, buttons and trust row on the left; the Dubai photo with floating cards on the right. */
+.sv-page .sv-hero {padding-bottom:100px}
+.sv-page .sv-hero-grid {grid-template-columns:1.08fr .92fr;gap:64px;align-items:center}
+.sv-page .sv-hero h1 {font-size:clamp(38px,4.6vw,60px)}
+.sv-page .sv-hero-h2 {margin-top:20px;font:600 clamp(18px,1.6vw,21px)/1.4 var(--font);letter-spacing:-.01em;color:#fff}
+.sv-page .sv-hero .fz-sub {margin-top:10px;font-size:17px}
+.sv-page .sv-hero-cta {display:flex;flex-wrap:wrap;gap:14px;margin-top:32px}
+.sv-page .sv-hero-cta .fz-btn-ghost {text-decoration:none}
+.sv-page .sv-keep {white-space:nowrap}
+/* Stat strip under the buttons: three figures with dividers. */
+.sv-page .sv-stats {list-style:none;display:grid;grid-template-columns:repeat(3,auto);justify-content:start;margin-top:40px;padding-top:24px;border-top:1px solid rgba(255,255,255,.12)}
+.sv-page .sv-stats li {display:flex;flex-direction:column;gap:6px;padding-right:28px}
+.sv-page .sv-stats li + li {padding-left:28px;border-left:1px solid rgba(255,255,255,.12)}
+.sv-page .sv-stats b {display:inline-flex;align-items:center;gap:10px;font:800 26px/1 var(--font);letter-spacing:-.02em;color:#fff}
+.sv-page .sv-stats li > span {font-size:13.5px;color:var(--on-navy-soft)}
 .sv-page .sv-stars {display:inline-flex;gap:1px;color:#f5b545}
 .sv-page .sv-stars svg {width:14px;height:14px}
 
-.sv-page .sv-card {min-height:440px;padding:32px;border-radius:24px;background:linear-gradient(#fff,#faf7f5);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.35)}
-.sv-page .sv-card-svc,.sv-page .sv-helper {animation:sv-in .35s ease both}
-@keyframes sv-in {from {opacity:0;transform:translateY(10px)}}
-.sv-page .sv-card-ico {display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--copper-grad);color:#fff;box-shadow:0 10px 24px rgba(204,134,103,.35)}
-.sv-page .sv-card-ico svg {width:26px;height:26px}
-.sv-page .sv-card-k {margin-top:20px;font:700 12px/1 var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--copper-ink)}
-.sv-page .sv-card-name {margin-top:8px;font-size:clamp(24px,2.4vw,30px);line-height:1.15;letter-spacing:-.02em;color:var(--navy)}
-.sv-page .sv-card-line {margin-top:8px;color:var(--ink-soft);font-size:16px}
-.sv-page .sv-card-facts {margin-top:22px;border-top:1px solid var(--rule)}
-.sv-page .sv-card-facts div {display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule)}
-.sv-page .sv-card-facts dt {font-size:14px;color:var(--ink-soft)}
-.sv-page .sv-card-facts dd {display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px;text-align:right;font-weight:700;color:var(--navy)}
-.sv-page .sv-card-facts a {color:var(--copper-ink);text-decoration:underline;text-underline-offset:3px}
-.sv-page .sv-chip {display:inline-block;padding:4px 10px;border-radius:999px;background:var(--tint);font:700 11.5px/1.3 var(--font);letter-spacing:.02em;color:var(--copper-ink)}
-.sv-page .sv-go {width:100%;margin-top:24px}
-.sv-page .sv-again {display:block;margin:14px auto 0;padding:8px 12px;border:0;background:none;font:600 14px var(--font);color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.sv-page .sv-again:hover {color:var(--navy)}
-.sv-page .sv-helper-top {display:flex;justify-content:space-between;align-items:center;margin-top:-4px}
-.sv-page .sv-helper-top .sv-card-k {margin-top:0}
-.sv-page .sv-dots {list-style:none;display:flex;gap:6px}
-.sv-page .sv-dots li {width:28px;height:4px;border-radius:4px;background:var(--rule)}
-.sv-page .sv-dots li.on {background:var(--copper)}
-.sv-page .sv-helper-opts {display:grid;gap:10px;margin-top:24px}
-.sv-page .sv-helper-opts button {display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:58px;padding:0 20px;border-radius:14px;border:1.5px solid var(--rule);background:#fff;font:600 16px var(--font);color:var(--navy);text-align:left;cursor:pointer;transition:border-color .2s ease,background-color .2s ease,transform .2s ease}
-.sv-page .sv-helper-opts button:hover {border-color:var(--copper);background:var(--tint);transform:translateX(2px)}
-.sv-page .sv-helper-opts svg {width:18px;height:18px;flex:none;color:var(--copper)}
-
-/* "Start a company": Mainland and Free zone side by side. */
-.sv-page .sv-opts {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
-.sv-page .sv-opt {display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:16px;border:1.5px solid var(--rule);background:#fff;transition:border-color .2s ease,box-shadow .2s ease}
-.sv-page .sv-opt:hover,.sv-page .sv-opt.is-rec {border-color:var(--copper);box-shadow:0 10px 26px rgba(204,134,103,.18)}
-.sv-page .sv-opt-top {display:flex;justify-content:space-between;align-items:center;gap:8px}
-.sv-page .sv-opt h3 {font-size:19px;color:var(--navy)}
-.sv-page .sv-opt-price {font-weight:800;color:var(--navy)}
-.sv-page .sv-opt-time {font-size:14px;color:var(--ink-soft)}
-.sv-page .sv-opt-tool {font:600 14px var(--font);color:var(--copper-ink);text-decoration:underline;text-underline-offset:3px}
-.sv-page .sv-opt-go {width:100%;margin-top:auto;min-height:46px;padding-inline:14px;font-size:14px;white-space:nowrap}
-.sv-page .sv-opt-tool + .sv-opt-go {margin-top:10px}
+/* Visual: the office photo, a live pill, and one glass "Starting prices" panel overlapping its lower left. */
+.sv-page .sv-visual {position:relative;padding:0 0 70px 56px}
+.sv-page .sv-visual::before {content:"";position:absolute;inset:-40px -40px 0 0;z-index:0;background:radial-gradient(closest-side,rgba(204,134,103,.38),transparent);filter:blur(14px);pointer-events:none}
+.sv-page .sv-photo {position:relative;z-index:1;aspect-ratio:760/794;overflow:hidden;border-radius:28px;box-shadow:0 40px 90px rgba(0,0,0,.45),0 0 0 1px rgba(230,182,162,.18)}
+.sv-page .sv-photo img {object-fit:cover;object-position:40% 50%}
+.sv-page .sv-photo::after {content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,31,61,0) 55%,rgba(15,31,61,.45))}
+.sv-page .sv-live {position:absolute;z-index:2;top:22px;right:22px;padding:10px 14px;border-radius:999px;background:rgba(15,31,61,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14)}
+.sv-page .sv-plan {position:absolute;z-index:3;left:0;bottom:0;width:min(360px,82%);padding:18px;border-radius:22px;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 30px 70px rgba(5,12,28,.45)}
+.sv-page .sv-plan-h {display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:0 4px 12px;font:800 15px/1 var(--font);color:var(--navy)}
+.sv-page .sv-plan-h small {font:600 11.5px/1 var(--font);color:var(--copper-ink)}
+.sv-page .sv-plan ul {list-style:none;display:grid;gap:6px}
+.sv-page .sv-plan a {display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;color:var(--navy);text-decoration:none;transition:background .2s ease}
+.sv-page .sv-plan a:hover {background:var(--tint)}
+.sv-page .sv-plan-ico {display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:11px;background:var(--copper-grad);color:#fff}
+.sv-page .sv-plan-ico svg {width:19px;height:19px}
+.sv-page .sv-plan-name {display:flex;flex-direction:column;gap:3px;min-width:0}
+.sv-page .sv-plan-name b {font:700 14px/1.2 var(--font)}
+.sv-page .sv-plan-name small {font:500 12px/1.2 var(--font);color:var(--ink-soft)}
+.sv-page .sv-plan-price {margin-left:auto;text-align:right;font:800 15px/1.15 var(--font);white-space:nowrap}
+.sv-page .sv-plan-price small {display:block;font:600 11px/1.2 var(--font);color:var(--ink-soft)}
+.sv-page .sv-plan-price small:last-child:not(:first-child) {display:inline}
 
 /* Services grid: two large tiles, then four. */
+.sv-page .sv-chip {display:inline-block;padding:4px 10px;border-radius:999px;background:var(--tint);font:700 11.5px/1.3 var(--font);letter-spacing:.02em;color:var(--copper-ink)}
 .sv-page .sv-grid-sec {background:var(--ground)}
 .sv-page .sv-grid {list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
 .sv-page .sv-grid li.big {grid-column:span 2}
@@ -136,6 +125,8 @@
 
 /* Tablets. */
 @media (max-width:1020px) {
+  .sv-page .sv-hero-grid {grid-template-columns:1fr;gap:48px}
+  .sv-page .sv-visual {max-width:560px;width:100%;margin-inline:auto}
   .sv-page .sv-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
   .sv-page .sv-steps {grid-template-columns:1fr;gap:4px}
   .sv-page .sv-steps::before {left:24px;right:auto;top:24px;bottom:24px;width:2px;height:auto;background:linear-gradient(var(--copper),rgba(204,134,103,.15))}
@@ -149,13 +140,17 @@
 /* Phones: the grid becomes a swipeable row. */
 @media (max-width:640px) {
   .sv-page .sv-hero .fz-hero-grid {gap:32px}
-  .sv-page .sv-goals {gap:8px;margin-top:24px}
-  .sv-page .sv-goals button {min-height:44px;padding:0 14px;font-size:14px}
-  .sv-page .sv-card {min-height:0;padding:24px 20px;border-radius:20px}
-  .sv-page .sv-card-facts div {flex-direction:column;align-items:flex-start;gap:6px}
-  .sv-page .sv-card-facts dd {justify-content:flex-start;text-align:left}
-  .sv-page .sv-opts {grid-template-columns:1fr}
-  .sv-page .sv-trust {gap:8px 16px;font-size:13.5px}
+  .sv-page .sv-hero {padding-bottom:64px}
+  .sv-page .sv-visual {padding:0 0 96px 0}
+  .sv-page .sv-plan {width:auto;left:12px;right:12px;padding:14px}
+  .sv-page .sv-live {top:14px;right:14px}
+  .sv-page .sv-stats li {padding-right:14px}
+  .sv-page .sv-stats li + li {padding-left:14px}
+  .sv-page .sv-stats b {font-size:20px;gap:6px}
+  .sv-page .sv-stats .sv-stars svg {width:11px;height:11px}
+  .sv-page .sv-stats li > span {font-size:12.5px}
+  .sv-page .sv-keep {white-space:normal}
+  .sv-page .sv-hero-cta .btn,.sv-page .sv-hero-cta .fz-btn-ghost {flex:1 1 100%;justify-content:center}
   .sv-page .sv-grid {display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-20px;padding:4px 20px 18px;scrollbar-width:none}
   .sv-page .sv-grid::-webkit-scrollbar {display:none}
   .sv-page .sv-grid li {flex:0 0 82%;scroll-snap-align:start}
@@ -166,6 +161,5 @@
 }
 
 @media (prefers-reduced-motion:reduce) {
-  .sv-page .sv-card-svc,.sv-page .sv-helper,.sv-page .sv-dd-panel {animation:none}
-  .sv-page .sv-tile,.sv-page .sv-tile-go,.sv-page .sv-step-n,.sv-page .sv-goals button,.sv-page .sv-helper-opts button,.sv-page .sv-opt {transition:none}
+  .sv-page .sv-tile,.sv-page .sv-tile-go,.sv-page .sv-step-n {transition:none}
 }
