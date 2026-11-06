@@ -34,7 +34,7 @@ export const SPV_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Is my information confidential?",
-    a: "Yes. Your details are seen only by the advisor handling your case and are never shared with third parties without your permission.",
+    a: "Yes. Your details are seen only by the advisor handling your case and are never shared with third parties without your permission. See our privacy policy for details.",
   },
 ];
 

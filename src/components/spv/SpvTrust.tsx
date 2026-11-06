@@ -34,7 +34,7 @@ export function SpvTrust() {
       </article>
       <article className="bt bt-c rv d2">
         <div className="fe-vis" aria-hidden="true">
-          <div className="fe-doc"><div className="fe-h"><b>Fee breakdown</b><small>Written</small></div><div className="fe-r"><span>Entity and filings</span><i></i></div><div className="fe-r"><span>Yearly upkeep</span><i></i></div><div className="fe-r"><span>Advisory</span><i></i></div><div className="fe-t"><span>Agreed before work begins</span><i></i></div></div>
+          <div className="fe-doc"><div className="fe-h"><b>Fee breakdown</b><small>Written</small></div><div className="fe-r"><span>Advisory fee</span><i></i></div><div className="fe-r"><span>Yearly review fee</span><i></i></div><div className="fe-r"><span>Advisory</span><i></i></div><div className="fe-t"><span>Agreed before work begins</span><i></i></div></div>
           <span className="fe-stamp">In<br />writing</span>
         </div>
         <span className="bt-k">Fees in writing</span>
@@ -42,11 +42,11 @@ export function SpvTrust() {
       </article>
       <article className="bt bt-d rv">
         <div className="ju-vis" aria-hidden="true">
-          <div className="ju-row"><span>DIFC</span><span>ADGM</span><span>DMCC</span><span>RAK ICC</span><span>JAFZA</span><i className="ju-frame"></i></div>
+          <div className="ju-row"><span>DIFC</span><span>ADGM</span><span>RAK ICC</span><span>JAFZA</span><i className="ju-frame"></i></div>
           <div className="ju-bars"><div><small>Control</small><i><b></b></i></div><div><small>Upkeep</small><i><b></b></i></div><div><small>Cost</small><i><b></b></i></div></div>
         </div>
         <span className="bt-k">Several jurisdictions</span>
-        <h3>DIFC, ADGM, DMCC, RAK ICC and JAFZA compared fairly.</h3>
+        <h3>Jurisdictions compared at your consultation.</h3>
       </article>
       {/* TODO(advisor): confirm "Meet us in person or by video call" and the Business Bay address (SITE settings, with "Advising since 2014"). */}
       <article className="bt bt-e rv d1">

@@ -25,7 +25,7 @@ export function SpvCompare() {
             <h3 className="s1">Private foundation</h3>
             <p className="s2">Holds family wealth under rules you write.</p>
             <div className="xp-spec s3"><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7L9 18l-5-5" /></svg></i><small>Suited to</small><b>Succession, family assets, philanthropy</b></div><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg></i><small>Who controls it</small><b>A council you appoint, guided by your charter</b></div></div>
-            <div className="xp-foot s4"><div className="xp-jur"><span>RAK ICC</span><span>DIFC</span><span>ADGM</span><span>DMCC</span></div><a className="xp-cta" href="#consult" data-goal="fam" data-cta-location="SPV Compare Private foundation">Plan a foundation<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
+            <div className="xp-foot s4"><div className="xp-jur"><span>RAK ICC</span><span>DIFC</span><span>ADGM</span></div><a className="xp-cta" href="#consult" data-goal="fam" data-cta-location="SPV Compare Private foundation">Plan a foundation<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
           </div>
           <span className="xp-bar"><i></i></span>
         </div>
@@ -65,7 +65,7 @@ export function SpvCompare() {
             <h3 className="s1">SPV</h3>
             <p className="s2">One vehicle for one asset or deal, held separately from your other assets.</p>
             <div className="xp-spec s3"><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7L9 18l-5-5" /></svg></i><small>Suited to</small><b>Property, joint ventures, IP</b></div><div><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg></i><small>Who controls it</small><b>Your holding company or you directly</b></div></div>
-            <div className="xp-foot s4"><div className="xp-jur"><span>RAK ICC</span><span>DIFC</span><span>ADGM</span><span>DMCC</span></div><a className="xp-cta" href="#consult" data-goal="prop" data-cta-location="SPV Compare SPV">Plan an SPV<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
+            <div className="xp-foot s4"><div className="xp-jur"><span>RAK ICC</span><span>DIFC</span><span>ADGM</span></div><a className="xp-cta" href="#consult" data-goal="prop" data-cta-location="SPV Compare SPV">Plan an SPV<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></i></a></div>
           </div>
           <span className="xp-bar"><i></i></span>
         </div>

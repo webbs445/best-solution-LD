@@ -16,7 +16,7 @@ import { trackEvent } from "@/lib/analytics";
 
 const MAP: Record<string, { n: [string, string][]; c: string }> = {
   family: {
-    n: [["You and your family", "Founder"], ["Private foundation", "DIFC, ADGM, DMCC or RAK ICC"], ["Holding company", "Owned by the foundation"], ["Family business", "Shares"], ["Property", "Real estate"], ["Investments", "Portfolio"]],
+    n: [["You and your family", "Founder"], ["Private foundation", "DIFC, ADGM or RAK ICC"], ["Holding company", "Owned by the foundation"], ["Family business", "Shares"], ["Property", "Real estate"], ["Investments", "Portfolio"]],
     c: "A foundation sits at the top with rules you write. It owns a holding company, which holds the business, property and investments for your family.",
   },
   property: {
@@ -276,8 +276,8 @@ export function SpvMotion() {
       on(window, "resize", lay);
     }
 
-    /* stamps: marquee with a scroll boost, paused on hover */
-    if (!reduced) {
+    /* stamps: marquee with a scroll boost, paused on hover (the strip was removed in Nov 2026; kept only if it returns) */
+    if (!reduced && $(".stamps")) {
       const rows = $$(".stamps .st-row").map((r) => {
         const t = $(".st-t", r);
         t.classList.add("js");
@@ -808,7 +808,7 @@ export function SpvMotion() {
     const jrName = $("#jrName");
     const jrPin = $("#jrPin");
     const jrSec = $("#process");
-    const JRN = ["Consultation", "Structure map", "Compare options", "Implement and maintain"];
+    const JRN = ["Consultation", "Structure map", "Compare options", "Ongoing advice"];
     let jrLen = 0;
     let jrAt: number[] = [];
     let jrCur = -1;

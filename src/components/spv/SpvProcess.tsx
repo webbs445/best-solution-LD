@@ -16,7 +16,7 @@ export function SpvProcess() {
       <div className="jr-cards">
         <article className="jr-c" data-i="0">
           <span className="jr-wm" aria-hidden="true">01</span>
-          <div className="jr-ch"><span className="jr-k">Step 01</span><span className="jr-pill">Free</span></div>
+          <div className="jr-ch"><span className="jr-k">Step 01</span><span className="jr-pill">No obligation</span></div>
           <h3>Consultation</h3>
           <p>Your goals, assets and family situation. Private and with no obligation.</p>
           <div className="jr-get"><small>You get</small><b>A clear view of your options</b></div>
@@ -34,15 +34,15 @@ export function SpvProcess() {
           <span className="jr-wm" aria-hidden="true">03</span>
           <div className="jr-ch"><span className="jr-k">Step 03</span><span className="jr-pill">Side by side</span></div>
           <h3>Compare options</h3>
-          <p>Jurisdictions side by side: control, yearly upkeep and costs.</p>
+          <p>Jurisdictions compared with you: control, yearly running costs and fees.</p>
           <div className="jr-get"><small>You get</small><b>Control, upkeep and costs compared</b></div>
           <span className="jr-line"></span>
         </article>
         <article className="jr-c" data-i="3">
           <span className="jr-wm" aria-hidden="true">04</span>
           <div className="jr-ch"><span className="jr-k">Step 04</span><span className="jr-pill">One advisor</span></div>
-          <h3>Implement and maintain</h3>
-          <p>We coordinate each step with you, then keep everything in good order every year.</p>
+          <h3>Ongoing advice</h3>
+          <p>We review the structure with you every year and answer your questions as things change.</p>
           <div className="jr-get"><small>You get</small><b>The same advisor, year after year</b></div>
           <span className="jr-line"></span>
         </article>
@@ -50,7 +50,7 @@ export function SpvProcess() {
     </div>
   </div></div></div>
   <div className="wrap">
-    <div className="jr-cta rv"><p>Nothing begins until you agree the plan and the fees in writing.</p><a className="btn btn-nv" href="#consult" data-cta-location="SPV Process Book">Book step one, it is free <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a></div>
+    <div className="jr-cta rv"><p>Nothing begins until you agree the plan and the fees in writing.</p><a className="btn btn-nv" href="#consult" data-cta-location="SPV Process Book">Book a consultation <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a></div>
   </div>
 </section>
     </>

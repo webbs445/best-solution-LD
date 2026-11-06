@@ -1,3 +1,5 @@
+import { DISCLAIMER } from "@/content/site";
+
 /* Hero with the animated structure map (labels filled in by SpvMotion). Converted from the structuring landing page HTML. */
 export function SpvHero() {
   return (
@@ -6,7 +8,7 @@ export function SpvHero() {
   <div className="aur" aria-hidden="true"><i></i><i></i><i></i></div>
   <div className="wrap hero-g">
     <div className="hero-l">
-      <span className="tag"><i>FREE</i>Consultation with our structuring team</span>
+      <span className="tag"><i>Private</i>Consultation with our structuring team</span>
       <h1 id="h1">Your assets need <br />a <span className="cu">structure,</span> <br /><span className="light-w">not just a bank account.</span></h1>
       <p className="lede">Foundations, SPVs and holding companies decide who controls your assets, how they pass to your family and how you grow across borders. We help you choose the right one.</p>
       <div className="hero-cta">
@@ -15,9 +17,10 @@ export function SpvHero() {
       </div>
       <div className="hero-facts">
         <span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z" /></svg></i><span><b>Private</b>one-to-one advice</span></span>
-        <span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" /></svg></i><span><b>Five UAE jurisdictions</b>compared side by side</span></span>
+        <span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" /></svg></i><span><b>UAE jurisdictions</b>compared at your consultation</span></span>
         <span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16v16H4z" /><path d="M8 9h8M8 13h8M8 17h5" /></svg></i><span><b>Written</b>plan and fees</span></span>
       </div>
+      <p className="hero-legal" role="note" data-legal>{DISCLAIMER}</p>
     </div>
 
     <div className="map" aria-label="Illustration of how a structure can be organised">

@@ -3,7 +3,6 @@ import { SITE } from "@/content/site";
 import { SPV_FAQS } from "@/content/spv";
 import { SpvChrome } from "@/components/spv/SpvChrome";
 import { SpvHero } from "@/components/spv/SpvHero";
-import { SpvStamps } from "@/components/spv/SpvStamps";
 import { SpvWhy } from "@/components/spv/SpvWhy";
 import { SpvLayers } from "@/components/spv/SpvLayers";
 import { SpvPillars } from "@/components/spv/SpvPillars";
@@ -50,7 +49,6 @@ export default function SpvPage() {
       <main id="main" tabIndex={-1}>
         <SpvHero />
         <SpvConsultCard />
-        <SpvStamps />
         <SpvWhy />
         <SpvLayers />
         <SpvPillars />
