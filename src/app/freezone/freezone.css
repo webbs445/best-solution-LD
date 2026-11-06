@@ -912,3 +912,11 @@ html:has(.fz-page) {scroll-padding-top:0}
   .fz-page .fz-trustline {display:none}
   .fz-page .fz-hero .fz-disclaimer {margin-top:14px}
 }
+/* Small phones (360 px class): tighter hero spacing so the H1, main button and the disclaimer all sit above the
+   cookie banner on the first screen. Text stays 16 px or more. Shared by /freezone and /services. */
+@media (max-width:400px) {
+  .fz-page .fz-hero {padding-top:96px}
+  .fz-page .fz-sub {margin-top:14px;font-size:16px}
+  .fz-page .fz-cta-row {margin-top:20px;gap:10px}
+  .fz-page .fz-hero .fz-disclaimer {margin-top:12px;padding:10px 12px;line-height:1.45}
+}

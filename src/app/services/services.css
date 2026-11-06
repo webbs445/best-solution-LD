@@ -384,3 +384,10 @@
 @media (prefers-reduced-motion:reduce) {
   .sv-page .sv-node {transition:none}
 }
+/* Small phones: the hero subheading at 16 px and the repeated "No obligation" note dropped (it is also in the form and
+   the closing section), so the disclaimer sits above the cookie banner at 360 px. */
+@media (max-width:400px) {
+  .sv-page .sv-hero-h2 {margin-top:14px;font-size:16px}
+  .sv-page .sv-hero-cta {margin-top:20px;gap:10px}
+  .sv-page .sv-hero-note {display:none}
+}
