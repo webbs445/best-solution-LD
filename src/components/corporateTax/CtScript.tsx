@@ -2,15 +2,15 @@
 
 import { useEffect } from "react";
 import { CT_TRUST } from "@/content/corporateTax";
-import { CT_ESTIMATE_FORM_ID, CT_FORM_ID, LEAD_RULES } from "@/lib/lead";
+import { CT_FORM_ID, LEAD_RULES } from "@/lib/lead";
 import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry } from "@/lib/phone";
 import { attributionFields } from "@/lib/attribution";
-import { computeTax, latePenalty, nextDueYear, yearEnd } from "@/lib/corporateTax";
+import { computeTax, nextDueYear, yearEnd } from "@/lib/corporateTax";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
 
 /*
   The /corporate-tax page's behaviour, ported from the design file's script: the year-end dial, the tax estimator,
-  the "does it apply" checker, the late-penalty calendar, the FAQ, the stepped review form and the motion layer.
+  the "does it apply" checker, the FAQ, the stepped review form and the motion layer.
   It works on the static markup (components/corporateTax/markup). Contact clicks, form_start / form_error /
   form_abandon and CTA clicks are tracked site-wide (AnalyticsInit); this adds the page's own events, and the
   lead conversions only after /api/corporate-tax has saved the lead in the ERP.
@@ -55,7 +55,6 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
   const $ = <T extends Element = HTMLElement>(s: string, c: ParentNode = root) => c.querySelector<T>(s) as T;
   const $$ = <T extends Element = HTMLElement>(s: string, c: ParentNode = root) => Array.from(c.querySelectorAll<T>(s));
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const PHONE = matchMedia("(max-width: 760px)").matches;
   const loop = (fn: () => void) => { const f = () => { if (signal.aborted) return; fn(); requestAnimationFrame(f); }; requestAnimationFrame(f); };
 
   /* today in Dubai */
@@ -111,10 +110,6 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     el("text", { x: p[0], y: p[1] }, g).textContent = MO[j];
     mos.push(g);
   }
-  // Orbit text around the dial.
-  el("path", { id: "orbP", d: "M220 220m-226 0a226 226 0 1 1 452 0a226 226 0 1 1-452 0", fill: "none" }, defs);
-  const orbit = el("g", { class: "d-orbit" }); svg.insertBefore(orbit, svg.childNodes[1]);
-  el("textPath", { href: "#orbP" }, el("text", {}, orbit)).textContent = "FILE IT RIGHT ✦ FILE IT ON TIME ✦ CORPORATE TAX ✦ FILE IT RIGHT ✦ FILE IT ON TIME ✦ CORPORATE TAX ✦ ";
   let rotDeg: number | null = null;
 
   function renderDial() {
@@ -132,7 +127,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     else todayG.style.opacity = "0";
     $("#dcDue").textContent = dstr(r.due);
     const st = $("#dcSt");
-    if (r.days < 0) { $("#dcLeft").innerHTML = `<b>${fmt(-r.days)}</b> days overdue`; st.textContent = "Past the date"; st.className = "dc-st late"; }
+    if (r.days < 0) { $("#dcLeft").textContent = "This date has passed"; st.textContent = "Earlier period"; st.className = "dc-st"; }
     else {
       $("#dcLeft").innerHTML = `<b>${fmt(r.days)}</b> days left`;
       if (r.days <= 60) { st.textContent = "Due soon"; st.className = "dc-st soon"; }
@@ -238,12 +233,6 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     setRow("sbr", r.ti, max, { sub: true, off: !r.sbr });
     setRow("b0", r.b0, max, { off: r.sbr, keep: true, small: r.qPass ? "Qualifying income" : "First AED 375,000" });
     setRow("b9", r.b9, max, { off: r.sbr, keep: true, small: r.qPass ? "Non-qualifying income" : "Everything above AED 375,000" });
-    if (!unlocked) {
-      // Locked: the working is still computed, but the figure is masked until the visitor leaves their details.
-      $("#shTax").textContent = $("#miniTax").textContent = "•••,•••";
-      est = { revenue: v.rev, net_profit: v.np, adjusted: r.adj, losses_used: r.used, taxable_income: r.ti, regime: r.qPass ? "QFZP" : "standard", sbr: r.sbr, tax: r.tax };
-      return;
-    }
     tween($("#shTax"), "tax", r.tax);
     $("#miniTax").textContent = fmt(r.tax);
     const tb = $(".cx-tot b");
@@ -254,15 +243,15 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     $("#gF").style.strokeDasharray = `${Math.min(100, (eff / 9) * 100).toFixed(1)} 100`;
     const W: [string, string][] = [];
     if (odd) W.push(["warn", `Your net profit of ${A(v.np)} is higher than your revenue of ${A(v.rev)}. Profit comes out of revenue, so please check both figures: this estimate will not be right until they match your accounts.`]);
-    if (r.qFail) W.push(["warn", `Your non-qualifying revenue of ${A(v.nqr)} is above the limit of ${A(r.limit)} (5% of revenue or AED 5 million, whichever is lower). That would mean losing Qualifying Free Zone status, so this shows the standard calculation.`]);
+    if (r.qFail) W.push(["warn", `Your non-qualifying revenue of ${A(v.nqr)} is above the limit of ${A(r.limit)} (5% of revenue or AED 5 million, whichever is lower). Generally, that would mean losing Qualifying Free Zone status, so this shows the standard calculation.`]);
     if (r.addEnt + v.fin > 0) W.push(["", `${A(r.addEnt + v.fin)} was added back, because half of entertainment and all fines are not deductible.`]);
     if (v.ex > 0) W.push(["", `${A(v.ex)} of exempt income was taken out, so it is not taxed.`]);
     if (r.adj < 0) W.push(["", `After adjustments you have a loss of ${A(-r.adj)}. No tax is due, and the loss can be carried forward to reduce tax in later years.`]);
     else if (r.sbr) W.push(["", `With Small Business Relief you are treated as having no taxable income this period, so no tax is due. You still file a return.${v.loss ? ` Your ${A(v.loss)} of losses cannot be used this year and stay available for later.` : ""}`]);
     else {
-      if (v.loss > 0) W.push(["", r.used < v.loss ? `Losses can only cut up to 75% of adjusted profit, so ${A(r.used)} was used this year and ${A(v.loss - r.used)} carries forward.` : `All ${A(r.used)} of your earlier losses were used.`]);
+      if (v.loss > 0) W.push(["", r.used < v.loss ? `Generally, losses can cut up to 75% of adjusted profit, so ${A(r.used)} was used this year and ${A(v.loss - r.used)} carries forward.` : `All ${A(r.used)} of your earlier losses were used.`]);
       if (r.qPass) W.push(["", `As a Qualifying Free Zone Person, qualifying income is taxed at 0% and only the ${A(r.b9)} of non-qualifying income is taxed at 9%. The AED 375,000 band does not apply.`]);
-      else if (r.ti <= 375_000) W.push(["", `Your taxable income of ${A(r.ti)} is within the first AED 375,000, which is taxed at 0%. No tax is due, but you still need a Corporate Tax number and a return.`]);
+      else if (r.ti <= 375_000) W.push(["", `Your taxable income of ${A(r.ti)} is within the first AED 375,000, which is taxed at 0%. No tax is due, but you generally still file a return.`]);
       else W.push(["", `The first AED 375,000 is taxed at 0%. The remaining ${A(r.b9)} is taxed at 9%, which comes to ${A(r.tax)}.`]);
       if (r.sbrOk && r.tax > 0) W.push(["", "Your revenue is AED 3 million or less, so Small Business Relief could bring this to AED 0. Switch it on to compare."]);
     }
@@ -270,21 +259,6 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     const hot = r.sbr || r.adj < 0 ? 3 : r.tax > 0 ? 4 : 3;
     $$(".cx-flow li").forEach((li, i) => li.classList.toggle("hot", i === hot));
     est = { revenue: v.rev, net_profit: v.np, adjusted: r.adj, losses_used: r.used, taxable_income: r.ti, regime: r.qPass ? "QFZP" : "standard", sbr: r.sbr, tax: r.tax };
-  }
-  // The estimate opens once per visit (only a flag is stored, never the visitor's details).
-  const UNLOCK_KEY = "ct-estimate-open";
-  let unlocked = false;
-  try { unlocked = sessionStorage.getItem(UNLOCK_KEY) === "1"; } catch { /* storage blocked: stays locked */ }
-  cx.classList.toggle("locked", !unlocked);
-  $("#miniCta").textContent = unlocked ? "See the working" : "Show my estimate";
-  function unlock() {
-    unlocked = true;
-    try { sessionStorage.setItem(UNLOCK_KEY, "1"); } catch { /* ignore */ }
-    cx.classList.remove("locked");
-    cx.classList.add("unlocked");
-    $("#miniCta").textContent = "See the working";
-    shown.tax = 0; // the figure counts up from zero
-    estimate();
   }
   const startEst = () => { if (!estStarted) { estStarted = true; trackEvent("tax_estimator_start"); } };
   const clearScen = () => $$("#scen button").forEach((b) => b.classList.remove("on"));
@@ -335,17 +309,17 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     $("#apH").textContent = `${TN[t]}, ${RN[r]}`;
     if (t === "person" && r === "1") {
       $("#apP").textContent = "Corporate Tax does not apply to you yet.";
-      L = ["Business turnover of AED 1 million or less in a calendar year is outside Corporate Tax", "Once turnover goes above AED 1 million, you need a Corporate Tax number and a yearly return", "Keep your records, so you can show your turnover if asked"];
+      L = ["Business turnover of AED 1 million or less in a calendar year is outside Corporate Tax", "Once turnover goes above AED 1 million, Corporate Tax generally applies and a yearly return is due", "Keep your records, so you can show your turnover if asked"];
     } else {
-      $("#apP").textContent = "Here is what applies to you.";
-      L.push("A Corporate Tax number from the FTA, if you do not have one yet", "A return every year, filed and paid within 9 months of your year end");
+      $("#apP").textContent = "Here is what generally applies. Your advisor confirms what applies to you.";
+      L.push("A return every year, generally filed and paid within 9 months of your year end");
       if (t === "freezone") L.push("0% on qualifying income if you meet the Qualifying Free Zone Person conditions, 9% on the rest", "Audited financial statements and real activity in your free zone, to keep the 0% rate");
       else L.push("0% on the first AED 375,000 of taxable profit, 9% above it");
       if (t === "person") L.push("This applies because your business turnover is above AED 1 million a year");
       if (t === "holding") L.push("Dividends and gains from qualifying shareholdings may be exempt, if the conditions are met");
       if (r === "1" || r === "3") L.push(t === "freezone" ? "Small Business Relief is an option for periods ending by 31 Dec 2029, but not together with the free zone 0% rate" : "You may elect Small Business Relief for tax periods ending by 31 Dec 2029");
       if (r === "51" && t !== "freezone") L.push("Audited financial statements, as revenue is above AED 50 million");
-      L.push("Accounts and records kept for 7 years");
+      L.push("Accounts and records generally kept for 7 years");
     }
     $("#apList").innerHTML = L.map((x, i) => `<li style="animation-delay:${i * 60}ms">${CHK}<span>${x}</span></li>`).join("");
   }
@@ -360,35 +334,6 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     });
   radioGroup("#apT", "t");
   radioGroup("#apR", "r");
-
-  /* ---------- late calendar ---------- */
-  const cal = $("#cal");
-  let ltN = 3, calUsed = false;
-  cal.replaceChildren(...Array.from({ length: 24 }, (_, i) => {
-    const c = i + 1, cb = document.createElement("button");
-    cb.style.setProperty("--d", String(c)); cb.type = "button"; cb.textContent = String(c); cb.dataset.n = String(c);
-    cb.setAttribute("aria-label", `${c} month${c > 1 ? "s" : ""} late`);
-    return cb;
-  }));
-  function late() {
-    $$("button", cal).forEach((b) => {
-      const n = Number(b.dataset.n);
-      b.className = n <= ltN ? (n <= 12 ? "f1" : "f2") : "";
-      if (n === ltN) b.classList.add("cur");
-      b.setAttribute("aria-pressed", n === ltN ? "true" : "false");
-    });
-    tween($("#ltAmt"), "late", latePenalty(ltN));
-    $("#late").style.setProperty("--heat", ((Math.min(ltN, 24) / 24) * 0.55).toFixed(3));
-    const la = $(".lt-amt"); la.classList.remove("pop"); void la.offsetWidth; la.classList.add("pop");
-    $("#ltMo").innerHTML = `<b>${ltN} month${ltN > 1 ? "s" : ""}</b> late, return penalty only`;
-  }
-  on(cal, "click", (e: MouseEvent) => {
-    const b = (e.target as Element).closest<HTMLElement>("button");
-    if (!b) return;
-    ltN = Number(b.dataset.n);
-    late();
-    if (!calUsed) { calUsed = true; trackEvent("penalty_meter_used"); }
-  });
 
   /* ---------- FAQ ---------- */
   $$("#faqList .qa button").forEach((b) => on(b, "click", () => {
@@ -426,7 +371,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     bar.innerHTML = ord.map((_, i) => `<i${i <= at ? ' class="on"' : ""}></i>`).join("");
     $("#fmN").textContent = `Step ${at + 1} of ${ord.length}`;
     $("#fmBack").hidden = at === 0;
-    $("#fmNext").textContent = n === CONTACT ? "Book my free tax review" : "Next";
+    $("#fmNext").textContent = n === CONTACT ? "Book my tax review call" : "Next";
     summary();
     if (n > prev) trackEvent("form_step", { form_name: "corporate_tax_review", step: n });
     if (n === CONTACT && prev < CONTACT) setTimeout(() => { if (innerWidth > 640) $("#fName").focus({ preventScroll: true }); }, 350);
@@ -497,7 +442,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
         return null;
       }
       c.errBox.textContent = res?.status === 429
-        ? "You've sent a few requests already. Please message us on WhatsApp and we'll reply straight away."
+        ? "You've sent a few requests already. Please message us on WhatsApp and we'll reply as soon as we can."
         : "We could not send your details. Please try again, or message us on WhatsApp.";
       c.errBox.hidden = false;
       return null;
@@ -508,7 +453,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     pushGenerateLead({ formId: c.formId, service: "Corporate Tax", email, phone: phone as string });
     return firstName;
   }
-  /** The review form shows its thank-you (also after the estimate pop-up: the same person is not asked twice). */
+  /** The review form shows its thank-you. */
   const reviewDone = (firstName: string) => { sent = true; $("#doneH").textContent = `Thank you, ${firstName}.`; $("#fm").classList.add("done"); };
   on(form, "submit", async (e: SubmitEvent) => {
     e.preventDefault();
@@ -517,7 +462,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     sending = true;
     const firstName = await sendLead({
       form, ids: { name: "fName", phone: "fPhone", email: "fEmail" }, cc,
-      btn: $<HTMLButtonElement>("#fmNext"), btnText: "Book my free tax review", errBox: $("#fmErr"),
+      btn: $<HTMLButtonElement>("#fmNext"), btnText: "Book my tax review call", errBox: $("#fmErr"),
       formId: CT_FORM_ID, formName: "Corporate Tax Review", formType: "consultation",
       fields: { business_type: val("biz") || "Not sure", year_end: yeText(), revenue: val("revenue") || "Prefer not to say", help: val("help") || "Not sure yet", estimate: estimateNote() },
     });
@@ -537,14 +482,14 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     if (rv.open) return;
     skip.clear();
     const source = from.getAttribute("data-cta-location") || "Book link";
-    let kicker = "Free Corporate Tax review";
+    let kicker = "Corporate Tax review call";
     if (from.id === "apCta") {
       // "Does it apply": business type and revenue were just answered.
       const bm: Record<string, string> = { mainland: "Mainland company", freezone: "Free zone company", person: "Freelancer or sole trader", holding: "Holding company" };
       const rm: Record<string, string> = { "1": "Up to AED 1 million", "3": "AED 1M to 3M", "50": "AED 3M to 50M", "51": "Above AED 50M" };
       prefill(bm[AP.t], rm[AP.r]);
       skip.add(1).add(3);
-      kicker = "Review my case";
+      kicker = "Ask about your Corporate Tax";
     } else if (from.id === "shCta") {
       // The estimator: revenue is known, and the free zone choice if they made it.
       trackEvent("tax_estimator_complete", { estimate: est });
@@ -569,48 +514,12 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     openReview(a);
   });
 
-  /* ---------- estimate pop-up: the figure opens once the visitor leaves their details ---------- */
-  const ux = $<HTMLDialogElement>("#ux"), uxForm = $<HTMLFormElement>("#uxForm"), uxCC = $<HTMLSelectElement>("#uxCC");
-  uxCC.innerHTML = cc.innerHTML;
-  let uxSending = false;
-  const openGate = () => {
-    if (unlocked || ux.open) return;
-    ux.showModal();
-    trackEvent("tax_estimate_gate_open");
-    if (innerWidth > 640) $("#uxName").focus();
-  };
-  on($("#lockBtn"), "click", openGate);
-  on($("#uxX"), "click", () => ux.close());
-  on(ux, "click", (e: MouseEvent) => { if (e.target === ux) ux.close(); }); // a tap on the backdrop
-  on(uxForm, "submit", async (e: SubmitEvent) => {
-    e.preventDefault();
-    if (uxSending || unlocked) return;
-    uxSending = true;
-    const rev = num(F.rev);
-    const firstName = await sendLead({
-      form: uxForm, ids: { name: "uxName", phone: "uxPhone", email: "uxEmail" }, cc: uxCC,
-      btn: $<HTMLButtonElement>("#uxGo"), btnText: "Show my tax estimate", errBox: $("#uxErr"),
-      formId: CT_ESTIMATE_FORM_ID, formName: "Corporate Tax Estimate", formType: "calculator",
-      fields: {
-        source: "estimate", business_type: MODE === "qfzp" ? "Free zone company" : "Not sure", year_end: `${MO[S.m]} ${S.y}`,
-        revenue: rev <= 1_000_000 ? "Up to AED 1 million" : rev <= 3_000_000 ? "AED 1M to 3M" : rev <= 50_000_000 ? "AED 3M to 50M" : "Above AED 50M",
-        estimate: estimateNote(true),
-      },
-    });
-    uxSending = false;
-    if (!firstName) return;
-    ux.close();
-    unlock();
-    reviewDone(firstName);
-    trackEvent("tax_estimator_complete", { estimate: est });
-    $("#sheet").scrollIntoView({ block: "start", behavior: reduced ? "auto" : "smooth" });
-  });
   // One line for the ERP notes, when the visitor used the estimator.
-  const estimateNote = (always = false) => (estStarted || always ? `Estimated tax AED ${fmt(Number(est.tax) || 0)} (revenue AED ${fmt(Number(est.revenue) || 0)}, net profit AED ${fmt(Number(est.net_profit) || 0)}, ${est.regime === "QFZP" ? "Qualifying Free Zone Person" : "standard rates"}${est.sbr ? ", Small Business Relief" : ""})` : "");
+  const estimateNote = () => (estStarted ? `Estimated tax AED ${fmt(Number(est.tax) || 0)} (revenue AED ${fmt(Number(est.revenue) || 0)}, net profit AED ${fmt(Number(est.net_profit) || 0)}, ${est.regime === "QFZP" ? "Qualifying Free Zone Person" : "standard rates"}${est.sbr ? ", Small Business Relief" : ""})` : "");
   $$(".fl input").forEach((i) => on(i, "input", () => { const fl = i.closest(".tel")?.parentElement ?? i.closest(".fl"); fl?.classList.remove("bad"); i.setAttribute("aria-invalid", "false"); }));
 
   /* ---------- scroll ---------- */
-  const navLinks = $$(".hd-nav a"), secs = ["top", "estimate", "apply", "late", "faq"].map((id) => document.getElementById(id));
+  const navLinks = $$(".hd-nav a"), secs = ["top", "estimate", "apply", "year", "faq"].map((id) => document.getElementById(id));
   const bookSec = $("#book");
   let ticking = false;
   function onScroll() {
@@ -626,7 +535,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
   on(window, "scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, true);
   on(window, "resize", onScroll);
 
-  /* ---------- motion: split headings, reveals, counters ---------- */
+  /* ---------- motion: split headings, reveals ---------- */
   const fine = matchMedia("(pointer: fine)").matches;
   $$(".split").forEach((h) => {
     if (h.querySelector(".sw")) return; // already split
@@ -654,24 +563,13 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
   // Fade-up: content blocks rise in gently as they reach the screen; siblings are staggered.
   if (!reduced) {
     const fu = observe((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); fu.unobserve(e.target); } }), { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
-    $$(".sec-h p, .cx-sc, .cx-in, .ap-g > *, .lt-g > *, .tc, .bg-i, .qa, .fq-side > p, .fq-side > .btn, .bk-side > p, .bk-con, .fm, .yc").forEach((n) => {
+    $$(".sec-h p, .cx-sc, .cx-in, .ap-g > *, .tc, .bg-i, .qa, .fq-side > p, .fq-side > .btn, .bk-side > p, .bk-con, .fm, .yc").forEach((n) => {
       if (n.classList.contains("in")) return;
       n.classList.add("fu");
       n.style.setProperty("--fd", String(Math.min(Array.prototype.indexOf.call(n.parentElement?.children ?? [], n), 5)));
       fu.observe(n);
     });
   }
-  const io2 = observe((es) => es.forEach((e) => {
-    if (!e.isIntersecting) return;
-    io2.unobserve(e.target);
-    const t = e.target as HTMLElement;
-    if (t.id === "stamp") { setTimeout(() => t.classList.add("in"), 300); return; }
-    const to = Number(t.dataset.to), t0 = performance.now(), d = reduced ? 0 : 1600;
-    const st = (tm: number) => { const k = d ? Math.min(1, (tm - t0) / d) : 1; t.textContent = fmt(to * (1 - Math.pow(1 - k, 4))); if (k < 1 && !signal.aborted) requestAnimationFrame(st); };
-    st(t0);
-  }), { threshold: 0.4 });
-  io2.observe($("#stamp"));
-  $$(".cnt").forEach((c) => io2.observe(c));
 
   /* tilt, chip parallax, magnetic buttons and the custom cursor (mouse only) */
   const stage = $("#stage"), sheet = $("#sheet");
@@ -703,21 +601,6 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     const fm = $("#ftMark");
     on(fm, "pointermove", (e: PointerEvent) => { const r = fm.getBoundingClientRect(); fm.style.setProperty("--fx", `${e.clientX - r.left}px`); fm.style.setProperty("--fy", `${e.clientY - r.top}px`); });
   }
-
-  /* marquee driven by time and scroll speed */
-  const rows = $$(".mq-row"), mqX = [0, 0];
-  let lastY = scrollY, vel = 0;
-  if (!reduced && !PHONE) loop(() => {
-    const dy = scrollY - lastY;
-    lastY = scrollY;
-    vel += (Math.abs(dy) - vel) * 0.1;
-    rows.forEach((r, i) => {
-      const w = r.scrollWidth / 2, sp = (0.6 + vel * 0.25) * (i ? -1 : 1);
-      mqX[i] = (mqX[i] - sp) % w;
-      if (mqX[i] > 0) mqX[i] -= w;
-      r.style.transform = `translate3d(${mqX[i]}px,0,0)`;
-    });
-  });
 
   /* the year cards scroll sideways while the section is pinned (laptop) */
   const pin = $("#yrPin"), rail = $("#yrRail"), yFill = $("#yrFill"), prog = $("#prog"), wm = $(".est-wm"), estSec = $("#estimate");
@@ -781,9 +664,9 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
 
   /* pause looping animations while their section is off screen */
   const pIO = observe((es) => es.forEach((e) => e.target.classList.toggle("paused", !e.isIntersecting)), { rootMargin: "100px 0px" });
-  [".hero", ".mq", "#estimate", "#apply", "#book"].forEach((q) => { const n = root.querySelector(q); if (n) pIO.observe(n); });
+  [".hero", "#estimate", "#apply", "#book"].forEach((q) => { const n = root.querySelector(q); if (n) pIO.observe(n); });
 
   /* ---------- start ---------- */
-  renderDial(); estimate(); applies(); late(); onScroll();
+  renderDial(); estimate(); applies(); onScroll();
   requestAnimationFrame(() => setTimeout(() => dial.classList.add("ready"), reduced ? 0 : 150));
 }

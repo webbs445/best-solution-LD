@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { CT_FAQS } from "@/content/corporateTax";
-import { SITE } from "@/content/site";
+import { DISCLAIMER, SITE } from "@/content/site";
 import { CT_MARKUP } from "@/components/corporateTax/markup";
 import { CtScript } from "@/components/corporateTax/CtScript";
 import "./corporate-tax.css";
 
-const TITLE = "UAE Corporate Tax Advice and Returns | Best Solution";
+const TITLE = "UAE Corporate Tax Advice and Return Support | Best Solution";
 const DESCRIPTION =
-  "Know your UAE Corporate Tax date, estimate what you owe and get your return prepared and filed on time. Free tax review with our Business Bay team.";
+  "Understand your UAE Corporate Tax obligations and due date, see an illustration of the tax and get help preparing your return. Book a tax review call with our Business Bay team.";
 const SHARE_TITLE = "When is your Corporate Tax return due?";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ const faqHtml = CT_FAQS.map(
 
 /*
   /corporate-tax: UAE Corporate Tax landing page. The body is the design's static HTML (components/corporateTax/markup);
-  CtScript runs its dial, estimator, checkers and the review form. GTM, consent and the cookie banner come from the
+  CtScript runs its dial, estimator, checker and the review form. GTM, consent and the cookie banner come from the
   root layout.
 */
 export default function CorporateTaxPage() {
@@ -44,7 +44,7 @@ export default function CorporateTaxPage() {
         Skip to main content
       </a>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
-      <div dangerouslySetInnerHTML={{ __html: CT_MARKUP.replace("__FAQ__", () => faqHtml) }} />
+      <div dangerouslySetInnerHTML={{ __html: CT_MARKUP.replace("__FAQ__", () => faqHtml).replaceAll("__DISCLAIMER__", esc(DISCLAIMER)) }} />
       <CtScript />
     </div>
   );

@@ -849,3 +849,10 @@ html:has(.ct-page){scroll-padding-top:92px}
 .ct-page .step:not(.cur){position:absolute;top:0;left:0;right:0}
 /* Footer slogan on two lines: "Corporate Tax," then "handled.", sized so the first line always fits. */
 .ct-page .ft-mark{font-size:clamp(34px,9.4vw,146px);white-space:nowrap}
+/* Text logo (icon plus name): the old logo image carried the registered mark. */
+.ct-page .brand{display:inline-flex;align-items:center;gap:10px;color:var(--navy,#14253e);text-decoration:none;font:800 19px/1 var(--font,inherit);letter-spacing:-.01em}
+.ct-page .brand img{height:36px}
+.ct-page .ft-brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:19px}
+.ct-page .ft-brand img{height:36px;width:auto}
+@media (max-width:640px){.ct-page .brand{font-size:17px}.ct-page .brand img{height:30px}}
+.ct-page .hero-legal{max-width:40em;margin-top:18px;padding:12px 16px;border-radius:12px;border:1px solid rgba(204,134,103,.35);background:rgba(255,255,255,.8);font-size:16px;line-height:1.5;color:#3d4757}
