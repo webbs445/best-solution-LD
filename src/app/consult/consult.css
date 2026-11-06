@@ -1,0 +1,122 @@
+/* /consult advice landing page. Brand navy, copper and Inter; body text and inputs 16 px or more; taps 48 px or
+   more; no animation on the hero. Everything is scoped under .ad-page. */
+.ad-page {--ad-wrap:1120px;background:#fff;color:var(--navy);font-size:16px}
+.ad-page .ad-wrap {max-width:var(--ad-wrap);margin-inline:auto;padding-inline:20px}
+.ad-page h1,.ad-page h2,.ad-page h3 {color:var(--navy);letter-spacing:-.02em}
+.ad-page h2 {font-size:clamp(28px,3.4vw,40px);line-height:1.15}
+.ad-page h3 {font-size:19px;line-height:1.3}
+.ad-page p {line-height:1.6}
+
+/* Header: logo, Call, WhatsApp. No menu. */
+.ad-page .ad-header {position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);border-bottom:1px solid var(--rule);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.ad-page .ad-header-in {display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px}
+.ad-page .ad-brand {display:inline-flex;align-items:center;gap:10px;min-height:48px;color:var(--navy);text-decoration:none;font:800 19px/1 var(--font);letter-spacing:-.01em}
+.ad-page .ad-brand img {width:auto;height:34px}
+.ad-page .ad-head-cta {display:flex;gap:8px}
+.ad-page .ad-hbtn {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:48px;min-height:48px;padding:0 16px;border-radius:999px;border:1.5px solid var(--rule);background:#fff;color:var(--navy);font:700 16px/1 var(--font);text-decoration:none}
+.ad-page .ad-hbtn svg {width:18px;height:18px;flex:none}
+.ad-page .ad-hbtn-wa {border-color:transparent;background:#1f8a5b;color:#fff}
+.ad-page .ad-hbtn:focus-visible,.ad-page .ad-alt:focus-visible,.ad-page summary:focus-visible {outline:3px solid var(--copper);outline-offset:2px}
+
+/* Hero: text only, static, with the disclaimer bar directly under the buttons. */
+.ad-page .ad-hero {padding:44px 0 36px;background:linear-gradient(165deg,#fffaf5 0%,#f8ece3 100%)}
+.ad-page .ad-hero h1 {max-width:16em;font-size:clamp(34px,5vw,56px);line-height:1.08;letter-spacing:-.03em}
+.ad-page .ad-sub {max-width:36em;margin-top:16px;font-size:18px;color:#3d4757}
+.ad-page .ad-hero-cta {display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:24px}
+.ad-page .ad-book {min-height:54px}
+.ad-page .ad-hero-alt,.ad-page .ad-book-alt {display:flex;gap:10px}
+.ad-page .ad-alt {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:0 20px;border-radius:var(--r,14px);border:1.5px solid rgba(20,37,62,.2);background:#fff;color:var(--navy);font:700 16px/1 var(--font);text-decoration:none}
+.ad-page .ad-alt svg {width:19px;height:19px;flex:none}
+.ad-page .ad-alt:hover {border-color:var(--navy)}
+.ad-page .ad-disclaimer {max-width:46em;margin-top:22px;padding:12px 16px;border-radius:12px;border:1px solid rgba(204,134,103,.35);background:rgba(255,255,255,.75);font-size:16px;line-height:1.5;color:#3d4757}
+
+/* Sections */
+.ad-page .ad-sec {padding:64px 0}
+.ad-page .ad-sec-tint {background:var(--ground)}
+.ad-page .ad-narrow {max-width:820px}
+.ad-page .ad-cards {list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:28px;padding:0}
+.ad-page .ad-cards li {padding:24px;border-radius:20px;border:1px solid var(--rule);background:#fff}
+.ad-page .ad-ico {display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--tint);color:#8f5538}
+.ad-page .ad-ico svg {width:24px;height:24px}
+.ad-page .ad-cards h3 {margin-top:16px}
+.ad-page .ad-cards p {margin-top:6px;color:var(--ink-soft)}
+
+.ad-page .ad-how {display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.ad-page .ad-steps {list-style:none;display:grid;gap:14px;margin-top:24px;padding:0}
+.ad-page .ad-steps li {display:flex;gap:16px;align-items:flex-start;padding:18px 20px;border-radius:18px;background:#fff;border:1px solid var(--rule)}
+.ad-page .ad-step-n {display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;font:800 16px/1 var(--font)}
+.ad-page .ad-steps p {margin-top:4px;color:var(--ink-soft)}
+.ad-page .ad-photo {margin:0;overflow:hidden;border-radius:22px}
+.ad-page .ad-photo img {display:block;width:100%;height:auto}
+
+.ad-page .ad-why {list-style:none;display:flex;flex-wrap:wrap;gap:12px;margin-top:22px;padding:0}
+.ad-page .ad-why li {display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 18px;border-radius:999px;background:var(--ground);border:1px solid var(--rule);font-weight:600}
+.ad-page .ad-why span {color:#1f8a5b;font-weight:800}
+
+.ad-page .ad-reviews {list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px;padding:0}
+.ad-page .ad-reviews li {padding:24px;border-radius:20px;background:#fff;border:1px solid var(--rule)}
+.ad-page .ad-reviews blockquote {margin:0;font-size:16px;line-height:1.6}
+.ad-page .ad-reviews p {margin-top:12px;font-size:16px;color:var(--ink-soft)}
+
+.ad-page .ad-faq {display:grid;gap:10px;margin-top:22px}
+.ad-page .ad-faq details {border-radius:16px;border:1px solid var(--rule);background:#fff}
+.ad-page .ad-faq summary {display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:56px;padding:12px 20px;font-weight:700;cursor:pointer;list-style:none}
+.ad-page .ad-faq summary::-webkit-details-marker {display:none}
+.ad-page .ad-faq summary::after {content:"+";flex:none;font-size:22px;font-weight:600;color:#8f5538}
+.ad-page .ad-faq details[open] summary::after {content:"\2212"}
+.ad-page .ad-faq details p {padding:0 20px 18px;color:var(--ink-soft)}
+
+/* Booking: copy and contact options on the left, the form card on the right. */
+.ad-page .ad-book-sec {background:linear-gradient(165deg,#fffaf5 0%,#f6e8de 100%);scroll-margin-top:64px}
+.ad-page .ad-book-grid {display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
+.ad-page .ad-book-copy p {margin-top:12px;font-size:18px;color:#3d4757}
+.ad-page .ad-book-alt {margin-top:22px}
+.ad-page .ad-form-card {padding:28px;border-radius:24px;background:#fff;border:1px solid var(--rule);box-shadow:0 24px 50px rgba(120,70,40,.12)}
+.ad-page .ad-form {display:grid;gap:16px}
+.ad-page .ad-field {display:grid;gap:6px}
+.ad-page .ad-field label {font-weight:700;font-size:16px}
+.ad-page .ad-field label span {font-weight:500;color:var(--ink-soft)}
+.ad-page .ad-field input,.ad-page .ad-field select,.ad-page .ad-field textarea {width:100%;min-height:52px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--rule);background:#fff;color:var(--navy);font:500 16px/1.4 var(--font)}
+.ad-page .ad-field textarea {min-height:96px;resize:vertical}
+.ad-page .ad-field input:focus,.ad-page .ad-field select:focus,.ad-page .ad-field textarea:focus {outline:none;border-color:var(--copper);box-shadow:0 0 0 3px rgba(204,134,103,.2)}
+.ad-page .ad-field [aria-invalid="true"] {border-color:#b3261e}
+.ad-page .ad-err {font-size:16px;color:#b3261e;line-height:1.45}
+.ad-page .ad-submit {min-height:56px;margin-top:4px}
+.ad-page .ad-privacy {font-size:16px;color:var(--ink-soft);line-height:1.5}
+.ad-page .ad-privacy a {display:inline-flex;align-items:center;min-height:48px;color:#8f5538}
+.ad-page .ad-success {display:flex;align-items:center;gap:14px;padding:24px;border-radius:18px;background:#ecf7f1;border:1px solid #bfe3cf;font-size:18px;font-weight:700;scroll-margin:120px}
+.ad-page .ad-success span {display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:#1f8a5b;color:#fff;font-size:22px}
+
+/* Footer: contacts, Privacy and Terms, the disclaimer. */
+.ad-page .ad-footer {padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#dfe5ee;font-size:16px}
+.ad-page .ad-footer a {color:#fff}
+.ad-page .ad-foot-contact {display:flex;flex-wrap:wrap;align-items:center;gap:0 24px;line-height:1.8}
+.ad-page .ad-foot-contact a {display:inline-flex;align-items:center;min-height:48px}
+.ad-page .ad-foot-links {display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;margin-top:18px}
+.ad-page .ad-foot-links a,.ad-page .ad-foot-links button {display:inline-flex;align-items:center;min-height:48px;padding:0;border:0;background:none;color:#fff;font:600 16px var(--font);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.ad-page .ad-foot-disclaimer {max-width:60em;margin-top:14px;font-size:16px;color:#aab6ca}
+.ad-page .ad-copy {margin-top:14px;font-size:16px;color:#aab6ca}
+
+@media (max-width:1000px) {
+  .ad-page .ad-cards {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ad-page .ad-how,.ad-page .ad-book-grid {grid-template-columns:1fr;gap:32px}
+  .ad-page .ad-reviews {grid-template-columns:1fr}
+}
+@media (max-width:640px) {
+  .ad-page .ad-header-in {min-height:60px}
+  .ad-page .ad-brand {font-size:17px}
+  .ad-page .ad-hbtn {padding:0}
+  .ad-page .ad-hbtn {width:48px}
+  .ad-page .ad-hbtn span {position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .ad-page .ad-hero {padding:24px 0 24px}
+  .ad-page .ad-hero h1 {font-size:32px}
+  .ad-page .ad-sub {margin-top:12px;font-size:17px}
+  .ad-page .ad-hero-cta {margin-top:18px;gap:10px}
+  .ad-page .ad-book {width:100%}
+  .ad-page .ad-hero-alt,.ad-page .ad-book-alt {width:100%}
+  .ad-page .ad-alt {flex:1;min-height:50px}
+  .ad-page .ad-disclaimer {margin-top:14px;padding:10px 12px;line-height:1.45}
+  .ad-page .ad-sec {padding:48px 0}
+  .ad-page .ad-cards {grid-template-columns:1fr}
+  .ad-page .ad-form-card {padding:20px}
+}
