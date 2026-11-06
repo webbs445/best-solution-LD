@@ -5,9 +5,9 @@ import { ArrowIcon } from "@/components/ui/Icons";
 
 const STEPS = [
   {
-    time: "A few questions",
-    title: "Shortlist",
-    body: "Use the planner to see which zones fit your activity, with an estimate of your first-year cost.",
+    time: "A short form",
+    title: "Tell us your plans",
+    body: "Share your activity, your customers and your team, in the form or on WhatsApp.",
     icon: (
       <>
         <path d="M4 6h16M4 12h10M4 18h6" />
@@ -17,9 +17,9 @@ const STEPS = [
     ),
   },
   {
-    time: "Complimentary call",
+    time: "A conversation",
     title: "Consult",
-    body: "Your dedicated advisor reviews your activity, team and customers, and narrows the list to the two or three most suitable zones.",
+    body: "Your advisor talks through your activity, team and customers, and the zones that may suit you.",
     icon: (
       <>
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -28,9 +28,9 @@ const STEPS = [
     ),
   },
   {
-    time: "In writing",
-    title: "Receive your plan",
-    body: "You get a detailed estimate, a paperwork checklist and a realistic timeline, confirmed in writing.",
+    time: "Your shortlist",
+    title: "Compare",
+    body: "You compare a short list of zones with your advisor, and what to plan for in each.",
     icon: (
       <>
         <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
@@ -40,8 +40,8 @@ const STEPS = [
   },
   {
     time: "Your decision",
-    title: "Decide, with support",
-    body: "You choose when you are ready. The same advisor stays with you for what comes next.",
+    title: "Decide in your own time",
+    body: "You choose your next step when you are ready. Your advisor is there for any questions.",
     icon: (
       <>
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -91,7 +91,7 @@ export function FzHowItWorks() {
       <div className="wrap hw-grid">
         <div className="hw-side">
           <h2 id="stepsTitle">From first question to the right free zone</h2>
-          <p>Four steps, one advisor, and nothing to commit to until you have a written plan.</p>
+          <p>Four steps, one advisor, and nothing to commit to.</p>
           <div className="hw-meter" aria-hidden="true">
             <b>0{best + 1}</b>
             <span>/ 04</span>
@@ -99,8 +99,8 @@ export function FzHowItWorks() {
               <em style={{ width: `${((best + 1) / STEPS.length) * 100}%` }} />
             </i>
           </div>
-          <a className="btn btn-primary" href="#planner" data-cta-location="FZ How It Works — Start Step 1">
-            Begin with Step 1 <ArrowIcon />
+          <a className="btn btn-primary" href="#planner" data-cta-location="FZ How It Works - Book a Consultation">
+            Book a Consultation <ArrowIcon />
           </a>
         </div>
         <ol className="hw-list" ref={list}>

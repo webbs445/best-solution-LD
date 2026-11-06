@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { FZ_SITELINK_VIEWS, type FzSitelinkView } from "@/content/freezone";
 import { trackEvent } from "@/lib/analytics";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
-import { OPEN_CALLBACK } from "@/components/sections/Callback";
 import { FZ_ZONES_PRESET, type ZonesPreset } from "./FzZones";
 
 /*
@@ -28,20 +27,14 @@ const ACTIONS: Record<FzSitelinkView, () => void> = {
       document.getElementById("zxQ")?.focus({ preventScroll: true });
     }
   },
-  budget: () => {
-    presetZones({ group: "value", sort: "price" });
-    scrollTo("zones");
-  },
+  budget: () => scrollTo("budget"),
   dubai: () => {
     presetZones({ group: "dubai" });
     scrollTo("zones");
   },
   "vs-mainland": () => scrollTo("free-zone-vs-mainland"),
-  consultation: () => {
-    scrollTo("consultation");
-    // The popup locks page scrolling, so let a smooth scroll finish first.
-    window.setTimeout(() => window.dispatchEvent(new Event(OPEN_CALLBACK)), prefersReducedMotion() ? 0 : 600);
-  },
+  // Scroll only: no popup opens without a click.
+  consultation: () => scrollTo("consultation"),
 };
 
 const isView = (v: string): v is FzSitelinkView => (FZ_SITELINK_VIEWS as readonly string[]).includes(v);

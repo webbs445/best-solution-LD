@@ -1,7 +1,7 @@
 import { estimate, type Answers, type Estimate } from "@/lib/pricing";
 import { FORM_ID, FZ_FORM_ID, clickIdRows, leadConsent } from "@/lib/lead";
 import { cleanPlanner, plannerEstimate, type PlannerInput } from "@/lib/freezone";
-import { ACT_LABEL, PRIORITIES } from "@/content/freezone";
+import { ACT_LABEL, PRIORITIES } from "@/lib/freezoneRates";
 import { STEPS } from "@/content/calculator";
 
 /*

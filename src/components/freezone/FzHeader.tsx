@@ -45,7 +45,7 @@ export function FzHeader() {
               <PhoneIcon />
               <span>{SITE.phone.display}</span>
             </a>
-            <a className="bs-cta" href="#planner" data-cta-location="FZ Header — Free Consultation">
+            <a className="bs-cta" href="#planner" data-cta-location="FZ Header - Book a Consultation">
               <PhoneIcon />
               <span>Book a Consultation</span>
             </a>
@@ -67,7 +67,7 @@ export function FzHeader() {
               {n.label}
             </a>
           ))}
-          <a className="bs-cta" href="#planner" data-cta-location="FZ Menu — Free Consultation">
+          <a className="bs-cta" href="#planner" data-cta-location="FZ Menu - Book a Consultation">
             <PhoneIcon />
             <span>Book a Consultation</span>
           </a>

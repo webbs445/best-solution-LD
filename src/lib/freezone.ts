@@ -11,7 +11,7 @@ import {
   type Activity,
   type Priority,
   type Zone,
-} from "@/content/freezone";
+} from "@/lib/freezoneRates";
 import type { Estimate, EstimateLine } from "@/lib/pricing";
 
 /* Free zone planner maths: pure functions shared by the /freezone page and /api/lead. */

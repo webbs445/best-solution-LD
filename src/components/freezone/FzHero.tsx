@@ -2,12 +2,10 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ACT_LABEL, EM_SHORT, HERO_DEMO, ZONES, ZONE_BY_ID } from "@/content/freezone";
-import { formatAED } from "@/lib/pricing";
-import { SITE } from "@/content/site";
+import { DISCLAIMER } from "@/content/site";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
-import { FzCount } from "./FzCount";
 import { ZoneLogo } from "./ZoneLogo";
 
 /* Headline words, each wrapped so it can slide up in turn (the accent words are highlighted). */
@@ -29,8 +27,8 @@ function SplitWords({ text, start, hl }: { text: string; start: number; hl?: boo
   return <>{out}</>;
 }
 
-const LEAD = "The right free zone costs less than the ";
-const ACCENT = "wrong one";
+const LEAD = "Compare UAE free zones with ";
+const ACCENT = "an advisor";
 const LEAD_WORDS = LEAD.trim().split(/\s+/).length;
 
 /* Logo wall: three columns of zone tiles, each set twice so the scroll loops seamlessly. */
@@ -105,7 +103,7 @@ export function FzHero() {
         <div className="fz-hero-copy">
           <p className="fz-tag">
             <span />
-            UAE free zone advisory
+            UAE free zone advice
           </p>
           <h1 id="fzTitle" className={`fz-split${go ? " go" : ""}`}>
             <SplitWords text={LEAD} start={0} />
@@ -114,38 +112,35 @@ export function FzHero() {
             </span>
           </h1>
           <p className="fz-sub">
-            Each UAE free zone allows different activities, sets different office rules and charges differently at
-            renewal. Choose your activity, and we show you which zones fit, with an estimate of your first-year cost.
+            Each UAE free zone covers different activities and offers different workspace options. Tell us your
+            activity, and an advisor helps you compare the zones that may suit you.
           </p>
           <div className="fz-cta-row">
-            <a className="btn btn-primary" href="#planner" data-cta-location="FZ Hero — Plan My Free Zone">
+            <a className="btn btn-primary" href="#planner" data-cta-location="FZ Hero - Plan My Free Zone">
               Plan My Free Zone <ArrowIcon />
             </a>
-            <CallbackTrigger className="fz-btn-ghost" location="FZ Hero — Speak to an Advisor">
+            <CallbackTrigger className="fz-btn-ghost" location="FZ Hero - Speak to an Advisor">
               Speak to an Advisor
             </CallbackTrigger>
           </div>
           <ul className="fz-proof" aria-label="At a glance">
             <li>
-              <FzCount to={28} delay={500} />
-              <span>Free zones compared</span>
+              <b>{ZONES.length}</b>
+              <span>Free zones to compare</span>
             </li>
             <li>
-              <FzCount to={7} delay={500} />
-              <span>Emirates covered</span>
+              <b>7</b>
+              <span>Emirates</span>
             </li>
             <li>
-              <b>AED 4,898*</b>
-              <span>Indicative from-price</span>
+              <b>1</b>
+              <span>Dedicated advisor</span>
             </li>
           </ul>
-          <p className="fz-foot">
-            *Indicative from-price, based on our current rate card. Your cost depends on activity, package, office and
-            residency.
-          </p>
-          {/* Phones: this one line replaces the stats and the decorative zone wall, so the planner comes up sooner. */}
-          <p className="fz-trustline">
-            Advising since {SITE.founded} · Business Bay
+          {/* Phones: this one line replaces the stats and the decorative zone wall, so the form comes up sooner. */}
+          <p className="fz-trustline">Private consultancy · Business Bay, Dubai</p>
+          <p className="fz-disclaimer" role="note" data-legal>
+            {DISCLAIMER}
           </p>
         </div>
 
@@ -163,7 +158,6 @@ export function FzHero() {
                             <b>{zn.short[0]}</b>
                             <span>{EM_SHORT[zn.emirate]}</span>
                           </div>
-                          <em>from AED {formatAED(zn.price)}</em>
                         </div>
                       )),
                     )}
@@ -188,12 +182,6 @@ export function FzHero() {
                 {zone.name}
               </b>
             </div>
-            <div className="hx-match-foot">
-              <span>From</span>
-              <strong className="hx-swap" key={`p${k}`}>
-                AED {formatAED(zone.price)}
-              </strong>
-            </div>
             <div className="hx-match-bar">
               <i ref={bar} />
             </div>
@@ -207,9 +195,9 @@ export function FzHero() {
               </svg>
             </span>
             <div>
-              <small>28 free zones</small>
+              <small>{ZONES.length} free zones</small>
               <b>One advisor</b>
-              <span>Every estimate includes a flexi-desk</span>
+              <span>Advice in plain terms</span>
             </div>
           </div>
         </div>
