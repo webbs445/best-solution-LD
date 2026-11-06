@@ -16,7 +16,7 @@ export function SpvFooter() {
       <div><h4>Contact</h4><a href={SITE.phone.href} data-area="SPV Footer">{SITE.phone.display}</a><a href={SITE.whatsapp} target="_blank" rel="noopener" data-area="SPV Footer">WhatsApp</a><a href={`mailto:${SITE.email}`} data-area="SPV Footer">{SITE.email}</a></div>
     </div>
     <p className="ft-legal" data-legal>{DISCLAIMER}</p>
-    <p className="ft-legal" data-legal>Best Solution is based in Business Bay, Dubai. We are not affiliated with any registry, and we do not issue government documents. Decisions on entities, residency and property ownership are made solely by the relevant UAE authorities. Information on this page is general, is not legal, tax or investment advice, and does not replace advice on your own circumstances. Diagrams are illustrations only. Fees are confirmed in writing after your consultation.</p>
+    <p className="ft-legal" data-legal>Best Solution is based in Business Bay, Dubai. We are not affiliated with any registry, and we do not issue government documents. Decisions on entities and property ownership are made solely by the relevant UAE authorities. Information on this page is general, is not legal, tax or investment advice, and does not replace advice on your own circumstances. Diagrams are illustrations only. Fees are confirmed in writing after your consultation.</p>
     <div className="ft-bot"><span>© {new Date().getFullYear()} Best Solution. All rights reserved.</span><span className="ft-links"><a href={SITE.privacy} style={{ textDecoration: "underline" }}>Privacy policy</a><a href={SITE.terms} style={{ textDecoration: "underline" }}>Terms</a><CookieSettingsButton className="ft-cookie" /></span></div>
   </div>
 </footer>

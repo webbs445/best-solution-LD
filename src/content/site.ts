@@ -280,6 +280,6 @@ export const FAQS = [
   { q: "Who will handle my enquiry?", a: "A dedicated consultant from our Business Bay office." },
   {
     q: "Is Best Solution a government entity?",
-    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Decisions on your company and residency are made solely by the relevant UAE authorities.",
+    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.",
   },
 ];
