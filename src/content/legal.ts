@@ -13,7 +13,7 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "How Best Solution® Business Setup Consultancy collects, uses, shares, and protects your personal data — written in plain language, aligned with the UAE Personal Data Protection Law (Federal Decree-Law No. 45 of 2021)."
+        "How Best Solution Business Setup Consultancy collects, uses, shares, and protects your personal data — written in plain language, aligned with the UAE Personal Data Protection Law (Federal Decree-Law No. 45 of 2021)."
       ],
       [
         "p",
@@ -37,7 +37,7 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "Best Solution® Business Setup Consultancy (\"Best Solution\", \"we\", \"our\", or \"us\") operates the website best-solution.ae and provides UAE business setup, visa, PRO, accounting, tax, and compliance services. This Privacy Policy explains what personal data we collect, why we collect it, how we use and share it, and the rights you have over your data."
+        "Best Solution Business Setup Consultancy (\"Best Solution\", \"we\", \"our\", or \"us\") operates the website best-solution.ae and provides UAE business setup, visa, PRO, accounting, tax, and compliance services. This Privacy Policy explains what personal data we collect, why we collect it, how we use and share it, and the rights you have over your data."
       ],
       [
         "p",
@@ -415,7 +415,7 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "The terms that apply when you engage Best Solution® for any service."
+        "The terms that apply when you engage Best Solution for any service."
       ],
       [
         "p",
@@ -535,7 +535,7 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "A significant portion of every package is third-party government fees (DED, FTA, Free Zone authorities, GDRFA, EIDA, MOH, MOFA, Ministry of Justice, etc.). These fees are set by the respective authorities and may change without notice. Best Solution® has no control over such changes and any difference will be passed through to the client at cost."
+        "A significant portion of every package is third-party government fees (DED, FTA, Free Zone authorities, GDRFA, EIDA, MOH, MOFA, Ministry of Justice, etc.). These fees are set by the respective authorities and may change without notice. Best Solution has no control over such changes and any difference will be passed through to the client at cost."
       ],
       [
         "h4",
@@ -599,7 +599,7 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "Best Solution® reserves the right to change prices, packages, inclusions, and terms at any time without prior notice."
+        "Best Solution reserves the right to change prices, packages, inclusions, and terms at any time without prior notice."
       ],
       [
         "h2",
@@ -611,7 +611,7 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "The Site, the Best Solution® brand, logos, content, design, templates, calculators, and proprietary checklists are owned by Best Solution and protected by UAE and international IP laws. Personal, non-commercial use is permitted; copying, reproducing, or republishing without our written consent is not."
+        "The Site, the Best Solution brand, logos, content, design, templates, calculators, and proprietary checklists are owned by Best Solution and protected by UAE and international IP laws. Personal, non-commercial use is permitted; copying, reproducing, or republishing without our written consent is not."
       ],
       [
         "h4",
