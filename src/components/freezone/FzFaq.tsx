@@ -1,26 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { FZ_FAQS, FZ_FAQ_TOPICS, type FaqTopic } from "@/content/freezone";
+import type { FaqTopic } from "@/content/freezone";
 import { trackEvent } from "@/lib/analytics";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
 
 /*
   Free zone FAQ: topic tabs, one question open at a time. Opens are reported by AnalyticsInit (data-faq-question).
-  /services reuses it with its own questions and no tabs.
+  /services reuses it with its own questions and no tabs. The questions come in as props from the server page, so
+  this client component never imports the content files (and their data) into the browser bundle.
 */
 export function FzFaq({
-  faqs = FZ_FAQS,
+  faqs,
+  topics = [],
   title = "Free zone questions, answered",
   tabs = true,
-  ctaLocation = "FZ FAQ — Request a Callback",
+  ctaLocation = "FZ FAQ - Request a Callback",
 }: {
-  faqs?: { c?: FaqTopic; q: string; a: string }[];
+  faqs: { c?: FaqTopic; q: string; a: string }[];
+  topics?: { c: FaqTopic | "all"; label: string }[];
   title?: string;
   tabs?: boolean;
   ctaLocation?: string;
-} = {}) {
+}) {
   const [topic, setTopic] = useState<FaqTopic | "all">("all");
   const [open, setOpen] = useState<number | null>(null);
 
@@ -31,7 +34,7 @@ export function FzFaq({
           <h2 id="faqTitle">{title}</h2>
           {tabs && (
             <div className="fq-tabs" role="tablist" aria-label="Question topics">
-              {FZ_FAQ_TOPICS.map((t) => (
+              {topics.map((t) => (
                 <button
                   key={t.c}
                   type="button"

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useCountUp } from "@/components/ui/useCountUp";
-import { formatAED } from "@/lib/pricing";
 
 /* A figure that counts up from zero once it scrolls into view. Server HTML carries the real value. */
 export function FzCount({ to, suffix = "", delay = 0 }: { to: number; suffix?: string; delay?: number }) {
@@ -31,7 +30,7 @@ export function FzCount({ to, suffix = "", delay = 0 }: { to: number; suffix?: s
 
   return (
     <b ref={ref}>
-      {formatAED(value)}
+      {Math.round(value).toLocaleString("en-US")}
       {suffix}
     </b>
   );

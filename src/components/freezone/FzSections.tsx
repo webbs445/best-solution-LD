@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { REVIEW_ROWS, SITE, WHY, type Review } from "@/content/site";
-import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
+import { CLAIMS, REVIEW_ROWS, SITE, WHY, type Review } from "@/content/site";
+import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
 import { FzCount } from "./FzCount";
 
@@ -111,12 +111,10 @@ const WHY_CARDS = WHY.map((w) =>
 
 /*
   Reviews kept off this page because their wording uses terms our Google Ads rules exclude (same as the
-  home page). The rest are repeated within the row so the loop fills wide screens; repeats are hidden
-  from screen readers.
+  home page). Each review is shown once.
 */
 const FZ_EXCLUDED = ["Chandra Mohan", "Javed Khan", "Tanwir Chowdhury", "Carlos Freyre"];
 const FZ_REVIEWS = REVIEW_ROWS.flat().filter((r) => !FZ_EXCLUDED.includes(r.name));
-const FZ_REVIEW_LOOP = Array.from({ length: Math.max(1, Math.ceil(6 / FZ_REVIEWS.length)) }, () => FZ_REVIEWS).flat();
 
 export function FzWhyUs() {
   return (
@@ -185,25 +183,16 @@ export function FzWhyUs() {
   );
 }
 
-function Stars({ label }: { label?: string }) {
-  return (
-    <div className="stars" role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <StarIcon key={i} />
-      ))}
-    </div>
-  );
-}
-
-function ReviewCard({ r, copy }: { r: Review; copy: boolean }) {
+/* A client's Google review, word for word: no star rating or title of our own. */
+function ReviewCard({ r }: { r: Review }) {
   return (
     <figure className="t-card">
       <div className="t-top">
-        <Stars label={copy ? undefined : "5 out of 5 stars"} />
-        <Image className="t-logo" src={r.logo} alt={copy ? "" : r.company} width={92} height={30} />
+        <Image className="t-logo" src={r.logo} alt={r.company} width={92} height={30} />
       </div>
-      <h3>{r.title}</h3>
-      <blockquote lang={r.lang}>&ldquo;{r.quote}&rdquo;</blockquote>
+      <blockquote lang={r.lang} data-review-quote>
+        &ldquo;{r.quote}&rdquo;
+      </blockquote>
       <figcaption>
         <Image className="t-photo" src={r.photo} alt="" width={44} height={44} />
         <span>
@@ -224,36 +213,24 @@ export function FzReviews() {
           <p className="section-kicker">
             Client reviews
           </p>
-          <h2 id="revTitle">Trusted by business owners from more than 80 countries</h2>
-          <p className="lede">Google reviews from our clients.</p>
+          <h2 id="revTitle">What our clients say</h2>
+          <p className="lede">Google reviews from our clients, word for word.</p>
         </div>
         <div className="t-score">
-          <b>{SITE.rating.score}</b>
-          <div>
-            <Stars />
-            <span>from more than {SITE.rating.count} Google reviews</span>
-          </div>
+          {/* The rating shows only once confirmed against the live Google profile (content/site CLAIMS). */}
+          {CLAIMS.rating && <b className="t-claim">{CLAIMS.rating}</b>}
           <a className="t-all" href={SITE.googleReviews} target="_blank" rel="noopener">
             Read all Google reviews <ArrowIcon />
           </a>
         </div>
       </div>
-      <div className="marquee t-marquee">
-        <div className="marquee-track">
-          {[false, true].map((copy) => (
-            <ul key={String(copy)} className="t-row" aria-hidden={copy || undefined}>
-              {FZ_REVIEW_LOOP.map((r, k) => {
-                const repeat = copy || k >= FZ_REVIEWS.length;
-                return (
-                  <li key={`${r.name}-${k}`} aria-hidden={!copy && repeat ? true : undefined}>
-                    <ReviewCard r={r} copy={repeat} />
-                  </li>
-                );
-              })}
-            </ul>
-          ))}
-        </div>
-      </div>
+      <ul className="wrap t-grid">
+        {FZ_REVIEWS.map((r) => (
+          <li key={r.name}>
+            <ReviewCard r={r} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

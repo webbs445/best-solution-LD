@@ -1,17 +1,14 @@
 import Image from "next/image";
-import { SITE, TRUST, WHY } from "@/content/site";
+import { CLAIMS, SITE, WHY } from "@/content/site";
 import { JOURNEY, SERVICES, SHOW_TEAM, TEAM, type ServiceId } from "@/content/services";
-import { formatAED } from "@/lib/pricing";
 import { ArrowIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
 import { ServiceIcon } from "./ServiceIcon";
 
-/* The /services page's static sections. Server components: no client JavaScript. */
+/* The /services page's static sections. Server components: no client JavaScript. Advice only: no prices or timings. */
 
-const price = (s: (typeof SERVICES)[number]) => (s.from !== null ? `From AED ${formatAED(s.from)}${s.priceNote ?? ""}` : s.priceNote);
-
-/* The hub: two photo tiles, three service cards, and the cost calculator as a wide banner (it is a tool, not a service). */
-const CALC = SERVICES.find((s) => s.id === "calculator")!;
+/* The hub: two photo tiles, three service cards, and "Plan your budget" as a wide banner. */
+const BUDGET = SERVICES.find((s) => s.id === "calculator")!;
 export function SvGrid() {
   return (
     <section className="fz-block sv-grid-sec" id="services" aria-labelledby="svGridTitle">
@@ -21,12 +18,12 @@ export function SvGrid() {
             <span />
             Our services
           </p>
-          <h2 id="svGridTitle">Every service, one consultant</h2>
-          <p>Pick a service to see its starting price and a free tool to get started.</p>
+          <h2 id="svGridTitle">Advice for every stage, one consultant</h2>
+          <p>Pick a service to see how we can help. Your advisor explains the options in plain terms.</p>
         </div>
         <ul className="sv-grid">
-          {SERVICES.filter((s) => s !== CALC).map((s) => (
-            // The whole tile opens the service page (stretched link); the tool tag is its own link to the tool.
+          {SERVICES.filter((s) => s !== BUDGET).map((s) => (
+            // The whole tile opens the service page (stretched link).
             <li key={s.id} className={s.big ? "big" : "mid"}>
               <article className="sv-tile spot">
                 {s.photo && (
@@ -38,25 +35,14 @@ export function SvGrid() {
                 <span className="sv-tile-ico">
                   <ServiceIcon id={s.id} />
                 </span>
-                {s.big && (
-                  <a className="sv-chip sv-tile-tool" href={s.tool.href} data-cta-location={`SV Grid — Tool: ${s.tool.label}`}>
-                    2-minute {s.tool.tag}
-                  </a>
-                )}
                 <h3>
                   <a className="sv-tile-main" href={s.href} data-service-card={s.name}>
                     {s.name}
                   </a>
                 </h3>
                 <p>{s.line}</p>
-                {!s.big && (
-                  <a className="sv-tile-toollink" href={s.tool.href} data-cta-location={`SV Grid — Tool: ${s.tool.label}`}>
-                    Try the 2-minute {s.tool.tag} <ArrowIcon />
-                  </a>
-                )}
-                {s.timing && <p className="sv-tile-time">{s.timing}</p>}
                 <span className="sv-tile-foot">
-                  <b>{price(s)}</b>
+                  <b>Learn more</b>
                   <span className="sv-tile-go" aria-hidden="true">
                     <ArrowIcon />
                   </span>
@@ -65,17 +51,17 @@ export function SvGrid() {
             </li>
           ))}
           <li className="wide">
-            <a className="sv-banner" href={CALC.tool.href} data-cta-location="SV Grid — Cost calculator">
+            <a className="sv-banner" href={BUDGET.href} data-cta-location="SV Grid - Plan your budget">
               <span className="sv-banner-ico">
                 <ServiceIcon id="calculator" />
               </span>
               <span className="sv-banner-txt">
-                <small>Free · 2-minute calculator</small>
-                <b>Not sure what it costs?</b>
-                <span>{CALC.line}</span>
+                <small>Planning guide</small>
+                <b>{BUDGET.name}</b>
+                <span>{BUDGET.line}</span>
               </span>
               <span className="sv-banner-cta">
-                Get my estimate <ArrowIcon />
+                Read the guide <ArrowIcon />
               </span>
             </a>
           </li>
@@ -85,8 +71,8 @@ export function SvGrid() {
   );
 }
 
-/* "Your business journey": five stages on one copper path, each opening the page that serves it. */
-const STAGE_ICONS: ServiceId[] = ["setup", "freezone", "accounting", "tax", "spv"];
+/* "How we help": five stages on one copper path, each opening the page that serves it. */
+const STAGE_ICONS: ServiceId[] = ["setup", "calculator", "accounting", "tax", "spv"];
 export function SvJourney() {
   return (
     <section className="fz-block sv-journey" id="journey" aria-labelledby="svJourneyTitle">
@@ -96,13 +82,13 @@ export function SvJourney() {
             <span />
             How we help
           </p>
-          <h2 id="svJourneyTitle">Your business journey</h2>
-          <p>We stay with you from the first licence onwards. Tap a stage to see how we help.</p>
+          <h2 id="svJourneyTitle">Advice as your business grows</h2>
+          <p>Tap a stage to see how an advisor can help.</p>
         </div>
         <ol className="sv-steps sv-path">
           {JOURNEY.map((j, i) => (
             <li key={j.title}>
-              <a href={j.href} data-cta-location={`SV Journey — ${j.title}`}>
+              <a href={j.href} data-cta-location={`SV Journey - ${j.title}`}>
                 <span className="sv-node" aria-hidden="true">
                   <ServiceIcon id={STAGE_ICONS[i]} />
                 </span>
@@ -128,7 +114,8 @@ const WHY_ICONS = [
   "M6 3h9l4 4v14H6zM9 12h7M9 16h5M14 3v5h5",
   "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c0-3 2.7-5 6-5s6 2 6 5M15 15c3.3 0 6 2 6 5",
 ];
-const countries = TRUST.find((t) => t.label === "Client countries")!;
+/* Confirmed claims only (content/site CLAIMS); nothing is rendered while they are unconfirmed. */
+const TRUST_LINE = [CLAIMS.ownership, CLAIMS.since, CLAIMS.countries].filter(Boolean).join(" · ");
 
 /* Why us: the pitch and a consultation button on the left, three points (and the team, when SHOW_TEAM is on) on the right. */
 export function SvTrust() {
@@ -140,12 +127,10 @@ export function SvTrust() {
             <span />
             Why Best Solution
           </p>
-          <h2 id="svTeamTitle">One team for every stage of your business</h2>
-          <p className="sv-trust-lede">
-            Emirati-owned and advising since {SITE.founded}, with clients from {countries.count}
-            {countries.suffix} countries.
-          </p>
-          <CallbackTrigger className="btn btn-primary sv-why-cta" location="SV Why — Book a Consultation">
+          <h2 id="svTeamTitle">One team to talk your plans through</h2>
+          <p className="sv-trust-lede">A private consultancy in Business Bay, Dubai. One advisor stays your point of contact.</p>
+          {TRUST_LINE && <p className="sv-trust-lede">{TRUST_LINE}</p>}
+          <CallbackTrigger className="btn btn-primary sv-why-cta" location="SV Why - Book a Consultation">
             Book a Consultation <ArrowIcon />
           </CallbackTrigger>
         </div>
@@ -189,17 +174,17 @@ export function SvClosing() {
       <div className="wrap">
         <div className="fz-close-in">
           <div>
-            <h2 id="closeTitle">Not sure where to start?</h2>
-            <p>Tell us what you are planning. A consultant recommends the right service and confirms the costs in writing.</p>
+            <h2 id="closeTitle">Not sure which service fits?</h2>
+            <p>Tell us what you are planning. An advisor suggests where to begin and confirms any fees in writing.</p>
           </div>
           <div className="fz-close-cta">
-            <CallbackTrigger className="btn btn-primary" location="SV Closing — Book a Consultation">
+            <CallbackTrigger className="btn btn-primary" location="SV Closing - Book a Consultation">
               Book a Consultation <ArrowIcon />
             </CallbackTrigger>
             <a className="fz-btn-ghost sv-wa" href={SITE.whatsapp} target="_blank" rel="noopener" data-area="SV Closing">
               <WhatsAppIcon /> WhatsApp us
             </a>
-            <p>Complimentary · No obligation · We reply by phone, WhatsApp or email</p>
+            <p>No obligation · We reply by phone, WhatsApp or email</p>
           </div>
         </div>
       </div>

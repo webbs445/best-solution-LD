@@ -25,7 +25,7 @@ export function CallbackButton({
   className,
   children,
   defaultInterest = "not_sure",
-  ctaLocation = "LP Footer — Book a Callback",
+  ctaLocation = "LP Footer - Book a Callback",
   formId = CALLBACK_FORM_ID,
 }: {
   className: string;

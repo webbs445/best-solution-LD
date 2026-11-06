@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { MAPS_URL, SITE, SOCIAL } from "@/content/site";
+import { DISCLAIMER, MAPS_URL, SITE, SOCIAL } from "@/content/site";
 import { FZ_NAV } from "@/content/freezone";
 import { CallbackButton } from "@/components/sections/Callback";
 import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
@@ -30,11 +30,11 @@ const CONTACTS = [
 /* The /freezone page footer. Its "Book a Callback" button owns the page's one callback popup;
    every other "callback" button opens it through CallbackTrigger. */
 export function FzFooter({
-  blurb = "Independent free zone advice from Business Bay, Dubai. One consultant, every step, with costs confirmed in writing.",
+  blurb = "Free zone advice from a private consultancy in Business Bay, Dubai. One advisor, with any fees confirmed in writing.",
   nav = FZ_NAV,
   navLabel = "This page",
   defaultInterest = "freezone",
-  ctaLocation = "FZ Footer — Book a Callback",
+  ctaLocation = "FZ Footer - Book a Callback",
   formId,
 }: {
   blurb?: string;
@@ -54,8 +54,9 @@ export function FzFooter({
       <div className="bs-fin">
         <div className="f5-top">
           <div className="f4-brand">
-            <a className="bs-flogo" href="#top" aria-label="Best Solution, back to top">
-              <Image src={SITE.mark} alt="Best Solution" width={160} height={75} />
+            <a className="bs-flogo bs-logo-text" href="#top" aria-label="Best Solution, back to top">
+              <Image src="/brand/icon-mark.webp" alt="" width={28} height={40} />
+              <span>Best Solution</span>
             </a>
             <p>{blurb}</p>
             <div className="bs-social">
@@ -81,10 +82,6 @@ export function FzFooter({
             </div>
           </div>
           <div className="f5-cta">
-            <span className="qc-live">
-              <i />
-              Consultants available
-            </span>
             <h4>Book a consultation</h4>
             <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
             <CallbackButton className="btn btn-primary" defaultInterest={defaultInterest} ctaLocation={ctaLocation} formId={formId}>
@@ -107,13 +104,10 @@ export function FzFooter({
           </svg>
           <div>
             <b>Important information</b>
+            <p data-legal>{DISCLAIMER}</p>
             <p>
-              Best Solution is a private business consultancy based in Business Bay, Dubai, and is not affiliated with
-              any government entity or free zone authority. All licences, permits and residency approvals are issued solely
-              by the relevant UAE authorities. Free zone names and logos identify the zones we advise on and do not imply
-              affiliation. Prices are indicative from-prices, based on our current rate card, may change, and are
-              confirmed in writing by your advisor. 0% corporate tax applies only to qualifying income under Qualifying Free
-              Zone Person (QFZP) conditions.
+              Free zone names identify the zones we advise on and do not imply any affiliation. 0% corporate tax applies only
+              to qualifying income under Qualifying Free Zone Person (QFZP) conditions.
             </p>
           </div>
         </div>
@@ -124,12 +118,8 @@ export function FzFooter({
             &copy; {year} <strong>Best Solution</strong>. All rights reserved.
           </p>
           <nav aria-label="Legal">
-            <a href={SITE.privacy} target="_blank" rel="noopener">
-              Privacy Policy
-            </a>
-            <a href={SITE.terms} target="_blank" rel="noopener">
-              Terms of Service
-            </a>
+            <a href={SITE.privacy}>Privacy Policy</a>
+            <a href={SITE.terms}>Terms of Service</a>
             <CookieSettingsButton />
           </nav>
         </div>

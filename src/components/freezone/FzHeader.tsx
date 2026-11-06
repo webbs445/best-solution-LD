@@ -28,8 +28,9 @@ export function FzHeader() {
     <header className={`bs-header${scrolled ? " is-scrolled" : ""}`} id="bsHeader">
       <div className="bs-header-in">
         <div className="bs-bar">
-          <a className="bs-logo" href="#top" aria-label="Best Solution, back to top">
-            <Image src={SITE.logo} alt="Best Solution, Business Begins Here" width={180} height={80} priority />
+          <a className="bs-logo bs-logo-text" href="#top" aria-label="Best Solution, back to top">
+            <Image src="/brand/icon-mark.webp" alt="" width={28} height={40} priority />
+            <span>Best Solution</span>
           </a>
           <nav className="bs-nav" aria-label="On this page">
             {FZ_NAV.map((n, i) => (
@@ -53,7 +54,7 @@ export function FzHeader() {
               type="button"
               aria-expanded={open}
               aria-controls="bsMenu"
-              aria-label={open ? "Close menu" : "Open menu"}
+              aria-label={open ? "Close menu" : "Show menu"}
               onClick={() => setOpen((o) => !o)}
             >
               <MenuIcon open={false} />

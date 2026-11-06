@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FZ_FAQS } from "@/content/freezone";
+import { FZ_FAQS, FZ_FAQ_TOPICS } from "@/content/freezone";
 import { SITE } from "@/content/site";
 import { PlannerProvider } from "./PlannerProvider";
 import { FzHeader } from "./FzHeader";
@@ -69,7 +69,7 @@ export function FreeZoneLanding({ view }: { view?: string }) {
           <FzHowItWorks />
           <FzWhyUs />
           <FzReviews />
-          <FzFaq />
+          <FzFaq faqs={FZ_FAQS} topics={FZ_FAQ_TOPICS} />
           <FzClosing />
         </main>
         <FzFooter />
