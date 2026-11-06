@@ -906,3 +906,9 @@ html:has(.fz-page) {scroll-padding-top:0}
   .fz-page .fz-plan-card {padding:20px}
   .fz-page .fz-zx-card {padding:16px}
 }
+/* Phones: the disclaimer under the hero says the same as the old trust line, so the line goes and the disclaimer
+   stays above the cookie banner on the first screen. */
+@media (max-width:640px) {
+  .fz-page .fz-trustline {display:none}
+  .fz-page .fz-hero .fz-disclaimer {margin-top:14px}
+}
