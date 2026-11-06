@@ -27,7 +27,7 @@ export const CONSULT_CONFIRM: {
   /** e.g. "within one working day", appended to the form sub line */
   replyTime: string | null;
 } = {
-  summaryStep: null,
+  summaryStep: "Know your options and choose your next step in your own time.",
   advisingSince: null,
   rating: null,
   languages: null,
@@ -70,6 +70,8 @@ export const CONSULT_STEPS: { title: string; body: string | null }[] = [
 /** "Why people talk to us": the office line is a plain fact; the rest show only once confirmed. */
 export const CONSULT_WHY: string[] = [
   "Office in Business Bay, Dubai",
+  "Meet in person or by video call",
+  "Advice in plain terms",
   CONSULT_CONFIRM.advisingSince,
   CONSULT_CONFIRM.rating,
   CONSULT_CONFIRM.languages,
@@ -86,7 +88,7 @@ export const CONSULT_FAQS: { q: string; a: string }[] = [
     q: "What happens in a consultation?",
     a: "You share your plans and questions. An advisor explains your options in plain terms so you can decide your next step.",
   },
-  { q: "Can I talk to you without coming to the office?", a: "Yes. You can meet us in Business Bay or book a video call." },
+  { q: "Can I talk to you without coming to the office?", a: "Yes. You can meet us in Business Bay or book a video call at a time that suits you." },
   ...(CONSULT_CONFIRM.chargeAnswer ? [{ q: "Is there a charge for the first consultation?", a: CONSULT_CONFIRM.chargeAnswer }] : []),
   {
     q: "Are you a government office?",

@@ -81,7 +81,7 @@ export default function ConsultPage() {
             <h1 id="adTitle">Talk to a private business advisor in Dubai</h1>
             <p className="ad-sub">Get a second opinion on your plans before you decide. Clear advice, no pressure, from our team in Business Bay.</p>
             <div className="ad-hero-cta" data-area="ADV Hero">
-              <a className="btn btn-primary ad-book" href="#book" data-cta-location="ADV Hero — Book a Consultation">
+              <a className="btn btn-primary ad-book" href="#book" data-cta-location="ADV Hero - Book a Consultation">
                 Book a Consultation
               </a>
               <div className="ad-hero-alt">
