@@ -10,9 +10,10 @@ const handlers = [
     error: ["if (!res.ok || !json.ok)", "catch {"],
   },
   {
-    file: "./costCalculator/CcScript.tsx",
-    success: ["return name.split(/\\s+/)[0]", "function unlock(firstName: string)"],
-    error: ["if (!res?.ok)", "c.err.hidden = false"],
+    // The consultation form on /consult, /freezone, /cost-calculator and the home page (replaced the price forms).
+    file: "./consult/ConsultForm.tsx",
+    success: ['setStatus({ kind: "sent" })'],
+    error: ['setStatus({ kind: "error" })', "catch {"],
   },
   {
     file: "./sections/Callback.tsx",

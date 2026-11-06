@@ -1,9 +1,9 @@
 import { DATA, RATES, maxResidents, pick, usesPackage, type Answers, type JurisdictionChoice, type SetupOption, type WorkspaceKey } from "@/lib/pricing";
 
 /*
-  /cost-calculator: the visitor's choices and the page's itemised estimate, shared by the page (CcScript) and its API
-  route. Same rate card and maths as lib/pricing estimate(); this adds the business activity and returns the parts
-  the page draws (package, residency, workspace, bank help).
+  /api/cost-calculator only (server side): the old configurator's answers and itemised estimate, kept so requests
+  from old clients still work. The /cost-calculator page no longer imports this, so no price data ships in its JS.
+  Same rate card and maths as lib/pricing estimate().
 */
 
 /** Business activities the page offers: [id, English label]. */

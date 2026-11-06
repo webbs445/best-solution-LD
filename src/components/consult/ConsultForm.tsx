@@ -68,11 +68,11 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
-      const body = (await res.json().catch(() => ({}))) as { created?: unknown };
+      const responseBody = (await res.json().catch(() => ({}))) as { created?: unknown };
       setStatus({ kind: "sent" });
       // The thank-you replaces the form; bring it into view on phones.
       requestAnimationFrame(() => success.current?.scrollIntoView({ block: "center" }));
-      if (!isConfirmedLeadResponse(body)) return;
+      if (!isConfirmedLeadResponse(responseBody)) return;
       pushFormSubmit({ formId, formType, serviceInterest: topic, email, phone, firstName, lastName: rest.join(" "), eventId });
       pushGenerateLead({ formId, service: topic, email, phone });
     } catch {
