@@ -129,126 +129,6 @@
   background: rgba(255, 255, 255, 0.74);
 }
 
-/* ---------- Proof rail: one continuous editorial credential line ---------- */
-
-.rail {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(140px, 0.5fr) minmax(0, 2fr);
-  align-items: stretch;
-  margin-top: 48px;
-  padding: 20px 0;
-  border-top: 1px solid rgba(20, 37, 62, 0.14);
-  border-bottom: 1px solid rgba(20, 37, 62, 0.14);
-}
-
-.rail::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: -1px;
-  width: 56px;
-  height: 2px;
-  background: var(--copper);
-}
-
-.railIntro {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 16px 20px 16px 0;
-  border-right: 1px solid rgba(20, 37, 62, 0.12);
-}
-
-.railIntro span {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.19em;
-  text-transform: uppercase;
-  color: var(--copper-ink);
-}
-
-.railIntro b {
-  margin-top: 6px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-}
-
-.railIntro small {
-  margin-top: 5px;
-  font-size: 10px;
-  color: var(--ink-soft);
-}
-
-.railIntro::after {
-  content: "";
-  display: block;
-  width: 28px;
-  height: 1px;
-  margin-top: 12px;
-  background: var(--copper);
-}
-
-.trust {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.trust li {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  /* Top-aligned so the numbers share one baseline whatever the label length. */
-  justify-content: flex-start;
-  min-width: 0;
-  min-height: 82px;
-  padding: 14px 14px 14px 16px;
-  border-right: 1px solid rgba(20, 37, 62, 0.1);
-}
-
-.trust li:last-child {
-  border-right: 0;
-}
-
-.trust li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 2px;
-  height: 22px;
-  border-radius: 2px;
-  transform: translateY(-50%);
-  background: var(--copper);
-  opacity: 0.42;
-}
-
-.trust li:first-child::before {
-  opacity: 0.95;
-}
-
-.trust b {
-  display: block;
-  font: 800 clamp(20px, 1.7vw, 24px) / 1.05 var(--font);
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.trust span {
-  display: block;
-  margin-top: 6px;
-  font-size: 10.5px;
-  line-height: 1.3;
-  color: var(--ink-soft);
-}
-
-/* ---------- Advisory panel: a photographic editorial object, not a card ---------- */
-
 /* ---------- Entrance: a short, staggered settle on first paint ---------- */
 
 @keyframes rise {
@@ -266,8 +146,7 @@
   .kicker,
   .title,
   .sub,
-  .ctaRow,
-  .rail {
+  .ctaRow {
     animation: rise 0.8s var(--ease-out) both;
   }
 
@@ -283,44 +162,10 @@
     animation-delay: 180ms;
   }
 
-  .rail {
-    animation-delay: 260ms;
-  }
 }
 
 /* ---------- Responsive ---------- */
 
-/* Laptops: the copy column narrows, so the rail's intro moves above the stats. */
-@media (min-width: 1021px) and (max-width: 1320px) {
-  .rail {
-    grid-template-columns: minmax(0, 1fr);
-    padding-top: 16px;
-  }
-
-  .railIntro {
-    flex-direction: row;
-    align-items: baseline;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 4px 12px;
-    padding: 0 0 12px;
-    border-right: 0;
-    border-bottom: 1px solid rgba(20, 37, 62, 0.12);
-  }
-
-  .railIntro b,
-  .railIntro small {
-    margin-top: 0;
-  }
-
-  .railIntro::after {
-    display: none;
-  }
-
-  .trust li {
-    min-height: 74px;
-  }
-}
 
 @media (min-width: 1021px) and (max-width: 1180px) {
   .ctaRow :global(.btn) {
@@ -356,9 +201,6 @@
     max-width: 780px;
   }
 
-  .rail {
-    grid-template-columns: minmax(180px, 0.6fr) minmax(0, 1.6fr);
-  }
 }
 
 @media (max-width: 760px) {
@@ -380,21 +222,6 @@
     font-size: 17px;
   }
 
-  .rail {
-    grid-template-columns: minmax(0, 1fr);
-    margin-top: 38px;
-  }
-
-  .railIntro {
-    padding: 16px 0;
-    border-right: 0;
-    border-bottom: 1px solid rgba(20, 37, 62, 0.12);
-  }
-
-  .trust li {
-    min-height: 72px;
-    padding: 13px 14px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -415,40 +242,35 @@
     opacity: 0.07;
   }
 
-  .rail {
-    padding: 18px 0;
-  }
 }
 
-@media (max-width: 520px) {
-  .trust b {
-    font-size: 22px;
-  }
+/* ---------- Location line and disclaimer, directly under the calls to action ---------- */
 
-  .trust span {
-    font-size: 10px;
-  }
+.trustLine {
+  margin-top: 26px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 
-/* ---------- Phones: a short hero so the calculator comes up within the first screen and a half ---------- */
-
-.trustLine,
-.cardAfter {
-  display: none;
+.legal {
+  max-width: 40em;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(20, 37, 62, 0.12);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
 }
 
+/* Phones: a short hero so the consultation form comes up early; the card's points are in the next section. */
 @media (max-width: 640px) {
-  .cardSlot,
-  .rail {
+  .cardSlot {
     display: none;
   }
 
   .trustLine {
-    display: block;
     margin-top: 18px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink-soft);
   }
 
   .inner {
@@ -458,12 +280,5 @@
   .sub {
     margin-top: 14px;
     font-size: 16px;
-  }
-
-  /* The structure check, now below the calculator. */
-  .cardAfter {
-    display: block;
-    margin-top: 28px;
-    margin-bottom: 8px;
   }
 }

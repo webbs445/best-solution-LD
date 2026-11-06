@@ -12,7 +12,7 @@ export function Process() {
           <p className="section-kicker">Three simple steps</p>
           <h2 id="process-title">How it works</h2>
           <p className={styles.intro}>
-            From your first estimate to a confirmed plan, with the same consultant at every step.
+            From your first conversation to your decision, with the same advisor at every step.
           </p>
           <figure className={styles.photo}>
             <Image
@@ -24,15 +24,15 @@ export function Process() {
             />
             <figcaption>
               <b>One consultant</b>
-              <span>from estimate to decision</span>
+              <span>from first call to decision</span>
             </figcaption>
           </figure>
         </div>
         <div data-reveal="">
           <Timeline />
           <div className={styles.cta}>
-            <CtaLink className="btn btn-primary" href="#calculator" location="LP Process — Start with Step 1">
-              Begin with Step 1 <ArrowIcon />
+            <CtaLink className="btn btn-primary" href="#calculator" location="LP Process - Book a Consultation">
+              Book a Consultation <ArrowIcon />
             </CtaLink>
             <span>No obligation.</span>
           </div>

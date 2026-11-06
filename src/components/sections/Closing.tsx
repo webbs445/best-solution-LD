@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FOOTER_COLUMNS, MAPS_URL, SITE, SOCIAL } from "@/content/site";
+import { DISCLAIMER, FOOTER_COLUMNS, MAPS_URL, SITE, SOCIAL } from "@/content/site";
 import { CtaLink } from "@/components/ui/CtaLink";
 import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
 import {
@@ -26,16 +26,16 @@ export function Closing() {
         <div className={styles.card}>
           <div className={styles.rings} aria-hidden="true" />
           <div className={styles.copy}>
-            <p className={styles.eyebrow}>Complimentary consultation</p>
+            <p className={styles.eyebrow}>Talk to an advisor</p>
             <h2 id="close-title">
-              Begin with <span>clarity on cost</span>
+              Talk your plans through <span>with an advisor</span>
             </h2>
-            <p className={styles.lede}>Get a written estimate and speak with a consultant at a time that suits you.</p>
+            <p className={styles.lede}>Share your plans and speak with an advisor at a time that suits you.</p>
             <div className={styles.actions}>
-              <CtaLink className="btn btn-primary" href="#calculator" location="LP Closing — Calculate Cost">
-                Calculate Your Company Cost <ArrowIcon />
+              <CtaLink className="btn btn-primary" href="#calculator" location="LP Closing - Book a Consultation">
+                Book a Consultation <ArrowIcon />
               </CtaLink>
-              <CtaLink className={styles.ghost} href={SITE.whatsapp} location="LP Closing — Speak to a Consultant">
+              <CtaLink className={styles.ghost} href={SITE.whatsapp} location="LP Closing - Speak to a Consultant">
                 <WhatsAppIcon />
                 <span>Speak to a Consultant</span>
               </CtaLink>
@@ -126,8 +126,7 @@ export function Footer() {
               <Image src={SITE.mark} alt="Best Solution" width={240} height={112} />
             </a>
             <p>
-              Your trusted partner for company structuring advice in Dubai. One consultant, every step, with costs confirmed
-              in writing.
+              Private business advice in Business Bay, Dubai. One advisor, with any fees confirmed in writing.
             </p>
             <div className={styles.social}>
               {SOCIAL_LINKS.map((s) => (
@@ -159,10 +158,6 @@ export function Footer() {
             ))}
 
             <div className={styles.ctaCard}>
-              <span className={styles.live}>
-                <i aria-hidden="true" />
-                Consultants available
-              </span>
               <h2>Book a Consultation</h2>
               <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
               <CallbackButton className="btn btn-primary">
@@ -193,26 +188,23 @@ export function Footer() {
           </div>
         </div>
 
+        <p className={styles.disclaimer} data-legal>
+          {DISCLAIMER}
+        </p>
         <p className={styles.disclaimer}>
-          Best Solution® is a private business consultancy based in Business Bay, Dubai, and is not affiliated with any
-          government entity or free zone authority. All licences, permits and residency approvals are issued solely by the
-          relevant UAE authorities. Free zone names and logos identify the zones we advise on and do not imply affiliation.
-          All costs shown are estimates and are confirmed in writing before any engagement.
+          Free zone names identify the zones we advise on and do not imply any affiliation. Any fees are confirmed in writing
+          before work begins.
         </p>
       </div>
 
       <div className={styles.bottom}>
         <div className={styles.bin}>
           <p>
-            © {year} <strong>Best Solution®</strong>. All rights reserved.
+            © {year} <strong>Best Solution</strong>. All rights reserved.
           </p>
           <nav aria-label="Legal">
-            <a href={SITE.privacy} target="_blank" rel="noopener">
-              Privacy Policy
-            </a>
-            <a href={SITE.terms} target="_blank" rel="noopener">
-              Terms of Service
-            </a>
+            <a href={SITE.privacy}>Privacy Policy</a>
+            <a href={SITE.terms}>Terms of Service</a>
             <CookieSettingsButton />
           </nav>
         </div>

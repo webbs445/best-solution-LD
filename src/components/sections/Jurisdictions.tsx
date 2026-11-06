@@ -3,21 +3,15 @@
 import Image from "next/image";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { JURIS } from "@/content/site";
-import { cheapest, DATA, formatAED, type Jurisdiction } from "@/lib/pricing";
+import type { Jurisdiction } from "@/lib/pricing";
 import { jurisdictionLabel, trackJurisdictionInterest } from "@/lib/analytics";
-import { prefersReducedMotion } from "@/lib/useReducedMotion";
-import { useCalculator } from "@/components/calculator/CalculatorProvider";
 import { ArrowIcon } from "@/components/ui/Icons";
 import styles from "./Jurisdictions.module.css";
 
 const KEYS: Jurisdiction[] = ["mainland", "freezone", "offshore"];
 
-/* "Setup cost from": mainland headlines the Dubai Mainland LLC (m0); the AED 1,500 E-Trader stays inside the calculator. */
-const headlinePrice = (j: Jurisdiction) =>
-  j === "mainland" ? (DATA.mainland.find((o) => o.id === "m0") ?? cheapest(DATA.mainland)).price : cheapest(DATA[j]).price;
-
+/* Mainland, free zone and offshore compared in plain language: advice only, no prices (Google Ads policy). */
 export function Jurisdictions() {
-  const { startWithJurisdiction } = useCalculator();
   const [active, setActive] = useState<Jurisdiction>("mainland");
   const tabRefs = useRef<Partial<Record<Jurisdiction, HTMLButtonElement | null>>>({});
   const j = JURIS[active];
@@ -38,13 +32,6 @@ export function Jurisdictions() {
     if (next < 0) return;
     e.preventDefault();
     select(KEYS[next], true);
-  };
-
-  const estimateThis = () => {
-    startWithJurisdiction(active);
-    document
-      .getElementById("calculator")
-      ?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
   };
 
   return (
@@ -127,17 +114,15 @@ export function Jurisdictions() {
                     <dd>{j.tax}</dd>
                   </div>
                   <div>
-                    <dt>Company cost from</dt>
-                    <dd>AED {formatAED(headlinePrice(active))}</dd>
+                    <dt>What to think about</dt>
+                    <dd>{j.think}</dd>
                   </div>
                 </dl>
               </div>
-              <button className={`btn btn-primary btn-sm ${styles.use}`} type="button" onClick={estimateThis}>
-                {j.cta} <ArrowIcon />
-              </button>
-              <p className={styles.note}>
-                Your consultant can confirm the structure, requirements and final cost before you proceed.
-              </p>
+              <a className={`btn btn-primary btn-sm ${styles.use}`} href="#calculator" data-cta-location={`LP Jurisdictions - Talk it through (${j.title})`}>
+                Talk it through with an advisor <ArrowIcon />
+              </a>
+              <p className={styles.note}>Your advisor explains what may apply to your activity and plans.</p>
             </div>
           </div>
         </div>

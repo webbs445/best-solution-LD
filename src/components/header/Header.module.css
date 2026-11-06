@@ -38,7 +38,14 @@
 .logo {
   display: flex;
   align-items: center;
+  gap: 10px;
   flex: none;
+  color: var(--navy);
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  white-space: nowrap;
   transition: transform 0.2s ease;
 }
 

@@ -68,7 +68,7 @@ export const AUTHORITIES = [
 ].map((a) => ({ ...a, src: `/authorities/${a.file}.webp` }));
 
 export const NAV = [
-  { href: "#calculator", label: "Cost Calculator" },
+  { href: "#calculator", label: "Plan with an advisor" },
   { href: "#consultation", label: "Consultation" },
   { href: "#jurisdiction", label: "Jurisdictions" },
   { href: "#reviews", label: "Reviews" },
@@ -88,7 +88,6 @@ export const MAPS_URL =
 export const FOOTER_COLUMNS: { title: string; links: { label: string; href?: string; external?: boolean }[] }[] = [
   { title: "This page", links: NAV.map((n) => ({ label: n.label, href: n.href })) },
   { title: "Mainland", links: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman"].map((label) => ({ label })) },
-  { title: "Free Zones", links: ["DMCC", "IFZA", "Meydan", "Shams", "RAKEZ", "JAFZA"].map((label) => ({ label })) },
 ];
 
 export const TRUST = [
@@ -105,15 +104,16 @@ export const WHY = [
   { title: "Continued support", body: "Tax, accounting and compliance guidance as your business grows." },
 ];
 
+/** Home page jurisdiction tabs: a plain-language comparison, no prices. */
 export interface JurisdictionCopy {
   title: string;
-  cta: string;
   best: string;
   suited: string;
   market: string;
   owner: string;
   office: string;
   tax: string;
+  think: string;
   photo: string;
   photoPosition: string;
 }
@@ -121,41 +121,69 @@ export interface JurisdictionCopy {
 export const JURIS: Record<Jurisdiction, JurisdictionCopy> = {
   mainland: {
     title: "Mainland",
-    cta: "Estimate a mainland company",
-    best: "For businesses trading directly across the UAE",
-    suited: "Suited to businesses trading directly across the UAE.",
+    best: "Often suits businesses that trade directly across the UAE",
+    suited: "Often suits businesses that sell to customers anywhere in the UAE.",
     market: "Across all emirates",
-    owner: "Full foreign ownership",
-    office: "Tenancy contract",
-    tax: "9% on profit above AED 375,000",
-    photo: "/images/mainland-dubai-economy-tourism.webp",
-    photoPosition: "60% center",
+    owner: "Foreign ownership is often possible, depending on the activity",
+    office: "A physical office is usually expected",
+    tax: "9% on taxable profit above AED 375,000",
+    think: "Your activity, where your customers are and the office space you need",
+    photo: "/images/main.webp",
+    photoPosition: "50% center",
   },
   freezone: {
     title: "Free zone",
-    cta: "Estimate a free zone company",
-    best: "For international and B2B operations",
-    suited: "Suited to international and business-to-business operations.",
-    market: "UAE and international B2B",
-    owner: "Full foreign ownership",
-    office: "Flexi-desk or physical office",
-    tax: "0% on qualifying income, 9% on non-qualifying",
+    best: "Often suits international and business-to-business work",
+    suited: "Often suits international and business-to-business operations.",
+    market: "Inside the zone, and international business",
+    owner: "Foreign ownership is common, depending on the zone and activity",
+    office: "Flexi desk or physical office, depending on the zone",
+    tax: "0% on qualifying income and 9% on other income, subject to conditions",
+    think: "Which zone fits your activity, and whether you will sell to UAE customers",
     photo: "/images/free-zone-business-park-office.webp",
     photoPosition: "35% center",
   },
   offshore: {
     title: "Offshore",
-    cta: "Estimate an offshore company",
-    best: "For holding and international structures",
-    suited: "Suited to holding structures and asset protection.",
-    market: "International only",
-    owner: "Full foreign ownership",
-    office: "No office required",
-    tax: "Depends on structure and UAE corporate tax rules",
-    photo: "/images/offshore-company-structure.webp",
-    photoPosition: "85% center",
+    best: "Often suits holding and international structures",
+    suited: "Often suits holding structures and international business.",
+    market: "Outside the UAE",
+    owner: "Depends on the structure",
+    office: "No office in the UAE in most cases",
+    tax: "Depends on the structure and UAE corporate tax rules",
+    think: "What the structure needs to hold, and how your bank will view it",
+    photo: "/images/why-team.webp",
+    photoPosition: "60% center",
   },
 };
+
+/* Home page "Why Best Solution" list (WHY above is still used by /freezone and /services). */
+export const HOME_WHY = [
+  { title: "A dedicated advisor", body: "One advisor stays your point of contact from the first conversation." },
+  { title: "Advice in plain terms", body: "We explain your options clearly, so you can compare them and decide." },
+  { title: "In-house expertise", body: "Specialists in company structure, tax, accounting and compliance, under one roof." },
+  { title: "In person or by video call", body: "Meet us at our office in Business Bay, Dubai, or talk it through online." },
+  { title: "Continued support", body: "Tax, accounting and compliance guidance as your business grows." },
+];
+
+/* Home page FAQ and its FAQPage JSON-LD (FAQS below is still used by /services). */
+export const HOME_FAQS = [
+  {
+    q: "What does a consultation cover?",
+    a: "You tell us about your plans. Your advisor explains the mainland, free zone and offshore options that could fit, what to think about with each and what to budget for, so you can decide your next step.",
+  },
+  {
+    q: "Which is right for me: mainland, free zone or offshore?",
+    a: "It depends on your activity, where your customers are and how you want to work. Your advisor compares the options with you in plain terms.",
+  },
+  { q: "Do I need to be in the UAE for the consultation?", a: "No. You can meet us in Business Bay or talk it through by video call." },
+  { q: "Who will handle my enquiry?", a: "A dedicated advisor from our Business Bay office." },
+  { q: "Do you help businesses that are already running?", a: "Yes. We give ongoing tax, accounting and compliance guidance." },
+  {
+    q: "Are you a government office?",
+    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.",
+  },
+];
 
 export interface Review {
   title: string;

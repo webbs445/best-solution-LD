@@ -1,13 +1,13 @@
 import Image from "next/image";
-import { SITE, WHY } from "@/content/site";
+import { HOME_WHY } from "@/content/site";
 import { ArrowIcon } from "@/components/ui/Icons";
 import styles from "./WhyUs.module.css";
 
 /* Photos from best-solution.ae. `shape` sets each tile's aspect ratio so the two columns interlock. */
 const PHOTOS = [
-  { src: "/images/why-event.webp", alt: "Best Solution consultants with clients at a Dubai business event", w: 760, h: 507, shape: "a" },
+  { src: "/images/free-zone-business-park-office.webp", alt: "A modern office with a view over a business park", w: 760, h: 507, shape: "a" },
   { src: "/images/why-team.webp", alt: "Best Solution team at a client event", w: 760, h: 503, shape: "b" },
-  { src: "/images/why-founder.webp", alt: "Founder Essa Al Harthi in a client meeting", w: 760, h: 507, shape: "c" },
+  { src: "/images/why-founder.webp", alt: "Best Solution advisors in a client meeting", w: 760, h: 507, shape: "c" },
   { src: "/images/why-consultation.webp", alt: "Client consultation at the Best Solution office", w: 760, h: 563, shape: "d" },
 ] as const;
 
@@ -31,7 +31,7 @@ export function WhyUs() {
           <div className={styles.quote}>
             <span>Best Solution</span>
             <strong>
-              One consultant.
+              One advisor.
               <br />
               One clear path.
             </strong>
@@ -41,11 +41,11 @@ export function WhyUs() {
           <p className="section-kicker">Why Best Solution</p>
           <h2 id="why-title">One team for every stage of your business</h2>
           <p className="lede">
-            Since {SITE.founded}, Best Solution has advised entrepreneurs and investors on structuring and running businesses in
+            A private business consultancy in Business Bay, Dubai, advising entrepreneurs and investors on their plans in
             the UAE.
           </p>
           <div className={styles.list}>
-            {WHY.map((w, i) => (
+            {HOME_WHY.map((w, i) => (
               <article key={w.title}>
                 <span>{String(i + 1).padStart(2, "0")}</span>
                 <div>

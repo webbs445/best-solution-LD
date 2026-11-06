@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./Process.module.css";
 
 const STEPS = [
-  { title: "Estimate", body: "Use the calculator to view your expected first-year cost.", meta: "A few questions" },
-  { title: "Consult", body: "Your advisor reviews your objectives and recommends a structure.", meta: "Complimentary, no obligation" },
-  { title: "Decide", body: "You receive a written cost and timeline, and choose whether to proceed.", meta: "Confirmed in writing" },
+  { title: "Share your plans", body: "Tell us about your activity, your customers and your team.", meta: "A short form" },
+  { title: "Consult", body: "Your advisor reviews your objectives and recommends a structure.", meta: "No obligation" },
+  { title: "Decide", body: "You choose your next step in your own time. Any fees are confirmed in writing.", meta: "Your decision" },
 ];
 
 /* The rail fills, and each step lights up, as the timeline passes 60% of the viewport height. */

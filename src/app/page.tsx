@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { FAQS } from "@/content/site";
+import { HOME_FAQS, SITE } from "@/content/site";
 import { Header } from "@/components/header/Header";
-import { Hero, HeroCardAfterCalculator } from "@/components/hero/Hero";
-import { CalculatorProvider } from "@/components/calculator/CalculatorProvider";
-import { CalculatorSection } from "@/components/calculator/CalculatorSection";
+import { Hero } from "@/components/hero/Hero";
+import { AdviceSection } from "@/components/calculator/CalculatorSection";
 import { MobileEstimateBar } from "@/components/ui/MobileEstimateBar";
-import { Partners } from "@/components/sections/Partners";
 import { Consultation } from "@/components/sections/Consultation";
 import { WhyUs } from "@/components/sections/WhyUs";
 import { Jurisdictions } from "@/components/sections/Jurisdictions";
@@ -16,7 +14,16 @@ import { Closing, Footer } from "@/components/sections/Closing";
 import { RevealObserver } from "@/components/ui/RevealObserver";
 import { SectionDeepLink } from "@/components/ui/SectionDeepLink";
 
+const TITLE = "UAE Business Advice | Best Solution";
+const DESCRIPTION =
+  "Talk to a private advisor in Business Bay, Dubai, about mainland, free zone and offshore options. Clear advice in plain terms, no obligation.";
+
 export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  // Page-level openGraph/twitter replace the layout's whole objects, so the shared fields are repeated here.
+  openGraph: { type: "website", siteName: SITE.name, title: TITLE, description: DESCRIPTION, images: [SITE.ogImage] },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: [SITE.ogImage] },
   // The sitelink paths (/mainland, /reviews, ...) serve this same page; they all point back to its root.
   // Absolute, because metadataBase is the main www site.
   alternates: { canonical: "https://business.best-solution.ae/" },
@@ -25,7 +32,7 @@ export const metadata: Metadata = {
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: FAQS.map((f) => ({
+  mainEntity: HOME_FAQS.map((f) => ({
     "@type": "Question",
     name: f.q,
     acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -34,9 +41,9 @@ const faqSchema = {
 
 export default function Home() {
   return (
-    <CalculatorProvider>
+    <>
       <a className="skip-link" href="#calculator">
-        Skip to the cost calculator
+        Skip to the consultation form
       </a>
       <script
         type="application/ld+json"
@@ -45,9 +52,7 @@ export default function Home() {
       <Header />
       <main id="top">
         <Hero />
-        <CalculatorSection />
-        <HeroCardAfterCalculator />
-        <Partners />
+        <AdviceSection />
         <Consultation />
         <WhyUs />
         <Jurisdictions />
@@ -57,9 +62,9 @@ export default function Home() {
         <Closing />
       </main>
       <Footer />
-      <MobileEstimateBar targetId="calculator" location="LP Mobile Bar — Get My Estimate" />
+      <MobileEstimateBar targetId="calculator" location="LP Mobile Bar - Book a Consultation" label="Book a consultation" />
       <RevealObserver />
       <SectionDeepLink />
-    </CalculatorProvider>
+    </>
   );
 }

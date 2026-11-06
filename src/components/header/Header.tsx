@@ -44,13 +44,14 @@ export function Header() {
         <div className={styles.bar}>
           <a className={styles.logo} href="#top" aria-label="Best Solution, back to top">
             <Image
-              src={SITE.logo}
-              alt="Best Solution, Business Begins Here"
-              width={360}
-              height={160}
+              src="/brand/icon-mark.webp"
+              alt=""
+              width={31}
+              height={44}
               loading="eager"
               fetchPriority="high"
             />
+            <span>Best Solution</span>
           </a>
 
           <nav className={styles.nav} aria-label="On this page">
@@ -63,7 +64,7 @@ export function Header() {
           </nav>
 
           <div className={styles.actions}>
-            <CtaLink className={`${styles.cta} ${styles.ctaBar}`} href="#calculator" location="LP Header — Free Consultation">
+            <CtaLink className={`${styles.cta} ${styles.ctaBar}`} href="#calculator" location="LP Header - Book a Consultation">
               <PhoneIcon />
               <span>Book a Consultation</span>
             </CtaLink>
@@ -72,7 +73,7 @@ export function Header() {
               type="button"
               aria-expanded={open}
               aria-controls="site-menu"
-              aria-label={open ? "Close menu" : "Open menu"}
+              aria-label={open ? "Close menu" : "Show menu"}
               onClick={() => setOpen((v) => !v)}
             >
               <MenuIcon open={open} />
@@ -96,7 +97,7 @@ export function Header() {
             <PhoneIcon />
             {SITE.phone.display}
           </a>
-          <CtaLink className={styles.cta} href="#calculator" location="LP Header Menu — Free Consultation">
+          <CtaLink className={styles.cta} href="#calculator" location="LP Header Menu - Book a Consultation">
             <PhoneIcon />
             <span>Book a Consultation</span>
           </CtaLink>
