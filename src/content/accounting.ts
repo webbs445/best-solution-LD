@@ -5,46 +5,39 @@
    the only place that mentions registrations or government documents.
    ============================================================ */
 
-import { SITE } from "./site";
-
 /*
-  CLAIMS: CONFIRM BEFORE GOING LIVE.
-  Every number and statement below is shown on /accounting and is still waiting on confirmation
-  from Best Solution. Each one is used from here, so a change here updates the whole page.
-  Opening hours come from SITE.hours (shared with the home page and /freezone) and are also unconfirmed.
+  [CONFIRM] Accounting fees: a business decision for Best Solution. While false, the page shows NO fee figures and
+  no package saving anywhere (left out of the HTML at build time and folded out of the production JS). Set it to
+  true only once the fees below are confirmed; every figure then reads "From AED x <unit>, plus VAT".
+  Business claims (rating, years, team size, ownership) come only from CLAIMS in content/site.ts.
 */
-export const AC_CLAIMS = {
-  businesses: 5000, // "5,000+ businesses supported", hero "5k"
-  professionals: 50, // "50+ in-house professionals"
-  accountingSpecialists: 12, // "12+ accounting specialists"
-  nationalities: 80, // "80+ client nationalities"
-  ownership: "Emirati-owned",
-  founded: SITE.founded, // "since 2014", "more than a decade" (shared setting)
-  rating: "4.8",
-  reviewCount: 200, // "4.8 from 200+ Google reviews"
-  packageSaving: 20, // "Save about 20%" on the complete package
-  /** From-prices in AED, excluding VAT. */
-  prices: { bookkeeping: 800, reconciliation: 1200, statements: 1500 },
-  /** Google Business Profile URL. While empty, the review panel shows no Google logo or link. */
-  googleProfileUrl: "",
-  /** Set to true once every quote is confirmed to include a free 15-minute review (see AC_OFFER_EXTRA). */
-  freeReviewWithQuote: false,
-};
+export const AC_FEES_CONFIRMED = false;
+// ponytail: the dev bundle still holds these bare numbers (no "AED" beside them); production minification drops them while the flag is false.
+export const AC_FEES = AC_FEES_CONFIRMED
+  ? {
+      bookkeeping: { amount: 800, unit: "per month" },
+      reconciliation: { amount: 1200, unit: "per reconciliation" },
+      statements: { amount: 1500, unit: "per set" },
+      /** "About 20% less than taking the three separately". */
+      packageSaving: 20,
+    }
+  : null;
 
 export const aed = (n: number) => `AED ${n.toLocaleString("en-US")}`;
+/** "From AED 800 per month, plus VAT". Only used while AC_FEES is set. */
+export const feeLine = (f: { amount: number; unit: string }) => `From ${aed(f.amount)} ${f.unit}, plus VAT`;
 
-/* The page's single offer. The free review line only appears once AC_CLAIMS.freeReviewWithQuote is true. */
-export const AC_OFFER = "Get a fixed monthly quote";
-export const AC_OFFER_EXTRA = AC_CLAIMS.freeReviewWithQuote ? "Includes a free 15-minute review." : "";
+/* The page's single offer. */
+export const AC_OFFER = "Get a written quote";
 
 export type ServiceKey = "bookkeeping" | "reconciliation" | "statements" | "complete" | "not_sure";
 
 /* Quote form options (step 1). */
 export const SERVICE_OPTIONS: { v: ServiceKey; name: string; note: string; icon: string }[] = [
-  { v: "bookkeeping", name: "Bookkeeping", note: `From ${aed(AC_CLAIMS.prices.bookkeeping)}/month`, icon: '<path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8"/>' },
-  { v: "reconciliation", name: "Bank reconciliation", note: `From ${aed(AC_CLAIMS.prices.reconciliation)}`, icon: '<path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/>' },
-  { v: "statements", name: "Financial statements", note: `From ${aed(AC_CLAIMS.prices.statements)}`, icon: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>' },
-  { v: "complete", name: "Complete package", note: `About ${AC_CLAIMS.packageSaving}% less`, icon: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>' },
+  { v: "bookkeeping", name: "Bookkeeping", note: AC_FEES ? feeLine(AC_FEES.bookkeeping) : "Monthly records", icon: '<path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8"/>' },
+  { v: "reconciliation", name: "Bank reconciliation", note: AC_FEES ? feeLine(AC_FEES.reconciliation) : "Every bank account", icon: '<path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/>' },
+  { v: "statements", name: "Financial statements", note: AC_FEES ? feeLine(AC_FEES.statements) : "P&L, Balance Sheet, Cash Flow", icon: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>' },
+  { v: "complete", name: "Complete package", note: AC_FEES ? `About ${AC_FEES.packageSaving}% less than separately` : "All three together", icon: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>' },
   { v: "not_sure", name: "Not sure yet", note: "An accountant will recommend one", icon: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2.2-2.4 3.7M12 17h.01"/>' },
 ];
 
@@ -65,7 +58,7 @@ export const BOOK_STATES = ["Up to date", "1 to 3 months behind", "3+ months beh
 /* Books health check: [question, why it matters, short benefit, icon, service suggested for a "no"]. */
 export const HEALTH_QUESTIONS: [string, string, string, string, ServiceKey][] = [
   ["Are your books updated every month?", "Monthly entries keep your VAT figures and cash position accurate.", "Keeps VAT figures accurate", '<path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8"/>', "bookkeeping"],
-  ["Do your bank balances match your records?", "Unmatched lines often hide missed income, bank fees or duplicate payments.", "Finds missing money", '<path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/>', "reconciliation"],
+  ["Do your bank balances match your records?", "Unmatched lines often hide missed income, bank fees or duplicate payments.", "Flags unmatched lines", '<path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/>', "reconciliation"],
   ["Do you get a monthly profit and loss report?", "A monthly P&L shows where margin is gained or lost, while there is still time to act.", "Shows real profit", '<path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/>', "statements"],
   ["Are your year-end statements ready on time?", "Banks, auditors and business partners usually ask for them.", "Ready when asked", '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/>', "statements"],
 ];
@@ -92,13 +85,6 @@ export const MARQUEE = [
   "Tally",
   "Catch-up bookkeeping",
   "Audit-ready records",
-];
-
-export const AC_STATS = [
-  { to: AC_CLAIMS.businesses, label: "Businesses supported" },
-  { to: AC_CLAIMS.professionals, label: "In-house professionals" },
-  { to: AC_CLAIMS.nationalities, label: "Client nationalities" },
-  { to: AC_CLAIMS.accountingSpecialists, label: "Accounting specialists" },
 ];
 
 /*
@@ -129,7 +115,11 @@ export const AC_FAQS = [
   },
   {
     q: "How much does accounting cost for a small business in Dubai?",
-    a: `Bookkeeping is from ${aed(AC_CLAIMS.prices.bookkeeping)} a month, bank reconciliation from ${aed(AC_CLAIMS.prices.reconciliation)} and financial statements from ${aed(AC_CLAIMS.prices.statements)}. Taking all three as the complete package costs about ${AC_CLAIMS.packageSaving}% less than buying them separately. Your final quote depends on transaction volume, number of bank accounts and how up to date your records are, and we confirm it in writing before work begins.`,
+    a: `${
+      AC_FEES
+        ? `Bookkeeping is ${feeLine(AC_FEES.bookkeeping).toLowerCase()}, bank reconciliation ${feeLine(AC_FEES.reconciliation).toLowerCase()} and financial statements ${feeLine(AC_FEES.statements).toLowerCase()}. Taking all three as the complete package costs about ${AC_FEES.packageSaving}% less than buying them separately. `
+        : ""
+    }Your fee depends on transaction volume, the number of bank accounts and how up to date your records are. An accountant reviews your details and confirms the fee in a written quote before work begins. Fees exclude VAT.`,
   },
   {
     q: "What is the difference between bookkeeping and accounting?",
@@ -158,7 +148,7 @@ export const AC_FAQS = [
 ];
 
 export const AC_NAV = [
-  { href: "#services", label: "Services", long: "Services and pricing" },
+  { href: "#services", label: "Services", long: AC_FEES ? "Services and pricing" : "Services" },
   { href: "#check", label: "Health check", long: "Books health check" },
   { href: "#process", label: "How it works", long: "How it works" },
   { href: "#reports", label: "Reports", long: "Monthly reports" },

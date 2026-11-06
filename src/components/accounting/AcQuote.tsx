@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { AC_OFFER_EXTRA, AC_WHATSAPP, BOOK_STATES, SERVICE_NAMES, SERVICE_OPTIONS, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
+import { AC_WHATSAPP, BOOK_STATES, SERVICE_NAMES, SERVICE_OPTIONS, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
 import { SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
@@ -235,7 +235,6 @@ export function AcQuote() {
           </h2>
           <p className="lede">
             Tell us what you need. An accountant reviews it and sends a written quote. No obligation.
-            {AC_OFFER_EXTRA && ` ${AC_OFFER_EXTRA}`}
           </p>
         </div>
 

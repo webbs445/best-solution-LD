@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { AC_CLAIMS, AC_REVIEWS } from "@/content/accounting";
+import { AC_REVIEWS } from "@/content/accounting";
+import { CLAIMS } from "@/content/site";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 
 const WHY: { title: string; body: string; icon: ReactNode }[] = [
-  { title: `${AC_CLAIMS.ownership}, since ${AC_CLAIMS.founded}`, body: "A Business Bay firm advising UAE companies for more than a decade.", icon: <path d="M12 3l8 4v5c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V7z" /> },
+  { title: "A private firm in Business Bay", body: "An accounting team in our Business Bay office, advising UAE companies on their books.", icon: <path d="M12 3l8 4v5c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V7z" /> },
   {
     title: "One point of contact",
     body: "One person for your books, reachable by phone, email or WhatsApp.",
@@ -19,7 +20,7 @@ const WHY: { title: string; body: string; icon: ReactNode }[] = [
   },
   {
     title: "In-house team",
-    body: `${AC_CLAIMS.professionals}+ professionals in one office, with ${AC_CLAIMS.accountingSpecialists}+ dedicated to accounting.`,
+    body: "Accountants and tax specialists in one office, so your questions are answered in-house.",
     icon: (
       <>
         <circle cx="9" cy="8" r="3" />
@@ -105,7 +106,7 @@ function Reviews() {
       <div className="slides">
         {AC_REVIEWS.map((r, k) => (
           <figure key={r.name} className={`slide${k === i ? " on" : ""}`} aria-hidden={k !== i}>
-            <q>{r.quote}</q>
+            <q data-review-quote>{r.quote}</q>
             <figcaption className="by">
               <Image className="av" src={`/testimonials/${r.photo}.webp`} alt="" width={48} height={48} />
               <div>
@@ -169,21 +170,15 @@ export function AcWhy() {
         </div>
 
         <div className="rev rv">
-          <div className="score">
-            <div className="st">★★★★★</div>
-            <div>
-              <b>{AC_CLAIMS.rating}</b>
-              {/* The Google logo and profile link appear once AC_CLAIMS.googleProfileUrl is set. */}
-              {AC_CLAIMS.googleProfileUrl ? (
-                <a className="g-link" href={AC_CLAIMS.googleProfileUrl} target="_blank" rel="noopener">
-                  {GOOGLE_G}
-                  Average from {AC_CLAIMS.reviewCount}+ Google reviews
-                </a>
-              ) : (
-                <small>Average from {AC_CLAIMS.reviewCount}+ Google reviews</small>
-              )}
+          {/* The rating shows only once confirmed against the live Google profile (content/site CLAIMS). */}
+          {CLAIMS.rating && (
+            <div className="score">
+              <div>
+                <b>{CLAIMS.rating}</b>
+                <small>{GOOGLE_G} Google reviews</small>
+              </div>
             </div>
-          </div>
+          )}
           <Reviews />
         </div>
       </div>

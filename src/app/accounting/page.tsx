@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AC_FAQS, AC_OFFER, AC_OFFER_EXTRA } from "@/content/accounting";
+import { AC_FAQS, AC_OFFER } from "@/content/accounting";
 import { SITE } from "@/content/site";
 import { AcChrome } from "@/components/accounting/AcChrome";
 import { AcHero } from "@/components/accounting/AcHero";
@@ -17,7 +17,7 @@ import "./accounting.css";
 
 const TITLE = "Accounting and Bookkeeping in Dubai | Best Solution";
 const DESCRIPTION =
-  `Monthly bookkeeping, bank reconciliation and financial statements for UAE businesses, from an accounting team in Business Bay, Dubai. ${AC_OFFER}.${AC_OFFER_EXTRA ? ` ${AC_OFFER_EXTRA}` : ""}`;
+  `Monthly bookkeeping, bank reconciliation and financial statements for UAE businesses, from an accounting team in Business Bay, Dubai. ${AC_OFFER}.`;
 const SHARE_TITLE = "Clean books. Every month.";
 
 export const metadata: Metadata = {

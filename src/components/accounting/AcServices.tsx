@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
-import { AC_CLAIMS, aed } from "@/content/accounting";
+import { AC_FEES, aed } from "@/content/accounting";
 
 const CHECK = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -51,10 +51,11 @@ const CARDS: Card[] = [
     ),
     title: "Bookkeeping",
     desc: "Every sale, purchase and expense recorded, so your ledger is always current.",
-    price: { small: "From", b: aed(AC_CLAIMS.prices.bookkeeping), span: "per month" },
+    // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
+    price: AC_FEES ? { small: "From", b: aed(AC_FEES.bookkeeping.amount), span: `${AC_FEES.bookkeeping.unit}, plus VAT` } : undefined,
     items: ["Sales and purchases recorded", "Expense and income tracking", "Daily, weekly or monthly entry", "Monthly income and cost summary"],
     foot: { b: "Fixed monthly fee", t: "confirmed in writing" },
-    cta: { label: "Get a quote", href: "#contact", service: "bookkeeping", className: "btn btn-navy", location: "AC Services — Bookkeeping" },
+    cta: { label: "Get a quote", href: "#contact", service: "bookkeeping", className: "btn btn-navy", location: "AC Services - Bookkeeping" },
   },
   {
     tone: "c-navy",
@@ -62,10 +63,11 @@ const CARDS: Card[] = [
     icon: <path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18" />,
     title: "Bank reconciliation",
     desc: "Every bank line matched to your books, so nothing slips through.",
-    price: { small: "From", b: aed(AC_CLAIMS.prices.reconciliation), span: "per reconciliation" },
+    // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
+    price: AC_FEES ? { small: "From", b: aed(AC_FEES.reconciliation.amount), span: `${AC_FEES.reconciliation.unit}, plus VAT` } : undefined,
     items: ["Every transaction matched", "Discrepancies flagged with notes", "Missing entries and fees traced", "Multiple bank accounts"],
     foot: { b: "Every bank account", t: "matched line by line" },
-    cta: { label: "Get a quote", href: "#contact", service: "reconciliation", className: "btn btn-copper", location: "AC Services — Bank reconciliation" },
+    cta: { label: "Get a quote", href: "#contact", service: "reconciliation", className: "btn btn-copper", location: "AC Services - Bank reconciliation" },
   },
   {
     tone: "c-tint",
@@ -73,10 +75,11 @@ const CARDS: Card[] = [
     icon: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
     title: "Financial statements",
     desc: "Clear reports you can hand to a bank, an auditor or a partner.",
-    price: { small: "From", b: aed(AC_CLAIMS.prices.statements), span: "per set" },
+    // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
+    price: AC_FEES ? { small: "From", b: aed(AC_FEES.statements.amount), span: `${AC_FEES.statements.unit}, plus VAT` } : undefined,
     items: ["Profit and Loss statement", "Balance Sheet", "Cash Flow statement", "Monthly or periodic reporting"],
     foot: { b: "Monthly or year-end", t: "for banks and auditors" },
-    cta: { label: "Get a quote", href: "#contact", service: "statements", className: "btn btn-navy", location: "AC Services — Financial statements" },
+    cta: { label: "Get a quote", href: "#contact", service: "statements", className: "btn btn-navy", location: "AC Services - Financial statements" },
   },
   {
     tone: "c-copper",
@@ -88,12 +91,12 @@ const CARDS: Card[] = [
       </>
     ),
     title: "Complete package",
-    tag: `Save about ${AC_CLAIMS.packageSaving}%`,
+    tag: AC_FEES ? `Save about ${AC_FEES.packageSaving}%` : undefined,
     desc: "All three as one monthly service, with one point of contact.",
-    price: { small: "Package saving", b: `About ${AC_CLAIMS.packageSaving}%`, span: "vs. taking them separately" },
+    price: AC_FEES ? { small: "Package saving", b: `About ${AC_FEES.packageSaving}%`, span: "vs. taking them separately" } : undefined,
     items: ["Bookkeeping, reconciliation, statements", "Monthly reports", "Audit-ready records", "One point of contact"],
     foot: { b: "Fixed monthly fee", t: "priced on your volume" },
-    cta: { label: "Quote the package", href: "#contact", service: "complete", className: "btn", location: "AC Services — Complete package" },
+    cta: { label: "Quote the package", href: "#contact", service: "complete", className: "btn", location: "AC Services - Complete package" },
   },
   {
     tone: "c-ground",
@@ -107,7 +110,7 @@ const CARDS: Card[] = [
     ],
     note: "We prepare and review the figures. Tax decisions stay with the Federal Tax Authority.",
     foot: { b: "Not sure what fits?", t: "An accountant will advise" },
-    cta: { label: "Take the check", href: "#check", className: "btn btn-navy", location: "AC Services — Take the check" },
+    cta: { label: "Take the check", href: "#check", className: "btn btn-navy", location: "AC Services - Take the check" },
   },
 ];
 

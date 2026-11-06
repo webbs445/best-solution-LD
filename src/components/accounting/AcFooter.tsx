@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { AC_CLAIMS, AC_OFFER, AC_OFFER_EXTRA, AC_WHATSAPP } from "@/content/accounting";
-import { MAPS_URL, SITE } from "@/content/site";
+import { AC_OFFER, AC_WHATSAPP } from "@/content/accounting";
+import { CLAIMS, DISCLAIMER, MAPS_URL, SITE } from "@/content/site";
 import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
 
 const ARROW = (
@@ -25,11 +25,11 @@ export function AcFooter() {
           <div>
             <h3>Clean books begin with one conversation.</h3>
             <p>
-              {AC_OFFER}, confirmed in writing. No obligation.{AC_OFFER_EXTRA && ` ${AC_OFFER_EXTRA}`}
+              {AC_OFFER}, confirmed in writing. No obligation.
             </p>
           </div>
           <div className="acts">
-            <a className="btn btn-white" href="#contact" data-cta-location="AC Footer — Get a quote">
+            <a className="btn btn-white" href="#contact" data-cta-location="AC Footer - Get a quote">
               Get a quote
             </a>
             <a className="btn btn-line" href={AC_WHATSAPP.talk} target="_blank" rel="noopener">
@@ -40,15 +40,16 @@ export function AcFooter() {
 
         <div className="f-grid">
           <div className="f-brand">
-            <Image src={SITE.mark} alt="Best Solution logo" width={128} height={60} />
+            <span className="f-logo"><Image src="/brand/icon-mark.webp" alt="" width={28} height={40} />Best Solution</span>
             <p>Bookkeeping, bank reconciliation and financial statements for UAE businesses, from our office in Business Bay, Dubai.</p>
-            <div className="badges">
-              <span>
-                <em>★</em> {AC_CLAIMS.rating} Google rating
-              </span>
-              <span>{AC_CLAIMS.ownership}</span>
-              <span>Since {AC_CLAIMS.founded}</span>
-            </div>
+            {/* Confirmed claims only (content/site CLAIMS); nothing renders while they are unconfirmed. */}
+            {[CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].some(Boolean) && (
+              <div className="badges">
+                {[CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].filter(Boolean).map((c) => (
+                  <span key={c}>{c}</span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="f-col">
             <h5>Services</h5>
@@ -111,7 +112,7 @@ export function AcFooter() {
         </div>
 
         <div className="wordmark" aria-hidden="true">
-          best solution
+          Best Solution
         </div>
 
         <div className="f-bottom">
@@ -122,18 +123,16 @@ export function AcFooter() {
                 <path d="M12 11v5M12 8h.01" />
               </>,
             )}
-            <span>
-              Best Solution is a private business consultancy based in Business Bay, Dubai. We are not affiliated with the
-              Federal Tax Authority or any other government entity, and we do not issue government documents. Tax
-              registrations, assessments, refunds and penalties are decided solely by the relevant UAE authorities. Prices shown are from-prices,
-              exclude VAT and are confirmed in a written quote. Reports and figures on this page are illustrations.
+            <span data-legal>
+              {DISCLAIMER} We are not affiliated with the Federal Tax Authority, and we do not issue government documents.
+              Tax assessments, refunds and penalties are decided solely by the relevant UAE authorities. Any fees are
+              confirmed in a written quote and exclude VAT. Reports and figures on this page are illustrations.
             </span>
           </p>
           <div className="f-meta">
             <span>© {year} Best Solution</span>
-            <a href={SITE.privacy} target="_blank" rel="noopener">
-              Privacy policy
-            </a>
+            <a href={SITE.privacy}>Privacy policy</a>
+            <a href={SITE.terms}>Terms</a>
             <CookieSettingsButton />
             <a className="totop" href="#top">
               Top {ARROW}

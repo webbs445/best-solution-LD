@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { AC_STATS } from "@/content/accounting";
 
 const PLAIN = "Most businesses don't struggle with revenue. They struggle with not knowing their numbers.";
 const ACCENT = "We fix that, every single month.";
 
-/* Stats (counted up by AcMotion when revealed) and a statement whose words light up as it scrolls past. */
+/* A statement whose words light up as it scrolls past. */
 export function AcAbout() {
   const statement = useRef<HTMLParagraphElement>(null);
 
@@ -44,19 +43,6 @@ export function AcAbout() {
   return (
     <section className="sheet s-white light-zone" id="about">
       <div className="wrap">
-        <div className="stats">
-          {AC_STATS.map((s, i) => (
-            <div key={s.label} className={`stat rv${i ? ` d${i}` : ""}`}>
-              <b>
-                <span className="cnt" data-to={s.to}>
-                  {s.to.toLocaleString("en-US")}
-                </span>
-                <em>+</em>
-              </b>
-              <span>{s.label}</span>
-            </div>
-          ))}
-        </div>
         <p className="statement" id="statement" ref={statement}>
           {words(PLAIN, false)} <span style={{ color: "inherit" }}>{words(ACCENT, true)}</span>
         </p>

@@ -334,7 +334,7 @@ export function AcReports() {
                   <div className="rp-wf">
                     <span className="rp-sub">Cash movement in September</span>
                     {[
-                      ["Opening", "b-base", "0%", "57.2%", "186,910", ""],
+                      ["Balance at 1 Sep", "b-base", "0%", "57.2%", "186,910", ""],
                       ["Cash in", "b-in", "57.2%", "42.8%", "+139,600", "pos"],
                       ["Cash out", "b-out", "65.1%", "34.9%", "−113,870", "neg"],
                       ["Closing", "b-end", "0%", "65.1%", "212,640", ""],

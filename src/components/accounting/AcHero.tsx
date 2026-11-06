@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { SITE } from "@/content/site";
-import { AC_CLAIMS, AC_OFFER, AC_OFFER_EXTRA, MARQUEE, TYPED_WORDS, aed } from "@/content/accounting";
+import { CLAIMS, DISCLAIMER } from "@/content/site";
+import { AC_OFFER, MARQUEE, TYPED_WORDS } from "@/content/accounting";
 import { prefersReducedMotion, useReducedMotion } from "@/lib/useReducedMotion";
 
 const ARROW = (
@@ -217,7 +217,7 @@ export function AcHero() {
       <div className="wrap">
         <div className="h-center">
           {/* The hero text is in the server HTML with a CSS-only entrance, so it paints before any script runs. */}
-          <a className="announce hin" href="#contact" data-cta-location="AC Hero — Fixed monthly quote">
+          <a className="announce hin" href="#contact" data-cta-location="AC Hero - Fixed monthly quote">
             <span className="at">Accounting for UAE businesses</span>{" "}
             <b>
               Fixed monthly quote{" "}
@@ -237,44 +237,33 @@ export function AcHero() {
             </span>
           </h1>
           <div className="typer hin d2" aria-live="off">
-            We handle your <b id="typed">{typed}</b>
+            Help with your <b id="typed">{typed}</b>
           </div>
           <p className="sub hin d2">
             You send your invoices and statements. Our accounting team in Business Bay sends back reconciled books and reports you can
             actually read.
           </p>
           <div className="ctas hin d3">
-            <a className="btn btn-copper mag" href="#contact" data-cta-location="AC Hero — Get a fixed monthly quote">
+            <a className="btn btn-copper mag" href="#contact" data-cta-location="AC Hero - Get a fixed monthly quote">
               {AC_OFFER} {ARROW}
             </a>
-            <a className="btn btn-glass mag" href="#services" data-cta-location="AC Hero — See pricing">
-              See pricing
+            <a className="btn btn-glass mag" href="#services" data-cta-location="AC Hero - See services">
+              See services
             </a>
           </div>
-          {AC_OFFER_EXTRA && <p className="offer-extra hin d3">{AC_OFFER_EXTRA}</p>}
-          <div className="proofrow hin d3">
-            <div className="avs" aria-hidden="true">
-              <span>H</span>
-              <span>M</span>
-              <span>S</span>
-              <span>{Math.round(AC_CLAIMS.businesses / 1000)}k</span>
+          <p className="hero-legal hin d3" role="note" data-legal>
+            {DISCLAIMER}
+          </p>
+          {/* Confirmed claims only (content/site CLAIMS): nothing renders while they are unconfirmed. */}
+          {[CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].some(Boolean) && (
+            <div className="proofrow hin d3">
+              {[CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].filter(Boolean).map((c) => (
+                <div className="rt" key={c}>
+                  <b>{c}</b>
+                </div>
+              ))}
             </div>
-            <div className="rt">
-              <b>{AC_CLAIMS.rating}</b>
-              <span className="st">★★★★★</span>
-              <small>{AC_CLAIMS.reviewCount}+ Google reviews</small>
-            </div>
-            <span className="sep" />
-            <div className="rt">
-              <b>{AC_CLAIMS.ownership}</b>
-              <small>Advising since {AC_CLAIMS.founded}</small>
-            </div>
-            <span className="sep" />
-            <div className="rt">
-              <b>From {aed(AC_CLAIMS.prices.bookkeeping)}</b>
-              <small>per month, bookkeeping</small>
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="flow rv d2" id="flow" ref={flow} aria-label="Illustration: your invoices and statements go in, finished reports come out">
@@ -311,7 +300,7 @@ export function AcHero() {
             <span className="orbit" />
             <span className="orbit o2" />
             <div className="disc">
-              <Image src={SITE.mark} alt="" aria-hidden="true" width={124} height={58} />
+              <Image src="/brand/icon-mark.webp" alt="" aria-hidden="true" width={28} height={40} />
               <small>Accounting team</small>
             </div>
             <div className="closebar">

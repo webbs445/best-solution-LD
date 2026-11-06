@@ -1,31 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { prefersReducedMotion } from "@/lib/useReducedMotion";
 
 /*
-  Page-wide motion for /accounting: scroll reveals (.rv gets data-in, which React never overwrites),
-  number count-ups (.cnt inside a revealed block) and the cursor spotlight on .spotlight cards.
+  Page-wide motion for /accounting: scroll reveals (.rv gets data-in, which React never overwrites)
+  and the cursor spotlight on .spotlight cards. No number count-ups (Google Ads: numbers are static).
 */
 export function AcMotion() {
   useEffect(() => {
-    const reduced = prefersReducedMotion();
-    const countUp = (el: HTMLElement) => {
-      const to = Number(el.dataset.to);
-      if (reduced || !to) {
-        el.textContent = to.toLocaleString("en-US");
-        return;
-      }
-      let t0: number | null = null;
-      const f = (t: number) => {
-        if (t0 === null) t0 = t;
-        const p = Math.min(1, (t - t0) / 1600);
-        el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))).toLocaleString("en-US");
-        if (p < 1) requestAnimationFrame(f);
-      };
-      requestAnimationFrame(f);
-    };
-
     const nodes = document.querySelectorAll<HTMLElement>(".ac-page .rv");
     let io: IntersectionObserver | null = null;
     if ("IntersectionObserver" in window) {
@@ -35,8 +17,6 @@ export function AcMotion() {
             if (!e.isIntersecting) return;
             const el = e.target as HTMLElement;
             el.setAttribute("data-in", "");
-            const c = el.querySelector<HTMLElement>(".cnt");
-            if (c) countUp(c);
             io?.unobserve(el);
           }),
         { rootMargin: "0px 0px -8% 0px" },
