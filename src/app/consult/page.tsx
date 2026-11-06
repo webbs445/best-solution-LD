@@ -194,10 +194,7 @@ export default function ConsultPage() {
           <div className="ad-wrap ad-book-grid">
             <div className="ad-book-copy">
               <h2 id="adBookTitle">Book a consultation</h2>
-              <p>
-                Tell us a little about your plans and an advisor will contact you
-                {CONSULT_CONFIRM.replyTime ? ` ${CONSULT_CONFIRM.replyTime}` : ""}.
-              </p>
+              <p>{`Tell us a little about your plans and an advisor will contact you${CONSULT_CONFIRM.replyTime ? ` ${CONSULT_CONFIRM.replyTime}` : ""}.`}</p>
               <div className="ad-book-alt" data-area="ADV Book">
                 <a className="ad-alt" href={CONSULT_CONTACT.whatsapp.href} target="_blank" rel="noopener">
                   <WhatsAppIcon /> WhatsApp
