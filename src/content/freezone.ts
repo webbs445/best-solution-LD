@@ -350,11 +350,23 @@ export function activityIcon(name: string): string {
   return ICONS.icons[ICONS.map[name]] || ICONS.icons["briefcase-business"];
 }
 
-/* Kept for the /api/lead planner route (lib/calculatorLead), which still describes older planner leads. */
-export type Priority = "cost" | "dubai" | "sector";
+/* The planner's "What will you do?" choices (lib/zoneSearch ranks the zones by them). No prices. */
+export const PLANNER_ACTS: { v: ActKey; label: string; icon: string }[] = [
+  { v: "trading", label: "Trading", icon: '<path d="M3 7h18l-2 10H5L3 7z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/>' },
+  { v: "services", label: "Consulting and services", icon: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 13h18"/>' },
+  { v: "ecommerce", label: "E-commerce", icon: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L22 7H6"/>' },
+  { v: "media", label: "Media and creative", icon: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3V9z"/>' },
+  { v: "tech", label: "Technology", icon: '<rect x="4" y="4" width="16" height="12" rx="2"/><path d="M8 20h8M12 16v4M9 9l-2 1.5L9 12M15 9l2 1.5-2 1.5"/>' },
+  { v: "logistics", label: "Logistics and industrial", icon: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>' },
+  { v: "finance", label: "Financial services", icon: '<path d="M3 10 12 4l9 6M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/>' },
+  { v: "health", label: "Healthcare", icon: '<path d="M12 21s-8-4.5-8-11a5 5 0 0 1 8-4 5 5 0 0 1 8 4c0 6.5-8 11-8 11z"/><path d="M12 9v5M9.5 11.5h5"/>' },
+];
+
+/* The planner's "What matters most?" choices. None is about price (no prices on this page). */
+export type Priority = "range" | "dubai" | "sector";
 
 export const PRIORITIES: { v: Priority; label: string }[] = [
-  { v: "cost", label: "Keeping costs down" },
+  { v: "range", label: "Wide activity range" },
   { v: "dubai", label: "Dubai address" },
   { v: "sector", label: "Specialist zone" },
 ];

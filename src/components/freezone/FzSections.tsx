@@ -1,60 +1,13 @@
 import Image from "next/image";
 import { CLAIMS, REVIEW_ROWS, SITE, WHY, type Review } from "@/content/site";
 import { OFFICE_TYPES, ZONE_QUESTIONS } from "@/content/freezone";
-import { FZ_FORM_ID } from "@/lib/lead";
-import { ArrowIcon, PhoneIcon, WhatsAppIcon } from "@/components/ui/Icons";
-import { ConsultForm } from "@/components/consult/ConsultForm";
+import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
 
 /*
   The /freezone page's static sections. Server components: no client JavaScript. Advice only (Google Ads government
   documents policy): no prices, licences, residency, timelines or claims that are not confirmed.
 */
-
-/*
-  "Plan your free zone with an advisor" (#planner): the consultation form that replaced the price planner. It keeps
-  the planner's form id, so conversion history continues under "LP Free Zone Planner".
-*/
-const PLAN_STEPS = [
-  "Tell us your activity and how you plan to work.",
-  "An advisor compares the zones that may suit you.",
-  "You decide your next step in your own time.",
-];
-export function FzPlan() {
-  return (
-    <section className="fz-block fz-plan" id="planner" aria-labelledby="planTitle">
-      <div className="wrap fz-plan-grid">
-        <div className="fz-plan-copy">
-          <p className="fz-tag">
-            <span />
-            Plan with an advisor
-          </p>
-          <h2 id="planTitle">Plan your free zone with an advisor</h2>
-          <p>Share a few details and an advisor will contact you to talk your plans through. No obligation.</p>
-          <ol className="fz-plan-steps">
-            {PLAN_STEPS.map((s, i) => (
-              <li key={s}>
-                <b>0{i + 1}</b>
-                <span>{s}</span>
-              </li>
-            ))}
-          </ol>
-          <div className="fz-plan-alt" data-area="FZ Planner">
-            <a className="fz-btn-ghost" href={SITE.whatsapp} target="_blank" rel="noopener">
-              <WhatsAppIcon /> WhatsApp
-            </a>
-            <a className="fz-btn-ghost" href={SITE.phone.href}>
-              <PhoneIcon /> Call
-            </a>
-          </div>
-        </div>
-        <div className="fz-plan-card">
-          <ConsultForm formId={FZ_FORM_ID} formType="calculator" idPrefix="fz" />
-        </div>
-      </div>
-    </section>
-  );
-}
 
 const VS_ROWS: [string, string, string][] = [
   ["Ownership", "Foreign ownership is common, depending on activity", "Foreign ownership is possible for many activities"],
@@ -170,9 +123,9 @@ export function FzConsultation() {
         <div className="fz-consult-copy">
           <h2 id="consTitle">What a consultation covers</h2>
           <p>One conversation with a dedicated advisor, in Business Bay or by video call. No obligation to proceed.</p>
-          <a className="btn btn-primary" href="#planner" data-cta-location="FZ Consultation - Book My Consultation">
+          <CallbackTrigger className="btn btn-primary" location="FZ Consultation - Book My Consultation">
             Book My Consultation <ArrowIcon />
-          </a>
+          </CallbackTrigger>
         </div>
         <div className="fz-brief spot" aria-label="What we cover">
           <div className="fz-brief-top">
@@ -330,8 +283,8 @@ export function FzClosing() {
             <p>Tell us about your business. We help you compare suitable zones and plan what comes next.</p>
           </div>
           <div className="fz-close-cta">
-            <a className="btn btn-primary" href="#planner" data-cta-location="FZ Closing - Book a Consultation">
-              Book a Consultation <ArrowIcon />
+            <a className="btn btn-primary" href="#planner" data-cta-location="FZ Closing - Plan My Free Zone">
+              Plan My Free Zone <ArrowIcon />
             </a>
             <CallbackTrigger className="fz-btn-ghost" location="FZ Closing - Request a Callback">
               Request a Callback

@@ -13,11 +13,12 @@ import {
   FzBudget,
   FzClosing,
   FzConsultation,
-  FzPlan,
   FzReviews,
   FzVsMainland,
   FzWhyUs,
 } from "./FzSections";
+import { PlannerProvider } from "./PlannerProvider";
+import { FzPlanner } from "./FzPlanner";
 import { MobileEstimateBar } from "@/components/ui/MobileEstimateBar";
 import "@/app/freezone/freezone.css";
 
@@ -75,29 +76,31 @@ export function FreeZoneLanding({ view }: { view?: string }) {
           __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c"),
         }}
       />
-      <FzHeader />
-      <FzMotion />
-      <main id="top">
-        <FzHero />
-        <FzPlan />
-        <FzZones />
-        <FzBudget />
-        <FzVsMainland />
-        <FzConsultation />
-        <FzHowItWorks />
-        <FzWhyUs />
-        <FzReviews />
-        <FzFaq faqs={FZ_FAQS} topics={FZ_FAQ_TOPICS} />
-        <FzClosing />
-      </main>
-      <FzFooter />
-      <MobileEstimateBar
-        targetId="planner"
-        hideOver={["planner"]}
-        label="Book a Consultation"
-        location="FZ Mobile Bar - Book a Consultation"
-      />
-      {view && <FzSitelink view={view} />}
+      <PlannerProvider>
+        <FzHeader />
+        <FzMotion />
+        <main id="top">
+          <FzHero />
+          <FzPlanner />
+          <FzZones />
+          <FzBudget />
+          <FzVsMainland />
+          <FzConsultation />
+          <FzHowItWorks />
+          <FzWhyUs />
+          <FzReviews />
+          <FzFaq faqs={FZ_FAQS} topics={FZ_FAQ_TOPICS} />
+          <FzClosing />
+        </main>
+        <FzFooter />
+        <MobileEstimateBar
+          targetId="planner"
+          hideOver={["planner"]}
+          label="Book a Consultation"
+          location="FZ Mobile Bar - Book a Consultation"
+        />
+        {view && <FzSitelink view={view} />}
+      </PlannerProvider>
     </div>
   );
 }

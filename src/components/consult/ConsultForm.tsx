@@ -23,9 +23,11 @@ type Props = {
   formType?: string;
   /** Prefix for element ids, so the form can appear twice on one page. */
   idPrefix?: string;
+  /** Starting text for the message box (e.g. the planner choices); the visitor can edit or clear it. */
+  message?: string;
 };
 
-export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation", idPrefix = "ad" }: Props = {}) {
+export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation", idPrefix = "ad", message: startMessage = "" }: Props = {}) {
   const [errors, setErrors] = useState<Partial<Record<Field, boolean>>>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const success = useRef<HTMLDivElement>(null);
@@ -127,7 +129,7 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
         <label htmlFor={`${idPrefix}-message`}>
           Message <span>(optional)</span>
         </label>
-        <textarea id={`${idPrefix}-message`} name="message" rows={3} maxLength={1000} />
+        <textarea id={`${idPrefix}-message`} name="message" rows={3} maxLength={1000} defaultValue={startMessage} />
       </div>
       {/* Spam trap: invisible to people, tempting to bots. */}
       <div className="sr-only" aria-hidden="true">
