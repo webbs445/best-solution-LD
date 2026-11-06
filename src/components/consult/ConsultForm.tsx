@@ -4,6 +4,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { ADVICE_FORM_ID, LEAD_RULES } from "@/lib/lead";
 import { SITE } from "@/content/site";
 import { CONSULT_ERRORS, CONSULT_TOPICS } from "@/content/consult";
+import "./consult-form.css";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 
@@ -15,7 +16,16 @@ type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent" } | { kind
   consent fields, and form_submit (with an evt_ id shared with the ERP lead) only after the API confirms a new lead.
   form_start / form_error / form_abandon come from AnalyticsInit through data-track.
 */
-export function ConsultForm() {
+type Props = {
+  /** dataLayer form_id; must be a key of CONSULT_FORMS (lib/lead). Pages that replaced a form keep that form's id. */
+  formId?: string;
+  /** form_data.form_type in the dataLayer: the replaced form's type, so reports keep grouping the same way. */
+  formType?: string;
+  /** Prefix for element ids, so the form can appear twice on one page. */
+  idPrefix?: string;
+};
+
+export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation", idPrefix = "ad" }: Props = {}) {
   const [errors, setErrors] = useState<Partial<Record<Field, boolean>>>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const success = useRef<HTMLDivElement>(null);
@@ -53,6 +63,7 @@ export function ConsultForm() {
           ...attributionFields(),
           event_id: eventId,
           landing_page: window.location.href.split("#")[0],
+          form_id: formId,
           website: honeypot.current?.value || "",
         }),
       });
@@ -62,8 +73,8 @@ export function ConsultForm() {
       // The thank-you replaces the form; bring it into view on phones.
       requestAnimationFrame(() => success.current?.scrollIntoView({ block: "center" }));
       if (!isConfirmedLeadResponse(body)) return;
-      pushFormSubmit({ formId: ADVICE_FORM_ID, formType: "consultation", serviceInterest: topic, email, phone, firstName, lastName: rest.join(" "), eventId });
-      pushGenerateLead({ formId: ADVICE_FORM_ID, service: topic, email, phone });
+      pushFormSubmit({ formId, formType, serviceInterest: topic, email, phone, firstName, lastName: rest.join(" "), eventId });
+      pushGenerateLead({ formId, service: topic, email, phone });
     } catch {
       setStatus({ kind: "error" });
     }
@@ -71,36 +82,36 @@ export function ConsultForm() {
 
   if (status.kind === "sent") {
     return (
-      <div className="ad-success" ref={success} role="status" tabIndex={-1}>
+      <div className="ad-cf ad-success" ref={success} role="status" tabIndex={-1}>
         <span aria-hidden="true">✓</span>
         <p>Thank you. An advisor will contact you soon.</p>
       </div>
     );
   }
 
-  const err = (k: Field) => (errors[k] ? <p className="ad-err" id={`ad-${k}-err`}>{CONSULT_ERRORS[k]}</p> : null);
-  const aria = (k: Field) => ({ "aria-invalid": errors[k] || undefined, "aria-describedby": errors[k] ? `ad-${k}-err` : undefined });
+  const err = (k: Field) => (errors[k] ? <p className="ad-err" id={`${idPrefix}-${k}-err`}>{CONSULT_ERRORS[k]}</p> : null);
+  const aria = (k: Field) => ({ "aria-invalid": errors[k] || undefined, "aria-describedby": errors[k] ? `${idPrefix}-${k}-err` : undefined });
 
   return (
-    <form className="ad-form" onSubmit={submit} noValidate data-track={ADVICE_FORM_ID}>
+    <form className="ad-cf ad-form" onSubmit={submit} noValidate data-track={formId}>
       <div className="ad-field">
-        <label htmlFor="ad-name">Full name</label>
-        <input id="ad-name" name="lead_name" type="text" autoComplete="name" required {...aria("name")} />
+        <label htmlFor={`${idPrefix}-name`}>Full name</label>
+        <input id={`${idPrefix}-name`} name="lead_name" type="text" autoComplete="name" required {...aria("name")} />
         {err("name")}
       </div>
       <div className="ad-field">
-        <label htmlFor="ad-phone">Phone with country code</label>
-        <input id="ad-phone" name="mobile_no" type="tel" inputMode="tel" autoComplete="tel" placeholder="050 123 4567" required {...aria("phone")} />
+        <label htmlFor={`${idPrefix}-phone`}>Phone with country code</label>
+        <input id={`${idPrefix}-phone`} name="mobile_no" type="tel" inputMode="tel" autoComplete="tel" placeholder="050 123 4567" required {...aria("phone")} />
         {err("phone")}
       </div>
       <div className="ad-field">
-        <label htmlFor="ad-email">Email</label>
-        <input id="ad-email" name="email_id" type="email" inputMode="email" autoComplete="email" placeholder="you@company.com" required {...aria("email")} />
+        <label htmlFor={`${idPrefix}-email`}>Email</label>
+        <input id={`${idPrefix}-email`} name="email_id" type="email" inputMode="email" autoComplete="email" placeholder="you@company.com" required {...aria("email")} />
         {err("email")}
       </div>
       <div className="ad-field">
-        <label htmlFor="ad-topic">What would you like advice on?</label>
-        <select id="ad-topic" name="topic" required defaultValue="" {...aria("topic")}>
+        <label htmlFor={`${idPrefix}-topic`}>What would you like advice on?</label>
+        <select id={`${idPrefix}-topic`} name="topic" required defaultValue="" {...aria("topic")}>
           <option value="" disabled>
             Choose one
           </option>
@@ -113,15 +124,15 @@ export function ConsultForm() {
         {err("topic")}
       </div>
       <div className="ad-field">
-        <label htmlFor="ad-message">
+        <label htmlFor={`${idPrefix}-message`}>
           Message <span>(optional)</span>
         </label>
-        <textarea id="ad-message" name="message" rows={3} maxLength={1000} />
+        <textarea id={`${idPrefix}-message`} name="message" rows={3} maxLength={1000} />
       </div>
       {/* Spam trap: invisible to people, tempting to bots. */}
       <div className="sr-only" aria-hidden="true">
-        <label htmlFor="ad-website">Website</label>
-        <input ref={honeypot} id="ad-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <label htmlFor={`${idPrefix}-website`}>Website</label>
+        <input ref={honeypot} id={`${idPrefix}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
       {status.kind === "error" && (
         <p className="ad-err" role="alert">

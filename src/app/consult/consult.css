@@ -72,20 +72,6 @@
 .ad-page .ad-book-copy p {margin-top:12px;font-size:18px;color:#3d4757}
 .ad-page .ad-book-alt {margin-top:22px}
 .ad-page .ad-form-card {padding:28px;border-radius:24px;background:#fff;border:1px solid var(--rule);box-shadow:0 24px 50px rgba(120,70,40,.12)}
-.ad-page .ad-form {display:grid;gap:16px}
-.ad-page .ad-field {display:grid;gap:6px}
-.ad-page .ad-field label {font-weight:700;font-size:16px}
-.ad-page .ad-field label span {font-weight:500;color:var(--ink-soft)}
-.ad-page .ad-field input,.ad-page .ad-field select,.ad-page .ad-field textarea {width:100%;min-height:52px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--rule);background:#fff;color:var(--navy);font:500 16px/1.4 var(--font)}
-.ad-page .ad-field textarea {min-height:96px;resize:vertical}
-.ad-page .ad-field input:focus,.ad-page .ad-field select:focus,.ad-page .ad-field textarea:focus {outline:none;border-color:var(--copper);box-shadow:0 0 0 3px rgba(204,134,103,.2)}
-.ad-page .ad-field [aria-invalid="true"] {border-color:#b3261e}
-.ad-page .ad-err {font-size:16px;color:#b3261e;line-height:1.45}
-.ad-page .ad-submit {min-height:56px;margin-top:4px}
-.ad-page .ad-privacy {font-size:16px;color:var(--ink-soft);line-height:1.5}
-.ad-page .ad-privacy a {display:inline-flex;align-items:center;min-height:48px;color:#8f5538}
-.ad-page .ad-success {display:flex;align-items:center;gap:14px;padding:24px;border-radius:18px;background:#ecf7f1;border:1px solid #bfe3cf;font-size:18px;font-weight:700;scroll-margin:120px}
-.ad-page .ad-success span {display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:#1f8a5b;color:#fff;font-size:22px}
 
 /* Footer: contacts, Privacy and Terms, the disclaimer. */
 .ad-page .ad-footer {padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#dfe5ee;font-size:16px}

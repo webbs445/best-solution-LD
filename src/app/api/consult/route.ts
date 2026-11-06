@@ -1,4 +1,4 @@
-import { ADVICE_FORM_ID, AC_SERVICE_ENQUIRED, LEAD_RULES, clickIdRows, leadConsent, withUaeCode } from "@/lib/lead";
+import { ADVICE_FORM_ID, AC_SERVICE_ENQUIRED, CONSULT_FORMS, LEAD_RULES, clickIdRows, leadConsent, withUaeCode } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
@@ -30,14 +30,17 @@ export const POST = withLeadLog("consult", async (request, log) => {
   const email_id = str(body.email_id, 200);
   const topic = str(body.topic, 60) as ConsultTopic;
   const message = str(body.message, 1000);
+  const formId = str(body.form_id, 60) || ADVICE_FORM_ID;
+  const form = Object.hasOwn(CONSULT_FORMS, formId) ? CONSULT_FORMS[formId] : undefined;
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
     ...(LEAD_RULES.mobile_no(mobile_no) ? [] : ["mobile_no"]),
     // A preview checks the email format only: the real check looks up the domain's mail servers (DNS).
     ...((isPreviewDeployment() ? LEAD_RULES.email_id(email_id) : await emailIsReal(email_id)) ? [] : ["email_id"]),
     ...(CONSULT_TOPICS.includes(topic) ? [] : ["topic"]),
+    ...(form ? [] : ["form_id"]),
   ];
-  if (invalid.length) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });
+  if (invalid.length || !form) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });
 
   // Preview deployments answer with a mock lead and call nothing outside (lib/preview).
   if (isPreviewDeployment()) {
@@ -58,8 +61,8 @@ export const POST = withLeadLog("consult", async (request, log) => {
     consent: leadConsent(body.consent),
     event_id: str(body.event_id, 60),
     landing_page: str(body.landing_page, 1000),
-    form_id: ADVICE_FORM_ID,
-    form_name: "Advice Consultation",
+    form_id: formId,
+    form_name: form.form_name,
     button_name: "Book a Consultation",
     // The ERP's "Service Enquired" is an exact Select option: bookkeeping goes to accounting, the rest to setup advice.
     service_enquired: topic === "Bookkeeping and accounts" ? AC_SERVICE_ENQUIRED : undefined,
@@ -69,7 +72,7 @@ export const POST = withLeadLog("consult", async (request, log) => {
     details: [
       ["Advice on", topic],
       ...(message ? ([["Message", message]] as [string, string][]) : []),
-      ["Source page", "/consult"],
+      ["Source page", form.page],
       ...clickIdRows(body),
     ],
   });

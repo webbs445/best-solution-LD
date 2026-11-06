@@ -84,6 +84,18 @@ export const CC_QUOTE_FORM_ID = "LP Cost Calculator Quote";
 /** calculator_id of the /cost-calculator configurator's events (the home page calculator uses FORM_ID). */
 export const CC_CALCULATOR_ID = "LP Cost Calculator Page";
 
+/*
+  The consultation form (components/consult/ConsultForm) runs on /consult and, under each page's existing form id so
+  conversion history continues, on the home page, /freezone and /cost-calculator. /api/consult accepts only these ids;
+  the ERP form name and source page come from here, never from the browser.
+*/
+export const CONSULT_FORMS: Record<string, { form_name: string; page: string }> = {
+  [ADVICE_FORM_ID]: { form_name: "Advice Consultation", page: "/consult" },
+  [FZ_FORM_ID]: { form_name: "Free Zone Planner", page: "/freezone" },
+  [FORM_ID]: { form_name: "Setup Cost Calculator", page: "/" },
+  [CC_QUOTE_FORM_ID]: { form_name: "Cost Calculator Quote", page: "/cost-calculator" },
+};
+
 /** The "Google click IDs" row for the ERP notes, from a form's gclid / gbraid / wbraid (none when empty). */
 export function clickIdRows(body: Record<string, unknown>): [string, string][] {
   const ids = (["gclid", "gbraid", "wbraid"] as const)

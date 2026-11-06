@@ -6,8 +6,9 @@ export const SITE = {
   phone: { display: "+971 52 233 0011", href: "tel:+971522330011" },
   whatsapp: "https://wa.me/97145531546",
   email: "connect@best-solution.ae",
-  privacy: "https://www.best-solution.ae/privacy-policy/",
-  terms: "https://www.best-solution.ae/terms-conditions/",
+  // Local copies of the www legal pages, so ad pages never link out to www (app/privacy, app/terms).
+  privacy: "/privacy",
+  terms: "/terms",
   googleReviews: "https://www.google.com/search?q=Best+Solution+Business+Consultancy+Dubai+reviews",
   ogImage: "https://www.best-solution.ae/og_image.jpg",
   mainPhoto: "/images/main.webp",
@@ -25,6 +26,29 @@ export const SITE = {
   /** Google rating, shared by /freezone and /services: update here only. */
   rating: { score: 4.8, count: 200 },
 };
+
+/** Shown under every hero and in every footer (Google Ads: "Clearly disclose that you are a private entity"). */
+export const DISCLAIMER =
+  "Best Solution is a private business consultancy. We are not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.";
+
+/*
+  [CONFIRM] business claims. null = not confirmed, so the claim is not rendered at all (left out of the HTML at build
+  time, not hidden with CSS). Fill a value only once Best Solution confirms it with evidence; never count up from zero.
+*/
+export const CLAIMS: {
+  /** e.g. "Advising since 2014" */
+  since: string | null;
+  /** e.g. "Rated 4.8 from more than 200 Google reviews" (must match the live Google Business Profile) */
+  rating: string | null;
+  /** e.g. "5,000+ businesses advised" */
+  businesses: string | null;
+  /** e.g. "Clients from 80+ countries" */
+  countries: string | null;
+  /** e.g. "50+ in-house professionals" */
+  team: string | null;
+  /** e.g. "Emirati-owned" */
+  ownership: string | null;
+} = { since: null, rating: null, businesses: null, countries: null, team: null, ownership: null };
 
 /* Free zone and authority logos shown in the "jurisdictions we advise on" marquee. */
 export const AUTHORITIES = [

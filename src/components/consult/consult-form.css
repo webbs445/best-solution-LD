@@ -1,0 +1,17 @@
+/* The consultation form, shared by /consult, the home page, /freezone and /cost-calculator. Inputs and text 16 px or
+   more; taps 48 px or more. Scoped to .ad-cf so it looks the same inside any page. */
+.ad-cf.ad-form {display:grid;gap:16px}
+.ad-cf .ad-field {display:grid;gap:6px}
+.ad-cf .ad-field label {font-weight:700;font-size:16px}
+.ad-cf .ad-field label span {font-weight:500;color:var(--ink-soft)}
+.ad-cf .ad-field input,.ad-cf .ad-field select,.ad-cf .ad-field textarea {width:100%;min-height:52px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--rule);background:#fff;color:var(--navy);font:500 16px/1.4 var(--font)}
+.ad-cf .ad-field textarea {min-height:96px;resize:vertical}
+.ad-cf .ad-field input:focus,.ad-cf .ad-field select:focus,.ad-cf .ad-field textarea:focus {outline:none;border-color:var(--copper);box-shadow:0 0 0 3px rgba(204,134,103,.2)}
+.ad-cf .ad-field [aria-invalid="true"] {border-color:#b3261e}
+.ad-cf .ad-err {font-size:16px;color:#b3261e;line-height:1.45}
+.ad-cf .ad-submit {min-height:56px;margin-top:4px}
+.ad-cf .ad-privacy {font-size:16px;color:var(--ink-soft);line-height:1.5}
+.ad-cf .ad-privacy a {display:inline-flex;align-items:center;min-height:48px;color:#8f5538}
+.ad-cf.ad-success {display:flex;align-items:center;gap:14px;padding:24px;border-radius:18px;background:#ecf7f1;border:1px solid #bfe3cf;font-size:18px;font-weight:700;scroll-margin:120px}
+.ad-cf.ad-success span {display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:#1f8a5b;color:#fff;font-size:22px}
+.ad-cf .ad-success p,.ad-cf.ad-success p {margin:0}

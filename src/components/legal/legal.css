@@ -1,0 +1,9 @@
+/* Legal text pages (/privacy, /terms). */
+.ad-page .lg-doc {max-width:820px;padding-top:40px;padding-bottom:56px}
+.ad-page .lg-doc h1 {font-size:clamp(32px,4vw,44px);line-height:1.1;margin-bottom:12px}
+.ad-page .lg-doc h2 {font-size:24px;margin-top:36px}
+.ad-page .lg-doc h3,.ad-page .lg-doc h4 {font-size:18px;margin-top:22px}
+.ad-page .lg-doc p {margin-top:10px;color:#3d4757}
+.ad-page .lg-doc .lg-item {padding-left:18px;position:relative}
+.ad-page .lg-doc .lg-item::before {content:"";position:absolute;left:4px;top:.75em;width:6px;height:6px;border-radius:50%;background:var(--copper)}
+.ad-page .lg-doc a {color:#8f5538;display:inline-flex;align-items:center;min-height:48px}

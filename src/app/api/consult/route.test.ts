@@ -58,6 +58,19 @@ describe("POST /api/consult", () => {
     expect(emailIsReal).not.toHaveBeenCalled();
   });
 
+  it("keeps a replaced form's id and takes the form name and source page from the server", async () => {
+    await post({ ...valid, form_id: "LP Free Zone Planner" });
+    expect(sent[0]).toMatchObject({ custom_form_name: "Free Zone Planner" });
+    expect(String(sent[0].custom_client_profile_and_requirement)).toContain("Source page: /freezone");
+  });
+
+  it("refuses an unknown form id and sends nothing", async () => {
+    const res = await post({ ...valid, form_id: "made up" });
+    expect(res.status).toBe(422);
+    expect((await res.json()).fields).toEqual(["form_id"]);
+    expect(sent).toHaveLength(0);
+  });
+
   it("pretends success to bots that fill the honeypot", async () => {
     expect(await (await post({ ...valid, website: "x" })).json()).toEqual({ ok: true, created: false });
     expect(sent).toHaveLength(0);

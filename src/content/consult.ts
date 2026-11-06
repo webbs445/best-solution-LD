@@ -35,8 +35,7 @@ export const CONSULT_CONFIRM: {
   replyTime: null,
 };
 
-export const CONSULT_DISCLAIMER =
-  "Best Solution is a private business consultancy. We are not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.";
+export { DISCLAIMER as CONSULT_DISCLAIMER } from "@/content/site";
 
 export const CONSULT_HELP: { title: string; body: string; icon: string }[] = [
   {
