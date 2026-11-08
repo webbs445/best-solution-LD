@@ -55,6 +55,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
   const $ = <T extends Element = HTMLElement>(s: string, c: ParentNode = root) => c.querySelector<T>(s) as T;
   const $$ = <T extends Element = HTMLElement>(s: string, c: ParentNode = root) => Array.from(c.querySelectorAll<T>(s));
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const PHONE = matchMedia("(max-width: 760px)").matches;
   const loop = (fn: () => void) => { const f = () => { if (signal.aborted) return; fn(); requestAnimationFrame(f); }; requestAnimationFrame(f); };
 
   /* today in Dubai */
@@ -602,6 +603,21 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
     on(fm, "pointermove", (e: PointerEvent) => { const r = fm.getBoundingClientRect(); fm.style.setProperty("--fx", `${e.clientX - r.left}px`); fm.style.setProperty("--fy", `${e.clientY - r.top}px`); });
   }
 
+  /* marquee driven by time and scroll speed */
+  const rows = $$(".mq-row"), mqX = [0, 0];
+  let lastY = scrollY, vel = 0;
+  if (!reduced && !PHONE) loop(() => {
+    const dy = scrollY - lastY;
+    lastY = scrollY;
+    vel += (Math.abs(dy) - vel) * 0.1;
+    rows.forEach((r, i) => {
+      const w = r.scrollWidth / 2, sp = (0.6 + vel * 0.25) * (i ? -1 : 1);
+      mqX[i] = (mqX[i] - sp) % w;
+      if (mqX[i] > 0) mqX[i] -= w;
+      r.style.transform = `translate3d(${mqX[i]}px,0,0)`;
+    });
+  });
+
   /* the year cards scroll sideways while the section is pinned (laptop) */
   const pin = $("#yrPin"), rail = $("#yrRail"), yFill = $("#yrFill"), prog = $("#prog"), wm = $(".est-wm"), estSec = $("#estimate");
   const sizePin = () => { pin.style.height = innerWidth > 900 ? `${innerHeight + Math.max(0, rail.scrollWidth - innerWidth)}px` : ""; };
@@ -664,7 +680,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
 
   /* pause looping animations while their section is off screen */
   const pIO = observe((es) => es.forEach((e) => e.target.classList.toggle("paused", !e.isIntersecting)), { rootMargin: "100px 0px" });
-  [".hero", "#estimate", "#apply", "#book"].forEach((q) => { const n = root.querySelector(q); if (n) pIO.observe(n); });
+  [".hero", ".mq", "#estimate", "#apply", "#book"].forEach((q) => { const n = root.querySelector(q); if (n) pIO.observe(n); });
 
   /* ---------- start ---------- */
   renderDial(); estimate(); applies(); onScroll();
