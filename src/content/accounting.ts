@@ -18,14 +18,23 @@ export const AC_FEES = AC_FEES_CONFIRMED
       bookkeeping: { amount: 800, unit: "per month" },
       reconciliation: { amount: 1200, unit: "per reconciliation" },
       statements: { amount: 1500, unit: "per set" },
-      /** "About 20% less than taking the three separately". */
-      packageSaving: 20,
     }
   : null;
 
 export const aed = (n: number) => `AED ${n.toLocaleString("en-US")}`;
 /** "From AED 800 per month, plus VAT". Only used while AC_FEES is set. */
 export const feeLine = (f: { amount: number; unit: string }) => `From ${aed(f.amount)} ${f.unit}, plus VAT`;
+
+/*
+  Stats band. Every number is a claim: null until Best Solution confirms it (content/site CLAIMS), and then shown as a
+  final value, never counted up. The tiles keep their place without the number.
+*/
+export const AC_STATS: { value: string | null; label: string }[] = [
+  { value: null, label: "Businesses supported" },
+  { value: null, label: "In-house professionals" },
+  { value: null, label: "Client nationalities" },
+  { value: null, label: "Accounting specialists" },
+];
 
 /* The page's single offer. */
 export const AC_OFFER = "Get a written quote";
@@ -37,7 +46,7 @@ export const SERVICE_OPTIONS: { v: ServiceKey; name: string; note: string; icon:
   { v: "bookkeeping", name: "Bookkeeping", note: AC_FEES ? feeLine(AC_FEES.bookkeeping) : "Monthly records", icon: '<path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8"/>' },
   { v: "reconciliation", name: "Bank reconciliation", note: AC_FEES ? feeLine(AC_FEES.reconciliation) : "Every bank account", icon: '<path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/>' },
   { v: "statements", name: "Financial statements", note: AC_FEES ? feeLine(AC_FEES.statements) : "P&L, Balance Sheet, Cash Flow", icon: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>' },
-  { v: "complete", name: "Complete package", note: AC_FEES ? `About ${AC_FEES.packageSaving}% less than separately` : "All three together", icon: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>' },
+  { v: "complete", name: "Complete package", note: "All three together", icon: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>' },
   { v: "not_sure", name: "Not sure yet", note: "An accountant will recommend one", icon: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2.2-2.4 3.7M12 17h.01"/>' },
 ];
 
@@ -117,7 +126,7 @@ export const AC_FAQS = [
     q: "How much does accounting cost for a small business in Dubai?",
     a: `${
       AC_FEES
-        ? `Bookkeeping is ${feeLine(AC_FEES.bookkeeping).toLowerCase()}, bank reconciliation ${feeLine(AC_FEES.reconciliation).toLowerCase()} and financial statements ${feeLine(AC_FEES.statements).toLowerCase()}. Taking all three as the complete package costs about ${AC_FEES.packageSaving}% less than buying them separately. `
+        ? `Bookkeeping is ${feeLine(AC_FEES.bookkeeping).toLowerCase()}, bank reconciliation ${feeLine(AC_FEES.reconciliation).toLowerCase()} and financial statements ${feeLine(AC_FEES.statements).toLowerCase()}. `
         : ""
     }Your fee depends on transaction volume, the number of bank accounts and how up to date your records are. An accountant reviews your details and confirms the fee in a written quote before work begins. Fees exclude VAT.`,
   },

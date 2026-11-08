@@ -42,14 +42,15 @@ export function AcFooter() {
           <div className="f-brand">
             <span className="f-logo"><Image src="/brand/icon-mark.webp" alt="" width={28} height={40} />Best Solution</span>
             <p>Bookkeeping, bank reconciliation and financial statements for UAE businesses, from our office in Business Bay, Dubai.</p>
-            {/* Confirmed claims only (content/site CLAIMS); nothing renders while they are unconfirmed. */}
-            {[CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].some(Boolean) && (
-              <div className="badges">
-                {[CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].filter(Boolean).map((c) => (
-                  <span key={c}>{c}</span>
-                ))}
-              </div>
-            )}
+            {/* Badge row: confirmed claims (content/site CLAIMS) or, until then, plain facts about the firm. */}
+            <div className="badges">
+              {([CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].filter(Boolean).length
+                ? [CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].filter(Boolean)
+                : ["Business Bay, Dubai", "Private consultancy", "Written quotes"]
+              ).map((c) => (
+                <span key={c}>{c}</span>
+              ))}
+            </div>
           </div>
           <div className="f-col">
             <h5>Services</h5>
@@ -124,7 +125,7 @@ export function AcFooter() {
               </>,
             )}
             <span data-legal>
-              {DISCLAIMER} We are not affiliated with the Federal Tax Authority, and we do not issue government documents.
+              {DISCLAIMER} We are not affiliated with the Federal Tax Authority.
               Tax assessments, refunds and penalties are decided solely by the relevant UAE authorities. Any fees are
               confirmed in a written quote and exclude VAT. Reports and figures on this page are illustrations.
             </span>

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { CLAIMS, DISCLAIMER } from "@/content/site";
-import { AC_OFFER, MARQUEE, TYPED_WORDS } from "@/content/accounting";
+import { AC_FEES, AC_OFFER, MARQUEE, TYPED_WORDS, aed } from "@/content/accounting";
 import { prefersReducedMotion, useReducedMotion } from "@/lib/useReducedMotion";
 
 const ARROW = (
@@ -254,16 +254,32 @@ export function AcHero() {
           <p className="hero-legal hin d3" role="note" data-legal>
             {DISCLAIMER}
           </p>
-          {/* Confirmed claims only (content/site CLAIMS): nothing renders while they are unconfirmed. */}
-          {[CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].some(Boolean) && (
-            <div className="proofrow hin d3">
-              {[CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].filter(Boolean).map((c) => (
-                <div className="rt" key={c}>
-                  <b>{c}</b>
-                </div>
-              ))}
+          {/* Proof row: confirmed claims only (content/site CLAIMS), fees only once confirmed (AC_FEES), plus the office. */}
+          <div className="proofrow hin d3">
+            <div className="avs" aria-hidden="true">
+              <span>H</span>
+              <span>M</span>
+              <span>S</span>
             </div>
-          )}
+            {[CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].filter(Boolean).map((c) => (
+              <div className="rt" key={c}>
+                <b>{c}</b>
+              </div>
+            ))}
+            <div className="rt">
+              <b>Business Bay</b>
+              <small>Our office in Dubai</small>
+            </div>
+            {AC_FEES && (
+              <>
+                <span className="sep" />
+                <div className="rt">
+                  <b>From {aed(AC_FEES.bookkeeping.amount)}</b>
+                  <small>{AC_FEES.bookkeeping.unit}, bookkeeping</small>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="flow rv d2" id="flow" ref={flow} aria-label="Illustration: your invoices and statements go in, finished reports come out">
@@ -324,7 +340,7 @@ export function AcHero() {
                   <span>Ready</span>
                 </span>
               </div>
-              <div className="big">AED 29,530</div>
+              <div className="big">29,530</div>
               <div className="sm">Net profit this month</div>
               <div className="mini">
                 <i />
@@ -343,7 +359,7 @@ export function AcHero() {
                   <span>Matched</span>
                 </span>
               </div>
-              <div className="big">AED 0.00</div>
+              <div className="big">0.00</div>
               <div className="sm">Difference across 3 accounts</div>
             </div>
             <div className={`rep-card${done >= 3 ? " done" : ""}`}>

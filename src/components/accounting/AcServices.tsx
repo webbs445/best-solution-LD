@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { AC_FEES, aed } from "@/content/accounting";
+import { CLAIMS } from "@/content/site";
 
 const CHECK = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -52,7 +53,7 @@ const CARDS: Card[] = [
     title: "Bookkeeping",
     desc: "Every sale, purchase and expense recorded, so your ledger is always current.",
     // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
-    price: AC_FEES ? { small: "From", b: aed(AC_FEES.bookkeeping.amount), span: `${AC_FEES.bookkeeping.unit}, plus VAT` } : undefined,
+    price: AC_FEES ? { small: "From", b: aed(AC_FEES.bookkeeping.amount), span: `${AC_FEES.bookkeeping.unit}, plus VAT` } : { small: "Pricing", b: "Written quote", span: "based on your volume" },
     items: ["Sales and purchases recorded", "Expense and income tracking", "Daily, weekly or monthly entry", "Monthly income and cost summary"],
     foot: { b: "Fixed monthly fee", t: "confirmed in writing" },
     cta: { label: "Get a quote", href: "#contact", service: "bookkeeping", className: "btn btn-navy", location: "AC Services - Bookkeeping" },
@@ -64,7 +65,7 @@ const CARDS: Card[] = [
     title: "Bank reconciliation",
     desc: "Every bank line matched to your books, so nothing slips through.",
     // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
-    price: AC_FEES ? { small: "From", b: aed(AC_FEES.reconciliation.amount), span: `${AC_FEES.reconciliation.unit}, plus VAT` } : undefined,
+    price: AC_FEES ? { small: "From", b: aed(AC_FEES.reconciliation.amount), span: `${AC_FEES.reconciliation.unit}, plus VAT` } : { small: "Pricing", b: "Written quote", span: "per bank account" },
     items: ["Every transaction matched", "Discrepancies flagged with notes", "Missing entries and fees traced", "Multiple bank accounts"],
     foot: { b: "Every bank account", t: "matched line by line" },
     cta: { label: "Get a quote", href: "#contact", service: "reconciliation", className: "btn btn-copper", location: "AC Services - Bank reconciliation" },
@@ -76,7 +77,7 @@ const CARDS: Card[] = [
     title: "Financial statements",
     desc: "Clear reports you can hand to a bank, an auditor or a partner.",
     // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
-    price: AC_FEES ? { small: "From", b: aed(AC_FEES.statements.amount), span: `${AC_FEES.statements.unit}, plus VAT` } : undefined,
+    price: AC_FEES ? { small: "From", b: aed(AC_FEES.statements.amount), span: `${AC_FEES.statements.unit}, plus VAT` } : { small: "Pricing", b: "Written quote", span: "per set of statements" },
     items: ["Profit and Loss statement", "Balance Sheet", "Cash Flow statement", "Monthly or periodic reporting"],
     foot: { b: "Monthly or year-end", t: "for banks and auditors" },
     cta: { label: "Get a quote", href: "#contact", service: "statements", className: "btn btn-navy", location: "AC Services - Financial statements" },
@@ -91,9 +92,10 @@ const CARDS: Card[] = [
       </>
     ),
     title: "Complete package",
-    tag: AC_FEES ? `Save about ${AC_FEES.packageSaving}%` : undefined,
+    // A package saving shows only once confirmed (content/site CLAIMS.packageSaving).
+    tag: CLAIMS.packageSaving ?? "All in one",
     desc: "All three as one monthly service, with one point of contact.",
-    price: AC_FEES ? { small: "Package saving", b: `About ${AC_FEES.packageSaving}%`, span: "vs. taking them separately" } : undefined,
+    price: { small: "Pricing", b: "One fee", span: "for all three, quoted on your volume" },
     items: ["Bookkeeping, reconciliation, statements", "Monthly reports", "Audit-ready records", "One point of contact"],
     foot: { b: "Fixed monthly fee", t: "priced on your volume" },
     cta: { label: "Quote the package", href: "#contact", service: "complete", className: "btn", location: "AC Services - Complete package" },
@@ -239,9 +241,9 @@ export function AcServices() {
         <div className="pin-sticky" ref={sticky}>
           <div className="wrap svc-head" ref={head}>
             <div>
-              <span className="kicker">Services and pricing</span>
+              <span className="kicker">{AC_FEES ? "Services and pricing" : "Services"}</span>
               <h2>Pick one, or let us run it all.</h2>
-              <p className="lede">Every price is a from-price, confirmed in writing before any work begins.</p>
+              <p className="lede">{AC_FEES ? "Every price is a from-price, confirmed in writing before any work begins." : "Every fee is confirmed in a written quote before any work begins."}</p>
             </div>
             <div className="meter-box">
               <div className="counter">
@@ -250,7 +252,7 @@ export function AcServices() {
               <div className="sbar">
                 <i id="sBar" ref={bar} />
               </div>
-              <p className="svc-note">Prices exclude VAT. Final fee depends on your volume.</p>
+              <p className="svc-note">{AC_FEES ? "Prices exclude VAT. Final fee depends on your volume." : "Fees exclude VAT and depend on your volume."}</p>
               <span className="hint" id="sHint" ref={hint}>
                 Keep scrolling {ARROW}
               </span>

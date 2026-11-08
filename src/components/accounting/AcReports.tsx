@@ -190,7 +190,7 @@ export function AcReports() {
               <div>
                 <span className="rp-eyebrow">Monthly management report</span>
                 <b>Example Trading LLC</b>
-                <small>September 2026 · AED</small>
+                <small>September 2026 · sample figures</small>
               </div>
               <span className="rp-tag">Sample</span>
             </header>
@@ -233,7 +233,7 @@ export function AcReports() {
                       <i className="le" />
                       Expenses
                     </span>
-                    <small>Last 6 months, AED k</small>
+                    <small>Last 6 months, thousands</small>
                   </div>
                   <svg viewBox="0 0 520 170" preserveAspectRatio="none" id="rpSvg" ref={svg} aria-hidden="true">
                     <defs>
@@ -251,7 +251,7 @@ export function AcReports() {
                   </svg>
                   <span className="rp-pin" ref={pinDot}>
                     <i />
-                    <em>AED 148.2k</em>
+                    <em>148.2k</em>
                   </span>
                   <div className="rp-mo">
                     {["Apr", "May", "Jun", "Jul", "Aug", "Sep"].map((m) => (
@@ -281,7 +281,7 @@ export function AcReports() {
                   <div className="rp-acc">
                     <span>Main current account</span>
                     <span>
-                      Closing difference <b>AED 0.00</b>
+                      Closing difference <b>0.00</b>
                     </span>
                   </div>
                 </div>
@@ -291,9 +291,9 @@ export function AcReports() {
                     <span>Next step</span>
                   </div>
                   {[
-                    ["Card payment, supplier not named", "14 Sep · AED 1,260", "c1", "Send receipt"],
-                    ["Customer deposit without an invoice", "22 Sep · AED 8,400", "c2", "Confirm invoice"],
-                    ["Supplier paid twice", "27 Sep · AED 2,150", "c3", "Request refund"],
+                    ["Card payment, supplier not named", "14 Sep · 1,260", "c1", "Send receipt"],
+                    ["Customer deposit without an invoice", "22 Sep · 8,400", "c2", "Confirm invoice"],
+                    ["Supplier paid twice", "27 Sep · 2,150", "c3", "Request refund"],
                   ].map(([t, s, c, chip]) => (
                     <div className="rp-row" key={t}>
                       <div>
@@ -305,7 +305,7 @@ export function AcReports() {
                   ))}
                 </div>
                 <div className="rp-note">
-                  <b>Advisor note</b>One duplicate payment found. Recovering it adds AED 2,150 back to cash.
+                  <b>Advisor note</b>One duplicate payment found, with a refund request suggested.
                 </div>
               </>,
             )}
@@ -350,7 +350,7 @@ export function AcReports() {
                   </div>
                 </div>
                 <div className="rp-note">
-                  <b>Advisor note</b>Cash rose by AED 25,730. Two invoices over 60 days make up AED 18,400 of receivables, so a follow-up is
+                  <b>Advisor note</b>Cash rose by 25,730. Two invoices over 60 days make up 18,400 of receivables, so a follow-up is
                   suggested.
                 </div>
               </>,

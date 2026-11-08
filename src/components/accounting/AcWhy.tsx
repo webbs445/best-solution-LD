@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { AC_REVIEWS } from "@/content/accounting";
-import { CLAIMS } from "@/content/site";
+import { CLAIMS, SITE, firstName } from "@/content/site";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 
 const WHY: { title: string; body: string; icon: ReactNode }[] = [
@@ -110,7 +110,7 @@ function Reviews() {
             <figcaption className="by">
               <Image className="av" src={`/testimonials/${r.photo}.webp`} alt="" width={48} height={48} />
               <div>
-                <b>{r.name}</b>
+                <b>{firstName(r.name)}</b>
                 <span>
                   {r.role}, {r.company}
                 </span>
@@ -170,15 +170,15 @@ export function AcWhy() {
         </div>
 
         <div className="rev rv">
-          {/* The rating shows only once confirmed against the live Google profile (content/site CLAIMS). */}
-          {CLAIMS.rating && (
-            <div className="score">
-              <div>
-                <b>{CLAIMS.rating}</b>
-                <small>{GOOGLE_G} Google reviews</small>
-              </div>
+          {/* Score panel: the rating shows only once confirmed (content/site CLAIMS); until then a link to the Google reviews. */}
+          <div className="score">
+            <div>
+              <b>{CLAIMS.rating ?? "Google"}</b>
+              <a className="g-link" href={SITE.googleReviews} target="_blank" rel="noopener">
+                {GOOGLE_G} Read our Google reviews
+              </a>
             </div>
-          )}
+          </div>
           <Reviews />
         </div>
       </div>

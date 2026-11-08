@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { AC_STATS } from "@/content/accounting";
 
 const PLAIN = "Most businesses don't struggle with revenue. They struggle with not knowing their numbers.";
 const ACCENT = "We fix that, every single month.";
 
-/* A statement whose words light up as it scrolls past. */
+/* Stat tiles (numbers only once confirmed) and a statement whose words light up as it scrolls past. */
 export function AcAbout() {
   const statement = useRef<HTMLParagraphElement>(null);
 
@@ -43,6 +44,15 @@ export function AcAbout() {
   return (
     <section className="sheet s-white light-zone" id="about">
       <div className="wrap">
+        {/* Stat tiles keep their place; a number renders only once confirmed (content/accounting AC_STATS), no count-up. */}
+        <div className="stats">
+          {AC_STATS.map((s, i) => (
+            <div key={s.label} className={`stat rv${i ? ` d${i}` : ""}`}>
+              <b>{s.value}</b>
+              <span>{s.label}</span>
+            </div>
+          ))}
+        </div>
         <p className="statement" id="statement" ref={statement}>
           {words(PLAIN, false)} <span style={{ color: "inherit" }}>{words(ACCENT, true)}</span>
         </p>

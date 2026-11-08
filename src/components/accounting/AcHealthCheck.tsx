@@ -29,7 +29,6 @@ function verdict(gaps: ServiceKey[]) {
 export function AcHealthCheck() {
   const [ans, setAns] = useState<boolean[]>([]);
   const [leaving, setLeaving] = useState(false);
-  const [shownScore, setShownScore] = useState(0);
   const [ringOffset, setRingOffset] = useState(RING);
   const panel = useRef<HTMLDivElement>(null);
   const busy = useRef(false);
@@ -55,7 +54,7 @@ export function AcHealthCheck() {
     [ans.length],
   );
 
-  // On completion: animate the ring and score, report it, and hand the result to the quote form.
+  // On completion: animate the ring (the score shows its final value: no count-up), report it, and hand the result to the quote form.
   useEffect(() => {
     if (!done) return;
     const n = gaps.length;
@@ -68,18 +67,7 @@ export function AcHealthCheck() {
     };
     window.dispatchEvent(new CustomEvent(AC_HEALTH_EVENT, { detail }));
     const raf = requestAnimationFrame(() => requestAnimationFrame(() => setRingOffset(RING * (1 - score / 100))));
-    const t0 = performance.now();
-    let id = 0;
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - t0) / 1200);
-      setShownScore(Math.round(score * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) id = requestAnimationFrame(tick);
-    };
-    id = requestAnimationFrame(tick);
-    return () => {
-      cancelAnimationFrame(raf);
-      cancelAnimationFrame(id);
-    };
+    return () => cancelAnimationFrame(raf);
     // Runs once per completed check.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);
@@ -102,7 +90,6 @@ export function AcHealthCheck() {
 
   const reset = () => {
     setAns([]);
-    setShownScore(0);
     setRingOffset(RING);
   };
 
@@ -196,7 +183,7 @@ export function AcHealthCheck() {
                 <circle className={`val${gaps.length <= 1 ? " ok" : ""}`} cx="60" cy="60" r="52" style={{ strokeDashoffset: ringOffset }} />
               </svg>
               <div>
-                <b>{shownScore}</b>
+                <b>{score}</b>
                 <small>out of 100</small>
               </div>
             </div>
