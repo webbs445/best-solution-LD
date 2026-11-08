@@ -32,8 +32,8 @@ export function Closing() {
             </h2>
             <p className={styles.lede}>Share your plans and speak with an advisor at a time that suits you.</p>
             <div className={styles.actions}>
-              <CtaLink className="btn btn-primary" href="#calculator" location="LP Closing - Book a Consultation">
-                Book a Consultation <ArrowIcon />
+              <CtaLink className="btn btn-primary" href="#calculator" location="LP Closing - Plan My Structure">
+                Plan Your Company Structure <ArrowIcon />
               </CtaLink>
               <CtaLink className={styles.ghost} href={SITE.whatsapp} location="LP Closing - Speak to a Consultant">
                 <WhatsAppIcon />
@@ -158,6 +158,10 @@ export function Footer() {
             ))}
 
             <div className={styles.ctaCard}>
+              <span className={styles.live}>
+                <i aria-hidden="true" />
+                Advisors available
+              </span>
               <h2>Book a Consultation</h2>
               <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
               <CallbackButton className="btn btn-primary">

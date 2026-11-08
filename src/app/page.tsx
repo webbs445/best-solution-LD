@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { HOME_FAQS, SITE } from "@/content/site";
 import { Header } from "@/components/header/Header";
-import { Hero } from "@/components/hero/Hero";
-import { AdviceSection } from "@/components/calculator/CalculatorSection";
+import { Hero, HeroCardAfterCalculator } from "@/components/hero/Hero";
+import { CalculatorProvider } from "@/components/calculator/CalculatorProvider";
+import { CalculatorSection } from "@/components/calculator/CalculatorSection";
 import { MobileEstimateBar } from "@/components/ui/MobileEstimateBar";
+import { Partners } from "@/components/sections/Partners";
 import { Consultation } from "@/components/sections/Consultation";
 import { WhyUs } from "@/components/sections/WhyUs";
 import { Jurisdictions } from "@/components/sections/Jurisdictions";
@@ -41,9 +43,9 @@ const faqSchema = {
 
 export default function Home() {
   return (
-    <>
+    <CalculatorProvider>
       <a className="skip-link" href="#calculator">
-        Skip to the consultation form
+        Skip to the structure planner
       </a>
       <script
         type="application/ld+json"
@@ -52,7 +54,9 @@ export default function Home() {
       <Header />
       <main id="top">
         <Hero />
-        <AdviceSection />
+        <CalculatorSection />
+        <HeroCardAfterCalculator />
+        <Partners />
         <Consultation />
         <WhyUs />
         <Jurisdictions />
@@ -62,9 +66,9 @@ export default function Home() {
         <Closing />
       </main>
       <Footer />
-      <MobileEstimateBar targetId="calculator" location="LP Mobile Bar - Book a Consultation" label="Book a consultation" />
+      <MobileEstimateBar targetId="calculator" location="LP Mobile Bar - Plan My Structure" label="Plan my structure" />
       <RevealObserver />
       <SectionDeepLink />
-    </>
+    </CalculatorProvider>
   );
 }

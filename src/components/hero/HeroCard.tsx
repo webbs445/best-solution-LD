@@ -1,21 +1,152 @@
+"use client";
+
 import Image from "next/image";
-import { CheckIcon } from "@/components/ui/Icons";
+import { useId, useState, type ReactNode } from "react";
+import type { Jurisdiction } from "@/lib/setupPlan";
+import { jurisdictionLabel, trackJurisdictionInterest } from "@/lib/analytics";
+import { prefersReducedMotion } from "@/lib/useReducedMotion";
+import { useCalculator } from "@/components/calculator/CalculatorProvider";
+import { ArrowIcon } from "@/components/ui/Icons";
 import styles from "./HeroCard.module.css";
 
-const COVERS = [
-  "Mainland, free zone or offshore: which could fit your plans",
-  "What to think about for your activity",
-  "What to budget for",
-  "Your next steps, in plain terms",
+type Answer = "uae" | "intl" | "offshore";
+
+const svg = {
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  "aria-hidden": true,
+  focusable: false,
+} as const;
+
+/* One question that points to a likely structure. The planner and the advisor still decide. Advice only: no prices. */
+const OPTIONS: { key: Answer; label: string; icon: ReactNode; j: Jurisdiction; name: string; suits: string }[] = [
+  {
+    key: "uae",
+    label: "UAE",
+    j: "mainland",
+    name: "Mainland",
+    suits: "Often suits selling directly to UAE customers",
+    icon: (
+      <svg {...svg}>
+        <path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" />
+        <circle cx="12" cy="10" r="2.5" />
+      </svg>
+    ),
+  },
+  {
+    key: "intl",
+    label: "International",
+    j: "freezone",
+    name: "Free zone",
+    suits: "Often suits international and business-to-business work",
+    icon: (
+      <svg {...svg}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+      </svg>
+    ),
+  },
+  {
+    key: "offshore",
+    label: "Offshore holding",
+    j: "offshore",
+    name: "Offshore",
+    suits: "Often suits holding shares, property or investments",
+    icon: (
+      <svg {...svg}>
+        <rect x="3" y="7" width="18" height="13" rx="2" />
+        <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 12h18" />
+      </svg>
+    ),
+  },
 ];
 
-/* Hero card: an office photo band, then what a consultation covers. */
+function QuickCheck() {
+  const { startWithJurisdiction } = useCalculator();
+  const qid = useId();
+  const [picked, setPicked] = useState<(typeof OPTIONS)[number] | null>(null);
+
+  const choose = (o: (typeof OPTIONS)[number]) => {
+    setPicked(o);
+    trackJurisdictionInterest(jurisdictionLabel(o.j) as string, "compare", { source: "hero_quick_check" });
+  };
+
+  const plan = () => {
+    if (!picked) return;
+    startWithJurisdiction(picked.j, "hero_quick_check");
+    document
+      .getElementById("calculator")
+      ?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+  };
+
+
+  return (
+    <div className={`${styles.qc} ${picked ? styles.done : ""}`}>
+      <div className={styles.qcHead}>
+        <span className={styles.live}>
+          <i aria-hidden="true" />
+          Structure check
+        </span>
+        <span className={styles.chip}>1 question</span>
+      </div>
+      <p className={styles.q} id={qid}>
+        How will your company operate?
+      </p>
+      <div className={styles.opts} role="group" aria-labelledby={qid}>
+        {OPTIONS.map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            className={styles.opt}
+            aria-pressed={picked?.key === o.key}
+            onClick={() => choose(o)}
+          >
+            <span className={styles.ic}>{o.icon}</span>
+            <span className={styles.optText}>{o.label}</span>
+          </button>
+        ))}
+      </div>
+      <div aria-live="polite">
+        {picked && (
+          <div className={styles.res} key={picked.key}>
+            <div>
+              <small>Often suited</small>
+              <b>{picked.name}</b>
+              <span>{picked.suits}</span>
+            </div>
+            <button type="button" className={styles.go} onClick={plan}>
+              Plan my structure <ArrowIcon />
+            </button>
+          </div>
+        )}
+      </div>
+      <p className={styles.note}>
+        {picked ? (
+          "Indicative only. Your advisor talks the right structure through with you."
+        ) : (
+          <>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M10 15V5M5 10l5-5 5 5" />
+            </svg>
+            Tap an answer to see a suggested structure
+          </>
+        )}
+      </p>
+    </div>
+  );
+}
+
+/* Hero card: an office photo band, the quick check below it. */
 export function HeroCard() {
   return (
-    <aside aria-label="What a consultation covers" className={styles.card}>
+    <aside aria-label="Structure check: which UAE option suits you" className={styles.card}>
       <div className={styles.photo} aria-hidden="true">
         <Image
-          src="/images/why-consultation.webp"
+          src="/images/free-zone-business-park-office.webp"
           alt=""
           fill
           sizes="(max-width: 1020px) 560px, 520px"
@@ -28,23 +159,13 @@ export function HeroCard() {
         <span>BUSINESS BAY</span>
       </div>
       <div className={styles.copy}>
-        <p className={styles.kicker}>YOUR CONSULTATION</p>
+        <p className={styles.kicker}>THE FIRST DECISION</p>
         <h2>
-          Clear advice,
+          Structure
           <br />
-          <em>before you decide.</em>
+          <em>before you commit.</em>
         </h2>
-        <div className={styles.qc}>
-          <p className={styles.q}>What a consultation covers</p>
-          <ul className={styles.list}>
-            {COVERS.map((c) => (
-              <li key={c}>
-                <CheckIcon />
-                {c}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <QuickCheck />
       </div>
     </aside>
   );

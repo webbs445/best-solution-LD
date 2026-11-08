@@ -1,7 +1,6 @@
 .stage {
   position: relative;
   padding: 100px 0 112px;
-  scroll-margin-top: 80px;
   background:
     radial-gradient(55% 45% at 50% 0%, var(--wash-peach), transparent 70%),
     radial-gradient(40% 45% at 0% 70%, var(--wash-champagne), transparent 70%),
@@ -21,11 +20,12 @@
   opacity: 0.48;
 }
 
-.grid {
+.intro {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
-  gap: 72px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 0.42fr);
+  gap: 82px;
+  align-items: end;
+  margin-bottom: 42px;
 }
 
 .intro h2 {
@@ -37,79 +37,69 @@
 
 .lede {
   margin-top: 15px;
-  max-width: 600px;
+  max-width: 650px;
   color: var(--ink-soft);
   font-size: 17px;
   line-height: 1.65;
 }
 
-.points {
-  display: grid;
-  gap: 14px;
-  margin-top: 30px;
-  padding: 0;
-  list-style: none;
+.note {
+  padding: 4px 0 4px 30px;
+  border-left: 1px solid rgba(20, 37, 62, 0.13);
 }
 
-.points li {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+.note span {
+  display: block;
+  color: var(--copper-ink);
+  font: 800 10px/1 var(--font);
+  letter-spacing: 0.14em;
+}
+
+.note b {
+  display: block;
+  margin-top: 10px;
   color: var(--navy);
-  font-size: 16px;
+  font-size: 17px;
+}
+
+.note small {
+  display: block;
+  margin-top: 7px;
+  color: var(--ink-soft);
+  font-size: 12px;
   line-height: 1.5;
 }
 
-.points svg {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  margin-top: 2px;
-  color: var(--copper-dark);
-}
-
-.card {
-  padding: 32px;
-  border: 1px solid var(--card-border);
-  border-radius: var(--r-lg);
-  background: #fff;
-  box-shadow: var(--card-shadow);
-}
-
-.card h3 {
-  font-size: 24px;
-  letter-spacing: -0.03em;
-}
-
-.card > p {
-  margin: 6px 0 20px;
-  color: var(--ink-soft);
-  font-size: 15px;
+.frame {
+  max-width: 1080px;
+  margin: 0 auto;
 }
 
 @media (max-width: 1020px) {
-  .grid {
+  .intro {
     grid-template-columns: minmax(0, 1fr);
-    gap: 36px;
+    gap: 28px;
   }
 
-  .card {
-    max-width: 560px;
+  .note {
+    padding: 20px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--rule);
   }
 }
 
 @media (max-width: 760px) {
   .stage {
-    padding: 64px 0 76px;
+    padding: 76px 0 84px;
   }
 }
 
 @media (max-width: 640px) {
-  .intro h2 {
-    font-size: 34px;
+  .intro {
+    margin-bottom: 28px;
   }
 
-  .card {
-    padding: 24px 20px;
+  .intro h2 {
+    font-size: 36px;
   }
 }

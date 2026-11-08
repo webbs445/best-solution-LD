@@ -195,12 +195,3 @@
     display: none;
   }
 }
-
-/* Each review once, in a grid (no looping marquee). */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 8px;
-  list-style: none;
-}

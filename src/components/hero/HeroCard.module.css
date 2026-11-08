@@ -102,11 +102,11 @@
   color: #edc0ad;
 }
 
-/* ---------- What a consultation covers ---------- */
+/* ---------- Quick check ---------- */
 
 .qc {
   margin-top: 18px;
-  padding: 18px;
+  padding: 16px;
   border-radius: 20px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
   border: 1px solid rgba(204, 134, 103, 0.45);
@@ -115,36 +115,249 @@
   -webkit-backdrop-filter: blur(10px);
 }
 
-.q {
+.qcHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font: 800 10.5px/1 var(--font);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #e6b6a2;
 }
 
-.list {
+.live i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: live 1.8s ease-out infinite;
+}
+
+@keyframes live {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 9px rgba(74, 222, 128, 0);
+  }
+}
+
+.chip {
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(204, 134, 103, 0.18);
+  color: #f0c7b4;
+  font: 700 11px/1 var(--font);
+}
+
+.q {
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.opts {
   display: grid;
-  gap: 10px;
-  margin: 14px 0 0;
-  padding: 0;
-  list-style: none;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
 }
 
-.list li {
+.opt {
+  position: relative;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
-  align-items: flex-start;
-  font-size: 15px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.92);
+  min-width: 0;
+  padding: 14px 8px 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 22, 40, 0.6);
+  color: #fff;
+  text-align: center;
+  font: 700 14.5px/1.2 var(--font);
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.list svg {
+.opt:hover {
+  transform: translateY(-3px);
+  border-color: var(--copper);
+  background: rgba(204, 134, 103, 0.14);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.3);
+}
+
+/* A slow outline pulse that says "these are buttons" until the visitor answers. */
+.opt::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 14px;
+  border: 1px solid rgba(231, 179, 155, 0.8);
+  opacity: 0;
+  pointer-events: none;
+  animation: hint 3s ease-in-out infinite;
+}
+
+.opt:nth-child(2)::after {
+  animation-delay: 0.35s;
+}
+
+.opt:nth-child(3)::after {
+  animation-delay: 0.7s;
+}
+
+@keyframes hint {
+  0%,
+  60%,
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  20% {
+    opacity: 0.9;
+    transform: scale(1.03);
+  }
+}
+
+.done .opt::after {
+  display: none;
+}
+
+.opt[aria-pressed="true"] {
+  background: linear-gradient(135deg, #e7b39b, var(--copper) 55%, #a86b52);
+  border-color: transparent;
+  box-shadow: 0 14px 30px rgba(204, 134, 103, 0.35);
+}
+
+.ic {
+  display: grid;
+  place-items: center;
   flex: none;
-  width: 18px;
-  height: 18px;
-  margin-top: 1px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(204, 134, 103, 0.16);
+  color: #e7b39b;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.optText {
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.ic svg {
+  width: 17px;
+  height: 17px;
+}
+
+.opt:hover .ic {
+  background: var(--copper);
+  color: #fff;
+}
+
+.opt[aria-pressed="true"] .ic {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.res {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(204, 134, 103, 0.4);
+  animation: resIn 0.35s var(--ease-out);
+}
+
+@keyframes resIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.res small {
+  display: block;
+  font: 700 10.5px/1 var(--font);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: #e6b6a2;
+}
+
+.res b {
+  display: block;
+  margin-top: 6px;
+  font-size: 17px;
+  color: #fff;
+}
+
+.res span {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.go {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--navy);
+  font: 700 14px/1 var(--font);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.go svg {
+  width: 16px;
+  height: 16px;
+}
+
+.go:hover {
+  transform: translateX(2px);
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.note svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: #e6b6a2;
+  animation: nudge 1.4s ease-in-out infinite;
+}
+
+@keyframes nudge {
+  50% {
+    transform: translateY(-3px);
+  }
 }
 
 /* ---------- Entrance ---------- */
@@ -173,6 +386,20 @@
   }
 }
 
+/* ---------- Responsive ---------- */
+
+/* Small laptops: the card column is at its narrowest, so the answers tighten to keep each on one line. */
+@media (min-width: 1021px) and (max-width: 1100px) {
+  .opts {
+    gap: 6px;
+  }
+
+  .opt {
+    padding-inline: 4px;
+    font-size: 13px;
+  }
+}
+
 @media (max-width: 1020px) {
   .card {
     width: 100%;
@@ -181,3 +408,54 @@
   }
 }
 
+@media (max-width: 640px) {
+  .card {
+    --band: 250px;
+    padding: 24px 22px;
+    border-radius: 22px;
+  }
+
+  .card::after {
+    inset: 10px;
+    border-radius: 16px;
+  }
+
+  .copy {
+    margin-top: 138px;
+  }
+
+  .opts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* One answer per row on phones: icon beside the text. */
+  .opt {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 11px 14px;
+    text-align: left;
+  }
+
+  .res {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .go {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live i,
+  .opt::after,
+  .note svg {
+    animation: none;
+  }
+
+  .opt:hover,
+  .go:hover {
+    transform: none;
+  }
+}

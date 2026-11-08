@@ -3,7 +3,9 @@
 import Image from "next/image";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { JURIS } from "@/content/site";
-import type { Jurisdiction } from "@/lib/pricing";
+import type { Jurisdiction } from "@/lib/setupPlan";
+import { prefersReducedMotion } from "@/lib/useReducedMotion";
+import { useCalculator } from "@/components/calculator/CalculatorProvider";
 import { jurisdictionLabel, trackJurisdictionInterest } from "@/lib/analytics";
 import { ArrowIcon } from "@/components/ui/Icons";
 import styles from "./Jurisdictions.module.css";
@@ -15,6 +17,11 @@ export function Jurisdictions() {
   const [active, setActive] = useState<Jurisdiction>("mainland");
   const tabRefs = useRef<Partial<Record<Jurisdiction, HTMLButtonElement | null>>>({});
   const j = JURIS[active];
+  const { startWithJurisdiction } = useCalculator();
+  const planThis = () => {
+    startWithJurisdiction(active);
+    document.getElementById("calculator")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+  };
 
   const select = (key: Jurisdiction, focus = false) => {
     setActive(key);
@@ -119,9 +126,9 @@ export function Jurisdictions() {
                   </div>
                 </dl>
               </div>
-              <a className={`btn btn-primary btn-sm ${styles.use}`} href="#calculator" data-cta-location={`LP Jurisdictions - Talk it through (${j.title})`}>
-                Talk it through with an advisor <ArrowIcon />
-              </a>
+              <button className={`btn btn-primary btn-sm ${styles.use}`} type="button" onClick={planThis} data-cta-location={`LP Jurisdictions - Plan this structure (${j.title})`}>
+                Plan a {j.title.toLowerCase()} structure <ArrowIcon />
+              </button>
               <p className={styles.note}>Your advisor explains what may apply to your activity and plans.</p>
             </div>
           </div>
