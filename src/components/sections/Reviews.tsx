@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CLAIMS, REVIEW_ROWS, SITE, type Review } from "@/content/site";
+import { CLAIMS, REVIEW_ROWS, SITE, type Review, firstName } from "@/content/site";
 import { Marquee } from "@/components/ui/Marquee";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import styles from "./Reviews.module.css";
@@ -33,7 +33,7 @@ function Card({ r, copy }: { r: Review; copy: boolean }) {
       <figcaption>
         <Image className={styles.photo} src={r.photo} alt="" width={44} height={44} />
         <span>
-          <b>{r.name}</b>
+          <b>{firstName(r.name)}</b>
           {r.role}
         </span>
         <em>Google review</em>

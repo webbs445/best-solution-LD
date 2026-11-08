@@ -34,7 +34,7 @@ export const PLAN_OPTIONS: Record<Jurisdiction, PlanOption[]> = {
     { id: "m0", name: "Dubai mainland company", desc: "A limited liability company trading across the UAE", emirate: "Dubai" },
     { id: "m1", name: "Dubai mainland, professional or civil company", desc: "For service professionals and consultants", emirate: "Dubai" },
     { id: "m2", name: "Dubai mainland, general trading", desc: "Broad import, export and trading scope", emirate: "Dubai" },
-    { id: "m3", name: "Dubai mainland, flexible office option", desc: "When you do not need an office lease straight away", emirate: "Dubai" },
+    { id: "m3", name: "Dubai mainland, flexible office option", desc: "When you do not need an office lease yet", emirate: "Dubai" },
     { id: "m4", name: "Dubai mainland, home-based or online trader", desc: "For a sole trader working from home or online", emirate: "Dubai" },
     { id: "m5", name: "Abu Dhabi mainland", desc: "", emirate: "Abu Dhabi" },
     { id: "m6", name: "Sharjah mainland", desc: "", emirate: "Sharjah" },

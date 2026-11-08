@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ACT_LABEL, EM_SHORT, HERO_DEMO, ZONES, ZONE_BY_ID } from "@/content/freezone";
-import { DISCLAIMER } from "@/content/site";
+import { CLAIMS, DISCLAIMER, zonesPhrase } from "@/content/site";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
@@ -124,17 +124,14 @@ export function FzHero() {
             </CallbackTrigger>
           </div>
           <ul className="fz-proof" aria-label="At a glance">
+            {/* Counts render only once confirmed (content/site CLAIMS); the tile keeps its place without the number. */}
             <li>
-              <b>{ZONES.length}</b>
+              {CLAIMS.zones && <b>{CLAIMS.zones}</b>}
               <span>Free zones to compare</span>
             </li>
             <li>
-              <b>7</b>
+              {CLAIMS.emirates && <b>{CLAIMS.emirates}</b>}
               <span>Emirates</span>
-            </li>
-            <li>
-              <b>1</b>
-              <span>Dedicated advisor</span>
             </li>
           </ul>
           {/* Phones: this one line replaces the stats and the decorative zone wall, so the form comes up sooner. */}
@@ -195,8 +192,8 @@ export function FzHero() {
               </svg>
             </span>
             <div>
-              <small>{ZONES.length} free zones</small>
-              <b>One advisor</b>
+              <small>{zonesPhrase()}</small>
+              <b>Your advisor</b>
               <span>Advice in plain terms</span>
             </div>
           </div>

@@ -14,6 +14,7 @@ import {
   WhatsAppIcon,
 } from "@/components/ui/Icons";
 import { CallbackButton } from "./Callback";
+import { AdvisorsBadge } from "@/components/ui/AdvisorsBadge";
 import styles from "./Closing.module.css";
 
 const POINTS = ["No obligation", "Estimate confirmed in writing", "Reply by phone, WhatsApp or email"];
@@ -158,10 +159,7 @@ export function Footer() {
             ))}
 
             <div className={styles.ctaCard}>
-              <span className={styles.live}>
-                <i aria-hidden="true" />
-                Advisors available
-              </span>
+              <AdvisorsBadge className={styles.live} />
               <h2>Book a Consultation</h2>
               <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
               <CallbackButton className="btn btn-primary">

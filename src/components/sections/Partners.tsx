@@ -11,7 +11,7 @@ export function Partners() {
           <h2 id="partners-title">Free zones and jurisdictions we advise on</h2>
           <p className={styles.note}>We are a private consultancy and not affiliated with any of them.</p>
         </div>
-        <p>Mainland, free zone and offshore structures across all seven emirates.</p>
+        <p>Mainland, free zone and offshore structures across the UAE.</p>
       </div>
       <Marquee speed={55}>
         {(copy) => (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { REVIEW_ROWS } from "@/content/site";
+import { REVIEW_ROWS, firstName } from "@/content/site";
 import styles from "./UnlockDialog.module.css";
 
 /*
@@ -94,7 +94,7 @@ export function UnlockDialog({ open, onClose, sent, intro, tags, children }: Pro
             <figure className={styles.review}>
               <blockquote data-review-quote>&ldquo;{REVIEW.quote}&rdquo;</blockquote>
               <figcaption>
-                {REVIEW.name}, {REVIEW.company}. Google review
+                {firstName(REVIEW.name)}, {REVIEW.company}. Google review
               </figcaption>
             </figure>
           ) : null}

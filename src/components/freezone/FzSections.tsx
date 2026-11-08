@@ -1,7 +1,6 @@
 import Image from "next/image";
-import { CLAIMS, REVIEW_ROWS, SITE, WHY, type Review } from "@/content/site";
+import { CLAIMS, REVIEW_ROWS, SITE, WHY, type Review, firstName } from "@/content/site";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
-import { ZONES } from "@/content/freezone";
 import { CallbackTrigger } from "./CallbackTrigger";
 
 /*
@@ -137,17 +136,14 @@ export function FzWhyUs() {
             </p>
           </div>
           <ul className="wy-stats">
+            {/* Counts render only once confirmed (content/site CLAIMS); the tile keeps its place without the number. */}
             <li>
-              <b>{ZONES.length}</b>
+              {CLAIMS.zones && <b>{CLAIMS.zones}</b>}
               <span>Free zones compared</span>
             </li>
             <li>
-              <b>7</b>
+              {CLAIMS.emirates && <b>{CLAIMS.emirates}</b>}
               <span>Emirates covered</span>
-            </li>
-            <li>
-              <b>1</b>
-              <span>Dedicated advisor</span>
             </li>
             <li>
               <b>Dubai</b>
@@ -209,7 +205,7 @@ function ReviewCard({ r, copy }: { r: Review; copy: boolean }) {
       <figcaption>
         <Image className="t-photo" src={r.photo} alt="" width={44} height={44} />
         <span>
-          <b>{r.name}</b>
+          <b>{firstName(r.name)}</b>
           {r.role}
         </span>
         <em>Google review</em>

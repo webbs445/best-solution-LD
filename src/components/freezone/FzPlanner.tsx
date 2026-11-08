@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { EMIRATES, PLANNER_ACTS, PRIORITIES, SECT, ZONES, ZONE_BY_ID, ACT_LABEL, type Priority } from "@/content/freezone";
-import { SITE } from "@/content/site";
+import { SITE, zonesPhrase } from "@/content/site";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 import { QuickCapture } from "@/components/ui/QuickCapture";
 import { UNLOCK_THANKS_MS, UnlockDialog } from "@/components/ui/UnlockDialog";
@@ -218,7 +218,7 @@ export function FzPlanner() {
               <span className={s.eyebrow}>Free zone planner</span>
               <h2 id="plTitle">{onShortlist ? "Your free zone shortlist" : "Plan your free zone in one screen"}</h2>
             </div>
-            <span className={s.pill}>{ZONES.length} free zones · No obligation</span>
+            <span className={s.pill}>{zonesPhrase(true)} · No obligation</span>
           </div>
 
           {onShortlist ? (
@@ -368,7 +368,7 @@ export function FzPlanner() {
                       <span className={s.qLong}>What matters most to you?</span>
                       <span className={s.qShort}>What matters most?</span>
                     </h3>
-                    <p className={s.phoneHint}>We rank the {ZONES.length} free zones around it.</p>
+                    <p className={s.phoneHint}>We rank the free zones around it.</p>
                     <div className={s.pri} role="group" aria-label="What matters most" style={{ "--x": `${priIdx * 100}%` } as CSSProperties}>
                       <span className={s.priSlide} aria-hidden="true" />
                       {PRIORITIES.map((p, i) => (
@@ -449,7 +449,7 @@ export function FzPlanner() {
                     </div>
                     {showAll ? null : (
                       <button type="button" className={s.linkBtn} onClick={openAll}>
-                        Compare all {ZONES.length} zones
+                        Compare all {zonesPhrase()}
                       </button>
                     )}
                   </div>

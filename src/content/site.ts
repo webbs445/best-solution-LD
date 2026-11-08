@@ -48,7 +48,16 @@ export const CLAIMS: {
   team: string | null;
   /** e.g. "Emirati-owned" */
   ownership: string | null;
-} = { since: null, rating: null, businesses: null, countries: null, team: null, ownership: null };
+  /** Number of free zones we compare, e.g. "28" (shown in stat tiles and headings only once confirmed) */
+  zones: string | null;
+  /** Number of emirates covered, e.g. "7" */
+  emirates: string | null;
+  /** Complete accounting package saving, e.g. "Save about 20%" */
+  packageSaving: string | null;
+} = { since: null, rating: null, businesses: null, countries: null, team: null, ownership: null, zones: null, emirates: null, packageSaving: null };
+
+/** "28 free zones" once the count is confirmed (CLAIMS.zones); plain "free zones" / "Free zones" until then. */
+export const zonesPhrase = (cap = false) => (CLAIMS.zones ? `${CLAIMS.zones} free zones` : cap ? "Free zones" : "free zones");
 
 /* Free zone and authority logos shown in the "jurisdictions we advise on" marquee. */
 export const AUTHORITIES = [
@@ -203,11 +212,14 @@ const review = (r: Review): Review => ({
   logo: `/testimonials/logo-${r.logo}.webp`,
 });
 
-/* Two marquee rows of verified Google reviews. */
+/** A reviewer is shown by first name only. */
+export const firstName = (name: string) => name.split(" ")[0];
+
+/* Two marquee rows of verified Google reviews. Titles are word-for-word phrases from the quote itself. */
 export const REVIEW_ROWS: Review[][] = [
   [
     review({
-      title: "Unmatched Professionalism",
+      title: "In safe hands",
       quote: "25+ years in banking and corporate services, and Best Solution truly stands apart. From day one, I knew I was in safe hands.",
       name: "Michael Doherty",
       role: "Chief Executive Officer",
@@ -225,7 +237,7 @@ export const REVIEW_ROWS: Review[][] = [
       logo: "prism-advertising",
     }),
     review({
-      title: "Reliable, Structured Support",
+      title: "Everything became structured",
       quote: "Everything became structured, professional, and stress-free after switching to Best Solution.",
       name: "Hadi Hamedi",
       role: "Chief Executive Officer",

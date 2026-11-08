@@ -6,6 +6,7 @@ import { SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, jurisdictionLabel, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { ArrowIcon } from "@/components/ui/Icons";
+import { AdvisorsBadge } from "@/components/ui/AdvisorsBadge";
 import styles from "./Callback.module.css";
 
 const INTERESTS = [
@@ -152,10 +153,7 @@ export function CallbackButton({
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>
           </button>
-          <span className={styles.live}>
-            <i aria-hidden="true" />
-            Consultants available
-          </span>
+          <AdvisorsBadge className={styles.live} />
           <h3 id="cb-title">Request a callback</h3>
           <p className={styles.lede}>
             Leave your number. We&apos;ll call you back.

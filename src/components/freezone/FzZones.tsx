@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { ACT_LABEL, ACTS, EM_SHORT, POPULAR_ACTS, SECT, ZONES, ZONE_BY_ID, activityIcon, type Activity, type SectorKey, type Zone, type ZoneGroup } from "@/content/freezone";
+import { CLAIMS, zonesPhrase } from "@/content/site";
 import { findActs, norm, zoneHaystack, zonesForSector } from "@/lib/zoneSearch";
 import { FZ_FORM_ID } from "@/lib/lead";
 import { trackEvent, trackJurisdictionInterest } from "@/lib/analytics";
@@ -584,7 +585,7 @@ export function FzZones() {
       <div className="wrap">
         <div className={s.head}>
           <span className={s.eyebrow}>Free zone explorer</span>
-          <h2 id="zonesTitle">Explore all 28 free zones</h2>
+          <h2 id="zonesTitle">Explore all {zonesPhrase()}</h2>
           <p>Search what your business does and see the zones that cover it. Compare up to three side by side.</p>
         </div>
 
@@ -745,7 +746,8 @@ export function FzZones() {
           <div className={s.listWrap}>
             <div className={s.listHead}>
               <p aria-live="polite">
-                <b>{list.length}</b> of 28 zones
+                {/* The full count is a claim until confirmed (content/site CLAIMS.zones); a filtered count is just the list. */}
+                {list.length === ZONES.length && !CLAIMS.zones ? "All zones listed" : <><b>{list.length}</b> zones listed</>}
               </p>
               <div className={s.sort} role="group" aria-label="Sort">
                 <button type="button" aria-pressed={sort === "name"} onClick={() => setSort("name")}>
@@ -796,7 +798,7 @@ export function FzZones() {
             </ul>
             {!showAll && list.length > FIRST ? (
               <button type="button" className={s.showAll} onClick={() => setShowAll(true)}>
-                Show all {list.length} zones
+                Show all zones
               </button>
             ) : null}
 

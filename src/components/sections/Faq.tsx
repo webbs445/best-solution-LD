@@ -1,4 +1,4 @@
-import { FAQS, SITE } from "@/content/site";
+import { HOME_FAQS as FAQS, SITE } from "@/content/site";
 import styles from "./Faq.module.css";
 
 export function Faq() {

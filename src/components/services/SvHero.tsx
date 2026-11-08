@@ -1,6 +1,5 @@
 import Image from "next/image";
-import { CLAIMS, DISCLAIMER, REVIEW_ROWS, SITE } from "@/content/site";
-import { ZONES } from "@/content/freezone";
+import { CLAIMS, DISCLAIMER, REVIEW_ROWS, SITE, firstName } from "@/content/site";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
 import { SvLive } from "./SvLive";
@@ -12,8 +11,8 @@ const QUOTE_LINE = REVIEW.quote.slice(REVIEW.quote.indexOf("From day one"));
 
 /*
   The hero: headline, buttons, a stat strip and the disclaimer on the left; an advisor meeting in an arch, with a
-  Google reviews seal and a client quote, on the right. Stats are plain facts (no count-up); the rating shows only once
-  confirmed (content/site CLAIMS).
+  Google reviews seal and a client quote, on the right. Counts and the rating show only once confirmed (content/site CLAIMS);
+  no count-up.
 */
 export function SvHero() {
   return (
@@ -45,17 +44,14 @@ export function SvHero() {
           </div>
           <p className="sv-hero-note">No obligation · We reply by phone, WhatsApp or email</p>
           <ul className="sv-stats">
+            {/* Counts render only once confirmed (content/site CLAIMS); the tile keeps its place without the number. */}
             <li>
-              <b>{ZONES.length}</b>
+              {CLAIMS.zones && <b>{CLAIMS.zones}</b>}
               <span>Free zones compared</span>
             </li>
             <li>
-              <b>7</b>
+              {CLAIMS.emirates && <b>{CLAIMS.emirates}</b>}
               <span>Emirates covered</span>
-            </li>
-            <li>
-              <b>1</b>
-              <span>Dedicated advisor</span>
             </li>
           </ul>
           <p className="fz-disclaimer" role="note" data-legal>
@@ -97,7 +93,7 @@ export function SvHero() {
             <div>
               <blockquote data-review-quote>&ldquo;{QUOTE_LINE}&rdquo;</blockquote>
               <figcaption>
-                {REVIEW.name}, {REVIEW.company}
+                {firstName(REVIEW.name)}, {REVIEW.company}
               </figcaption>
             </div>
           </figure>

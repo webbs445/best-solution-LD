@@ -6,7 +6,7 @@ import { ZONES } from "@/content/freezone";
 */
 export function FzPartners({
   title = "Free zones we compare for you",
-  sub = "Across all seven emirates, matched to your activity.",
+  sub = "Across the UAE, matched to your activity.",
 }: { title?: string; sub?: string } = {}) {
   const row = (copy: boolean) => (
     <ul className="logo-row" aria-hidden={copy || undefined}>
