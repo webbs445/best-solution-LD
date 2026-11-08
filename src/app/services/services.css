@@ -202,6 +202,7 @@
 .sv-page .sv-seal-c {display:flex;align-items:center;justify-content:center;gap:2px;width:62px;height:62px;border-radius:50%;background:var(--copper-grad);color:#fff;box-shadow:0 8px 18px rgba(168,105,76,.4)}
 .sv-page .sv-seal-c b {font:800 19px/1 var(--font)}
 .sv-page .sv-seal-c svg {width:13px;height:13px;color:#ffe2a6}
+.sv-page .sv-seal-c.is-star svg {width:26px;height:26px}
 @keyframes sv-spin {to {transform:rotate(360deg)}}
 .sv-page .sv-quote {position:absolute;z-index:3;right:-48px;bottom:0;display:flex;align-items:center;gap:12px;max-width:290px;margin:0;padding:14px 18px 14px 14px;border-radius:20px;border:1px solid #fff;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 24px 50px rgba(120,70,40,.25)}
 .sv-page .sv-quote img {flex:none;width:44px;height:44px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(204,134,103,.5)}
@@ -390,4 +391,9 @@
   .sv-page .sv-hero-h2 {margin-top:14px;font-size:16px}
   .sv-page .sv-hero-cta {margin-top:20px;gap:10px}
   .sv-page .sv-hero-note {display:none}
+}
+/* Phones: the stat strip moves below the disclaimer, so the disclaimer stays above the cookie banner. */
+@media (max-width:600px) {
+  .sv-page .sv-hero-copy {display:flex;flex-direction:column}
+  .sv-page .sv-hero-copy .sv-stats {order:1;margin-top:24px}
 }

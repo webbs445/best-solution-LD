@@ -3,6 +3,7 @@ import { SITE } from "@/content/site";
 import { HUB_FAQS, SERVICES } from "@/content/services";
 import { SERVICES_FORM_ID } from "@/lib/lead";
 import { FzMotion } from "@/components/freezone/FzMotion";
+import { FzPartners } from "@/components/freezone/FzPartners";
 import { FzReviews } from "@/components/freezone/FzSections";
 import { FzFaq } from "@/components/freezone/FzFaq";
 import { FzFooter } from "@/components/freezone/FzFooter";
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
 /*
   /services: the hub for every service page. Advice and consultation only (Google Ads government documents policy).
   The /freezone page's look and shared sections (reviews, FAQ, footer with the page's one callback popup), with the
-  services grid and steps built for it. GTM, consent and the cookie banner come from the root layout.
+  services grid and steps built for it. The free zone strip lists zone names as text, no logos. GTM, consent and the cookie banner come from the root layout.
 */
 export default function ServicesPage() {
   return (
@@ -45,6 +46,7 @@ export default function ServicesPage() {
         <SvGrid />
         <SvJourney />
         <SvTrust />
+        <FzPartners />
         <FzReviews />
         <FzFaq faqs={HUB_FAQS} title="Common questions" tabs={false} ctaLocation="SV FAQ - Request a Callback" />
         <SvClosing />

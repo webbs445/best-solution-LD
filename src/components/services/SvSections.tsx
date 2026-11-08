@@ -23,7 +23,7 @@ export function SvGrid() {
         </div>
         <ul className="sv-grid">
           {SERVICES.filter((s) => s !== BUDGET).map((s) => (
-            // The whole tile opens the service page (stretched link).
+            // The whole tile opens the service page (stretched link); the tool tag is its own link to the tool.
             <li key={s.id} className={s.big ? "big" : "mid"}>
               <article className="sv-tile spot">
                 {s.photo && (
@@ -35,12 +35,22 @@ export function SvGrid() {
                 <span className="sv-tile-ico">
                   <ServiceIcon id={s.id} />
                 </span>
+                {s.big && s.tool && (
+                  <a className="sv-chip sv-tile-tool" href={s.tool.href} data-cta-location={`SV Grid - Tool: ${s.tool.text}`}>
+                    {s.tool.text}
+                  </a>
+                )}
                 <h3>
                   <a className="sv-tile-main" href={s.href} data-service-card={s.name}>
                     {s.name}
                   </a>
                 </h3>
                 <p>{s.line}</p>
+                {!s.big && s.tool && (
+                  <a className="sv-tile-toollink" href={s.tool.href} data-cta-location={`SV Grid - Tool: ${s.tool.text}`}>
+                    {s.tool.text} <ArrowIcon />
+                  </a>
+                )}
                 <span className="sv-tile-foot">
                   <b>Learn more</b>
                   <span className="sv-tile-go" aria-hidden="true">

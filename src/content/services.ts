@@ -19,6 +19,8 @@ export interface Service {
   /** Larger tile in the grid: the services that bring the most leads. They carry a photo. */
   big?: boolean;
   photo?: string;
+  /** The tool on the tile: a chip on the large tiles, a text link on the others. */
+  tool?: { text: string; href: string };
 }
 
 export const SERVICES: Service[] = [
@@ -29,6 +31,7 @@ export const SERVICES: Service[] = [
     href: MAINLAND_HREF,
     big: true,
     photo: "/images/main.webp",
+    tool: { text: "Planning guide", href: "/cost-calculator" },
   },
   {
     id: "freezone",
@@ -37,24 +40,28 @@ export const SERVICES: Service[] = [
     href: "/freezone",
     big: true,
     photo: "/images/free-zone-business-park-office.webp",
+    tool: { text: "Zone planner", href: "/freezone#planner" },
   },
   {
     id: "accounting",
     name: "Bookkeeping and accounts",
     line: "Bookkeeping, bank reconciliation and financial statements.",
     href: "/accounting",
+    tool: { text: "Ask about your books", href: "/accounting#contact" },
   },
   {
     id: "tax",
     name: "Corporate tax support",
     line: "Understand your obligations and deadlines, with support for your return.",
     href: "/corporate-tax",
+    tool: { text: "Try the tax checker", href: "/corporate-tax#estimate" },
   },
   {
     id: "spv",
     name: "Holding and SPV structures",
     line: "Advice on holding property, shares and investments in the right structure.",
     href: "/spv",
+    tool: { text: "Try the structure finder", href: "/spv#fit" },
   },
   {
     id: "calculator",
