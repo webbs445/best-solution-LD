@@ -73,12 +73,12 @@ export function UnlockDialog({ open, onClose, sent, intro, tags, children }: Pro
           </button>
           {sent ? (
             <p id="unlockTitle" className={styles.soon}>
-              Showing your figure in a moment…
+              Thank you. Your advisor will be in touch.
             </p>
           ) : (
             <div className={styles.head}>
               <span className={styles.lock}>{LOCK_ICON}</span>
-              <h3 id="unlockTitle">Unlock your exact figure</h3>
+              <h3 id="unlockTitle">Talk it through with an advisor</h3>
               <p>{intro}</p>
               {tags?.length ? (
                 <ul className={styles.tags}>
@@ -92,7 +92,7 @@ export function UnlockDialog({ open, onClose, sent, intro, tags, children }: Pro
           {children}
           {REVIEW ? (
             <figure className={styles.review}>
-              <blockquote>&ldquo;{REVIEW.quote}&rdquo;</blockquote>
+              <blockquote data-review-quote>&ldquo;{REVIEW.quote}&rdquo;</blockquote>
               <figcaption>
                 {REVIEW.name}, {REVIEW.company}. Google review
               </figcaption>

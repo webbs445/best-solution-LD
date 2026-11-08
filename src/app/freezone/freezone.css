@@ -881,3 +881,7 @@ html:has(.fz-page) {scroll-padding-top:0}
   .fz-page .fz-hero .fz-disclaimer {margin-top:12px;padding:10px 12px;line-height:1.45}
 }
 .fz-page .zl-sug.zl-txt b {font-size:12px;letter-spacing:-.02em}
+/* Zone name tiles in the "Free zones we compare for you" strip (text instead of authority logos). */
+.fz-page .logo-name {display:grid;justify-items:center;gap:4px;text-align:center}
+.fz-page .logo-name b {font:800 17px/1 var(--font);color:var(--navy);letter-spacing:-.01em}
+.fz-page .logo-name small {font-size:12px;color:var(--ink-soft)}

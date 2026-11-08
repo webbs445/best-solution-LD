@@ -56,11 +56,11 @@ export interface QuickCaptureProps {
   onSent?: () => void;
   /** Shows a "Done" button on the success view (e.g. to close a popup). */
   onDone?: () => void;
-  /** The send button's text. Defaults to "Send my breakdown". */
+  /** The send button's text. Defaults to "Send to an advisor". */
   cta?: string;
 }
 
-export function QuickCapture({ formId, service, payload, summary, tone = "dark", onSent, onDone, cta = "Send my breakdown" }: QuickCaptureProps) {
+export function QuickCapture({ formId, service, payload, summary, tone = "dark", onSent, onDone, cta = "Send to an advisor" }: QuickCaptureProps) {
   const id = useId().replace(/:/g, "");
   const [country, setCountry] = useState<PhoneCountry>(DEFAULT_PHONE_COUNTRY);
   const [values, setValues] = useState<Record<Field, string>>({ name: "", phone: "", email: "" });
@@ -72,7 +72,7 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
   const counted = useRef(false);
 
   const countryName = PHONE_COUNTRIES.find((c) => c.code === country)?.name ?? "";
-  const waHref = `${SITE.whatsapp}?text=${encodeURIComponent(`Hi, my estimate: ${summary}. Please send the breakdown.`)}`;
+  const waHref = `${SITE.whatsapp}?text=${encodeURIComponent(`Hi, I would like advice on: ${summary}. Please call me back.`)}`;
   const phoneMsg =
     country === "OTHER"
       ? "Please type the full number with its country code, for example +44 20 7946 0000."
@@ -181,7 +181,7 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
           <div>
             <h4>Thank you, {sent.name}.</h4>
             <p>
-              Your advisor will send the itemised breakdown to <b>{sent.phone}</b> on WhatsApp.
+              Your advisor will contact you on WhatsApp at <b>{sent.phone}</b>.
             </p>
           </div>
         </div>
@@ -264,7 +264,7 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
       </div>
 
       <div className={styles.field}>
-        <label htmlFor={`${id}-email`}>Email (for your written copy)</label>
+        <label htmlFor={`${id}-email`}>Email</label>
         <input
           id={`${id}-email`}
           name="email_id"
@@ -288,7 +288,7 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
         </p>
       ) : null}
 
-      <p className={styles.next}>Your advisor sends the breakdown on WhatsApp.</p>
+      <p className={styles.next}>Your advisor contacts you on WhatsApp.</p>
 
       <button type="submit" className={`btn btn-primary btn-block ${styles.send}`} disabled={sending}>
         {sending ? <span className={styles.spin} aria-hidden="true" /> : null}
@@ -300,7 +300,7 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
       </a>
 
       <p className={styles.note}>
-        We use your details only to send your estimate and follow up. No spam.{" "}
+        We use your details only to contact you about your enquiry. No spam.{" "}
         <a href={SITE.privacy} target="_blank" rel="noopener">
           Privacy policy
         </a>

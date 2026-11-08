@@ -27,7 +27,8 @@ const ACTIONS: Record<FzSitelinkView, () => void> = {
       document.getElementById("zxQ")?.focus({ preventScroll: true });
     }
   },
-  budget: () => scrollTo("budget"),
+  // The consultation section lists what to plan for in a budget (no prices on this page).
+  budget: () => scrollTo("consultation"),
   dubai: () => {
     presetZones({ group: "dubai" });
     scrollTo("zones");

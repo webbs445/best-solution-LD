@@ -225,7 +225,7 @@ export const REVIEW_ROWS: Review[][] = [
       logo: "prism-advertising",
     }),
     review({
-      title: "Reliable and Stress-Free Support",
+      title: "Reliable, Structured Support",
       quote: "Everything became structured, professional, and stress-free after switching to Best Solution.",
       name: "Hadi Hamedi",
       role: "Chief Executive Officer",

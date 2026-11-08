@@ -1637,39 +1637,3 @@
     transition: none !important;
   }
 }
-
-/* Advisor screen (replaced the price estimate, Nov 2026): the shortlist card and the consultation form card. */
-.adviceText {
-  color: #dbe3ee;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-.otherList {
-  display: grid;
-  gap: 6px;
-  margin: 0 0 6px;
-  padding: 0 0 0 18px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.formCard {
-  padding: 26px;
-  border-radius: 26px;
-  background: #fff;
-  color: var(--navy, #14253e);
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.25);
-}
-
-/* Team step with two counters (residency was removed). */
-.team2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-@media (max-width: 760px) {
-  .formCard {
-    padding: 20px;
-  }
-}

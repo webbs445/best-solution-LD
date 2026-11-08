@@ -118,7 +118,7 @@ function zoneEstimate(z: Zone, residency: number, bank: boolean): Estimate {
 export function cleanPlanner(p: Partial<PlannerInput>): PlannerInput {
   const zone = typeof p.zone === "string" && ZONE_BY_ID[p.zone] ? p.zone : ZONES[0].id;
   const acts = Array.isArray(p.acts) ? p.acts.filter((a): a is ActKey => typeof a === "string" && a in ACT_LABEL).slice(0, 3) : [];
-  const pri: Priority = p.pri === "dubai" || p.pri === "sector" ? p.pri : "cost";
+  const pri: Priority = p.pri === "dubai" || p.pri === "sector" || p.pri === "range" ? p.pri : "cost";
   return {
     zone,
     acts,

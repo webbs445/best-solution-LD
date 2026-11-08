@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { CLAIMS, REVIEW_ROWS, SITE, WHY, type Review } from "@/content/site";
-import { OFFICE_TYPES, ZONE_QUESTIONS } from "@/content/freezone";
-import { ArrowIcon } from "@/components/ui/Icons";
+import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
+import { ZONES } from "@/content/freezone";
 import { CallbackTrigger } from "./CallbackTrigger";
 
 /*
@@ -43,8 +43,8 @@ export function FzVsMainland() {
           ))}
         </div>
         <p className="fz-vs-note">
-          Some free zone businesses may be able to serve mainland customers. Your advisor explains what may apply to your
-          activity and business model.
+          Some eligible free zone businesses may have options to operate on the mainland. Your advisor explains the route
+          that applies to your activity and business model.
         </p>
         <CallbackTrigger className="fz-btn-light" location="FZ Free Zone vs Mainland - Ask an Advisor">
           Not sure? Ask an Advisor <ArrowIcon />
@@ -54,64 +54,9 @@ export function FzVsMainland() {
   );
 }
 
-/* "Plan your budget": what to think about before choosing a zone. No figures. */
-const BUDGET_POINTS = [
-  { title: "Workspace", body: "Which type of space suits how you and your team will work, and how that changes over time." },
-  { title: "Team size", body: "How many people will work in the business now, and how many you expect in the next few years." },
-  { title: "Yearly running costs", body: "The costs that come round every year, so there are fewer surprises later." },
-  { title: "Bookkeeping and tax", body: "Keeping your books up to date and planning for corporate tax from the first year." },
-];
-
-export function FzBudget() {
-  return (
-    <section className="fz-block fz-budget" id="budget" aria-labelledby="budgetTitle">
-      <div className="wrap">
-        <div className="fz-head-split">
-          <p className="fz-tag">
-            <span />
-            Plan your budget
-          </p>
-          <h2 id="budgetTitle">What to plan for before you choose a zone</h2>
-          <p>Costs differ from zone to zone. These are the points your advisor talks through with you.</p>
-        </div>
-        <ul className="fz-budget-grid">
-          {BUDGET_POINTS.map((b, i) => (
-            <li key={b.title}>
-              <b>0{i + 1}</b>
-              <h3>{b.title}</h3>
-              <p>{b.body}</p>
-            </li>
-          ))}
-        </ul>
-        <div className="fz-budget-more">
-          <div>
-            <h3>Workspace types we explain</h3>
-            <ul className="fz-chips">
-              {OFFICE_TYPES.map((o) => (
-                <li key={o}>{o}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3>Questions worth asking about any zone</h3>
-            <ul className="fz-qlist">
-              {ZONE_QUESTIONS.map((q) => (
-                <li key={q}>{q}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <a className="fz-budget-link" href="/cost-calculator" data-cta-location="FZ Budget - Planning guide">
-          Read our budget planning guide <ArrowIcon />
-        </a>
-      </div>
-    </section>
-  );
-}
-
 const BRIEF = [
   { title: "A shortlist of zones to consider", body: "Matched to your activity, customers and team." },
-  { title: "What to plan for", body: "Workspace, team size and the yearly running costs to think about." },
+  { title: "What to plan for in your budget", body: "Workspace, team size and the yearly running costs to think about." },
   { title: "Answers to your questions", body: "Including how corporate tax rules may apply to your business." },
   { title: "Your next step", body: "Decided by you, with no obligation to proceed." },
 ];
@@ -121,16 +66,16 @@ export function FzConsultation() {
     <section className="fz-block fz-consult" id="consultation" aria-labelledby="consTitle">
       <div className="wrap fz-consult-grid">
         <div className="fz-consult-copy">
-          <h2 id="consTitle">What a consultation covers</h2>
-          <p>One conversation with a dedicated advisor, in Business Bay or by video call. No obligation to proceed.</p>
+          <h2 id="consTitle">What you leave your consultation with</h2>
+          <p>One conversation with a dedicated advisor, in person or by video call. No obligation to proceed.</p>
           <CallbackTrigger className="btn btn-primary" location="FZ Consultation - Book My Consultation">
             Book My Consultation <ArrowIcon />
           </CallbackTrigger>
         </div>
-        <div className="fz-brief spot" aria-label="What we cover">
+        <div className="fz-brief spot" aria-label="Your free zone brief">
           <div className="fz-brief-top">
-            <span>What we cover</span>
-            <span>With your advisor</span>
+            <span>Your free zone brief</span>
+            <span>Prepared by your advisor</span>
           </div>
           <ul>
             {BRIEF.map((b, i) => (
@@ -149,18 +94,31 @@ export function FzConsultation() {
   );
 }
 
-/* Photos of our own team and office (no event signage). */
+/* The home page's "Why Best Solution" photos, with an office photo in the lead spot. */
 const PHOTOS = [
-  { src: "/images/why-team.webp", alt: "Best Solution advisors talking with a client", w: 760, h: 503 },
+  { src: "/images/free-zone-business-park-office.webp", alt: "A modern office overlooking a business park", w: 1600, h: 837 },
+  { src: "/images/why-team.webp", alt: "Best Solution team at a client event", w: 760, h: 503 },
   { src: "/images/why-founder.webp", alt: "An advisor in a client meeting", w: 760, h: 507 },
   { src: "/images/why-consultation.webp", alt: "Client consultation at the Best Solution office", w: 760, h: 563 },
 ];
 
-/* The home page's WHY list without the ownership card (a claim not yet confirmed: content/site CLAIMS). */
-const WHY_CARDS = WHY.filter((w) => w.title !== "Emirati-owned").map((w) =>
-  w.title === "Fees in writing" ? { title: "Fees confirmed in writing", body: "Any fees are set out in writing before work begins." } : w,
+/* The home page's WHY list; the ownership card (a claim not yet confirmed: content/site CLAIMS) becomes "In person or by video call". */
+const WHY_CARDS = WHY.map((w) =>
+  w.title === "Fees in writing"
+    ? { title: "Fees confirmed in writing", body: "Any fees are set out in writing before work begins." }
+    : w.title === "Emirati-owned"
+      ? { title: "In person or by video call", body: "Meet us at our office in Business Bay, Dubai, or talk it through online." }
+      : w,
 );
-const TRUST_LINE = [CLAIMS.since, CLAIMS.businesses, CLAIMS.countries, CLAIMS.ownership].filter(Boolean);
+
+/*
+  Reviews kept off this page because their wording uses terms our Google Ads rules exclude (same as the
+  home page). The rest are repeated within the row so the loop fills wide screens; repeats are hidden
+  from screen readers.
+*/
+const FZ_EXCLUDED = ["Chandra Mohan", "Javed Khan", "Tanwir Chowdhury", "Carlos Freyre"];
+const FZ_REVIEWS = REVIEW_ROWS.flat().filter((r) => !FZ_EXCLUDED.includes(r.name));
+const FZ_REVIEW_LOOP = Array.from({ length: Math.max(1, Math.ceil(6 / FZ_REVIEWS.length)) }, () => FZ_REVIEWS).flat();
 
 export function FzWhyUs() {
   return (
@@ -172,30 +130,43 @@ export function FzWhyUs() {
               <span />
               Why Best Solution
             </p>
-            <h2 id="wyTitle">One advisor to talk your plans through</h2>
-            <p className="wy-lede">A private business consultancy in Business Bay, Dubai, advising entrepreneurs and investors on their plans in the UAE.</p>
+            <h2 id="wyTitle">One team for every stage of your business</h2>
+            <p className="wy-lede">
+              Best Solution advises entrepreneurs and investors on structuring and running businesses in the UAE, from the first
+              conversation onwards.
+            </p>
           </div>
-          {TRUST_LINE.length > 0 && (
-            <ul className="wy-stats">
-              {TRUST_LINE.map((c) => (
-                <li key={c}>
-                  <span>{c}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul className="wy-stats">
+            <li>
+              <b>{ZONES.length}</b>
+              <span>Free zones compared</span>
+            </li>
+            <li>
+              <b>7</b>
+              <span>Emirates covered</span>
+            </li>
+            <li>
+              <b>1</b>
+              <span>Dedicated advisor</span>
+            </li>
+            <li>
+              <b>Dubai</b>
+              <span>Office in Business Bay</span>
+            </li>
+          </ul>
         </div>
         <div className="wy-mosaic">
           {PHOTOS.map((p, i) => (
             <figure key={p.src}>
-              <Image src={p.src} alt={p.alt} width={p.w} height={p.h} sizes={i === 0 ? "(max-width: 920px) 100vw, 560px" : "(max-width: 920px) 50vw, 320px"} />
+              <Image src={p.src} alt={p.alt} width={p.w} height={p.h} sizes={i === 0 || i === 3 ? "(max-width: 920px) 100vw, 560px" : "(max-width: 920px) 50vw, 320px"} />
+              {/* The glass quote sits on the large lead photo, over its darkened lower edge, clear of faces. */}
               {i === 0 && (
                 <figcaption className="wy-quote">
                   <span>Best Solution</span>
                   <strong>
-                    One advisor.{" "}
+                    One consultant.{" "}
                     <br />
-                    Clear advice.
+                    One clear path.
                   </strong>
                 </figcaption>
               )}
@@ -216,23 +187,25 @@ export function FzWhyUs() {
   );
 }
 
-/*
-  Reviews kept off this page because their wording uses terms our Google Ads rules exclude (same as the
-  home page). Each review is shown once.
-*/
-const FZ_EXCLUDED = ["Chandra Mohan", "Javed Khan", "Tanwir Chowdhury", "Carlos Freyre"];
-const FZ_REVIEWS = REVIEW_ROWS.flat().filter((r) => !FZ_EXCLUDED.includes(r.name));
+function Stars({ label }: { label?: string }) {
+  return (
+    <div className="stars" role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
+      {Array.from({ length: 5 }, (_, i) => (
+        <StarIcon key={i} />
+      ))}
+    </div>
+  );
+}
 
-/* A client's Google review, word for word: no star rating or title of our own. */
-function ReviewCard({ r }: { r: Review }) {
+function ReviewCard({ r, copy }: { r: Review; copy: boolean }) {
   return (
     <figure className="t-card">
       <div className="t-top">
-        <Image className="t-logo" src={r.logo} alt={r.company} width={92} height={30} />
+        <Stars label={copy ? undefined : "5 out of 5 stars"} />
+        <Image className="t-logo" src={r.logo} alt={copy ? "" : r.company} width={92} height={30} />
       </div>
-      <blockquote lang={r.lang} data-review-quote>
-        &ldquo;{r.quote}&rdquo;
-      </blockquote>
+      <h3>{r.title}</h3>
+      <blockquote lang={r.lang} data-review-quote>&ldquo;{r.quote}&rdquo;</blockquote>
       <figcaption>
         <Image className="t-photo" src={r.photo} alt="" width={44} height={44} />
         <span>
@@ -250,25 +223,43 @@ export function FzReviews() {
     <section className="block testimonials sec-light" id="reviews" aria-labelledby="revTitle">
       <div className="wrap t-head">
         <div>
-          <p className="section-kicker">Client reviews</p>
+          <p className="section-kicker">
+            Client reviews
+          </p>
           <h2 id="revTitle">What our clients say</h2>
-          <p className="lede">Google reviews from our clients, word for word.</p>
+          <p className="lede">Google reviews from our clients.</p>
         </div>
         <div className="t-score">
           {/* The rating shows only once confirmed against the live Google profile (content/site CLAIMS). */}
-          {CLAIMS.rating && <b className="t-claim">{CLAIMS.rating}</b>}
+          {CLAIMS.rating && (
+            <>
+              <b>{CLAIMS.rating}</b>
+              <div>
+                <Stars />
+              </div>
+            </>
+          )}
           <a className="t-all" href={SITE.googleReviews} target="_blank" rel="noopener">
             Read all Google reviews <ArrowIcon />
           </a>
         </div>
       </div>
-      <ul className="wrap t-grid">
-        {FZ_REVIEWS.map((r) => (
-          <li key={r.name}>
-            <ReviewCard r={r} />
-          </li>
-        ))}
-      </ul>
+      <div className="marquee t-marquee">
+        <div className="marquee-track">
+          {[false, true].map((copy) => (
+            <ul key={String(copy)} className="t-row" aria-hidden={copy || undefined}>
+              {FZ_REVIEW_LOOP.map((r, k) => {
+                const repeat = copy || k >= FZ_REVIEWS.length;
+                return (
+                  <li key={`${r.name}-${k}`} aria-hidden={!copy && repeat ? true : undefined}>
+                    <ReviewCard r={r} copy={repeat} />
+                  </li>
+                );
+              })}
+            </ul>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -279,8 +270,8 @@ export function FzClosing() {
       <div className="wrap">
         <div className="fz-close-in">
           <div>
-            <h2 id="closeTitle">Choose your free zone with an advisor</h2>
-            <p>Tell us about your business. We help you compare suitable zones and plan what comes next.</p>
+            <h2 id="closeTitle">Begin with the right free zone</h2>
+            <p>Tell us about your business. Your advisor helps you compare suitable zones and plan your next step.</p>
           </div>
           <div className="fz-close-cta">
             <a className="btn btn-primary" href="#planner" data-cta-location="FZ Closing - Plan My Free Zone">

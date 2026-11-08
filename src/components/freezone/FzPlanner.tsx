@@ -1,26 +1,30 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { EMIRATES, PLANNER_ACTS, PRIORITIES, ZONES, ZONE_BY_ID, ACT_LABEL, type Priority } from "@/content/freezone";
+import { EMIRATES, PLANNER_ACTS, PRIORITIES, SECT, ZONES, ZONE_BY_ID, ACT_LABEL, type Priority } from "@/content/freezone";
 import { SITE } from "@/content/site";
-import { FZ_FORM_ID } from "@/lib/lead";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
+import { QuickCapture } from "@/components/ui/QuickCapture";
+import { UNLOCK_THANKS_MS, UnlockDialog } from "@/components/ui/UnlockDialog";
 import { WhatsAppIcon } from "@/components/ui/Icons";
-import { ConsultForm } from "@/components/consult/ConsultForm";
-import { FZ_GO_PLANNER, MAX_SHAREHOLDERS, MAX_TEAM, usePlanner } from "./PlannerProvider";
+import { FZ_FORM_ID } from "@/lib/lead";
+import { FZ_GO_PLANNER, MAX_ACTIVITIES, MAX_SHAREHOLDERS, MAX_TEAM, plannerPayload, usePlanner } from "./PlannerProvider";
 import { ZoneLogo } from "./ZoneLogo";
 import s from "./FzPlanner.module.css";
 
 /*
-  The free zone planner on a dark stage, in two screens. Advice only (Google Ads policy): no prices or residency.
+  The free zone planner on a dark stage, in two screens. Advice only (Google Ads policy): no prices, estimates or
+  residency.
   1. Plan: what the business does, what matters most and the team, then the best-matching zones.
      Desktop shows it all at once; phones go one step at a time with the finished steps stacked as cards.
-  2. Advisor: the chosen zone and shortlist, with the consultation form (the planner's form id, so conversion
-     history continues).
+  2. Shortlist: the chosen zone and the other matches, with "Send to an advisor" (the details popup).
 */
 
 /* Zones for the "any of the 28" select, grouped by emirate, A to Z. */
-const GROUPS = EMIRATES.map((em) => ({ em, zones: ZONES.filter((zn) => zn.emirate === em).sort((a, b) => a.name.localeCompare(b.name)) }));
+const GROUPS = EMIRATES.map((em) => ({
+  em,
+  zones: ZONES.filter((zn) => zn.emirate === em).sort((a, b) => a.name.localeCompare(b.name)),
+}));
 
 const STEP_NAMES = ["Activities", "Priority", "Team", "Matches"];
 const PHONE = "(max-width: 760px)";
@@ -64,18 +68,36 @@ const CHECK = (
     <path d="M5 12.5l4.5 4.5L19 7.5" />
   </svg>
 );
+
 const ARROW = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M5 12h14M13 6l6 6-6 6" />
   </svg>
 );
+
 const BACK_ARROW = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M19 12H5M11 6l-6 6 6 6" />
   </svg>
 );
 
-function Counter({ label, help, value, min, max, names, onStep }: { label: string; help: string; value: number; min: number; max: number; names: [string, string]; onStep: (d: 1 | -1) => void }) {
+function Counter({
+  label,
+  help,
+  value,
+  min,
+  max,
+  names,
+  onStep,
+}: {
+  label: string;
+  help: string;
+  value: number;
+  min: number;
+  max: number;
+  names: [string, string];
+  onStep: (d: 1 | -1) => void;
+}) {
   return (
     <div className={s.counter} role="group" aria-label={label}>
       <span className={s.counterText}>
@@ -100,7 +122,9 @@ function Counter({ label, help, value, min, max, names, onStep }: { label: strin
 export function FzPlanner() {
   const { state, matches, toggleAct, setPriority, step: count, chooseZone } = usePlanner();
   const [showAll, setShowAll] = useState(false);
-  const [view, setView] = useState<"plan" | "advisor">("plan");
+  const [open, setOpen] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [view, setView] = useState<"plan" | "shortlist">("plan");
   // Phones only: which of the four planning steps is showing, and which way the last move went (for the slide).
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
@@ -108,22 +132,25 @@ export function FzPlanner() {
   const select = useRef<HTMLSelectElement>(null);
 
   const zone = ZONE_BY_ID[state.zone];
-  const onAdvisor = view === "advisor";
+  const onShortlist = view === "shortlist";
 
   const toTop = () => {
     const top = stage.current?.getBoundingClientRect().top ?? 0;
     if (top < 0) stage.current?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
   };
+
   const go = (n: number) => {
     setDir(n > step ? 1 : -1);
     setStep(n);
     toTop();
   };
-  const toAdvisor = () => {
+
+  const showShortlist = () => {
     setDir(1);
-    setView("advisor");
+    setView("shortlist");
     toTop();
   };
+
   const backToPlan = () => {
     setDir(-1);
     setView("plan");
@@ -131,14 +158,15 @@ export function FzPlanner() {
     toTop();
   };
 
-  // A zone handed over from the explorer opens the advisor screen with that zone.
+  // A zone handed over from elsewhere on the page opens its shortlist.
   useEffect(() => {
-    const open = () => {
+    const toShortlist = () => {
+      setView("shortlist");
       setDir(1);
-      setView("advisor");
+      setStep(3);
     };
-    window.addEventListener(FZ_GO_PLANNER, open);
-    return () => window.removeEventListener(FZ_GO_PLANNER, open);
+    window.addEventListener(FZ_GO_PLANNER, toShortlist);
+    return () => window.removeEventListener(FZ_GO_PLANNER, toShortlist);
   }, []);
 
   const pickPriority = (v: Priority) => {
@@ -146,15 +174,17 @@ export function FzPlanner() {
     // Phones: a tap on a priority moves straight on to the team step.
     if (window.matchMedia(PHONE).matches) window.setTimeout(() => go(2), prefersReducedMotion() ? 0 : 260);
   };
+
   const openAll = () => {
     setShowAll(true);
     requestAnimationFrame(() => select.current?.focus());
   };
 
-  const actNames = state.acts.map((a) => ACT_LABEL[a]);
-  const priIdx = Math.max(0, PRIORITIES.findIndex((p) => p.v === state.pri));
   const teamText = `${state.team} ${state.team === 1 ? "person" : "people"} in the team`;
   const shText = `${state.sh} ${state.sh === 1 ? "shareholder" : "shareholders"}`;
+  const naText = `${state.na} ${state.na === 1 ? "activity" : "activities"}`;
+  const actNames = state.acts.map((a) => ACT_LABEL[a]);
+  const priIdx = Math.max(0, PRIORITIES.findIndex((p) => p.v === state.pri));
   const others = matches.filter((m) => m.zone.id !== state.zone).map((m) => m.zone.name);
   const done = [
     { label: "Activities", value: actNames.join(", ") },
@@ -163,20 +193,19 @@ export function FzPlanner() {
   ].slice(0, step);
   const canNext = step === 0 ? state.acts.length > 0 : true;
   const pane = (n: number) => `${s.pane}${n === step ? ` ${s.on}` : ""}`;
-  // The visitor's choices go into the message box, where they can edit or clear them before sending.
-  const plan = [
-    `Free zone: ${zone.name}`,
-    actNames.length ? `Activities: ${actNames.join(", ")}` : "",
-    `Priority: ${PRIORITIES[priIdx].label}`,
-    `${teamText}, ${shText}`,
-    others.length ? `Also comparing: ${others.join(", ")}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const lines: [string, string][] = [
+    ["Emirate", zone.emirate],
+    ["Often suits", zone.t.map((t) => ACT_LABEL[t]).join(", ")],
+    ["Your priority", PRIORITIES[priIdx].label],
+    ["Your activities", actNames.join(", ") || "Not chosen yet"],
+    ["Team", `${teamText}, ${shText}`],
+    ["Activity groups covered", zone.sect.slice(0, 3).map((t) => SECT[t]).join(", ")],
+  ];
 
   return (
     <section className="fz-block" id="planner" aria-labelledby="plTitle">
       <span id="finder" className="fz-anchor" />
+      <span id="estimate" className="fz-anchor" />
       <div className="wrap">
         <div ref={stage} className={s.stage} data-dir={dir > 0 ? "fwd" : "back"}>
           <div className={s.glow} aria-hidden="true">
@@ -187,20 +216,20 @@ export function FzPlanner() {
           <div className={s.head}>
             <div>
               <span className={s.eyebrow}>Free zone planner</span>
-              <h2 id="plTitle">{onAdvisor ? "Talk your shortlist through with an advisor" : "Plan your free zone in one screen"}</h2>
+              <h2 id="plTitle">{onShortlist ? "Your free zone shortlist" : "Plan your free zone in one screen"}</h2>
             </div>
             <span className={s.pill}>{ZONES.length} free zones · No obligation</span>
           </div>
 
-          {onAdvisor ? (
-            /* ---------- Screen 2: the advisor ---------- */
-            <div className={s.est} id="consultation-form">
+          {onShortlist ? (
+            /* ---------- Screen 2: the shortlist ---------- */
+            <div className={s.est}>
               <button type="button" className={s.estBack} onClick={backToPlan}>
                 {BACK_ARROW} Change zone or answers
               </button>
+
               <div className={s.estGrid}>
                 <div className={s.estHero}>
-                  <span className={s.costLabel}>Your shortlist</span>
                   <div className={s.estZone}>
                     <ZoneLogo zone={zone} size="zl-sug" />
                     <span>
@@ -208,35 +237,70 @@ export function FzPlanner() {
                       <small>{zone.emirate}</small>
                     </span>
                   </div>
-                  <p className={s.adviceText}>{zone.d}</p>
+                  <span className={s.costLabel}>Your top match</span>
+                  <p className={s.costFig}>{zone.short[0]}</p>
                   <ul className={s.estTags}>
                     {actNames.length ? <li>{actNames.join(", ")}</li> : null}
-                    <li>{PRIORITIES[priIdx].label}</li>
                     <li>{teamText}</li>
                     <li>{shText}</li>
+                    <li>{naText}</li>
                   </ul>
-                  {others.length ? (
-                    <>
-                      <span className={s.costLabel}>Also worth comparing</span>
-                      <ul className={s.otherList}>
-                        {others.map((n) => (
-                          <li key={n}>{n}</li>
-                        ))}
-                      </ul>
-                    </>
-                  ) : null}
-                  <div className={s.estNext}>
-                    <p>Your advisor checks your exact activity and talks you through the zones that may suit you.</p>
-                    <a className={s.wa} href={SITE.whatsapp} target="_blank" rel="noopener" data-area="FZ Planner">
-                      <WhatsAppIcon /> Message an advisor
-                    </a>
-                  </div>
                   <span className={s.shine} aria-hidden="true" />
                 </div>
-                <div className={s.formCard}>
-                  <ConsultForm key={plan} formId={FZ_FORM_ID} formType="calculator" idPrefix="fz" message={plan} />
+
+                <div className={s.estSide}>
+                  <ol className={s.lines}>
+                    {lines.map(([label, value], i) => (
+                      <li key={label} style={{ "--i": i } as CSSProperties}>
+                        <span>{label}</span>
+                        <b>{value}</b>
+                      </li>
+                    ))}
+                    {others.length ? (
+                      <li style={{ "--i": lines.length } as CSSProperties}>
+                        <span>Also worth comparing</span>
+                        <b>{others.join(", ")}</b>
+                      </li>
+                    ) : null}
+                  </ol>
+                  <div className={s.estNext}>
+                    <p>Your advisor checks your exact activity and talks the shortlist through with you on a call or WhatsApp.</p>
+                    <button type="button" className={s.cta} onClick={() => setOpen(true)} data-cta-location="FZ Planner - Send to an advisor">
+                      Send to an advisor {ARROW}
+                    </button>
+                    <a className={s.wa} href={SITE.whatsapp} target="_blank" rel="noopener" data-area="FZ Estimate">
+                      <WhatsAppIcon /> Message your advisor
+                    </a>
+                  </div>
                 </div>
               </div>
+
+              <details className={s.incl}>
+                <summary>
+                  What does a consultation cover?
+                  <span className={s.plus} aria-hidden="true" />
+                </summary>
+                <div className={s.inclCols}>
+                  <div>
+                    <b>We go through</b>
+                    <ul>
+                      <li>The zones that may suit your activity</li>
+                      <li>Workspace options, from a flexi-desk to a private office</li>
+                      <li>What to plan for in your budget</li>
+                      <li>How corporate tax rules may apply to you</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <b>Your advisor confirms</b>
+                    <ul>
+                      <li>What each zone allows for your exact activity</li>
+                      <li>Shareholder and activity limits for each zone</li>
+                      <li>Any fees for our work, in writing</li>
+                      <li>Your next step, with no obligation</li>
+                    </ul>
+                  </div>
+                </div>
+              </details>
             </div>
           ) : (
             /* ---------- Screen 1: the plan ---------- */
@@ -329,9 +393,34 @@ export function FzPlanner() {
                       <span className={s.qLong}>Tell us about your team</span>
                       <span className={s.qShort}>Your team</span>
                     </h3>
-                    <div className={`${s.team} ${s.team2}`}>
-                      <Counter label="Team" help="People working in the business" value={state.team} min={1} max={MAX_TEAM} names={["Fewer people", "More people"]} onStep={(d) => count("team", d)} />
-                      <Counter label="Shareholders" help="Owners of the company" value={state.sh} min={1} max={MAX_SHAREHOLDERS} names={["Fewer shareholders", "More shareholders"]} onStep={(d) => count("sh", d)} />
+                    <div className={s.team}>
+                      <Counter
+                        label="Team"
+                        help="People working in the business"
+                        value={state.team}
+                        min={1}
+                        max={MAX_TEAM}
+                        names={["Fewer people", "More people"]}
+                        onStep={(d) => count("team", d)}
+                      />
+                      <Counter
+                        label="Shareholders"
+                        help="Owners of the company"
+                        value={state.sh}
+                        min={1}
+                        max={MAX_SHAREHOLDERS}
+                        names={["Fewer shareholders", "More shareholders"]}
+                        onStep={(d) => count("sh", d)}
+                      />
+                      <Counter
+                        label="Activities"
+                        help="Business activities you plan"
+                        value={state.na}
+                        min={1}
+                        max={MAX_ACTIVITIES}
+                        names={["Fewer activities", "More activities"]}
+                        onStep={(d) => count("na", d)}
+                      />
                     </div>
                     <small className={s.hint}>Your advisor confirms what each zone allows for your team and activities.</small>
                   </div>
@@ -351,16 +440,16 @@ export function FzPlanner() {
                   ) : null}
                 </div>
 
-                {/* 4. Matches: pick a zone, then talk it through with an advisor */}
+                {/* 4. Matches: pick a zone, then "See my shortlist" */}
                 <div className={`${s.results} ${pane(3)}`}>
                   <div className={s.resHead}>
                     <div>
                       <h3 className={s.resTitle}>Your top matches</h3>
-                      <p>{actNames.length ? `Ranked for ${actNames.join(", ")}. Pick one to talk through.` : "Pick an activity to rank the zones for you."}</p>
+                      <p>{actNames.length ? `Ranked for ${actNames.join(", ")}. Pick one to see your shortlist.` : "Pick an activity to rank the zones for you."}</p>
                     </div>
                     {showAll ? null : (
                       <button type="button" className={s.linkBtn} onClick={openAll}>
-                        Choose from all {ZONES.length} zones
+                        Compare all {ZONES.length} zones
                       </button>
                     )}
                   </div>
@@ -411,8 +500,8 @@ export function FzPlanner() {
                       <small>Selected zone</small>
                       <b>{zone.name}</b>
                     </span>
-                    <button type="button" className={s.cta} onClick={toAdvisor} data-cta-location="FZ Planner - Talk it through">
-                      Talk it through {ARROW}
+                    <button type="button" className={s.cta} onClick={showShortlist} data-cta-location="FZ Planner - See my shortlist">
+                      See my shortlist {ARROW}
                     </button>
                   </div>
                 </div>
@@ -423,6 +512,28 @@ export function FzPlanner() {
           <p className={s.note}>Activity coverage is indicative. Your advisor confirms what each zone allows for your exact activity.</p>
         </div>
       </div>
+
+      <UnlockDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        sent={sent}
+        intro="Send your details and an advisor will talk your shortlist through with you. No obligation."
+        tags={[zone.name, ...actNames, teamText]}
+      >
+        <QuickCapture
+          formId={FZ_FORM_ID}
+          service="free_zone"
+          tone="light"
+          cta="Send to an advisor"
+          payload={() => ({ planner: plannerPayload(state) })}
+          summary={`${zone.name}${actNames.length ? `, ${actNames.join(", ")}` : ""}`}
+          onSent={() => {
+            setSent(true);
+            window.setTimeout(() => setOpen(false), UNLOCK_THANKS_MS);
+          }}
+          onDone={() => setOpen(false)}
+        />
+      </UnlockDialog>
     </section>
   );
 }

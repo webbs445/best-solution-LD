@@ -399,8 +399,8 @@ export type FzSitelinkView = (typeof FZ_SITELINK_VIEWS)[number];
 
 /* On-page navigation (header, mobile menu and footer). */
 export const FZ_NAV = [
+  { href: "#planner", label: "Zone Planner" },
   { href: "#zones", label: "Compare Zones" },
-  { href: "#budget", label: "Plan Your Budget" },
   { href: "#process", label: "How It Works" },
   { href: "#reviews", label: "Reviews" },
   { href: "#faq", label: "FAQ" },

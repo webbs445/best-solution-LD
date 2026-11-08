@@ -413,12 +413,13 @@ export const PLANNER_ACTS: { v: ActKey; label: string; icon: string }[] = [
   { v: "health", label: "Healthcare", icon: '<path d="M12 21s-8-4.5-8-11a5 5 0 0 1 8-4 5 5 0 0 1 8 4c0 6.5-8 11-8 11z"/><path d="M12 9v5M9.5 11.5h5"/>' },
 ];
 
-export type Priority = "cost" | "dubai" | "sector";
+export type Priority = "cost" | "dubai" | "sector" | "range";
 
 export const PRIORITIES: { v: Priority; label: string }[] = [
   { v: "cost", label: "Keeping costs down" },
   { v: "dubai", label: "Dubai address" },
   { v: "sector", label: "Specialist zone" },
+  { v: "range", label: "Wide activity range" },
 ];
 
 /* Hero ticker: an activity and a zone often suited to it. */
