@@ -119,7 +119,7 @@ export function SpvConsultForm() {
       <form id="form" noValidate onSubmit={onSubmit} data-track={SPV_FORM_ID} aria-busy={sending}>
         <h3>Book your consultation</h3>
         <p className="fm-sub">Fees depend on jurisdiction and the number of entities. You receive them in writing before any work begins.</p>
-        <p className="fm-sub">Takes a few moments. We only use your details to contact you.</p>
+        <p className="fm-sub">Only a few details needed. We only use your details to contact you.</p>
         <div className="fg">
           <div className={`fl${bad.name ? " bad" : ""}`}>
             <input id="fName" name="name" placeholder=" " autoComplete="name" enterKeyHint="next" onKeyDown={nextOnEnter("fPhone")} required aria-invalid={!!bad.name} onInput={clear("name")} />

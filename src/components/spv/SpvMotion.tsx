@@ -701,9 +701,9 @@ export function SpvMotion() {
         const wa = `${SITE.whatsapp}?text=${encodeURIComponent(`Hello, I used your Find your fit tool. Suggested: ${names}. I would like to discuss it with an advisor.`)}`;
         ff.innerHTML =
           head(3) +
-          `<div class="fx-stage"><div class="fx-res"><span class="fx-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Usually discussed first</span><h3>${names}</h3><p>${p.why}</p>` +
+          `<div class="fx-stage"><div class="fx-res"><span class="fx-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Your shortlist is ready</span><h3>${names}</h3><p>${p.why}</p>` +
           `<div class="fx-stack">${p.st.map((k, i) => `<div class="fx-l"><i>${i + 1}</i><b>${NAMES[k]}</b><small>${k === "offshore" ? lvl[2] : i ? lvl[1] : lvl[0]}</small></div>`).join("")}</div>` +
-          `<div class="fx-acts"><a class="btn btn-cu" href="#fm" data-cta-location="SPV Fit Finder Book" id="ffBook">Discuss this with an advisor</a><a class="fx-wa" href="${wa}" target="_blank" rel="noopener" data-area="SPV Fit Finder"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>Send to WhatsApp</a><button class="fx-again" id="ffAgain" type="button">Try again</button></div></div></div>`;
+          `<div class="fx-acts"><a class="btn btn-cu" href="#fm" data-cta-location="SPV Fit Finder Book" id="ffBook">Send to an advisor</a><a class="fx-wa" href="${wa}" target="_blank" rel="noopener" data-area="SPV Fit Finder"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>Send to WhatsApp</a><button class="fx-again" id="ffAgain" type="button">Try again</button></div></div></div>`;
         $$(".fx-prog i", ff).forEach((i) => (i.className = "on"));
         const bk = $(".fx-back", ff);
         bk.hidden = false;

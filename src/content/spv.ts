@@ -18,7 +18,7 @@ export const SPV_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Do I need to live in the UAE?",
-    a: "Not always. Several options are available to non-residents. What applies depends on the jurisdiction and your situation, and we confirm it with you at the consultation.",
+    a: "Not always. Several options are available to people based outside the UAE. What applies depends on the jurisdiction and your situation, and we confirm it with you at the consultation.",
   },
   {
     q: "Will a structure reduce my tax?",

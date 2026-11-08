@@ -26,7 +26,7 @@ export function SpvTrust() {
       <article className="bt bt-b rv d1">
         <div className="ad-vis" aria-hidden="true">
           <div className="ad-line"><i></i></div>
-          <div className="ad-nodes"><span><b></b>Meet</span><span><b></b>Plan</span><span><b></b>Compare</span><span><b></b>Maintain</span></div>
+          <div className="ad-nodes"><span><b></b>Meet</span><span><b></b>Plan</span><span><b></b>Compare</span><span><b></b>Review</span></div>
           <span className="ad-av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg></span>
         </div>
         <span className="bt-k">One advisor throughout</span>
@@ -34,7 +34,7 @@ export function SpvTrust() {
       </article>
       <article className="bt bt-c rv d2">
         <div className="fe-vis" aria-hidden="true">
-          <div className="fe-doc"><div className="fe-h"><b>Fee breakdown</b><small>Written</small></div><div className="fe-r"><span>Advisory fee</span><i></i></div><div className="fe-r"><span>Yearly review fee</span><i></i></div><div className="fe-r"><span>Advisory</span><i></i></div><div className="fe-t"><span>Agreed before work begins</span><i></i></div></div>
+          <div className="fe-doc"><div className="fe-h"><b>Fee breakdown</b><small>Written</small></div><div className="fe-r"><span>Advisory fee</span><i></i></div><div className="fe-r"><span>Yearly review fee</span><i></i></div><div className="fe-r"><span>Structure map</span><i></i></div><div className="fe-t"><span>Agreed before work begins</span><i></i></div></div>
           <span className="fe-stamp">In<br />writing</span>
         </div>
         <span className="bt-k">Fees in writing</span>
