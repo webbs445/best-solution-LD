@@ -73,10 +73,6 @@ export const CC_FAQ: [q: string, a: string][] = [
     "It depends on where your customers are, what your company does and whether you need staff in the UAE. Your advisor compares the three with you.",
   ],
   [
-    "Does corporate tax apply to my company?",
-    "Most UAE companies fall under UAE Corporate Tax and file a yearly return. Your advisor explains how it applies to your company and what records to keep.",
-  ],
-  [
     "Is Best Solution part of the government?",
     "No. Best Solution is a private business consultancy. We advise and explain; official decisions are made only by the relevant UAE authorities.",
   ],

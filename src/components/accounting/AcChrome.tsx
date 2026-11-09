@@ -78,9 +78,10 @@ export function AcChrome() {
                 {n.label}
               </a>
             ))}
+            <a href="/services">Services</a>
           </nav>
-          <a className="btn btn-copper" href="#contact" data-cta-location="AC Header — Get a quote">
-            Get a quote
+          <a className="btn btn-copper" href="#contact" data-cta-location="AC Header - Book a Consultation">
+            Book a Consultation
           </a>
           <button
             type="button"
@@ -116,13 +117,13 @@ export function AcChrome() {
               &times;
             </button>
           </div>
-          {AC_NAV.map((n) => (
+          {[...AC_NAV, { href: "/services", long: "All services" }].map((n) => (
             <a key={n.href} href={n.href} tabIndex={drawer ? undefined : -1}>
               {n.long}
             </a>
           ))}
-          <a className="btn btn-copper" href="#contact" tabIndex={drawer ? undefined : -1} data-cta-location="AC Menu — Get a quote">
-            Get a quote
+          <a className="btn btn-copper" href="#contact" tabIndex={drawer ? undefined : -1} data-cta-location="AC Menu - Book a Consultation">
+            Book a Consultation
           </a>
         </nav>
       </div>
@@ -141,7 +142,7 @@ export function AcChrome() {
           WhatsApp
         </a>
         <a className="q" href="#contact" data-cta-location="AC Mobile Bar — Get a quote">
-          Get a quote
+          Book a Consultation
         </a>
       </div>
     </>

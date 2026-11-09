@@ -2,11 +2,10 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ACT_LABEL, EM_SHORT, HERO_DEMO, ZONES, ZONE_BY_ID } from "@/content/freezone";
-import { CLAIMS, DISCLAIMER, zonesPhrase } from "@/content/site";
+import { CLAIMS, DISCLAIMER, statTile, zonesPhrase } from "@/content/site";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
-import { ZoneLogo } from "./ZoneLogo";
 
 /* Headline words, each wrapped so it can slide up in turn (the accent words are highlighted). */
 function SplitWords({ text, start, hl }: { text: string; start: number; hl?: boolean }) {
@@ -27,22 +26,68 @@ function SplitWords({ text, start, hl }: { text: string; start: number; hl?: boo
   return <>{out}</>;
 }
 
-const LEAD = "Compare UAE free zones with ";
-const ACCENT = "an advisor";
-const LEAD_WORDS = LEAD.trim().split(/\s+/).length;
+/** A text tile on the hero wall: a monogram, a name and a small line (no logos). */
+export interface HeroTile {
+  key: string;
+  mono: string;
+  title: string;
+  sub: string;
+}
 
-/* Logo wall: three columns of zone tiles, each set twice so the scroll loops seamlessly. */
-const COLUMNS = [0, 1, 2].map((c) => ZONES.filter((_, i) => i % 3 === c));
+/*
+  Everything the hero says, so /mainland and /offshore reuse the same hero with their own content. The defaults are
+  the /freezone page. Advice only: no prices, licences, residency or authority logos.
+*/
+export interface HeroConfig {
+  tag: string;
+  lead: string;
+  accent: string;
+  sub: string;
+  /** Main call to action: opens the page's consultation pop-up. */
+  primary: { label: string; location: string };
+  /** Secondary call to action: a link on the page. */
+  secondary: { label: string; href: string; location: string; external?: boolean };
+  proof: { value: string; label: string }[];
+  trustline: string;
+  wall: HeroTile[];
+  /** The rotating "often suited to" card: [left, right] pairs. */
+  demo: [string, string][];
+  demoLabel: string;
+  /** Which wall tile lights up with each demo pair. */
+  demoTile?: string[];
+  badge: { small: string; b: string; span: string };
+}
 
-export function FzHero() {
+export const FZ_HERO: HeroConfig = {
+  tag: "For founders choosing a UAE free zone",
+  lead: "Compare UAE free zones with ",
+  accent: "an advisor",
+  sub: "Each UAE free zone covers different activities and offers different workspace options. Tell us your activity, and an advisor helps you compare the zones that may suit you.",
+  primary: { label: "Book a Consultation", location: "FZ Hero - Book a Consultation" },
+  secondary: { label: "Plan my free zone", href: "#planner", location: "FZ Hero - Plan My Free Zone" },
+  proof: [statTile(CLAIMS.zones, "Free zones to compare", "office"), statTile(CLAIMS.emirates, "Emirates", "meet"), statTile(null, "", "explain")],
+  trustline: "Private consultancy · Business Bay, Dubai",
+  wall: ZONES.map((zn) => ({ key: zn.id, mono: zn.short[1], title: zn.short[0], sub: EM_SHORT[zn.emirate] })),
+  demo: HERO_DEMO.map(([act, id]) => [ACT_LABEL[act], ZONE_BY_ID[id].name]),
+  demoLabel: "Often suited to",
+  demoTile: HERO_DEMO.map(([, id]) => id),
+  badge: { small: zonesPhrase(), b: "Your advisor", span: "Advice in plain terms" },
+};
+
+export function FzHero({ c = FZ_HERO }: { c?: HeroConfig } = {}) {
+  const LEAD = c.lead;
+  const ACCENT = c.accent;
+  const LEAD_WORDS = LEAD.trim().split(/\s+/).length;
+  // Wall: three columns of tiles, each set twice so the scroll loops seamlessly.
+  const COLUMNS = [0, 1, 2].map((col) => c.wall.filter((_, i) => i % 3 === col));
   const reduce = useReducedMotion();
   const [go, setGo] = useState(false);
   const [k, setK] = useState(0);
   const bar = useRef<HTMLElement>(null);
   const visual = useRef<HTMLDivElement>(null);
 
-  const [act, zoneId] = HERO_DEMO[k % HERO_DEMO.length];
-  const zone = ZONE_BY_ID[zoneId];
+  const [left, right] = c.demo[k % c.demo.length];
+  const lit = c.demoTile?.[k % c.demo.length];
 
   useEffect(() => {
     const t = window.setTimeout(() => setGo(true), 80);
@@ -103,7 +148,7 @@ export function FzHero() {
         <div className="fz-hero-copy">
           <p className="fz-tag">
             <span />
-            UAE free zone advice
+            {c.tag}
           </p>
           <h1 id="fzTitle" className={`fz-split${go ? " go" : ""}`}>
             <SplitWords text={LEAD} start={0} />
@@ -111,31 +156,31 @@ export function FzHero() {
               <SplitWords text={ACCENT} start={LEAD_WORDS} hl />
             </span>
           </h1>
-          <p className="fz-sub">
-            Each UAE free zone covers different activities and offers different workspace options. Tell us your
-            activity, and an advisor helps you compare the zones that may suit you.
-          </p>
+          <p className="fz-sub">{c.sub}</p>
           <div className="fz-cta-row">
-            <a className="btn btn-primary" href="#planner" data-cta-location="FZ Hero - Plan My Free Zone">
-              Plan My Free Zone <ArrowIcon />
-            </a>
-            <CallbackTrigger className="fz-btn-ghost" location="FZ Hero - Speak to an Advisor">
-              Speak to an Advisor
+            <CallbackTrigger className="btn btn-primary" location={c.primary.location}>
+              {c.primary.label} <ArrowIcon />
             </CallbackTrigger>
+            <a
+              className="fz-btn-ghost"
+              href={c.secondary.href}
+              data-cta-location={c.secondary.location}
+              {...(c.secondary.external ? { target: "_blank", rel: "noopener" } : {})}
+            >
+              {c.secondary.label}
+            </a>
           </div>
           <ul className="fz-proof" aria-label="At a glance">
-            {/* Counts render only once confirmed (content/site CLAIMS); the tile keeps its place without the number. */}
-            <li>
-              {CLAIMS.zones && <b>{CLAIMS.zones}</b>}
-              <span>Free zones to compare</span>
-            </li>
-            <li>
-              {CLAIMS.emirates && <b>{CLAIMS.emirates}</b>}
-              <span>Emirates</span>
-            </li>
+            {/* A confirmed claim fills the number slot; until then plain text (content/site statTile). */}
+            {c.proof.map((p) => (
+              <li key={p.label}>
+                <b>{p.value}</b>
+                <span>{p.label}</span>
+              </li>
+            ))}
           </ul>
           {/* Phones: this one line replaces the stats and the decorative zone wall, so the form comes up sooner. */}
-          <p className="fz-trustline">Private consultancy · Business Bay, Dubai</p>
+          <p className="fz-trustline">{c.trustline}</p>
           <p className="fz-disclaimer" role="note" data-legal>
             {DISCLAIMER}
           </p>
@@ -148,12 +193,14 @@ export function FzHero() {
                 <div key={c} className={`hx-col hx-col${c}`}>
                   <div className="hx-track">
                     {[0, 1].flatMap((dup) =>
-                      set.map((zn) => (
-                        <div key={`${dup}-${zn.id}`} className={`hx-tile${zn.id === zoneId ? " on" : ""}`}>
-                          <ZoneLogo zone={zn} size="zl-tile" alt={false} />
+                      set.map((t) => (
+                        <div key={`${dup}-${t.key}`} className={`hx-tile${t.key === lit ? " on" : ""}`}>
+                          <span className="zl zl-txt zl-tile" aria-hidden="true">
+                            <b>{t.mono}</b>
+                          </span>
                           <div className="hx-tile-t">
-                            <b>{zn.short[0]}</b>
-                            <span>{EM_SHORT[zn.emirate]}</span>
+                            <b>{t.title}</b>
+                            <span>{t.sub}</span>
                           </div>
                         </div>
                       )),
@@ -167,16 +214,16 @@ export function FzHero() {
             <div className="hx-match-top">
               <span>
                 <span className="hx-dot" />
-                Often suited to
+                {c.demoLabel}
               </span>
             </div>
             <div className="hx-match-row">
               <span className="hx-act hx-swap" key={`a${k}`}>
-                {ACT_LABEL[act]}
+                {left}
               </span>
               <ArrowIcon />
               <b className="hx-swap" key={`z${k}`}>
-                {zone.name}
+                {right}
               </b>
             </div>
             <div className="hx-match-bar">
@@ -192,9 +239,9 @@ export function FzHero() {
               </svg>
             </span>
             <div>
-              <small>{zonesPhrase()}</small>
-              <b>Your advisor</b>
-              <span>Advice in plain terms</span>
+              <small>{c.badge.small}</small>
+              <b>{c.badge.b}</b>
+              <span>{c.badge.span}</span>
             </div>
           </div>
         </div>

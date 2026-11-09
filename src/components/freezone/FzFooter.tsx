@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { DISCLAIMER, MAPS_URL, SITE, SOCIAL } from "@/content/site";
 import { FZ_NAV } from "@/content/freezone";
+import { ALL_SERVICES } from "@/content/services";
 import { CallbackButton } from "@/components/sections/Callback";
 import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
 import {
@@ -91,7 +92,7 @@ export function FzFooter({
           </div>
         </div>
         <nav className="f5-nav" aria-label={navLabel}>
-          {nav.map((n) => (
+          {[...nav, ALL_SERVICES].map((n) => (
             <a key={n.href} href={n.href}>
               {n.label}
             </a>

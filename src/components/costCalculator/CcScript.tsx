@@ -140,7 +140,8 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
   const complete = () => {
     if (hasPlan() && !completed) { completed = true; trackCalculatorComplete({ calculatorId: CC_CALCULATOR_ID, jurisdiction: jurisdictionLabel(A.jurisdiction), activity: actName() }); }
   };
-  const mainLabel = () => (sent ? t("Book a call") : t("Send to an advisor"));
+  // The header's main button: book a consultation (the "send your plan to an advisor" pop-up), then a call.
+  const mainLabel = () => (sent ? t("Book a call") : t("Book a Consultation"));
 
   function tabs() {
     const ord = order();

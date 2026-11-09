@@ -58,6 +58,21 @@ export const FORM_ID = "LP Cost Calculator";
 export const CALLBACK_FORM_ID = "LP Callback Request";
 /** The /services hub's callback popup: its leads reach the ERP under this form name too (callback route, form "services"). */
 export const SERVICES_FORM_ID = "LP Services Hub";
+/** The /mainland advice page's consultation pop-up (callback route, form "mainland"). */
+export const MAINLAND_FORM_ID = "LP Mainland Advice";
+/** The /offshore advice page's consultation pop-up (callback route, form "offshore"). */
+export const OFFSHORE_FORM_ID = "LP Offshore Advice";
+/**
+  The callback pop-up's sources other than the regular popup: the browser sends a short key ("services",
+  "mainland", "offshore"); the ERP form id and name come from here, never from the browser.
+*/
+export const CALLBACK_SOURCES: Record<string, { form_id: string; form_name: string }> = {
+  services: { form_id: SERVICES_FORM_ID, form_name: SERVICES_FORM_ID },
+  mainland: { form_id: MAINLAND_FORM_ID, form_name: "Mainland Advice" },
+  offshore: { form_id: OFFSHORE_FORM_ID, form_name: "Offshore Advice" },
+};
+/** The key the browser sends for a form id (undefined for the regular callback popup). */
+export const callbackSource = (formId: string) => Object.entries(CALLBACK_SOURCES).find(([, v]) => v.form_id === formId)?.[0];
 /** The /consult advice landing page's form (dataLayer form_id; the brief fixes this exact value). */
 export const ADVICE_FORM_ID = "advice_consult";
 /** The /freezone page's planner ("Request My Estimate"). */

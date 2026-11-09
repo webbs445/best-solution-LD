@@ -229,12 +229,12 @@ export function AcQuote() {
     <section className="sheet s-navy dark-zone" id="contact">
       <div className="wrap qt-grid">
         <div className="qt-head rv">
-          <span className="kicker">Get a quote</span>
+          <span className="kicker">Book a Consultation</span>
           <h2 style={{ marginTop: 16 }}>
             Your fixed monthly quote, <span className="grad-text">in writing.</span>
           </h2>
           <p className="lede">
-            Tell us what you need. An accountant reviews it and sends a written quote. No obligation.
+            How it works: tell us what you need, an accountant talks it through with you, and you get a written quote. No obligation.
           </p>
         </div>
 

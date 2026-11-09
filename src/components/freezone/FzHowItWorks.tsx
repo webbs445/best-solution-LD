@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowIcon } from "@/components/ui/Icons";
+import { CallbackTrigger } from "./CallbackTrigger";
 
 const STEPS = [
   {
@@ -51,8 +52,38 @@ const STEPS = [
   },
 ];
 
-/* "From first question to the right free zone": the step nearest the middle of the screen is highlighted. */
-export function FzHowItWorks() {
+/*
+  "How a consultation works": four steps, the one nearest the middle of the screen highlighted. The defaults are the
+  /freezone page's; other pages pass their own title and step lines (same icons, same layout).
+*/
+export interface HowItWorksText {
+  title: string;
+  sub: string;
+  /** [small label, title, body] for each of the four steps. */
+  steps: [string, string, string][];
+  /** The button opens the consultation pop-up. */
+  cta: { label: string; location: string };
+}
+export const FZ_HOW: HowItWorksText = {
+  title: "From first question to the right free zone",
+  sub: "Four steps, one advisor, and nothing to commit to.",
+  steps: STEPS.map((x) => [x.time, x.title, x.body]),
+  cta: { label: "Book a Consultation", location: "FZ How It Works - Book a Consultation" },
+};
+/** The same four steps in general words, for pages other than /freezone. */
+export const GENERAL_HOW: HowItWorksText = {
+  title: "How a consultation works",
+  sub: "Four steps, one advisor, and nothing to commit to.",
+  steps: [
+    ["A short form", "Tell us your plans", "Share what your business does and what you want to achieve, in the form or on WhatsApp."],
+    ["A conversation", "Consult", "Your advisor talks through your plans, in person in Business Bay or by video call."],
+    ["Your options", "Compare", "You go through the options that may suit you, and what to plan for with each."],
+    ["Your decision", "Decide in your own time", "You choose your next step when you are ready. Your advisor is there for any questions."],
+  ],
+  cta: { label: "Book a Consultation", location: "How It Works - Book a Consultation" },
+};
+
+export function FzHowItWorks({ c = FZ_HOW }: { c?: HowItWorksText } = {}) {
   const list = useRef<HTMLOListElement>(null);
   const [best, setBest] = useState(0);
 
@@ -90,8 +121,8 @@ export function FzHowItWorks() {
     <section className="fz-block hw" id="process" aria-labelledby="stepsTitle">
       <div className="wrap hw-grid">
         <div className="hw-side">
-          <h2 id="stepsTitle">From first question to the right free zone</h2>
-          <p>Four steps, one advisor, and nothing to commit to.</p>
+          <h2 id="stepsTitle">{c.title}</h2>
+          <p>{c.sub}</p>
           <div className="hw-meter" aria-hidden="true">
             <b>0{best + 1}</b>
             <span>/ 04</span>
@@ -99,24 +130,27 @@ export function FzHowItWorks() {
               <em style={{ width: `${((best + 1) / STEPS.length) * 100}%` }} />
             </i>
           </div>
-          <a className="btn btn-primary" href="#planner" data-cta-location="FZ How It Works - Book a Consultation">
-            Book a Consultation <ArrowIcon />
-          </a>
+          <CallbackTrigger className="btn btn-primary" location={c.cta.location}>
+            {c.cta.label} <ArrowIcon />
+          </CallbackTrigger>
         </div>
         <ol className="hw-list" ref={list}>
-          {STEPS.map((s, i) => (
-            <li key={s.title} className={`hw-card${i === best ? " on" : ""}`}>
+          {STEPS.map((icon, i) => {
+            const [time, title, body] = c.steps[i];
+            return (
+            <li key={title} className={`hw-card${i === best ? " on" : ""}`}>
               <div className="hw-n">0{i + 1}</div>
               <div className="hw-ico">
-                <svg viewBox="0 0 24 24">{s.icon}</svg>
+                <svg viewBox="0 0 24 24">{icon.icon}</svg>
               </div>
               <div>
-                <span className="hw-time">{s.time}</span>
-                <h3>{s.title}</h3>
-                <p>{s.body}</p>
+                <span className="hw-time">{time}</span>
+                <h3>{title}</h3>
+                <p>{body}</p>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ol>
       </div>
     </section>

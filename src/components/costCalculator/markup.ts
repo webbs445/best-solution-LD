@@ -9,7 +9,7 @@ import { DISCLAIMER } from "@/content/site";
 export const CC_MARKUP = String.raw`<header class="hd" id="hd">
   <div class="wrap hd-in">
     <a class="brand" href="#top" aria-label="Best Solution"><img src="/brand/icon-mark.webp" alt="" width="28" height="40"><span>Best Solution</span></a>
-    <nav class="nav" aria-label="Page sections"><a href="#calculator" data-t="Planner">Planner</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a></nav>
+    <nav class="nav" aria-label="Page sections"><a href="#calculator" data-t="Planner">Planner</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a><a href="/services">Services</a></nav>
     <div class="hd-act">
       <button type="button" class="btn btn-ink sm" id="hdCta" data-cta-location="CC Header - Main"></button>
     </div>
@@ -21,10 +21,10 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
 <section class="hero" aria-labelledby="h1">
   <div class="wrap hero-g">
     <div>
-      <span class="kick h-in" style="--k:0" data-t="UAE company budget planner">UAE company budget planner</span>
+      <span class="kick h-in" style="--k:0" data-t="For founders planning a UAE company">For founders planning a UAE company</span>
       <h1 id="h1"><span class="ln"><span data-t="Plan your budget">Plan your budget</span></span> <span class="ln"><span class="gr" data-t="with an advisor at your side.">with an advisor at your side.</span></span></h1>
       <p class="lead h-in" style="--k:2" data-t="HERO_SUB">Compare mainland, free zone and offshore, choose what fits your plans, and review the cost areas with a Best Solution advisor.</p>
-      <div class="hero-cta h-in" style="--k:3"><a class="btn btn-cu" href="#calculator" data-cta-location="CC Hero - Start the calculator"><span data-t="Plan my company">Plan my company</span><svg class="arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-soft" href="https://wa.me/97145531546?text=Hello%2C%20I%20would%20like%20advice%20on%20planning%20my%20UAE%20company%20budget." target="_blank" rel="noopener" data-area="Hero"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.3z"/></svg><span data-t="WhatsApp an advisor">WhatsApp an advisor</span></a></div>
+      <div class="hero-cta h-in" style="--k:3"><a class="btn btn-cu" href="#quote" data-cta-location="CC Hero - Book a Consultation"><span data-t="Book a Consultation">Book a Consultation</span><svg class="arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-soft" href="https://wa.me/97145531546?text=Hello%2C%20I%20would%20like%20advice%20on%20planning%20my%20UAE%20company%20budget." target="_blank" rel="noopener" data-area="Hero"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.3z"/></svg><span data-t="WhatsApp an advisor">WhatsApp an advisor</span></a></div>
       <div class="proof h-in" style="--k:4"><span class="avs"><img src="/testimonials/michael-doherty.webp" alt="" width="38" height="38"><img src="/testimonials/hadi-hamedi.webp" alt="" width="38" height="38"></span><span><span data-t="Private advisors in Business Bay, Dubai">Private advisors in Business Bay, Dubai</span></span></div>
       <div class="trust h-in" style="--k:5"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg><span data-t="Advice in plain terms">Advice in plain terms</span></span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg><b id="nOpts">42</b> <span data-t="options compared">options compared</span></span></div>
       <p class="legal" data-legal>${DISCLAIMER}</p>
@@ -107,10 +107,10 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
       <div class="wy rv" style="--d:3"><span class="wi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="m6.5 6.5 3.4 3.4M17.5 6.5l-3.4 3.4M6.5 17.5l3.4-3.4M17.5 17.5l-3.4-3.4"/></svg></span><h3 data-t="Every jurisdiction">Every jurisdiction</h3><p data-t="Mainland, free zone and offshore across the UAE, so your advisor compares the options for you.">Mainland, free zone and offshore across the UAE, so your advisor compares the options for you.</p></div>
     </div>
     <div class="stats rv">
-      <div><b>__STAT_BUSINESSES__</b><span>businesses advised</span></div>
-      <div><b>__STAT_COUNTRIES__</b><span>client countries</span></div>
-      <div><b>__STAT_TEAM__</b><span>in-house professionals</span></div>
-      <div><b>__STAT_RATING__</b><span>Google rating</span></div>
+      <div><b>__STAT_BUSINESSES__</b><span>__STATL_BUSINESSES__</span></div>
+      <div><b>__STAT_COUNTRIES__</b><span>__STATL_COUNTRIES__</span></div>
+      <div><b>__STAT_TEAM__</b><span>__STATL_TEAM__</span></div>
+      <div><b>__STAT_RATING__</b><span>__STATL_RATING__</span></div>
     </div>
     <div class="revs-h rv"><h3 data-t="What clients say">What clients say</h3><a href="https://www.google.com/search?q=Best+Solution+Business+Consultancy+Dubai+reviews" target="_blank" rel="noopener" data-area="Reviews"><span data-t="Read all reviews on Google">Read all reviews on Google</span></a></div>
     <div class="revs">
@@ -200,7 +200,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
   <div class="wrap">
     <div class="ft-top">
       <div><span class="brand"><img src="/brand/icon-mark.webp" alt="" width="28" height="40"><span>Best Solution</span></span><p data-t="Private business advisors in Business Bay, Dubai.">Private business advisors in Business Bay, Dubai.</p></div>
-      <div><h4 data-t="On this page">On this page</h4><a href="#calculator" data-t="Planner">Planner</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a></div>
+      <div><h4 data-t="On this page">On this page</h4><a href="#calculator" data-t="Planner">Planner</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a><a href="/services">All services</a></div>
       <div><h4 data-t="Contact">Contact</h4><a href="tel:+971522330011" data-area="Footer" dir="ltr">+971 52 233 0011</a><a href="https://wa.me/97145531546" target="_blank" rel="noopener" data-area="Footer">WhatsApp</a><a href="mailto:connect@best-solution.ae" data-area="Footer">connect@best-solution.ae</a></div>
     </div>
     <p class="ft-legal" data-legal>${DISCLAIMER}</p>

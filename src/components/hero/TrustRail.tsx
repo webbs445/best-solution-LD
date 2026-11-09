@@ -1,12 +1,8 @@
-import { CLAIMS } from "@/content/site";
+import { CLAIMS, statTile } from "@/content/site";
 import styles from "./Hero.module.css";
 
-/* Counts render only once confirmed (content/site CLAIMS), as final values (no count-up); each tile keeps its place. */
-const STATS = [
-  { value: CLAIMS.zones, label: "Free zones compared" },
-  { value: CLAIMS.emirates, label: "Emirates covered" },
-  { value: "3", label: "Structures explained" },
-];
+/* A confirmed claim fills the number slot as a final value (no count-up); until then plain text (content/site statTile). */
+const STATS = [statTile(CLAIMS.zones, "Free zones compared", "office"), statTile(CLAIMS.emirates, "Emirates covered", "meet"), statTile(null, "", "explain")];
 
 export function TrustRail() {
   return (
@@ -19,7 +15,7 @@ export function TrustRail() {
       <ul className={styles.trust}>
         {STATS.map((t) => (
           <li key={t.label}>
-            {t.value && <b>{t.value}</b>}
+            <b>{t.value}</b>
             <span>{t.label}</span>
           </li>
         ))}

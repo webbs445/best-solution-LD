@@ -55,12 +55,15 @@ export function Header() {
           </a>
 
           <nav className={styles.nav} aria-label="On this page">
-            {NAV.map((item, i) => (
+            {NAV.map((item) => (
               <span key={item.href} className={styles.navItem}>
-                {i === NAV.length - 1 && <span className={styles.navDiv} aria-hidden="true" />}
                 <a href={item.href}>{item.label}</a>
               </span>
             ))}
+            <span className={styles.navItem}>
+              <span className={styles.navDiv} aria-hidden="true" />
+              <a href="/services">Services</a>
+            </span>
           </nav>
 
           <div className={styles.actions}>
@@ -93,6 +96,7 @@ export function Header() {
               {item.label}
             </a>
           ))}
+          <a href="/services">All services</a>
           <a className={styles.menuPhone} href={SITE.phone.href}>
             <PhoneIcon />
             {SITE.phone.display}

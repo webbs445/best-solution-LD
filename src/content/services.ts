@@ -3,13 +3,31 @@
   (Google Ads government documents policy): no prices, timings, licences, visas, registration or government visits.
 */
 
+/**
+  The site menu, in this order: Services (the hub), then each service page. Short labels; the /services header
+  dropdown and phone menu show it.
+*/
+export const SITE_MENU: { id: ServiceId | "hub"; label: string; line: string; href: string }[] = [
+  { id: "hub", label: "Services", line: "Every service on one page", href: "/services" },
+  { id: "freezone", label: "Free zone", line: "Compare free zones with an advisor", href: "/freezone" },
+  { id: "setup", label: "Mainland", line: "How a mainland business works", href: "/mainland" },
+  { id: "offshore", label: "Offshore", line: "When an offshore structure fits", href: "/offshore" },
+  { id: "calculator", label: "Plan your budget", line: "What to plan for before you decide", href: "/cost-calculator" },
+  { id: "spv", label: "SPV", line: "Holding and SPV structures", href: "/spv" },
+  { id: "tax", label: "Corporate tax", line: "Your obligations and deadlines", href: "/corporate-tax" },
+  { id: "accounting", label: "Accounting", line: "Bookkeeping and accounts", href: "/accounting" },
+];
+
+/** The link back to the /services hub, in every page's header menu and footer. */
+export const ALL_SERVICES = { href: "/services", label: "All services" };
+
 /** The team block stays hidden until photo consent for landing pages is confirmed. */
 export const SHOW_TEAM = false;
 
-/** Mainland advice has no page of its own: it opens the home page's planning section. Change this one line when it has. */
-export const MAINLAND_HREF = "/#calculator";
+/** The /mainland advice page. */
+export const MAINLAND_HREF = "/mainland";
 
-export type ServiceId = "setup" | "freezone" | "accounting" | "tax" | "spv" | "calculator";
+export type ServiceId = "setup" | "freezone" | "offshore" | "accounting" | "tax" | "spv" | "calculator";
 
 export interface Service {
   id: ServiceId;
@@ -25,49 +43,57 @@ export interface Service {
 
 export const SERVICES: Service[] = [
   {
-    id: "setup",
-    name: "Mainland advice",
-    line: "Whether a mainland company suits how you plan to trade in the UAE.",
-    href: MAINLAND_HREF,
-    big: true,
-    photo: "/images/main.webp",
-    tool: { text: "Planning guide", href: "/cost-calculator" },
-  },
-  {
     id: "freezone",
     name: "Free zone advice",
-    line: "Compare UAE free zones by activity and office type with an advisor.",
+    line: "Understand what a free zone means for your business and compare options.",
     href: "/freezone",
     big: true,
     photo: "/images/free-zone-business-park-office.webp",
     tool: { text: "Zone planner", href: "/freezone#planner" },
   },
   {
-    id: "accounting",
-    name: "Bookkeeping and accounts",
-    line: "Bookkeeping, bank reconciliation and financial statements.",
-    href: "/accounting",
-    tool: { text: "Ask about your books", href: "/accounting#contact" },
+    id: "setup",
+    name: "Mainland advice",
+    line: "See how a mainland business works across the UAE.",
+    href: MAINLAND_HREF,
+    big: true,
+    photo: "/images/main.webp",
   },
   {
-    id: "tax",
-    name: "Corporate tax support",
-    line: "Understand your obligations and deadlines, with support for your return.",
-    href: "/corporate-tax",
-    tool: { text: "Try the tax checker", href: "/corporate-tax#estimate" },
+    id: "offshore",
+    name: "Offshore advice",
+    line: "Learn when an offshore structure fits your plans.",
+    href: "/offshore",
   },
   {
     id: "spv",
     name: "Holding and SPV structures",
-    line: "Advice on holding property, shares and investments in the right structure.",
+    line: "Talk through structuring options with an advisor.",
     href: "/spv",
     tool: { text: "Try the structure finder", href: "/spv#fit" },
   },
   {
+    id: "tax",
+    name: "Corporate tax support",
+    line: "Understand your obligations and deadlines.",
+    href: "/corporate-tax",
+    tool: { text: "Try the tax checker", href: "/corporate-tax#estimate" },
+  },
+  {
+    id: "accounting",
+    name: "Bookkeeping and accounts",
+    line: "Ongoing support for businesses already running.",
+    href: "/accounting",
+    big: true,
+    tool: { text: "Books health check", href: "/accounting#check" },
+  },
+  {
     id: "calculator",
     name: "Plan your budget",
-    line: "What to plan for: workspace, team size, yearly running costs and bookkeeping.",
+    line: "See what to plan for before you decide.",
     href: "/cost-calculator",
+    big: true,
+    tool: { text: "Budget planner", href: "/cost-calculator#calculator" },
   },
 ];
 
@@ -98,7 +124,6 @@ export const HUB_FAQS: { q: string; a: string }[] = [
     q: "How are your fees set?",
     a: "Your advisor explains our fees for the work you need and confirms them in writing before any work begins.",
   },
-  { q: "Who will handle my enquiry?", a: "A dedicated consultant from our Business Bay office." },
   {
     q: "Is Best Solution a government entity?",
     a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.",

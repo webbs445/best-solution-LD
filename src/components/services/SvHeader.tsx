@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { SITE } from "@/content/site";
-import { SERVICES } from "@/content/services";
+import { SITE_MENU } from "@/content/services";
 import { MenuIcon, PhoneIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
 import { ServiceIcon } from "./ServiceIcon";
@@ -57,13 +57,13 @@ export function SvHeader() {
                 </svg>
               </button>
               <div className="sv-dd-panel" id="svServices" hidden={!dd}>
-                {SERVICES.map((s) => (
+                {SITE_MENU.map((s) => (
                   <a key={s.id} href={s.href} onClick={() => setDd(false)}>
                     <span className="sv-ico">
-                      <ServiceIcon id={s.id} />
+                      <ServiceIcon id={s.id === "hub" ? "setup" : s.id} />
                     </span>
                     <span>
-                      <b>{s.name}</b>
+                      <b>{s.label}</b>
                       <small>{s.line}</small>
                     </span>
                   </a>
@@ -99,12 +99,12 @@ export function SvHeader() {
         </div>
         <div className="bs-menu sv-menu" id="bsMenu" hidden={!open} onClick={(e) => (e.target as Element).closest("a, button") && setOpen(false)}>
           <p className="sv-menu-h">Services</p>
-          {SERVICES.map((s) => (
+          {SITE_MENU.map((s) => (
             <a key={s.id} href={s.href} className="sv-menu-svc">
               <span className="sv-ico">
-                <ServiceIcon id={s.id} />
+                <ServiceIcon id={s.id === "hub" ? "setup" : s.id} />
               </span>
-              {s.name}
+              {s.label}
             </a>
           ))}
           <span className="sv-menu-div" aria-hidden="true" />

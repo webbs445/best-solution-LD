@@ -56,6 +56,22 @@ export const CLAIMS: {
   packageSaving: string | null;
 } = { since: null, rating: null, businesses: null, countries: null, team: null, ownership: null, zones: null, emirates: null, packageSaving: null };
 
+/*
+  Stat tiles: a confirmed claim fills the number slot; until then the slot shows plain, true text in the same style
+  (no numbers, no claims). Filling a CLAIMS value switches the tile over automatically.
+*/
+export const STAT_TEXT = {
+  office: { value: "Business Bay", label: "Our office" },
+  meet: { value: "In person or video", label: "How we meet" },
+  explain: { value: "Plain advice", label: "How we explain" },
+  support: { value: "Bookkeeping to tax", label: "Ongoing support" },
+} as const;
+/** The leading figure of a confirmed claim ("5,000+ businesses advised" -> "5,000+"), or the whole claim. */
+export const claimFigure = (claim: string, re = /\d[\d,.]*\+?/) => claim.match(re)?.[0] ?? claim;
+export function statTile(claim: string | null, claimLabel: string, fallback: keyof typeof STAT_TEXT, re?: RegExp): { value: string; label: string } {
+  return claim ? { value: claimFigure(claim, re), label: claimLabel } : STAT_TEXT[fallback];
+}
+
 /** "28 free zones" once the count is confirmed (CLAIMS.zones); plain "free zones" / "Free zones" until then. */
 export const zonesPhrase = (cap = false) => (CLAIMS.zones ? `${CLAIMS.zones} free zones` : cap ? "Free zones" : "free zones");
 
@@ -77,9 +93,9 @@ export const AUTHORITIES = [
 ].map((a) => ({ ...a, src: `/authorities/${a.file}.webp` }));
 
 export const NAV = [
-  { href: "#calculator", label: "Plan with an advisor" },
-  { href: "#consultation", label: "Consultation" },
-  { href: "#jurisdiction", label: "Jurisdictions" },
+  { href: "#calculator", label: "Planner" },
+  { href: "#consultation", label: "Advice" },
+  { href: "#jurisdiction", label: "Compare" },
   { href: "#reviews", label: "Reviews" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -96,7 +112,19 @@ export const MAPS_URL =
 /** Footer columns. Items without an href are shown as plain text, as on the source page. */
 export const FOOTER_COLUMNS: { title: string; links: { label: string; href?: string; external?: boolean }[] }[] = [
   { title: "This page", links: NAV.map((n) => ({ label: n.label, href: n.href })) },
-  { title: "Mainland", links: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman"].map((label) => ({ label })) },
+  {
+    title: "Services",
+    links: [
+      { label: "All services", href: "/services" },
+      { label: "Free zone", href: "/freezone" },
+      { label: "Mainland", href: "/mainland" },
+      { label: "Offshore", href: "/offshore" },
+      { label: "Plan your budget", href: "/cost-calculator" },
+      { label: "SPV", href: "/spv" },
+      { label: "Corporate tax", href: "/corporate-tax" },
+      { label: "Accounting", href: "/accounting" },
+    ],
+  },
 ];
 
 export const TRUST = [

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CLAIMS, DISCLAIMER, REVIEW_ROWS, SITE, firstName } from "@/content/site";
+import { CLAIMS, DISCLAIMER, REVIEW_ROWS, SITE, firstName, statTile } from "@/content/site";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
 import { SvLive } from "./SvLive";
@@ -25,7 +25,7 @@ export function SvHero() {
         <div className="sv-hero-copy">
           <p className="fz-tag">
             <span />
-            UAE business advice
+            For founders and business owners in the UAE
           </p>
           <h1 id="svTitle">
             Plan and run your UAE business, <span className="accent sv-keep">with one advisor.</span>
@@ -44,15 +44,13 @@ export function SvHero() {
           </div>
           <p className="sv-hero-note">No obligation · We reply by phone, WhatsApp or email</p>
           <ul className="sv-stats">
-            {/* Counts render only once confirmed (content/site CLAIMS); the tile keeps its place without the number. */}
-            <li>
-              {CLAIMS.zones && <b>{CLAIMS.zones}</b>}
-              <span>Free zones compared</span>
-            </li>
-            <li>
-              {CLAIMS.emirates && <b>{CLAIMS.emirates}</b>}
-              <span>Emirates covered</span>
-            </li>
+            {/* A confirmed claim fills the number slot; until then plain text (content/site statTile). */}
+            {[statTile(CLAIMS.zones, "Free zones compared", "office"), statTile(CLAIMS.emirates, "Emirates covered", "meet"), statTile(null, "", "explain")].map((t) => (
+              <li key={t.label}>
+                <b>{t.value}</b>
+                <span>{t.label}</span>
+              </li>
+            ))}
           </ul>
           <p className="fz-disclaimer" role="note" data-legal>
             {DISCLAIMER}

@@ -2,13 +2,15 @@ import Image from "next/image";
 import { CLAIMS, SITE, WHY } from "@/content/site";
 import { JOURNEY, SERVICES, SHOW_TEAM, TEAM, type ServiceId } from "@/content/services";
 import { ArrowIcon, WhatsAppIcon } from "@/components/ui/Icons";
-import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
+import { CallbackLink, CallbackTrigger } from "@/components/freezone/CallbackTrigger";
 import { ServiceIcon } from "./ServiceIcon";
 
 /* The /services page's static sections. Server components: no client JavaScript. Advice only: no prices or timings. */
 
-/* The hub: two photo tiles, three service cards, and "Plan your budget" as a wide banner. */
-const BUDGET = SERVICES.find((s) => s.id === "calculator")!;
+/*
+  The hub: one tile per service, each opening its own page (two large, three medium, two large), then the wide
+  "Not sure where to begin?" band, which opens the consultation pop-up.
+*/
 export function SvGrid() {
   return (
     <section className="fz-block sv-grid-sec" id="services" aria-labelledby="svGridTitle">
@@ -18,11 +20,11 @@ export function SvGrid() {
             <span />
             Our services
           </p>
-          <h2 id="svGridTitle">Advice for every stage, one consultant</h2>
-          <p>Pick a service to see how we can help. Your advisor explains the options in plain terms.</p>
+          <h2 id="svGridTitle">Every service, one advisor</h2>
+          <p>Pick a service to see how we can help. Each one has its own page.</p>
         </div>
         <ul className="sv-grid">
-          {SERVICES.filter((s) => s !== BUDGET).map((s) => (
+          {SERVICES.map((s) => (
             // The whole tile opens the service page (stretched link); the tool tag is its own link to the tool.
             <li key={s.id} className={s.big ? "big" : "mid"}>
               <article className="sv-tile spot">
@@ -52,7 +54,7 @@ export function SvGrid() {
                   </a>
                 )}
                 <span className="sv-tile-foot">
-                  <b>Learn more</b>
+                  <b>Explore</b>
                   <span className="sv-tile-go" aria-hidden="true">
                     <ArrowIcon />
                   </span>
@@ -61,19 +63,19 @@ export function SvGrid() {
             </li>
           ))}
           <li className="wide">
-            <a className="sv-banner" href={BUDGET.href} data-cta-location="SV Grid - Plan your budget">
+            <CallbackLink className="sv-banner" location="SV Grid - Not sure where to begin">
               <span className="sv-banner-ico">
-                <ServiceIcon id="calculator" />
+                <ServiceIcon id="setup" />
               </span>
               <span className="sv-banner-txt">
-                <small>Planning guide</small>
-                <b>{BUDGET.name}</b>
-                <span>{BUDGET.line}</span>
+                <small>Not sure where to begin?</small>
+                <b>Talk it through with an advisor</b>
+                <span>One conversation, in person or by video call. No obligation.</span>
               </span>
               <span className="sv-banner-cta">
-                Read the guide <ArrowIcon />
+                Book a Consultation <ArrowIcon />
               </span>
-            </a>
+            </CallbackLink>
           </li>
         </ul>
       </div>

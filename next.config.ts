@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 /* Google Ads sitelink paths. Each serves the landing page itself (HTTP 200, no redirect, URL and
    query string kept); SectionDeepLink then opens the matching section. */
-const SITELINK_PATHS = ["calculator", "mainland", "free-zone", "offshore", "consultation", "reviews"] as const;
+// /mainland and /offshore are advice pages of their own (app/mainland, app/offshore), no longer the home page.
+const SITELINK_PATHS = ["calculator", "free-zone", "consultation", "reviews"] as const;
 
 const nextConfig: NextConfig = {
   // The dashboard reads its page template at run time.

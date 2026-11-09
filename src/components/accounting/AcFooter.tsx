@@ -73,6 +73,7 @@ export function AcFooter() {
             <a href="#process">How it works</a>
             <a href="#reports">Monthly reports</a>
             <a href="#faq">FAQ</a>
+            <a href="/services">All services</a>
           </div>
           <div className="f-col">
             <h5>Contact</h5>

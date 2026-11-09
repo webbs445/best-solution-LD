@@ -8,7 +8,7 @@ export function SpvHero() {
   <div className="aur" aria-hidden="true"><i></i><i></i><i></i></div>
   <div className="wrap hero-g">
     <div className="hero-l">
-      <span className="tag"><i>Private</i>Consultation with our structuring team</span>
+      <span className="tag"><i>For</i>Families, founders and investors with assets to structure</span>
       <h1 id="h1">Your assets need <br />a <span className="cu">structure,</span> <br /><span className="light-w">not just a bank account.</span></h1>
       <p className="lede">Foundations, SPVs and holding companies decide who controls your assets, how they pass to your family and how you grow across borders. We help you choose the right one.</p>
       <div className="hero-cta">

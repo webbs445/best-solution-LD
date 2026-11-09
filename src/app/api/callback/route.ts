@@ -1,4 +1,4 @@
-import { CALLBACK_FORM_ID, LEAD_RULES, SERVICES_FORM_ID, clickIdRows, leadConsent, withUaeCode } from "@/lib/lead";
+import { CALLBACK_FORM_ID, CALLBACK_SOURCES, LEAD_RULES, clickIdRows, leadConsent, withUaeCode } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { createErpLead } from "@/lib/erp";
@@ -49,8 +49,8 @@ export const POST = withLeadLog("callback", async (request, log) => {
     return Response.json({ ok: true, created: true, lead_id: log.erp_id, preview: true });
   }
 
-  // The /services hub sends form "services"; anything else is the regular callback popup.
-  const hub = body.form === "services";
+  // /services, /mainland and /offshore send their form key; anything else is the regular callback popup.
+  const source = CALLBACK_SOURCES[str(body.form, 20)];
   const result = await createErpLead({
     lead_name,
     email_id,
@@ -64,8 +64,8 @@ export const POST = withLeadLog("callback", async (request, log) => {
     consent: leadConsent(body.consent),
     event_id: str(body.event_id, 60),
     landing_page: str(body.landing_page, 1000),
-    form_id: hub ? SERVICES_FORM_ID : CALLBACK_FORM_ID,
-    form_name: hub ? SERVICES_FORM_ID : "Callback Request",
+    form_id: source?.form_id ?? CALLBACK_FORM_ID,
+    form_name: source?.form_name ?? "Callback Request",
     button_name: "Request a Callback",
     submission_timestamp: new Date().toISOString(),
     answers: { jurisdiction: INTERESTS[str(body.interest, 20)] ?? "undecided" },

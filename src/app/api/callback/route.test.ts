@@ -45,6 +45,28 @@ describe("POST /api/callback", () => {
     expect(sent[1].custom_form_name).toBe("Callback Request");
   });
 
+  it("files /mainland and /offshore leads under their own forms, with the same fields as every lead", async () => {
+    await post({ lead_name: "Test", mobile_no: "050 000 0000", email_id: "test.lead@example.com", form: "mainland", interest: "mainland", consent: "Accepted all", event_id: "evt_1_abc", gclid: "TEST123", utm_source: "google" });
+    await post({ lead_name: "Test", mobile_no: "050 000 0000", email_id: "test.lead@example.com", form: "offshore", interest: "offshore", consent: "Accepted all", event_id: "evt_2_abc", gclid: "TEST123", utm_source: "google" });
+    expect(sent[0].custom_form_name).toBe("Mainland Advice");
+    expect(sent[1].custom_form_name).toBe("Offshore Advice");
+    for (const lead of sent) {
+      const notes = String(lead.custom_client_profile_and_requirement);
+      expect(notes).toContain("Cookie choice: Accepted all");
+      expect(notes).toContain("TEST123");
+      expect(JSON.stringify(lead)).toContain("evt_");
+    }
+  });
+
+  it("maps every pop-up source key to its form id, and nothing else", async () => {
+    const { CALLBACK_SOURCES, callbackSource, MAINLAND_FORM_ID, OFFSHORE_FORM_ID, SERVICES_FORM_ID, CALLBACK_FORM_ID } = await import("@/lib/lead");
+    expect(callbackSource(MAINLAND_FORM_ID)).toBe("mainland");
+    expect(callbackSource(OFFSHORE_FORM_ID)).toBe("offshore");
+    expect(callbackSource(SERVICES_FORM_ID)).toBe("services");
+    expect(callbackSource(CALLBACK_FORM_ID)).toBeUndefined();
+    expect(Object.values(CALLBACK_SOURCES).map((v) => v.form_id)).toEqual(["LP Services Hub", "LP Mainland Advice", "LP Offshore Advice"]);
+  });
+
   describe("on a Vercel preview deployment", () => {
     afterEach(() => vi.unstubAllEnvs());
 

@@ -1,3 +1,4 @@
+import { CLAIMS, statTile } from "@/content/site";
 /* ============================================================
    /accounting page content, from BestSolution_Accounting_LandingPage.html.
    Google Ads (UAE): no "start/setup/register/documents/fast/guarantee" style words in visitor-facing
@@ -26,14 +27,14 @@ export const aed = (n: number) => `AED ${n.toLocaleString("en-US")}`;
 export const feeLine = (f: { amount: number; unit: string }) => `From ${aed(f.amount)} ${f.unit}, plus VAT`;
 
 /*
-  Stats band. Every number is a claim: null until Best Solution confirms it (content/site CLAIMS), and then shown as a
-  final value, never counted up. The tiles keep their place without the number.
+  Stats band. Every number is a claim: shown only once Best Solution confirms it (content/site CLAIMS), as a final
+  value, never counted up. Until then each tile shows plain, true text in the same style.
 */
-export const AC_STATS: { value: string | null; label: string }[] = [
-  { value: null, label: "Businesses supported" },
-  { value: null, label: "In-house professionals" },
-  { value: null, label: "Client nationalities" },
-  { value: null, label: "Accounting specialists" },
+export const AC_STATS: { value: string; label: string }[] = [
+  statTile(CLAIMS.businesses, "Businesses supported", "office"),
+  statTile(CLAIMS.team, "In-house professionals", "meet"),
+  statTile(CLAIMS.countries, "Client nationalities", "explain"),
+  statTile(null, "", "support"),
 ];
 
 /* The page's single offer. */
@@ -131,24 +132,12 @@ export const AC_FAQS = [
     }Your fee depends on transaction volume, the number of bank accounts and how up to date your records are. An accountant reviews your details and confirms the fee in a written quote before work begins. Fees exclude VAT.`,
   },
   {
-    q: "What is the difference between bookkeeping and accounting?",
-    a: "Bookkeeping is recording each transaction correctly. Accounting uses those records to check, reconcile and report, so you can see profit, cash position and what you owe. You need accurate bookkeeping before accounting reports mean anything.",
-  },
-  {
     q: "My books are behind by several months. Can you still help?",
     a: "Yes. Most new clients come to us with incomplete or late records. We begin with a review of what you have, agree a catch-up plan for the missing months, then move you onto a regular monthly routine.",
   },
   {
-    q: "Which accounting software do you work with?",
-    a: "We work with Zoho Books, QuickBooks and Tally, as well as spreadsheets for smaller businesses. If you do not use any software yet, we recommend one that suits your size and configure it with you.",
-  },
-  {
     q: "Do you help with VAT and corporate tax?",
     a: "We keep your books in a VAT-ready format and prepare the figures your VAT returns and corporate tax position rely on, then review them with you. Assessments and decisions remain with the Federal Tax Authority.",
-  },
-  {
-    q: "How long do I need to keep accounting records in the UAE?",
-    a: "UAE businesses are expected to keep proper accounting records, with the invoices and statements behind them, for several years. Under the UAE Corporate Tax law the period is seven years from the end of the relevant tax period. We keep your records organised so they are easy to produce when an auditor or bank asks.",
   },
   {
     q: "Is my financial data kept confidential?",

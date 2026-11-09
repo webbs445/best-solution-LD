@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CLAIMS, REVIEW_ROWS, SITE, WHY, type Review, firstName } from "@/content/site";
+import { CLAIMS, REVIEW_ROWS, SITE, WHY, type Review, firstName, statTile } from "@/content/site";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
 
@@ -16,18 +16,35 @@ const VS_ROWS: [string, string, string][] = [
   ["Often suits", "International and business-to-business work", "Selling directly to UAE customers"],
 ];
 
-export function FzVsMainland() {
+export interface VsBand {
+  id: string;
+  title: string;
+  text: string;
+  /** The free zone and mainland table (left out when false). */
+  table: boolean;
+  note: string;
+  cta: { label: string; location: string };
+  /** An extra link under the note (e.g. to /freezone/vs-mainland). */
+  link?: { label: string; href: string; location: string };
+}
+export const FZ_VS: VsBand = {
+  id: "free-zone-vs-mainland",
+  title: "Is a free zone the right choice?",
+  text: "A free zone can suit international, business-to-business and location-flexible work. Mainland may suit you better when selling directly to UAE customers is central to your plans.",
+  table: true,
+  note: "Some eligible free zone businesses may have options to operate on the mainland. Your advisor explains the route that applies to your activity and business model.",
+  cta: { label: "Not sure? Ask an Advisor", location: "FZ Free Zone vs Mainland - Ask an Advisor" },
+};
+
+export function FzVsMainland({ c = FZ_VS }: { c?: VsBand } = {}) {
   return (
-    <section className="fz-block fz-vs" id="free-zone-vs-mainland" aria-labelledby="vsTitle">
+    <section className="fz-block fz-vs" id={c.id} aria-labelledby="vsTitle">
       <div className="wrap">
         <div className="fz-head-split fz-on-navy">
-          <h2 id="vsTitle">Is a free zone the right choice?</h2>
-          <p>
-            A free zone can suit international, business-to-business and location-flexible work. Mainland may suit you
-            better when selling directly to UAE customers is central to your plans.
-          </p>
+          <h2 id="vsTitle">{c.title}</h2>
+          <p>{c.text}</p>
         </div>
-        <div className="fz-vs-table" role="table" aria-label="Free zone compared with mainland">
+        {c.table && <div className="fz-vs-table" role="table" aria-label="Free zone compared with mainland">
           <div className="fz-vs-row fz-vs-h" role="row">
             <span role="columnheader" />
             <span role="columnheader">Free zone</span>
@@ -40,13 +57,20 @@ export function FzVsMainland() {
               <span role="cell">{ml}</span>
             </div>
           ))}
-        </div>
+        </div>}
         <p className="fz-vs-note">
-          Some eligible free zone businesses may have options to operate on the mainland. Your advisor explains the route
-          that applies to your activity and business model.
+          {c.note}
+          {c.link && (
+            <>
+              {" "}
+              <a href={c.link.href} data-cta-location={c.link.location} style={{ color: "inherit", textDecoration: "underline" }}>
+                {c.link.label}
+              </a>
+            </>
+          )}
         </p>
-        <CallbackTrigger className="fz-btn-light" location="FZ Free Zone vs Mainland - Ask an Advisor">
-          Not sure? Ask an Advisor <ArrowIcon />
+        <CallbackTrigger className="fz-btn-light" location={c.cta.location}>
+          {c.cta.label} <ArrowIcon />
         </CallbackTrigger>
       </div>
     </section>
@@ -60,24 +84,43 @@ const BRIEF = [
   { title: "Your next step", body: "Decided by you, with no obligation to proceed." },
 ];
 
-export function FzConsultation() {
+export interface BriefBlock {
+  id: string;
+  title: string;
+  text: string;
+  cta: { label: string; location: string };
+  briefTitle: string;
+  briefNote: string;
+  items: { title: string; body: string }[];
+}
+export const FZ_BRIEF: BriefBlock = {
+  id: "consultation",
+  title: "What you leave your consultation with",
+  text: "One conversation with a dedicated advisor, in person or by video call. No obligation to proceed.",
+  cta: { label: "Book a Consultation", location: "FZ Consultation - Book My Consultation" },
+  briefTitle: "Your free zone brief",
+  briefNote: "Prepared by your advisor",
+  items: BRIEF,
+};
+
+export function FzConsultation({ c = FZ_BRIEF }: { c?: BriefBlock } = {}) {
   return (
-    <section className="fz-block fz-consult" id="consultation" aria-labelledby="consTitle">
+    <section className="fz-block fz-consult" id={c.id} aria-labelledby={`${c.id}Title`}>
       <div className="wrap fz-consult-grid">
         <div className="fz-consult-copy">
-          <h2 id="consTitle">What you leave your consultation with</h2>
-          <p>One conversation with a dedicated advisor, in person or by video call. No obligation to proceed.</p>
-          <CallbackTrigger className="btn btn-primary" location="FZ Consultation - Book My Consultation">
-            Book My Consultation <ArrowIcon />
+          <h2 id={`${c.id}Title`}>{c.title}</h2>
+          <p>{c.text}</p>
+          <CallbackTrigger className="btn btn-primary" location={c.cta.location}>
+            {c.cta.label} <ArrowIcon />
           </CallbackTrigger>
         </div>
-        <div className="fz-brief spot" aria-label="Your free zone brief">
+        <div className="fz-brief spot" aria-label={c.briefTitle}>
           <div className="fz-brief-top">
-            <span>Your free zone brief</span>
-            <span>Prepared by your advisor</span>
+            <span>{c.briefTitle}</span>
+            <span>{c.briefNote}</span>
           </div>
           <ul>
-            {BRIEF.map((b, i) => (
+            {c.items.map((b, i) => (
               <li key={b.title}>
                 <b>0{i + 1}</b>
                 <div>
@@ -119,6 +162,13 @@ const FZ_EXCLUDED = ["Chandra Mohan", "Javed Khan", "Tanwir Chowdhury", "Carlos 
 const FZ_REVIEWS = REVIEW_ROWS.flat().filter((r) => !FZ_EXCLUDED.includes(r.name));
 const FZ_REVIEW_LOOP = Array.from({ length: Math.max(1, Math.ceil(6 / FZ_REVIEWS.length)) }, () => FZ_REVIEWS).flat();
 
+const WHY_STATS = [
+  statTile(CLAIMS.zones, "Free zones compared", "explain"),
+  statTile(CLAIMS.emirates, "Emirates covered", "meet"),
+  statTile(null, "", "office"),
+  statTile(null, "", "support"),
+];
+
 export function FzWhyUs() {
   return (
     <section className="fz-block wy" aria-labelledby="wyTitle">
@@ -136,19 +186,13 @@ export function FzWhyUs() {
             </p>
           </div>
           <ul className="wy-stats">
-            {/* Counts render only once confirmed (content/site CLAIMS); the tile keeps its place without the number. */}
-            <li>
-              {CLAIMS.zones && <b>{CLAIMS.zones}</b>}
-              <span>Free zones compared</span>
-            </li>
-            <li>
-              {CLAIMS.emirates && <b>{CLAIMS.emirates}</b>}
-              <span>Emirates covered</span>
-            </li>
-            <li>
-              <b>Dubai</b>
-              <span>Office in Business Bay</span>
-            </li>
+            {/* A confirmed claim fills the number slot; until then plain text (content/site statTile). */}
+            {WHY_STATS.map((t) => (
+              <li key={t.label}>
+                <b>{t.value}</b>
+                <span>{t.label}</span>
+              </li>
+            ))}
           </ul>
         </div>
         <div className="wy-mosaic">
@@ -260,22 +304,42 @@ export function FzReviews() {
   );
 }
 
-export function FzClosing() {
+export interface ClosingBlock {
+  title: string;
+  text: string;
+  /** Main call to action: opens the page's consultation pop-up. */
+  primary: { label: string; location: string };
+  /** Secondary: a link on the page or WhatsApp. */
+  secondary: { label: string; href: string; location: string; external?: boolean };
+}
+export const FZ_CLOSING: ClosingBlock = {
+  title: "Begin with the right free zone",
+  text: "Tell us about your business. Your advisor helps you compare suitable zones and plan your next step.",
+  primary: { label: "Book a Consultation", location: "FZ Closing - Book a Consultation" },
+  secondary: { label: "Plan my free zone", href: "#planner", location: "FZ Closing - Plan My Free Zone" },
+};
+
+export function FzClosing({ c = FZ_CLOSING }: { c?: ClosingBlock } = {}) {
   return (
     <section className="fz-close" aria-labelledby="closeTitle">
       <div className="wrap">
         <div className="fz-close-in">
           <div>
-            <h2 id="closeTitle">Begin with the right free zone</h2>
-            <p>Tell us about your business. Your advisor helps you compare suitable zones and plan your next step.</p>
+            <h2 id="closeTitle">{c.title}</h2>
+            <p>{c.text}</p>
           </div>
           <div className="fz-close-cta">
-            <a className="btn btn-primary" href="#planner" data-cta-location="FZ Closing - Plan My Free Zone">
-              Plan My Free Zone <ArrowIcon />
-            </a>
-            <CallbackTrigger className="fz-btn-ghost" location="FZ Closing - Request a Callback">
-              Request a Callback
+            <CallbackTrigger className="btn btn-primary" location={c.primary.location}>
+              {c.primary.label} <ArrowIcon />
             </CallbackTrigger>
+            <a
+              className="fz-btn-ghost"
+              href={c.secondary.href}
+              data-cta-location={c.secondary.location}
+              {...(c.secondary.external ? { target: "_blank", rel: "noopener" } : {})}
+            >
+              {c.secondary.label}
+            </a>
             <p>No obligation · We reply by phone, WhatsApp or email</p>
           </div>
         </div>

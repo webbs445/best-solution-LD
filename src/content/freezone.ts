@@ -399,9 +399,9 @@ export type FzSitelinkView = (typeof FZ_SITELINK_VIEWS)[number];
 
 /* On-page navigation (header, mobile menu and footer). */
 export const FZ_NAV = [
-  { href: "#planner", label: "Zone Planner" },
-  { href: "#zones", label: "Compare Zones" },
-  { href: "#process", label: "How It Works" },
+  { href: "#planner", label: "Planner" },
+  { href: "#zones", label: "Compare" },
+  { href: "#process", label: "Steps" },
   { href: "#reviews", label: "Reviews" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -431,21 +431,6 @@ export const FZ_FAQS: { c: FaqTopic; q: string; a: string }[] = [
     c: "tax",
     q: "Can a free zone company sell to customers in the UAE mainland?",
     a: "It depends on your activity, your customers and how you plan to operate. Options may include working through a distributor, a mainland presence, or another route where the rules allow it. Your advisor explains the options that may apply to you.",
-  },
-  {
-    c: "tax",
-    q: "Do free zone companies pay corporate tax?",
-    a: "Some qualifying free zone businesses may benefit from 0% corporate tax on qualifying income, subject to UAE Corporate Tax rules and Qualifying Free Zone Person (QFZP) conditions. Other income may be taxed at 9%. Your advisor explains how the rules may apply to your business model.",
-  },
-  {
-    c: "choose",
-    q: "Do I need a physical office?",
-    a: "Not always. Workspace options vary by zone and activity, from a flexi-desk to a private office or warehouse. Your advisor explains the options each zone offers and what suits your team.",
-  },
-  {
-    c: "choose",
-    q: "Can I move to a different free zone later?",
-    a: "It is possible, but moving between zones takes time and adds cost. Comparing zones carefully at the outset helps you avoid it.",
   },
   {
     c: "us",

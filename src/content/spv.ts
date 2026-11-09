@@ -21,10 +21,6 @@ export const SPV_FAQS: { q: string; a: string }[] = [
     a: "Not always. Several options are available to people based outside the UAE. What applies depends on the jurisdiction and your situation, and we confirm it with you at the consultation.",
   },
   {
-    q: "Will a structure reduce my tax?",
-    a: "A structure is a planning tool, not a tax shortcut. Tax depends on where you live, where your assets are and how each entity operates. UAE Corporate Tax and economic substance rules apply depending on that activity, and we work alongside your tax adviser where needed.",
-  },
-  {
     q: "Can a structure hold UAE property?",
     a: "Some entities can hold property in designated areas, subject to each area's rules. We check this for your specific property before recommending a structure.",
   },

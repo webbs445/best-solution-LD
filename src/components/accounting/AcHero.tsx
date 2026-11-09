@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { CLAIMS, DISCLAIMER } from "@/content/site";
-import { AC_FEES, AC_OFFER, MARQUEE, TYPED_WORDS, aed } from "@/content/accounting";
+import { AC_FEES, MARQUEE, TYPED_WORDS, aed } from "@/content/accounting";
 import { prefersReducedMotion, useReducedMotion } from "@/lib/useReducedMotion";
 
 const ARROW = (
@@ -218,9 +218,9 @@ export function AcHero() {
         <div className="h-center">
           {/* The hero text is in the server HTML with a CSS-only entrance, so it paints before any script runs. */}
           <a className="announce hin" href="#contact" data-cta-location="AC Hero - Fixed monthly quote">
-            <span className="at">Accounting for UAE businesses</span>{" "}
+            <span className="at">For UAE businesses that want their books kept every month</span>{" "}
             <b>
-              Fixed monthly quote{" "}
+              Book a Consultation{" "}
               <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 10h12M11 5l5 5-5 5" />
               </svg>
@@ -244,8 +244,8 @@ export function AcHero() {
             actually read.
           </p>
           <div className="ctas hin d3">
-            <a className="btn btn-copper mag" href="#contact" data-cta-location="AC Hero - Get a fixed monthly quote">
-              {AC_OFFER} {ARROW}
+            <a className="btn btn-copper mag" href="#contact" data-cta-location="AC Hero - Book a Consultation">
+              Book a Consultation {ARROW}
             </a>
             <a className="btn btn-glass mag" href="#services" data-cta-location="AC Hero - See services">
               See services

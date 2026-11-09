@@ -18,7 +18,7 @@ import "@/app/freezone/freezone.css";
 
 const TITLE = "Compare UAE Free Zones with an Advisor | Best Solution";
 const DESCRIPTION =
-  "Compare UAE free zones by activity and workspace type, plan what to budget for and talk it through with a dedicated advisor in Business Bay. No obligation.";
+  "Compare UAE free zones by activity and workspace type, plan what to budget for and talk it through with a dedicated advisor in Business Bay.";
 const SHARE_TITLE = "Compare UAE free zones with an advisor";
 const SHARE_DESCRIPTION = "Compare UAE free zones by activity and workspace type, then talk it through with a dedicated advisor.";
 

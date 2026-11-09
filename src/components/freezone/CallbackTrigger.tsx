@@ -20,3 +20,21 @@ export function CallbackTrigger({ className, location, children }: { className: 
     </button>
   );
 }
+
+/* The same pop-up opener as a link, where the design's element is an <a> (the /services band, header buttons). */
+export function CallbackLink({ className, location, children }: { className: string; location: string; children: ReactNode }) {
+  return (
+    <a
+      className={className}
+      href="#consult"
+      aria-controls="cbModal"
+      data-cta-location={location}
+      onClick={(e) => {
+        e.preventDefault();
+        window.dispatchEvent(new Event(OPEN_CALLBACK));
+      }}
+    >
+      {children}
+    </a>
+  );
+}

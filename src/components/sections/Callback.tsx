@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
-import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES, SERVICES_FORM_ID } from "@/lib/lead";
+import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES, SERVICES_FORM_ID, MAINLAND_FORM_ID, OFFSHORE_FORM_ID, callbackSource } from "@/lib/lead";
 import { SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, jurisdictionLabel, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
@@ -35,7 +35,7 @@ export function CallbackButton({
   defaultInterest?: (typeof INTERESTS)[number][0];
   ctaLocation?: string;
   /** The dataLayer form_id and ERP form name: CALLBACK_FORM_ID, or SERVICES_FORM_ID on the /services hub. */
-  formId?: typeof CALLBACK_FORM_ID | typeof SERVICES_FORM_ID;
+  formId?: typeof CALLBACK_FORM_ID | typeof SERVICES_FORM_ID | typeof MAINLAND_FORM_ID | typeof OFFSHORE_FORM_ID;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -97,7 +97,7 @@ export function CallbackButton({
           mobile_no: phone,
           email_id: email,
           interest,
-          form: formId === SERVICES_FORM_ID ? "services" : undefined,
+          form: callbackSource(formId),
           // First-touch UTMs and Google click IDs for the visit (lib/attribution); click_id falls back to the consented ad cookies.
           ...attributionFields(),
           event_id: eventId,

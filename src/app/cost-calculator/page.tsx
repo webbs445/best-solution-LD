@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CLAIMS, SITE } from "@/content/site";
+import { CLAIMS, SITE, statTile } from "@/content/site";
 import { CC_FAQ, CC_URL } from "@/content/costCalculator";
 import { CC_MARKUP } from "@/components/costCalculator/markup";
 import { CcScript } from "@/components/costCalculator/CcScript";
@@ -31,15 +31,16 @@ const faqHtml = CC_FAQ.map(
 
 /* Star icons for the review cards (the text star symbol is not used). */
 const STAR = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>';
-/* Stat numbers render only once confirmed (content/site CLAIMS), as final values; the tiles keep their place. */
-const lead = (claim: string | null, re: RegExp) => (claim ? esc(claim.match(re)?.[0] ?? "") : "");
+/* A confirmed claim fills the number slot as a final value; until then plain text in the same style (statTile). */
+const STATS: [string, { value: string; label: string }][] = [
+  ["BUSINESSES", statTile(CLAIMS.businesses, "businesses advised", "office")],
+  ["COUNTRIES", statTile(CLAIMS.countries, "client countries", "meet")],
+  ["TEAM", statTile(CLAIMS.team, "in-house professionals", "explain")],
+  ["RATING", statTile(CLAIMS.rating, "Google rating", "support", /\d\.\d/)],
+];
 
-const html = CC_MARKUP.replace("__FAQ__", () => faqHtml)
-  .split("__STARS__").join(STAR.repeat(5))
-  .replace("__STAT_BUSINESSES__", lead(CLAIMS.businesses, /^[\d,]+\+?/))
-  .replace("__STAT_COUNTRIES__", lead(CLAIMS.countries, /[\d,]+\+?/))
-  .replace("__STAT_TEAM__", lead(CLAIMS.team, /^[\d,]+\+?/))
-  .replace("__STAT_RATING__", lead(CLAIMS.rating, /\d\.\d/));
+const html = CC_MARKUP.replace("__FAQ__", () => faqHtml).split("__STARS__").join(STAR.repeat(5));
+const htmlWithStats = STATS.reduce((h, [k, t]) => h.replace(`__STAT_${k}__`, esc(t.value)).replace(`__STATL_${k}__`, esc(t.label)), html);
 
 /*
   /cost-calculator: "Plan your budget", the old configurator design with advice-only content (Google Ads policy). The
@@ -54,7 +55,7 @@ export default function CostCalculatorPage() {
         Skip to the planner
       </a>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
-      <div dangerouslySetInnerHTML={{ __html: html }} />
+      <div dangerouslySetInnerHTML={{ __html: htmlWithStats }} />
       <CcScript />
     </div>
   );

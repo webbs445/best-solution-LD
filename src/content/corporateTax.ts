@@ -11,16 +11,8 @@ export const CT_FAQS: { q: string; a: string }[] = [
     a: "Generally, yes. A free zone company files a return every year, even when it expects 0% on qualifying income. To keep the 0% rate it generally also needs audited financial statements and must meet the substance and qualifying income conditions. Your advisor confirms what applies to you.",
   },
   {
-    q: "What is Small Business Relief?",
-    a: "Generally, if your revenue is AED 3 million or less, you can elect to be treated as having no taxable income, for tax periods ending on or before 31 December 2029, as long as your revenue has stayed at or below AED 3 million in each earlier tax period. You elect it in your return each year. Losses cannot be used in a year you elect it, so it is worth checking with your advisor first.",
-  },
-  {
     q: "When is my Corporate Tax return due?",
     a: "Generally, your return and any tax due are both due within nine months of the end of your tax period. For a 31 December year end, that is 30 September of the following year. Your advisor confirms the dates that apply to you.",
-  },
-  {
-    q: "What happens if I miss a deadline?",
-    a: "Late filing and late payment can lead to penalties set by the FTA. Your advisor explains what applies to you.",
   },
   {
     q: "Do I need audited financial statements?",

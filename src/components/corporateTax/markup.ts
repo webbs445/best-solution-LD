@@ -9,18 +9,18 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
   <div class="wrap hd-in">
     <a class="brand" href="#top" aria-label="Best Solution home"><img src="/brand/icon-mark.webp" alt="" width="28" height="40"><span>Best Solution</span></a>
     <nav class="hd-nav" aria-label="Page sections">
-      <a href="#top">Due date</a><a href="#estimate">Estimate</a><a href="#apply">Does it apply</a><a href="#year">Your year</a><a href="#faq">FAQ</a>
+      <a href="#top">Due date</a><a href="#estimate">Estimate</a><a href="#apply">Who pays</a><a href="#year">Tax year</a><a href="#faq">FAQ</a>
     </nav>
     <div class="hd-act">
       <a class="ico" href="https://wa.me/97145531546?text=Hello%2C%20I%20would%20like%20advice%20on%20UAE%20Corporate%20Tax." target="_blank" rel="noopener" aria-label="Chat on WhatsApp" data-area="Header"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.3z"/></svg></a>
-      <a class="btn btn-ink sm" href="#book" data-cta-location="CT Header Book">Book a tax review call</a>
+      <a class="btn btn-ink sm" href="#book" data-cta-location="CT Header Book">Book a Consultation</a>
       <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="drawer"><span></span></button>
     </div>
   </div>
 </header>
 <nav class="drawer" id="drawer" aria-label="Mobile menu">
-  <a href="#top">Due date</a><a href="#estimate">Estimate your tax</a><a href="#apply">Does it apply to me</a><a href="#year">Your tax year</a><a href="#faq">FAQ</a>
-  <a class="btn btn-ink" href="#book" data-cta-location="CT Drawer Book">Book a tax review call</a>
+  <a href="#top">Due date</a><a href="#estimate">Estimate your tax</a><a href="#apply">Does it apply to me</a><a href="#year">Your tax year</a><a href="#faq">FAQ</a><a href="/services">All services</a>
+  <a class="btn btn-ink" href="#book" data-cta-location="CT Drawer Book">Book a Consultation</a>
 </nav>
 
 <main id="top">
@@ -30,11 +30,11 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
   <div class="hbg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="hgrid"></div></div>
   <div class="wrap hero-g">
     <div class="hero-t">
-      <p class="hero-pre"><i></i><span>Corporate Tax advice<span class="hide-s"> with our Business Bay team</span></span></p>
+      <p class="hero-pre"><i></i><span>For UAE businesses<span class="hide-s"> preparing for Corporate Tax</span></span></p>
       <h1 id="h1" class="h1x split"><span class="l1">When is your Corporate Tax</span> <span class="l2">return due?</span></h1>
       <p class="lede">Turn the dial to the month your financial year ends. You'll see your due date, the days you have left and the months you have to file and pay.</p>
       <div class="hero-cta">
-        <a class="btn btn-cu idle" href="#book" data-cta-location="CT Hero Book">Book a tax review call</a>
+        <a class="btn btn-cu idle" href="#book" data-cta-location="CT Hero Book">Book a Consultation</a>
         <a class="btn btn-line" href="#estimate" data-cta-location="CT Hero Estimate">Estimate your tax</a>
       </div>
       <ul class="htr" id="htr"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg><span>Office in <b>Business Bay</b></span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg><span>Fees <b>in writing</b> first</span></li></ul>
@@ -173,7 +173,7 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
   <div class="wrap bk-g">
     <div class="bk-side">
       <h2 id="h-bk" class="split">Book a tax review call</h2>
-      <p>A few short questions. A member of our tax team will then call you to go through your dates, relief and records.</p>
+      <p>How a consultation works: you answer a few short questions, a member of our tax team calls you, and you go through your dates, reliefs and records together. You decide what happens next.</p>
       <ul class="bk-con">
         <li><a href="https://wa.me/97145531546?text=Hello%2C%20I%20would%20like%20a%20Corporate%20Tax%20review." target="_blank" rel="noopener" data-area="Book"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>WhatsApp us<small>Message any time</small></a></li>
         <li><a href="tel:+971522330011" data-area="Book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>+971 52 233 0011<small>Call our team</small></a></li>
@@ -260,7 +260,7 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
     <div class="ft-mark" id="ftMark" aria-hidden="true">Corporate Tax,<br>explained.</div>
     <div class="ft-top">
       <div><span class="ft-brand"><img src="/brand/icon-mark.webp" alt="" width="28" height="40">Best Solution</span><p>Corporate Tax advice, return support and bookkeeping for UAE businesses, from our office in Business Bay, Dubai.</p></div>
-      <div><h4>On this page</h4><a href="#top">Due date</a><a href="#estimate">Estimate your tax</a><a href="#apply">Does it apply</a><a href="#year">Your tax year</a></div>
+      <div><h4>On this page</h4><a href="#top">Due date</a><a href="#estimate">Estimate your tax</a><a href="#apply">Does it apply</a><a href="#year">Your tax year</a><a href="/services">All services</a></div>
       <div><h4>Contact</h4><a href="tel:+971522330011" data-area="Footer">+971 52 233 0011</a><a href="https://wa.me/97145531546" target="_blank" rel="noopener" data-area="Footer">WhatsApp</a><a href="mailto:connect@best-solution.ae" data-area="Footer">connect@best-solution.ae</a></div>
     </div>
     <p class="ft-legal" data-legal>__DISCLAIMER__</p>

@@ -7,7 +7,7 @@ import "./corporate-tax.css";
 
 const TITLE = "UAE Corporate Tax Advice and Return Support | Best Solution";
 const DESCRIPTION =
-  "Understand your UAE Corporate Tax obligations and due date, see an illustration of the tax and get help preparing your return. Book a tax review call with our Business Bay team.";
+  "Understand your UAE Corporate Tax obligations and due date, see an illustration of the tax and talk it through with our Business Bay team.";
 const SHARE_TITLE = "When is your Corporate Tax return due?";
 
 export const metadata: Metadata = {

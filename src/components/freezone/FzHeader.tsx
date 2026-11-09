@@ -4,9 +4,17 @@ import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 import { SITE } from "@/content/site";
 import { FZ_NAV } from "@/content/freezone";
+import { ALL_SERVICES } from "@/content/services";
+import { OPEN_CALLBACK } from "@/components/sections/Callback";
 import { MenuIcon, PhoneIcon } from "@/components/ui/Icons";
 
-export function FzHeader() {
+/* Header for /freezone, /mainland and /offshore: the page's own section links, "All services", and the main call to action. */
+export function FzHeader({ nav = FZ_NAV, tag = "FZ" }: { nav?: { href: string; label: string }[]; tag?: string } = {}) {
+  // "Book a Consultation" opens the page's consultation pop-up (the footer's callback form).
+  const book = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.dispatchEvent(new Event(OPEN_CALLBACK));
+  };
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -33,19 +41,20 @@ export function FzHeader() {
             <span>Best Solution</span>
           </a>
           <nav className="bs-nav" aria-label="On this page">
-            {FZ_NAV.map((n, i) => (
+            {nav.map((n) => (
               <Fragment key={n.href}>
-                {i === FZ_NAV.length - 1 && <span className="bs-nav-div" aria-hidden="true" />}
                 <a href={n.href}>{n.label}</a>
               </Fragment>
             ))}
+            <span className="bs-nav-div" aria-hidden="true" />
+            <a href={ALL_SERVICES.href}>Services</a>
           </nav>
           <div className="bs-actions">
             <a className="bs-phone" href={SITE.phone.href}>
               <PhoneIcon />
               <span>{SITE.phone.display}</span>
             </a>
-            <a className="bs-cta" href="#planner" data-cta-location="FZ Header - Book a Consultation">
+            <a className="bs-cta" href="#consult" onClick={book} aria-controls="cbModal" data-cta-location={`${tag} Header - Book a Consultation`}>
               <PhoneIcon />
               <span>Book a Consultation</span>
             </a>
@@ -62,12 +71,13 @@ export function FzHeader() {
           </div>
         </div>
         <div className="bs-menu" id="bsMenu" hidden={!open} onClick={(e) => (e.target as Element).closest("a") && setOpen(false)}>
-          {FZ_NAV.map((n) => (
+          {nav.map((n) => (
             <a key={n.href} href={n.href}>
               {n.label}
             </a>
           ))}
-          <a className="bs-cta" href="#planner" data-cta-location="FZ Menu - Book a Consultation">
+          <a href={ALL_SERVICES.href}>{ALL_SERVICES.label}</a>
+          <a className="bs-cta" href="#consult" onClick={book} aria-controls="cbModal" data-cta-location={`${tag} Menu - Book a Consultation`}>
             <PhoneIcon />
             <span>Book a Consultation</span>
           </a>

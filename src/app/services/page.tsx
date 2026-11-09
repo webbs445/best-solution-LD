@@ -6,6 +6,7 @@ import { FzMotion } from "@/components/freezone/FzMotion";
 import { FzPartners } from "@/components/freezone/FzPartners";
 import { FzReviews } from "@/components/freezone/FzSections";
 import { FzFaq } from "@/components/freezone/FzFaq";
+import { FzHowItWorks, GENERAL_HOW } from "@/components/freezone/FzHowItWorks";
 import { FzFooter } from "@/components/freezone/FzFooter";
 import { MobileEstimateBar } from "@/components/ui/MobileEstimateBar";
 import { SvHeader } from "@/components/services/SvHeader";
@@ -16,7 +17,7 @@ import "./services.css";
 
 const TITLE = "UAE Business Advice Services | Best Solution";
 const DESCRIPTION =
-  "Private business advice in Dubai: free zone and mainland options, budgeting, bookkeeping, corporate tax and holding structures. Speak with a dedicated advisor.";
+  "Private business advice in Dubai: free zone, mainland and offshore, budgeting, bookkeeping, corporate tax and holding structures. One advisor.";
 
 // noindex comes from the root layout (robots) and the X-Robots-Tag header, as on every page of this subdomain.
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default function ServicesPage() {
         <SvHero />
         <SvGrid />
         <SvJourney />
+        <FzHowItWorks c={GENERAL_HOW} />
         <SvTrust />
         <FzPartners />
         <FzReviews />
