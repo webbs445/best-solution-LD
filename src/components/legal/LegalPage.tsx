@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { DISCLAIMER, SITE } from "@/content/site";
-import { LEGAL, type LegalBlock } from "@/content/legal";
+import { LEGAL, LEGAL_V2, type LegalBlock } from "@/content/legal";
+import { LEGAL_V2_DRAFT } from "@/content/legalV2";
 import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
 import { PhoneIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import "@/app/consult/consult.css";
@@ -17,7 +18,7 @@ const block = ([tag, text]: LegalBlock, i: number) => {
 
 /* /privacy and /terms: the www legal text on this host, inside the same plain header and footer as /consult. */
 export function LegalPage({ doc }: { doc: keyof typeof LEGAL }) {
-  const { blocks, contactTitle, contactLine } = LEGAL[doc];
+  const { blocks, contactTitle, contactLine } = (LEGAL_V2 ? LEGAL_V2_DRAFT : LEGAL)[doc];
   return (
     <div className="ad-page">
       <header className="ad-header">

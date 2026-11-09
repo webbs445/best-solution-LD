@@ -4,6 +4,10 @@
   header and footer were left out. Any change to the wording is a legal decision: update it on www first.
 */
 export type LegalBlock = [tag: "h1" | "h2" | "h3" | "h4" | "p" | "li", text: string];
+
+/** Switch to the site-specific drafts in content/legalV2.ts. Stays false until Best Solution's legal team signs them off. */
+export const LEGAL_V2 = false;
+
 export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactTitle: string; contactLine: string }> = {
   "privacy": {
     "blocks": [

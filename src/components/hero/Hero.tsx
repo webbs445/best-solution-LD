@@ -3,9 +3,13 @@ import { CtaLink } from "@/components/ui/CtaLink";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { HeroCard } from "./HeroCard";
 import { TrustRail } from "./TrustRail";
+import { preload } from "react-dom";
 import styles from "./Hero.module.css";
 
 export function Hero() {
+  // The watermark behind the hero is the largest paint on phones (Lighthouse LCP). As a CSS background it is found
+  // only after the stylesheet loads; preloading it from the HTML removes that wait.
+  preload("/brand/mark-watermark.webp", { as: "image", fetchPriority: "high" });
   return (
     <div className={styles.hero}>
       <div className={`wrap ${styles.inner}`}>

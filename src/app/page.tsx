@@ -26,7 +26,6 @@ export const metadata: Metadata = {
   // Page-level openGraph/twitter replace the layout's whole objects, so the shared fields are repeated here.
   openGraph: { type: "website", siteName: SITE.name, title: TITLE, description: DESCRIPTION, images: [SITE.ogImage] },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: [SITE.ogImage] },
-  // The sitelink paths (/mainland, /reviews, ...) serve this same page; they all point back to its root.
   // Absolute, because metadataBase is the main www site.
   alternates: { canonical: "https://business.best-solution.ae/" },
 };

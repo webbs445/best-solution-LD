@@ -6,9 +6,8 @@ import { prefersReducedMotion } from "@/lib/useReducedMotion";
 import { OPEN_CALLBACK } from "@/components/sections/Callback";
 
 /*
-  Google Ads sitelinks land on /calculator, /mainland, /free-zone, /offshore, /consultation and /reviews.
-  next.config.ts rewrites each to this page; here we open the matching section once the page has loaded.
-  `?section=<name>` on any URL does the same.
+  `?section=<name>` on the home page opens the matching section once the page has loaded. The old sitelink paths
+  (/calculator, /free-zone, /consultation, /reviews) now 301 to their own pages (next.config.ts).
 */
 
 const scrollTo = (id: string) =>

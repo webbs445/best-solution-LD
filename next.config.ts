@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
 
-/* Google Ads sitelink paths. Each serves the landing page itself (HTTP 200, no redirect, URL and
-   query string kept); SectionDeepLink then opens the matching section. */
-// /mainland and /offshore are advice pages of their own (app/mainland, app/offshore), no longer the home page.
-const SITELINK_PATHS = ["calculator", "free-zone", "consultation", "reviews"] as const;
+/* Old sitelink paths that used to serve the home page: each now goes to the page about that topic. 301 (not the
+   308 that `permanent` gives) as the owner asked; Next keeps the query string (gclid, gbraid, wbraid, UTMs). */
+const SITELINK_REDIRECTS = [
+  { source: "/free-zone", destination: "/freezone" },
+  { source: "/calculator", destination: "/cost-calculator" },
+  { source: "/consultation", destination: "/consult" },
+  { source: "/reviews", destination: "/services#reviews" },
+];
 
 const nextConfig: NextConfig = {
   // The dashboard reads its page template at run time.
@@ -20,9 +24,11 @@ const nextConfig: NextConfig = {
       { source: "/api/:path*", headers: noFollow },
     ];
   },
+  async redirects() {
+    return SITELINK_REDIRECTS.map((r) => ({ ...r, statusCode: 301 as const }));
+  },
   async rewrites() {
     return [
-      ...SITELINK_PATHS.map((path) => ({ source: `/${path}`, destination: "/" })),
       // Google Ads only fetches scheduled uploads from a URL ending in .csv.
       { source: "/ads-conversions.csv", destination: "/api/ads-conversions" },
       // The same data as a readable page for the team.
