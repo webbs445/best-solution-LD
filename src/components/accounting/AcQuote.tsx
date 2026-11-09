@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AC_WHATSAPP, BOOK_STATES, SERVICE_NAMES, SERVICE_OPTIONS, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
-import { SITE } from "@/content/site";
+import { CLAIMS, SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { AC_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
@@ -230,9 +230,12 @@ export function AcQuote() {
       <div className="wrap qt-grid">
         <div className="qt-head rv">
           <span className="kicker">Book a Consultation</span>
-          <h2 style={{ marginTop: 16 }}>
-            Your fixed monthly quote, <span className="grad-text">in writing.</span>
-          </h2>
+          {/* Shown only once confirmed (content/site CLAIMS.writtenQuote, e.g. "Your monthly quote, in writing."). */}
+          {CLAIMS.writtenQuote && (
+            <h2 style={{ marginTop: 16 }}>
+              {CLAIMS.writtenQuote.replace(/ in writing\.?$/, "")} <span className="grad-text">in writing.</span>
+            </h2>
+          )}
           <p className="lede">
             How it works: tell us what you need, an accountant talks it through with you, and you get a written quote. No obligation.
           </p>

@@ -1,7 +1,7 @@
 import type { ServiceId } from "@/content/services";
 
 /* One line icon per service, in the stroke style of components/ui/Icons. */
-const PATHS: Record<ServiceId, string> = {
+export const SERVICE_ICON_PATHS: Record<ServiceId, string> = {
   setup: "M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6M9 11h.01M15 11h.01",
   freezone: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2c3 3.2 3 16.8 0 20M12 2c-3 3.2-3 16.8 0 20",
   offshore: "M12 3v12M12 3l-4 4M12 3l4 4M5 13a7 7 0 0 0 14 0M3 21c2-1.3 4-1.3 6 0s4 1.3 6 0 4-1.3 6 0",
@@ -14,7 +14,7 @@ const PATHS: Record<ServiceId, string> = {
 export function ServiceIcon({ id }: { id: ServiceId }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-      <path d={PATHS[id]} />
+      <path d={SERVICE_ICON_PATHS[id]} />
     </svg>
   );
 }

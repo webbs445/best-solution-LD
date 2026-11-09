@@ -7,6 +7,7 @@ import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry 
 import { attributionFields } from "@/lib/attribution";
 import { MAX_TEAM, PLAN_OPTIONS, type Jurisdiction, type PlanOption, type WorkspaceKey } from "@/lib/setupPlan";
 import { genEventId, isConfirmedLeadResponse, jurisdictionLabel, pushEvent, pushFormSubmit, pushGenerateLead, trackCalculatorComplete, trackCalculatorResultView, trackCalculatorStart, trackCalculatorStep } from "@/lib/analytics";
+import { wireServicesMenu } from "@/components/ui/servicesMenuHtml";
 
 /*
   The /cost-calculator page's behaviour, ported from the design file's script: the six-step planner and its plan card,
@@ -542,6 +543,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
   $$(".rv").forEach((el) => io.observe(el));
   observe((es, o) => es.forEach((e) => { if (e.isIntersecting) { pushEvent("compare_view", { calculator_id: CC_CALCULATOR_ID }); o.disconnect(); } }), { threshold: 0.25 }, $("#chart"));
   on<PointerEvent>(root, "pointermove", (e) => { const c = closest(e, ".card"); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty("--mx", `${e.clientX - r.left}px`); c.style.setProperty("--my", `${e.clientY - r.top}px`); }, true);
+  wireServicesMenu(root, signal);
   $("#nOpts").textContent = String(ALL_OPTIONS);
   $("#yr").textContent = String(new Date().getFullYear());
 

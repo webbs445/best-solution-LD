@@ -4,6 +4,7 @@ import { CC_FAQ, CC_URL } from "@/content/costCalculator";
 import { CC_MARKUP } from "@/components/costCalculator/markup";
 import { CcScript } from "@/components/costCalculator/CcScript";
 import "./cost-calculator.css";
+import "@/components/ui/servicesMenu.css";
 
 const TITLE = "Plan Your UAE Company Budget | Best Solution";
 const DESCRIPTION =

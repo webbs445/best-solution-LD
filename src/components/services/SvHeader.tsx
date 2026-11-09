@@ -7,6 +7,7 @@ import { SITE_MENU } from "@/content/services";
 import { MenuIcon, PhoneIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
 import { ServiceIcon } from "./ServiceIcon";
+import { ServicesMenu } from "@/components/ui/ServicesMenu";
 
 const LINKS = [
   { href: "#reviews", label: "Reviews" },
@@ -49,27 +50,7 @@ export function SvHeader() {
             <span>Best Solution</span>
           </a>
           <nav className="bs-nav" aria-label="Main">
-            <div className="sv-dd" ref={ddRef}>
-              <button type="button" className="sv-dd-btn" aria-expanded={dd} aria-controls="svServices" onClick={() => setDd((d) => !d)}>
-                Services
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </button>
-              <div className="sv-dd-panel" id="svServices" hidden={!dd}>
-                {SITE_MENU.map((s) => (
-                  <a key={s.id} href={s.href} onClick={() => setDd(false)}>
-                    <span className="sv-ico">
-                      <ServiceIcon id={s.id === "hub" ? "setup" : s.id} />
-                    </span>
-                    <span>
-                      <b>{s.label}</b>
-                      <small>{s.line}</small>
-                    </span>
-                  </a>
-                ))}
-              </div>
-            </div>
+            <ServicesMenu />
             {LINKS.map((n) => (
               <a key={n.href} href={n.href}>
                 {n.label}

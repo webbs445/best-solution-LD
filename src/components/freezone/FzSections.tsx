@@ -334,6 +334,7 @@ export function FzClosing({ c = FZ_CLOSING }: { c?: ClosingBlock } = {}) {
             </CallbackTrigger>
             <a
               className="fz-btn-ghost"
+              style={{ textDecoration: "none" }}
               href={c.secondary.href}
               data-cta-location={c.secondary.location}
               {...(c.secondary.external ? { target: "_blank", rel: "noopener" } : {})}

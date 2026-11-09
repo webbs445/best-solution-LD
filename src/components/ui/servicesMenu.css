@@ -1,0 +1,27 @@
+/*
+  The Services dropdown in every page header: the /services header's dropdown rules (services.css .sv-dd*), unchanged,
+  under their own class so every page can use them. Colours and font come from the global tokens (globals.css :root).
+  Higher specificity on the links so a page's own `nav a` rules do not restyle the panel.
+*/
+.svm {position:relative;display:inline-flex}
+.svm .svm-btn {display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:0;border-radius:8px;background:transparent;font:600 14px/1.2 var(--font);color:var(--navy);cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.svm .svm-btn:hover,.svm .svm-btn[aria-expanded="true"] {background:rgba(204,134,103,.1);color:#a86b52}
+.svm .svm-btn svg {width:16px;height:16px;transition:transform .2s ease}
+.svm .svm-btn[aria-expanded="true"] svg {transform:rotate(180deg)}
+.svm .svm-panel {position:absolute;z-index:80;top:calc(100% + 14px);left:-12px;width:560px;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:12px;border-radius:16px;border:1px solid rgba(204,134,103,.14);background:linear-gradient(#fff,#f5e8e2);box-shadow:0 24px 60px rgba(20,37,62,.18);animation:svm-drop .18s ease;text-align:left}
+/* Where Services is the last item in a header, the panel opens to the left so it stays on screen. */
+.svm .svm-panel.svm-end {left:auto;right:-12px}
+.svm .svm-panel[hidden] {display:none}
+.svm .svm-panel a.svm-item {display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:12px;text-decoration:none;color:inherit;background:none;margin:0;height:auto;white-space:normal;letter-spacing:normal;text-transform:none}
+.svm .svm-panel a.svm-item:hover {background:rgba(204,134,103,.08)}
+.svm .svm-panel b {display:block;font:700 14px/1.25 var(--font);color:var(--navy)}
+.svm .svm-panel small {display:block;margin-top:3px;font:500 12.5px/1.4 var(--font);color:var(--ink-soft)}
+.svm .svm-ico {display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;background:var(--tint);color:var(--copper-ink)}
+.svm .svm-ico svg {width:18px;height:18px}
+@keyframes svm-drop {from {opacity:0;transform:translateY(-6px)}}
+@media (max-width:640px) {
+  .svm .svm-panel {display:none}
+}
+@media (prefers-reduced-motion:reduce) {
+  .svm .svm-panel {animation:none}
+}

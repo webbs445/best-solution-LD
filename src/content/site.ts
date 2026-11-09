@@ -54,7 +54,11 @@ export const CLAIMS: {
   emirates: string | null;
   /** Complete accounting package saving, e.g. "Save about 20%" */
   packageSaving: string | null;
-} = { since: null, rating: null, businesses: null, countries: null, team: null, ownership: null, zones: null, emirates: null, packageSaving: null };
+  /** /accounting quote heading, e.g. "Your monthly quote, in writing." */
+  writtenQuote: string | null;
+  /** Home closing card point, e.g. "Fees confirmed in writing" */
+  writtenFees: string | null;
+} = { since: null, rating: null, businesses: null, countries: null, team: null, ownership: null, zones: null, emirates: null, packageSaving: null, writtenQuote: null, writtenFees: null };
 
 /*
   Stat tiles: a confirmed claim fills the number slot; until then the slot shows plain, true text in the same style

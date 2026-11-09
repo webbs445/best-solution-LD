@@ -400,7 +400,7 @@ export type FzSitelinkView = (typeof FZ_SITELINK_VIEWS)[number];
 /* On-page navigation (header, mobile menu and footer). */
 export const FZ_NAV = [
   { href: "#planner", label: "Planner" },
-  { href: "#zones", label: "Compare" },
+  { href: "#zones", label: "Zones" },
   { href: "#process", label: "Steps" },
   { href: "#reviews", label: "Reviews" },
   { href: "#faq", label: "FAQ" },

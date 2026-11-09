@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { SPV_WA_HREF } from "@/content/spv";
+import { ServicesMenu } from "@/components/ui/ServicesMenu";
 
 /* Scroll progress, header and mobile menu. Converted from the structuring landing page HTML. */
 export function SpvChrome() {
@@ -9,7 +10,7 @@ export function SpvChrome() {
 <header className="top" id="top">
   <div className="wrap">
     <a className="brand" href="#main" aria-label="Best Solution home"><Image src="/brand/icon-mark.webp" alt="" width={28} height={40} priority /><span>Best Solution</span></a>
-    <nav className="nav" aria-label="Sections"><a href="#why">Why a structure</a><a href="#compare">Structures</a><a href="#fit">Find your fit</a><a href="#layers">How it works</a><a href="#faq">FAQ</a><a href="/services">Services</a></nav>
+    <nav className="nav" aria-label="Sections"><a href="#why">Why a structure</a><a href="#compare">Structures</a><a href="#fit">Find your fit</a><a href="#layers">How it works</a><a href="#faq">FAQ</a><ServicesMenu align="end" /></nav>
     <div className="tact">
       <a className="ico-btn" href={SPV_WA_HREF} target="_blank" rel="noopener" aria-label="Chat on WhatsApp" data-area="SPV Header"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.3z" /></svg></a>
       <a className="btn btn-cu hb" href="#consult" data-cta-location="SPV Header Book">Book a Consultation</a>

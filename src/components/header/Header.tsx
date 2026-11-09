@@ -6,6 +6,7 @@ import { NAV, SITE } from "@/content/site";
 import { CtaLink } from "@/components/ui/CtaLink";
 import { MenuIcon, PhoneIcon } from "@/components/ui/Icons";
 import styles from "./Header.module.css";
+import { ServicesMenu } from "@/components/ui/ServicesMenu";
 
 /** Floating header matched to best-solution.ae: a rounded bar that gains a stronger shadow once the page scrolls. */
 export function Header() {
@@ -62,7 +63,7 @@ export function Header() {
             ))}
             <span className={styles.navItem}>
               <span className={styles.navDiv} aria-hidden="true" />
-              <a href="/services">Services</a>
+              <ServicesMenu align="end" />
             </span>
           </nav>
 

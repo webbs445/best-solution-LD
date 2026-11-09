@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { DISCLAIMER, FOOTER_COLUMNS, MAPS_URL, SITE, SOCIAL } from "@/content/site";
+import { CLAIMS, DISCLAIMER, FOOTER_COLUMNS, MAPS_URL, SITE, SOCIAL } from "@/content/site";
 import { CtaLink } from "@/components/ui/CtaLink";
 import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
 import {
@@ -17,7 +17,8 @@ import { CallbackButton } from "./Callback";
 import { AdvisorsBadge } from "@/components/ui/AdvisorsBadge";
 import styles from "./Closing.module.css";
 
-const POINTS = ["No obligation", "Fees confirmed in writing", "Reply by phone, WhatsApp or email"];
+/* The middle point shows only once confirmed (content/site CLAIMS.writtenFees). */
+const POINTS = ["No obligation", CLAIMS.writtenFees, "Reply by phone, WhatsApp or email"].filter((p): p is string => !!p);
 
 /* Closing CTA: a card on the page ground, just above the footer. */
 export function Closing() {

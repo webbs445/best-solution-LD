@@ -1,4 +1,5 @@
 import { DISCLAIMER } from "@/content/site";
+import { servicesMenuHtml } from "@/components/ui/servicesMenuHtml";
 
 /*
   The /cost-calculator page body, from BestSolution_CostCalculator_LandingPage.html, served as static HTML (CcScript
@@ -9,7 +10,7 @@ import { DISCLAIMER } from "@/content/site";
 export const CC_MARKUP = String.raw`<header class="hd" id="hd">
   <div class="wrap hd-in">
     <a class="brand" href="#top" aria-label="Best Solution"><img src="/brand/icon-mark.webp" alt="" width="28" height="40"><span>Best Solution</span></a>
-    <nav class="nav" aria-label="Page sections"><a href="#calculator" data-t="Planner">Planner</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a><a href="/services">Services</a></nav>
+    <nav class="nav" aria-label="Page sections"><a href="#calculator" data-t="Planner">Planner</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a>${servicesMenuHtml("ccSvm")}</nav>
     <div class="hd-act">
       <button type="button" class="btn btn-ink sm" id="hdCta" data-cta-location="CC Header - Main"></button>
     </div>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { SITE } from "@/content/site";
 import { AC_NAV, AC_WHATSAPP } from "@/content/accounting";
+import { ServicesMenu } from "@/components/ui/ServicesMenu";
 
 /*
   Page chrome for /accounting: the reading progress bar, the header (light over light sections, solid over
@@ -78,7 +79,7 @@ export function AcChrome() {
                 {n.label}
               </a>
             ))}
-            <a href="/services">Services</a>
+            <ServicesMenu align="end" />
           </nav>
           <a className="btn btn-copper" href="#contact" data-cta-location="AC Header - Book a Consultation">
             Book a Consultation

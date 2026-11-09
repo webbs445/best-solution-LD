@@ -7,6 +7,7 @@ import { FZ_NAV } from "@/content/freezone";
 import { ALL_SERVICES } from "@/content/services";
 import { OPEN_CALLBACK } from "@/components/sections/Callback";
 import { MenuIcon, PhoneIcon } from "@/components/ui/Icons";
+import { ServicesMenu } from "@/components/ui/ServicesMenu";
 
 /* Header for /freezone, /mainland and /offshore: the page's own section links, "All services", and the main call to action. */
 export function FzHeader({ nav = FZ_NAV, tag = "FZ" }: { nav?: { href: string; label: string }[]; tag?: string } = {}) {
@@ -47,7 +48,7 @@ export function FzHeader({ nav = FZ_NAV, tag = "FZ" }: { nav?: { href: string; l
               </Fragment>
             ))}
             <span className="bs-nav-div" aria-hidden="true" />
-            <a href={ALL_SERVICES.href}>Services</a>
+            <ServicesMenu align="end" />
           </nav>
           <div className="bs-actions">
             <a className="bs-phone" href={SITE.phone.href}>
