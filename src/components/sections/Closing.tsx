@@ -17,7 +17,7 @@ import { CallbackButton } from "./Callback";
 import { AdvisorsBadge } from "@/components/ui/AdvisorsBadge";
 import styles from "./Closing.module.css";
 
-const POINTS = ["No obligation", "Estimate confirmed in writing", "Reply by phone, WhatsApp or email"];
+const POINTS = ["No obligation", "Fees confirmed in writing", "Reply by phone, WhatsApp or email"];
 
 /* Closing CTA: a card on the page ground, just above the footer. */
 export function Closing() {

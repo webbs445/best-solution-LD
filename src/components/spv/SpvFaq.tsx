@@ -26,7 +26,7 @@ export function SpvFaq() {
             <p>Ask our structuring team directly.</p>
             <div className="fq-r">
               <a className="btn btn-cu" href="#consult" data-cta-location="SPV FAQ Book">
-                Book a consultation
+                Book a Consultation
               </a>
               <a className="btn btn-wh" href={SPV_WA_HREF} target="_blank" rel="noopener" data-area="SPV FAQ">
                 WhatsApp

@@ -50,7 +50,7 @@ export function SpvProcess() {
     </div>
   </div></div></div>
   <div className="wrap">
-    <div className="jr-cta rv"><p>Nothing begins until you agree the plan and the fees in writing.</p><a className="btn btn-nv" href="#consult" data-cta-location="SPV Process Book">Book a consultation <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a></div>
+    <div className="jr-cta rv"><p>Nothing begins until you agree the plan and the fees in writing.</p><a className="btn btn-nv" href="#consult" data-cta-location="SPV Process Book">Book a Consultation <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a></div>
   </div>
 </section>
     </>
