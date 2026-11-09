@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ZONE_BY_ID, ZONE_LOGOS } from "@/content/freezone";
+import { ZONE_BY_ID } from "@/content/freezone";
 import { CC_CALCULATOR_ID, CC_PRICE_FORM_ID, CC_QUOTE_FORM_ID, LEAD_RULES } from "@/lib/lead";
 import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry } from "@/lib/phone";
 import { attributionFields } from "@/lib/attribution";
@@ -12,7 +12,7 @@ import { wireServicesMenu } from "@/components/ui/servicesMenuHtml";
 /*
   The /cost-calculator page's behaviour, ported from the design file's script: the six-step planner and its plan card,
   the comparison table, the hero preview, the "Send to an advisor" pop-up, the call pop-up and the lead forms. Advice only
-  (Google Ads policy): no prices, price lock, residency step or licence-style marks; English only. Option
+  (Google Ads policy): no prices, price lock, residency step, authority logos or licence-style marks; English only. Option
   names come from lib/setupPlan, so no price data reaches the browser; /api/cost-calculator describes the choice for the
   ERP on the server. Contact clicks, form_start / form_error / form_abandon and CTA clicks are tracked site-wide
   (AnalyticsInit); this adds the calculator events, and the lead conversions only after the ERP has saved the lead.
@@ -76,10 +76,6 @@ const SLOT = '<span class="slot"><svg viewBox="0 0 24 24" fill="none" stroke="cu
 const esc = (s: unknown) => String(s).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
 const sess = (k: string, v?: string) => { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch { /* storage blocked */ } return null; };
 const ALL_OPTIONS = PLAN_OPTIONS.mainland.length + PLAN_OPTIONS.freezone.length + PLAN_OPTIONS.offshore.length;
-/* A text monogram in the logo slot (no authority logos): the zone's short name, or the name's initials. */
-/* Authority logos in /public/zones (free zones share the /freezone map); a text monogram where there is none. */
-// Mainland options (government departments) show their name badge: no government emblems.
-const LOGO: Record<string, string> = { ...ZONE_LOGOS, o0: "rak-icc.webp", o1: "jafza.svg", o2: "ajman-free-zone.webp" };
 /* 36 rotated ellipses and rings: a fine guilloche rosette */
 const GUILLOCHE = (() => {
   let g = "";
@@ -87,6 +83,7 @@ const GUILLOCHE = (() => {
   for (let r = 24; r < 200; r += 20) g += `<circle cx="200" cy="200" r="${r}"/>`;
   return `<svg viewBox="0 0 400 400" fill="none" stroke="currentColor" stroke-width=".6">${g}</svg>`;
 })();
+/* A text monogram in the logo slot (no authority logos): the zone's short name, or the name's initials. */
 const mono = (o: PlanOption) => ZONE_BY_ID[o.id]?.short[1] ?? o.name.split(/[\s,]+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join("").slice(0, 4);
 
 export function CcScript() {
@@ -120,7 +117,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
 
   const shortNm = (o: PlanOption) => o.name;
   const actName = () => (A.activity ? ACT_UI[A.activity][0] : "");
-  const logo = (o: PlanOption) => (LOGO[o.id] ? `<img src="/zones/${LOGO[o.id]}" alt="" loading="lazy">` : `<b>${esc(mono(o))}</b>`);
+  const logo = (o: PlanOption) => `<b>${esc(mono(o))}</b>`;
   const teamTxt = (n: number) => (n >= MAX_TEAM ? `${MAX_TEAM} or more people` : n === 1 ? "Just me" : `${n} people`);
 
   /* ---------- state and steps ---------- */

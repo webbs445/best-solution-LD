@@ -1,26 +1,24 @@
-import Image from "next/image";
-import { AUTHORITIES } from "@/content/site";
+import { ZONES } from "@/content/freezone";
 
-/* "Free zones we compare for you": the authority logo strip by default; pages can pass text tiles (`items`) instead. */
-const LOGO_ITEMS = AUTHORITIES.map((a) => ({ key: a.file, b: a.name, small: "", src: a.src }));
+/*
+  "Free zones we compare for you": the same moving strip as before, with zone names as text in the tiles. No authority
+  logos (Google Ads policy on implied affiliation).
+*/
+const ZONE_ITEMS = ZONES.map((z) => ({ key: z.id, b: z.short[0], small: z.emirate as string }));
 
 export function FzPartners({
   title = "Free zones we compare for you",
   sub = "Across the UAE, matched to your activity.",
-  items = LOGO_ITEMS,
-}: { title?: string; sub?: string; items?: { key: string; b: string; small: string; src?: string }[] } = {}) {
+  items = ZONE_ITEMS,
+}: { title?: string; sub?: string; items?: { key: string; b: string; small: string }[] } = {}) {
   const row = (copy: boolean) => (
     <ul className="logo-row" aria-hidden={copy || undefined}>
       {items.map((z) => (
         <li key={z.key}>
-          {z.src ? (
-            <Image src={z.src} alt={copy ? "" : z.b} width={120} height={120} />
-          ) : (
-            <span className="logo-name">
-              <b>{z.b}</b>
-              <small>{z.small}</small>
-            </span>
-          )}
+          <span className="logo-name">
+            <b>{z.b}</b>
+            <small>{z.small}</small>
+          </span>
         </li>
       ))}
     </ul>

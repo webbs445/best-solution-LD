@@ -167,7 +167,7 @@ export const ZONES: Zone[] = [
   z("f27", "Umm Al Quwain (UAQ FTZ)", "Northern Emirates", "Trading, services and micro-businesses",
     ["trading", "services"], [],
     ["trading", "general", "services", "ecommerce", "media", "tech", "industrial", "food", "logistics", "holding", "tourism", "events"],
-    ["UAQ FTZ", "UAQ"]),
+    ["Umm Al Quwain FTZ", "UAQ"]),
 ];
 
 export const ZONE_BY_ID: Record<string, Zone> = Object.fromEntries(ZONES.map((zn) => [zn.id, zn]));
@@ -443,13 +443,3 @@ export const FZ_FAQS: { c: FaqTopic; q: string; a: string }[] = [
     a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.",
   },
 ];
-
-/** Zone logo files in /public/zones, by zone id (zones without one show their monogram). */
-export const ZONE_LOGOS: Record<string, string> = {
-  f0: "ifza.webp", f1: "meydan.webp", f2: "dmcc.webp", f3: "jafza.svg", f4: "dubai-silicon-oasis.svg",
-  f5: "dubai-internet-city.webp", f6: "dubai-media-city.webp", f7: "dafza.webp", f8: "dubai-south.svg",
-  f9: "dubai-healthcare-city.svg", f10: "difc.webp", f11: "dubai-commercity.svg", f12: "adgm.svg", f13: "kezad.webp",
-  f14: "masdar-city.webp", f15: "shams.webp", f16: "saif-zone.webp", f17: "hamriyah.webp", f18: "spc.webp",
-  f19: "srtip.webp", f20: "ajman-free-zone.webp", f21: "ajman-nu-venture.webp", f22: "rakez.webp",
-  f24: "innovation-city.svg", f25: "fujairah-free-zone.webp", f26: "creative-city-fujairah.webp", f27: "uaq-ftz.webp",
-};

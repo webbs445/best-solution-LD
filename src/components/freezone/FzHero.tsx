@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import Image from "next/image";
-import { ACT_LABEL, EM_SHORT, HERO_DEMO, ZONES, ZONE_BY_ID, ZONE_LOGOS } from "@/content/freezone";
+import { ACT_LABEL, EM_SHORT, HERO_DEMO, ZONES, ZONE_BY_ID } from "@/content/freezone";
 import { CLAIMS, DISCLAIMER, statTile, zonesPhrase } from "@/content/site";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { ArrowIcon } from "@/components/ui/Icons";
@@ -27,18 +26,17 @@ function SplitWords({ text, start, hl }: { text: string; start: number; hl?: boo
   return <>{out}</>;
 }
 
-/** A tile on the hero wall: a logo (or a monogram), a name and a small line. */
+/** A text tile on the hero wall: a monogram, a name and a small line (no logos). */
 export interface HeroTile {
   key: string;
   mono: string;
   title: string;
   sub: string;
-  logo?: string;
 }
 
 /*
   Everything the hero says, so /mainland and /offshore reuse the same hero with their own content. The defaults are
-  the /freezone page. Advice only: no prices, licences or residency.
+  the /freezone page. Advice only: no prices, licences, residency or authority logos.
 */
 export interface HeroConfig {
   tag: string;
@@ -69,7 +67,7 @@ export const FZ_HERO: HeroConfig = {
   secondary: { label: "Plan my free zone", href: "#planner", location: "FZ Hero - Plan My Free Zone" },
   proof: [statTile(CLAIMS.zones, "Free zones to compare", "office"), statTile(CLAIMS.emirates, "Emirates", "meet"), statTile(null, "", "explain")],
   trustline: "Private consultancy · Business Bay, Dubai",
-  wall: ZONES.map((zn) => ({ key: zn.id, mono: zn.short[1], title: zn.short[0], sub: EM_SHORT[zn.emirate], logo: ZONE_LOGOS[zn.id] && `/zones/${ZONE_LOGOS[zn.id]}` })),
+  wall: ZONES.map((zn) => ({ key: zn.id, mono: zn.short[1], title: zn.short[0], sub: EM_SHORT[zn.emirate] })),
   demo: HERO_DEMO.map(([act, id]) => [ACT_LABEL[act], ZONE_BY_ID[id].name]),
   demoLabel: "Often suited to",
   demoTile: HERO_DEMO.map(([, id]) => id),
@@ -198,15 +196,9 @@ export function FzHero({ c = FZ_HERO }: { c?: HeroConfig } = {}) {
                     {[0, 1].flatMap((dup) =>
                       set.map((t) => (
                         <div key={`${dup}-${t.key}`} className={`hx-tile${t.key === lit ? " on" : ""}`}>
-                          {t.logo ? (
-                            <span className="zl zl-tile">
-                              <Image src={t.logo} alt="" width={132} height={84} unoptimized loading="lazy" />
-                            </span>
-                          ) : (
-                            <span className="zl zl-txt zl-tile" aria-hidden="true">
-                              <b>{t.mono}</b>
-                            </span>
-                          )}
+                          <span className="zl zl-txt zl-tile" aria-hidden="true">
+                            <b>{t.mono}</b>
+                          </span>
                           <div className="hx-tile-t">
                             <b>{t.title}</b>
                             <span>{t.sub}</span>
