@@ -140,13 +140,13 @@ function QuickCheck() {
   );
 }
 
-/* Hero card: an office photo band, the quick check below it. */
+/* Hero card: the copper logo wall of our office as a photo band, the quick check below it. */
 export function HeroCard() {
   return (
     <aside aria-label="Structure check: which UAE option suits you" className={styles.card}>
       <div className={styles.photo} aria-hidden="true">
         <Image
-          src="/images/free-zone-business-park-office.webp"
+          src="/images/office-wall.webp"
           alt=""
           fill
           sizes="(max-width: 1020px) 560px, 520px"

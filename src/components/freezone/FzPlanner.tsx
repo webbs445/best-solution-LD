@@ -231,7 +231,7 @@ export function FzPlanner() {
               <div className={s.estGrid}>
                 <div className={s.estHero}>
                   <div className={s.estZone}>
-                    <ZoneLogo zone={zone} size="zl-sug" />
+                    <ZoneLogo zone={zone} size="zl-sug" alt={false} />
                     <span>
                       <b>{zone.name}</b>
                       <small>{zone.emirate}</small>
@@ -462,7 +462,7 @@ export function FzPlanner() {
                         <li key={`${m.zone.id}-${state.acts.join()}-${state.pri}`} style={{ "--i": i } as CSSProperties}>
                           <button type="button" aria-pressed={on} onClick={() => chooseZone(m.zone.id, "match")}>
                             <span className={s.mTop}>
-                              <ZoneLogo zone={m.zone} size="zl-sug" />
+                              <ZoneLogo zone={m.zone} size="zl-sug" alt={false} />
                               <span className={s.mName}>
                                 <b>{m.zone.name}</b>
                                 <small>{m.zone.emirate}</small>

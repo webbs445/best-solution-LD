@@ -9,7 +9,7 @@ import { servicesMenuHtml } from "@/components/ui/servicesMenuHtml";
 */
 export const CC_MARKUP = String.raw`<header class="hd" id="hd">
   <div class="wrap hd-in">
-    <a class="brand" href="#top" aria-label="Best Solution"><img src="/brand/icon-mark.webp" alt="" width="28" height="40"><span>Best Solution</span></a>
+    <a class="brand" href="#top" aria-label="Best Solution"><img src="/brand/wordmark.webp" alt="Best Solution" width="150" height="36"></a>
     <nav class="nav" aria-label="Page sections"><a href="#calculator" data-t="Planner">Planner</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a>${servicesMenuHtml("ccSvm")}</nav>
     <div class="hd-act">
       <button type="button" class="btn btn-ink sm" id="hdCta" data-cta-location="CC Header - Main"></button>
@@ -200,7 +200,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
 <footer class="ft">
   <div class="wrap">
     <div class="ft-top">
-      <div><span class="brand"><img src="/brand/icon-mark.webp" alt="" width="28" height="40"><span>Best Solution</span></span><p data-t="Private business advisors in Business Bay, Dubai.">Private business advisors in Business Bay, Dubai.</p></div>
+      <div><img src="/brand/wordmark.webp" alt="Best Solution" width="170" height="42"><p data-t="Private business advisors in Business Bay, Dubai.">Private business advisors in Business Bay, Dubai.</p></div>
       <div><h4 data-t="On this page">On this page</h4><a href="#calculator" data-t="Planner">Planner</a><a href="#compare" data-t="Compare">Compare</a><a href="#faq" data-t="FAQ">FAQ</a><a href="/services">All services</a></div>
       <div><h4 data-t="Contact">Contact</h4><a href="tel:+971522330011" data-area="Footer" dir="ltr">+971 52 233 0011</a><a href="https://wa.me/97145531546" target="_blank" rel="noopener" data-area="Footer">WhatsApp</a><a href="mailto:connect@best-solution.ae" data-area="Footer">connect@best-solution.ae</a></div>
     </div>

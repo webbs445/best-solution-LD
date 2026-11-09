@@ -70,8 +70,8 @@ export function AcChrome() {
       <header className={`top${light ? " light" : ""}${solid ? " solid" : ""}`} id="hdr">
         <div className="wrap">
           <a className="logo" href="#top" aria-label="Best Solution home">
-            <Image src="/brand/icon-mark.webp" alt="" width={28} height={40} priority />
-            <span>Best Solution</span>
+            <Image className="l-light" src={SITE.mark} alt="Best Solution logo" width={124} height={58} priority />
+            <Image className="l-dark" src={SITE.logo} alt="" width={131} height={58} aria-hidden="true" priority />
           </a>
           <nav className="nav" aria-label="Page sections" id="nav">
             {AC_NAV.map((n) => (
@@ -110,10 +110,7 @@ export function AcChrome() {
       >
         <nav aria-label="Mobile menu">
           <div className="dh">
-            <span className="dh-logo">
-              <Image src="/brand/icon-mark.webp" alt="" width={28} height={40} />
-              Best Solution
-            </span>
+            <Image src={SITE.logo} alt="Best Solution logo" width={131} height={58} />
             <button type="button" className="x" aria-label="Close menu" onClick={() => setDrawer(false)}>
               &times;
             </button>

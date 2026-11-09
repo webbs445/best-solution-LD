@@ -37,9 +37,8 @@ export function FzHeader({ nav = FZ_NAV, tag = "FZ" }: { nav?: { href: string; l
     <header className={`bs-header${scrolled ? " is-scrolled" : ""}`} id="bsHeader">
       <div className="bs-header-in">
         <div className="bs-bar">
-          <a className="bs-logo bs-logo-text" href="#top" aria-label="Best Solution, back to top">
-            <Image src="/brand/icon-mark.webp" alt="" width={28} height={40} priority />
-            <span>Best Solution</span>
+          <a className="bs-logo" href="#top" aria-label="Best Solution, back to top">
+            <Image src={SITE.logo} alt="Best Solution, Business Begins Here" width={180} height={80} priority />
           </a>
           <nav className="bs-nav" aria-label="On this page">
             {nav.map((n) => (

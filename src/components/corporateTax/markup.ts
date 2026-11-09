@@ -7,7 +7,7 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
 
 <header class="hd" id="hd">
   <div class="wrap hd-in">
-    <a class="brand" href="#top" aria-label="Best Solution home"><img src="/brand/icon-mark.webp" alt="" width="28" height="40"><span>Best Solution</span></a>
+    <a class="brand" href="#top" aria-label="Best Solution home"><img src="/brand/wordmark.webp" alt="Best Solution" width="90" height="40"></a>
     <nav class="hd-nav" aria-label="Page sections">
       <a href="#top">Due date</a><a href="#estimate">Estimate</a><a href="#apply">Who pays</a><a href="#year">Tax year</a><a href="#faq">FAQ</a>
     </nav>
@@ -259,7 +259,7 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
   <div class="wrap">
     <div class="ft-mark" id="ftMark" aria-hidden="true">Corporate Tax,<br>explained.</div>
     <div class="ft-top">
-      <div><span class="ft-brand"><img src="/brand/icon-mark.webp" alt="" width="28" height="40">Best Solution</span><p>Corporate Tax advice, return support and bookkeeping for UAE businesses, from our office in Business Bay, Dubai.</p></div>
+      <div><img src="/brand/wordmark-light.webp" alt="Best Solution" width="104" height="46"><p>Corporate Tax advice, return support and bookkeeping for UAE businesses, from our office in Business Bay, Dubai.</p></div>
       <div><h4>On this page</h4><a href="#top">Due date</a><a href="#estimate">Estimate your tax</a><a href="#apply">Does it apply</a><a href="#year">Your tax year</a><a href="/services">All services</a></div>
       <div><h4>Contact</h4><a href="tel:+971522330011" data-area="Footer">+971 52 233 0011</a><a href="https://wa.me/97145531546" target="_blank" rel="noopener" data-area="Footer">WhatsApp</a><a href="mailto:connect@best-solution.ae" data-area="Footer">connect@best-solution.ae</a></div>
     </div>

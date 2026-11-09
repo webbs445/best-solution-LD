@@ -138,7 +138,7 @@ export function FzConsultation({ c = FZ_BRIEF }: { c?: BriefBlock } = {}) {
 
 /* The home page's "Why Best Solution" photos, with an office photo in the lead spot. */
 const PHOTOS = [
-  { src: "/images/free-zone-business-park-office.webp", alt: "A modern office overlooking a business park", w: 1600, h: 837 },
+  { src: "/images/why-event.webp", alt: "Best Solution advisors with clients at a Dubai business event", w: 760, h: 507 },
   { src: "/images/why-team.webp", alt: "Best Solution team at a client event", w: 760, h: 503 },
   { src: "/images/why-founder.webp", alt: "An advisor in a client meeting", w: 760, h: 507 },
   { src: "/images/why-consultation.webp", alt: "Client consultation at the Best Solution office", w: 760, h: 563 },

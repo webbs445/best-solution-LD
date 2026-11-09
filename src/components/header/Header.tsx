@@ -45,14 +45,13 @@ export function Header() {
         <div className={styles.bar}>
           <a className={styles.logo} href="#top" aria-label="Best Solution, back to top">
             <Image
-              src="/brand/icon-mark.webp"
-              alt=""
-              width={31}
-              height={44}
+              src={SITE.logo}
+              alt="Best Solution, Business Begins Here"
+              width={360}
+              height={160}
               loading="eager"
               fetchPriority="high"
             />
-            <span>Best Solution</span>
           </a>
 
           <nav className={styles.nav} aria-label="On this page">

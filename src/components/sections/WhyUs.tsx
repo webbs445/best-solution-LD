@@ -5,7 +5,7 @@ import styles from "./WhyUs.module.css";
 
 /* Photos from best-solution.ae. `shape` sets each tile's aspect ratio so the two columns interlock. */
 const PHOTOS = [
-  { src: "/images/free-zone-business-park-office.webp", alt: "A modern office with a view over a business park", w: 760, h: 507, shape: "a" },
+  { src: "/images/why-event.webp", alt: "Best Solution advisors with clients at a Dubai business event", w: 760, h: 507, shape: "a" },
   { src: "/images/why-team.webp", alt: "Best Solution team at a client event", w: 760, h: 503, shape: "b" },
   { src: "/images/why-founder.webp", alt: "Best Solution advisors in a client meeting", w: 760, h: 507, shape: "c" },
   { src: "/images/why-consultation.webp", alt: "Client consultation at the Best Solution office", w: 760, h: 563, shape: "d" },

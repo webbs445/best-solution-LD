@@ -1,13 +1,23 @@
-import type { Zone } from "@/content/freezone";
+import Image from "next/image";
+import { ZONE_LOGOS, type Zone } from "@/content/freezone";
 
 /*
-  A free zone's short name on a white tile. Text only: no authority logos on this page (Google Ads policy on
-  implied affiliation). `size` picks the tile style from freezone.css (zl-row, zl-xl, zl-tile, zl-sug, zl-cmp).
+  A free zone's logo on a white tile, or its monogram when we have no logo.
+  `size` picks the tile style from freezone.css (zl-row, zl-xl, zl-tile, zl-sug, zl-cmp).
+  Logos are small and some are SVG, so they're served as-is rather than through the image optimiser.
 */
-export function ZoneLogo({ zone, size }: { zone: Zone; size: string; alt?: boolean }) {
+export function ZoneLogo({ zone, size, alt = true }: { zone: Zone; size: string; alt?: boolean }) {
+  const logo = ZONE_LOGOS[zone.id];
+  if (!logo) {
+    return (
+      <span className={`zl zl-txt ${size}`}>
+        <b>{zone.short[1]}</b>
+      </span>
+    );
+  }
   return (
-    <span className={`zl zl-txt ${size}`} aria-hidden="true">
-      <b>{zone.short[1]}</b>
+    <span className={`zl ${size}`}>
+      <Image src={`/zones/${logo}`} alt={alt ? `${zone.name} logo` : ""} width={132} height={84} unoptimized loading="lazy" />
     </span>
   );
 }

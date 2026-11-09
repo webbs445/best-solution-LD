@@ -55,9 +55,8 @@ export function FzFooter({
       <div className="bs-fin">
         <div className="f5-top">
           <div className="f4-brand">
-            <a className="bs-flogo bs-logo-text" href="#top" aria-label="Best Solution, back to top">
-              <Image src="/brand/icon-mark.webp" alt="" width={28} height={40} />
-              <span>Best Solution</span>
+            <a className="bs-flogo" href="#top" aria-label="Best Solution, back to top">
+              <Image src={SITE.mark} alt="Best Solution" width={160} height={75} />
             </a>
             <p>{blurb}</p>
             <div className="bs-social">

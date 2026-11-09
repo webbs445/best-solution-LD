@@ -236,7 +236,8 @@
   font: 800 clamp(20px, 1.7vw, 24px) / 1.05 var(--font);
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  /* Text tiles ("In person or video") wrap inside their column instead of running into the next one. */
+  text-wrap: balance;
 }
 
 .trust span {

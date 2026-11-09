@@ -11,7 +11,7 @@ export function SpvFooter() {
   <div className="wrap">
     <div className="ft-big rv"><p className="ft-st"><span>Structure it right.</span><span className="o">Protect what matters.</span></p><a className="btn btn-cu" href="#consult" data-cta-location="SPV Footer Book">Book a Consultation <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a></div>
     <div className="ft-top">
-      <div><span className="ft-brand"><Image src="/brand/icon-mark.webp" alt="" width={28} height={40} />Best Solution</span><p>Private advisory on foundations, SPVs, holding and offshore companies, from our office in Business Bay, Dubai.</p></div>
+      <div><Image src={SITE.mark} alt="Best Solution" width={111} height={52} /><p>Private advisory on foundations, SPVs, holding and offshore companies, from our office in Business Bay, Dubai.</p></div>
       <div><h4>Explore</h4><a href="#why">Why a structure</a><a href="#compare">Structures</a><a href="#fit">Find your fit</a><a href="#faq">FAQ</a><a href="/services">All services</a></div>
       <div><h4>Contact</h4><a href={SITE.phone.href} data-area="SPV Footer">{SITE.phone.display}</a><a href={SITE.whatsapp} target="_blank" rel="noopener" data-area="SPV Footer">WhatsApp</a><a href={`mailto:${SITE.email}`} data-area="SPV Footer">{SITE.email}</a></div>
     </div>

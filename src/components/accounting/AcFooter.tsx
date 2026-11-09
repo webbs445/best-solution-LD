@@ -40,7 +40,7 @@ export function AcFooter() {
 
         <div className="f-grid">
           <div className="f-brand">
-            <span className="f-logo"><Image src="/brand/icon-mark.webp" alt="" width={28} height={40} />Best Solution</span>
+            <Image src={SITE.mark} alt="Best Solution logo" width={128} height={60} />
             <p>Bookkeeping, bank reconciliation and financial statements for UAE businesses, from our office in Business Bay, Dubai.</p>
             {/* Badge row: confirmed claims (content/site CLAIMS) or, until then, plain facts about the firm. */}
             <div className="badges">

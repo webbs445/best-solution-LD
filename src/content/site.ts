@@ -12,8 +12,8 @@ export const SITE = {
   googleReviews: "https://www.google.com/search?q=Best+Solution+Business+Consultancy+Dubai+reviews",
   ogImage: "https://www.best-solution.ae/og_image.jpg",
   mainPhoto: "/images/main.webp",
-  logo: "/brand/logo.webp",
-  mark: "/brand/mark.webp",
+  logo: "/brand/wordmark.webp",
+  mark: "/brand/wordmark-mark.webp",
   /** Opening hours, shared by the home page and /freezone. */
   hours: { long: "Monday to Friday, 9am to 6pm", short: "Mon to Fri, 9AM to 6PM" },
   /**
