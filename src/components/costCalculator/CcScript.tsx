@@ -79,6 +79,13 @@ const ALL_OPTIONS = PLAN_OPTIONS.mainland.length + PLAN_OPTIONS.freezone.length 
 /* A text monogram in the logo slot (no authority logos): the zone's short name, or the name's initials. */
 /* Authority logos in /public/zones (free zones share the /freezone map); a text monogram where there is none. */
 const LOGO: Record<string, string> = { ...ZONE_LOGOS, o1: "jafza.svg", m0: "det.webp", m1: "det.webp", m2: "det.webp", m3: "det.webp", m4: "det.webp", m5: "added.webp", m6: "sedd.webp", m7: "ajman-government.webp", m8: "rak-government.webp", m9: "fujairah-government.webp", o0: "rak-icc.webp", o2: "ajman-free-zone.webp" };
+/* 36 rotated ellipses and rings: a fine guilloche rosette */
+const GUILLOCHE = (() => {
+  let g = "";
+  for (let i = 0; i < 36; i++) g += `<ellipse cx="200" cy="200" rx="192" ry="${58 + (i % 3) * 16}" transform="rotate(${i * 5} 200 200)"/>`;
+  for (let r = 24; r < 200; r += 20) g += `<circle cx="200" cy="200" r="${r}"/>`;
+  return `<svg viewBox="0 0 400 400" fill="none" stroke="currentColor" stroke-width=".6">${g}</svg>`;
+})();
 const mono = (o: PlanOption) => ZONE_BY_ID[o.id]?.short[1] ?? o.name.split(/[\s,]+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join("").slice(0, 4);
 
 export function CcScript() {
@@ -260,8 +267,8 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     if (j) c.dataset.t = j; else delete c.dataset.t;
     $("#licJ").textContent = j ? (j === "undecided" ? t("To be advised") : t(JL[j])) : t("Your company");
     const wm = $("#licWm");
-    // A faint brand mark where the old card had a security-print rosette.
-    if (!wm.innerHTML) wm.innerHTML = '<img src="/brand/mark-watermark.webp" alt="" style="width:100%;height:100%;object-fit:contain">';
+    // The fine guilloche rosette from the original design.
+    if (!wm.innerHTML) wm.innerHTML = GUILLOCHE;
     const name = $("#licName"), text = o ? shortNm(o) : hasPlan() ? t("Recommended by your advisor") : j ? t("Choose a structure") : t("Choose where it will be");
     if (name.dataset.v !== text) {
       const first = !name.dataset.v;

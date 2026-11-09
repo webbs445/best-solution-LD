@@ -53,8 +53,12 @@ export function CallbackButton({
   const close = () => dialog.current?.close();
 
   useEffect(() => {
-    const openFromEvent = () => {
+    const openFromEvent = (e: Event) => {
       if (!dialog.current || dialog.current.open) return;
+      // An opener may preselect the interest: new CustomEvent(OPEN_CALLBACK, { detail: { interest: "mainland" } }).
+      const want = (e as CustomEvent<{ interest?: string } | undefined>).detail?.interest;
+      const radio = want && dialog.current.querySelector<HTMLInputElement>(`input[name="interest"][value="${want}"]`);
+      if (radio) radio.checked = true;
       dialog.current.showModal();
       document.documentElement.classList.add(styles.locked);
     };

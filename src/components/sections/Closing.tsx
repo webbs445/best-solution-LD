@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { CLAIMS, DISCLAIMER, FOOTER_COLUMNS, MAPS_URL, SITE, SOCIAL } from "@/content/site";
+import { CallbackLink } from "@/components/freezone/CallbackTrigger";
 import { CtaLink } from "@/components/ui/CtaLink";
 import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
 import {
@@ -34,9 +35,9 @@ export function Closing() {
             </h2>
             <p className={styles.lede}>Share your plans and speak with an advisor at a time that suits you.</p>
             <div className={styles.actions}>
-              <CtaLink className="btn btn-primary" href="#calculator" location="LP Closing - Plan My Structure">
-                Plan Your Company Structure <ArrowIcon />
-              </CtaLink>
+              <CallbackLink className="btn btn-primary" location="LP Closing - Book a Consultation">
+                Book a Consultation <ArrowIcon />
+              </CallbackLink>
               <CtaLink className={styles.ghost} href={SITE.whatsapp} location="LP Closing - Speak to a Consultant">
                 <WhatsAppIcon />
                 <span>Speak to a Consultant</span>
@@ -55,7 +56,7 @@ export function Closing() {
           <div className={styles.side}>
             <figure className={styles.wall}>
               <Image
-                src="/images/brand-wall.webp"
+                src="/images/brand-wall-clean.webp"
                 alt="Best Solution logo wall at the Business Bay office"
                 width={1100}
                 height={677}

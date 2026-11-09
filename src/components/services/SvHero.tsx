@@ -60,8 +60,8 @@ export function SvHero() {
           <div className="sv-arch">
             <div className="sv-photo">
               <Image
-                src="/images/why-consultation.webp"
-                alt="An advisor meeting clients at the Best Solution office in Business Bay"
+                src="/images/office-wall.webp"
+                alt="The reception and logo wall at the Best Solution office in Business Bay"
                 fill
                 priority
                 sizes="(max-width: 1020px) 90vw, 440px"

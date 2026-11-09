@@ -242,7 +242,12 @@
 .sv-page .sv-why li {flex-direction:column;gap:14px;padding:24px;border-radius:22px;background:#fff;border:1px solid rgba(204,134,103,.16);box-shadow:0 12px 30px rgba(120,70,40,.06)}
 .sv-page .sv-why-ico {display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--copper-grad);color:#fff}
 .sv-page .sv-why-ico svg {width:24px;height:24px}
-.sv-page .sv-trust-sec {background:var(--ground)}
+/* A white band with copper hairlines, so it reads apart from the cream "How a consultation works" above it. */
+.sv-page .sv-trust-sec {position:relative;background:#fff;box-shadow:0 -18px 40px -32px rgba(20,37,62,.18),0 18px 40px -32px rgba(20,37,62,.18)}
+.sv-page .sv-trust-sec::before,.sv-page .sv-trust-sec::after {content:"";position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(204,134,103,.55) 20%,rgba(204,134,103,.55) 80%,transparent);pointer-events:none}
+.sv-page .sv-trust-sec::before {top:0}
+.sv-page .sv-trust-sec::after {bottom:0}
+.sv-page .sv-trust-sec .sv-why li {background:linear-gradient(180deg,#fff 0%,#fcf7f3 100%)}
 
 /* Closing: a copper panel, the last call to action on the page. */
 .sv-page .fz-close-in {background:linear-gradient(130deg,#a8694c 0%,#c98463 45%,#d9a07c 100%)}
@@ -397,3 +402,11 @@
   .sv-page .sv-hero-copy {display:flex;flex-direction:column}
   .sv-page .sv-hero-copy .sv-stats {order:1;margin-top:24px}
 }
+
+/* Hero polish: the office wall photo in the arch, a quieter supporting line under the headline, and stat words
+   sized so each stays on one line. */
+.sv-page .sv-photo img {object-position:46% 38%}
+.sv-page .sv-photo::after {background:linear-gradient(180deg,rgba(15,31,61,0) 55%,rgba(15,31,61,.45))}
+.sv-page .sv-live {top:auto;bottom:16%}
+.sv-page .sv-hero-h2 {font-weight:400;font-size:clamp(17px,1.35vw,19px);line-height:1.55;color:var(--ink-soft)}
+.sv-page .sv-stats b {font-size:clamp(18px,1.5vw,21px);white-space:nowrap}

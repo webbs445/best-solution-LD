@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CtaLink } from "@/components/ui/CtaLink";
+import { CallbackLink } from "@/components/freezone/CallbackTrigger";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { Timeline } from "./Timeline";
 import styles from "./Process.module.css";
@@ -31,9 +31,9 @@ export function Process() {
         <div data-reveal="">
           <Timeline />
           <div className={styles.cta}>
-            <CtaLink className="btn btn-primary" href="#calculator" location="LP Process - Book a Consultation">
+            <CallbackLink className="btn btn-primary" location="LP Process - Book a Consultation">
               Book a Consultation <ArrowIcon />
-            </CtaLink>
+            </CallbackLink>
             <span>No obligation.</span>
           </div>
         </div>

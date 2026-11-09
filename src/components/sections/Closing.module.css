@@ -473,7 +473,8 @@
 
 .links {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 0.8fr)) minmax(0, 1.5fr);
+  /* Two link columns (This page, Services), then the booking card in the wide last track. */
+  grid-template-columns: repeat(2, minmax(0, 0.8fr)) minmax(0, 1.5fr);
   gap: 32px;
 }
 
