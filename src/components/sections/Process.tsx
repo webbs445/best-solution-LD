@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { CallbackLink } from "@/components/freezone/CallbackTrigger";
 import { ArrowIcon } from "@/components/ui/Icons";
+import { CLAIMS } from "@/content/site";
 import { Timeline } from "./Timeline";
 import styles from "./Process.module.css";
 
@@ -23,8 +24,8 @@ export function Process() {
               sizes="(max-width: 1020px) 100vw, 480px"
             />
             <figcaption>
-              <b>One consultant</b>
-              <span>from first call to decision</span>
+              <b>{CLAIMS.oneAdvisor ? "One consultant" : "Your consultation"}</b>
+              <span>{CLAIMS.oneAdvisor ? "from first call to decision" : "in person or by video call"}</span>
             </figcaption>
           </figure>
         </div>

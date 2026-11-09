@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CLAIMS, DISCLAIMER, FOOTER_COLUMNS, MAPS_URL, SITE, SOCIAL } from "@/content/site";
+import { CLAIMS, DISCLAIMER, FOOTER_COLUMNS, FOOTER_TAIL, MAPS_URL, SITE, SOCIAL, ZONE_NAMES_NOTE } from "@/content/site";
 import { CallbackLink } from "@/components/freezone/CallbackTrigger";
 import { CtaLink } from "@/components/ui/CtaLink";
 import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
@@ -20,6 +20,9 @@ import styles from "./Closing.module.css";
 
 /* The middle point shows only once confirmed (content/site CLAIMS.writtenFees). */
 const POINTS = ["No obligation", CLAIMS.writtenFees, "Reply by phone, WhatsApp or email"].filter((p): p is string => !!p);
+
+/* Second footer note: the zone-names line (until partners are confirmed) and the fees line (once confirmed). */
+const FOOTER_NOTE = [ZONE_NAMES_NOTE, CLAIMS.writtenFees && "Any fees are confirmed in writing before work begins."].filter(Boolean).join(" ");
 
 /* Closing CTA: a card on the page ground, just above the footer. */
 export function Closing() {
@@ -128,9 +131,7 @@ export function Footer() {
             <a className={styles.flogo} href="#top" aria-label="Best Solution, back to top">
               <Image src={SITE.mark} alt="Best Solution" width={240} height={112} />
             </a>
-            <p>
-              Private business advice in Business Bay, Dubai. One advisor, with any fees confirmed in writing.
-            </p>
+            <p>Private business advice in Business Bay, Dubai.{FOOTER_TAIL}</p>
             <div className={styles.social}>
               {SOCIAL_LINKS.map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener" aria-label={s.label}>
@@ -195,10 +196,7 @@ export function Footer() {
         <p className={styles.disclaimer} data-legal>
           {DISCLAIMER}
         </p>
-        <p className={styles.disclaimer}>
-          Free zone names identify the zones we advise on and do not imply any affiliation. Any fees are confirmed in writing
-          before work begins.
-        </p>
+        {FOOTER_NOTE && <p className={styles.disclaimer}>{FOOTER_NOTE}</p>}
       </div>
 
       <div className={styles.bottom}>

@@ -1,3 +1,5 @@
+import { CLAIMS } from "@/content/site";
+
 /*
   The /services hub: one entry per service page, the "how we help" steps and the FAQ. Advice and consultation only
   (Google Ads government documents policy): no prices, timings, licences, visas, registration or government visits.
@@ -122,11 +124,13 @@ export const HUB_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How are your fees set?",
-    a: "Your advisor explains our fees for the work you need and confirms them in writing before any work begins.",
+    a: CLAIMS.writtenFees
+      ? "Your advisor explains our fees for the work you need and confirms them in writing before any work begins."
+      : "Your advisor explains our fees for the work you need before any work begins.",
   },
   {
     q: "Is Best Solution a government entity?",
-    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.",
+    a: "No. Best Solution is a private business consultancy. We are not a government entity and do not act on behalf of any government authority. Official decisions are made only by the relevant UAE authorities.",
   },
 ];
 

@@ -1,19 +1,18 @@
 import Image from "next/image";
-import { CLAIMS, REVIEW_ROWS, SITE, type Review, firstName } from "@/content/site";
+import { CLAIMS, REVIEWS, REVIEWS_SCROLL, SITE, type SiteReview } from "@/content/site";
+import { ReviewAvatar } from "@/components/ui/ReviewAvatar";
 import { Marquee } from "@/components/ui/Marquee";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import styles from "./Reviews.module.css";
 
-/*
-  Reviews kept off the home page because their wording uses terms our Google Ads rules exclude here.
-  Review text is never edited; /freezone still shows the full REVIEW_ROWS.
-*/
-const HOME_EXCLUDED = ["Chandra Mohan", "Javed Khan", "Tanwir Chowdhury", "Carlos Freyre"];
-const HOME_REVIEWS = REVIEW_ROWS.flat().filter((r) => !HOME_EXCLUDED.includes(r.name));
-
 function Stars({ label }: { label?: string }) {
   return (
-    <div className={styles.stars} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
+    <div
+      className={styles.stars}
+      role={label ? "img" : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+    >
       {Array.from({ length: 5 }, (_, i) => (
         <StarIcon key={i} />
       ))}
@@ -21,19 +20,23 @@ function Stars({ label }: { label?: string }) {
   );
 }
 
-function Card({ r, copy }: { r: Review; copy: boolean }) {
+function Card({ r, copy }: { r: SiteReview; copy: boolean }) {
   return (
     <figure className={styles.card}>
       <div className={styles.top}>
         <Stars label={copy ? undefined : "5 out of 5 stars"} />
-        <Image className={styles.logo} src={r.logo} alt={copy ? "" : r.company} width={92} height={30} />
+        {r.logo && (
+          <Image className={styles.logo} src={r.logo} alt={copy ? "" : (r.company ?? "")} width={92} height={30} />
+        )}
       </div>
-      <h3>{r.title}</h3>
-      <blockquote lang={r.lang} data-review-quote>“{r.quote}”</blockquote>
+      {r.title && <h3>{r.title}</h3>}
+      <blockquote lang={r.lang} data-review-quote>
+        “{r.quote}”
+      </blockquote>
       <figcaption>
-        <Image className={styles.photo} src={r.photo} alt="" width={44} height={44} />
+        <ReviewAvatar r={r} className={styles.photo} />
         <span>
-          <b>{firstName(r.name)}</b>
+          <b>{r.name}</b>
           {r.role}
         </span>
         <em>Google review</em>
@@ -66,17 +69,28 @@ export function Reviews() {
           </a>
         </div>
       </div>
-      <Marquee speed={60} className={styles.rowWrap}>
-        {(copy) => (
-          <ul className={styles.row} aria-hidden={copy || undefined}>
-            {HOME_REVIEWS.map((r) => (
-              <li key={r.name}>
-                <Card r={r} copy={copy} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </Marquee>
+      {/* Each review once per loop; a still row while there are too few to fill it (content/site REVIEWS_SCROLL). */}
+      {REVIEWS_SCROLL ? (
+        <Marquee speed={60} className={styles.rowWrap}>
+          {(copy) => (
+            <ul className={styles.row} aria-hidden={copy || undefined}>
+              {REVIEWS.map((r) => (
+                <li key={r.name}>
+                  <Card r={r} copy={copy} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </Marquee>
+      ) : (
+        <ul className={`${styles.row} ${styles.static} ${styles.rowWrap}`}>
+          {REVIEWS.map((r) => (
+            <li key={r.name}>
+              <Card r={r} copy={false} />
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

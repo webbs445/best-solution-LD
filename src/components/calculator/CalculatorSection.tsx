@@ -1,3 +1,4 @@
+import { CLAIMS } from "@/content/site";
 import { Calculator } from "./Calculator";
 import styles from "./CalculatorSection.module.css";
 
@@ -17,7 +18,7 @@ export function CalculatorSection() {
           <div className={styles.note}>
             <span>NO OBLIGATION</span>
             <b>Clear before you commit.</b>
-            <small>Advice only · any fees confirmed in writing</small>
+            <small>{CLAIMS.writtenFees ? "Advice only · any fees confirmed in writing" : "Advice only · in plain terms"}</small>
           </div>
         </div>
         <div className={styles.frame}>

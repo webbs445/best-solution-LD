@@ -1,4 +1,4 @@
-import { SITE, statTile } from "@/content/site";
+import { FOOTER_TAIL, SITE, statTile } from "@/content/site";
 import { MAINLAND_FORM_ID, OFFSHORE_FORM_ID } from "@/lib/lead";
 import type { HeroConfig } from "@/components/freezone/FzHero";
 import type { BriefBlock, ClosingBlock, VsBand } from "@/components/freezone/FzSections";
@@ -40,7 +40,7 @@ const COMMON_FAQS = [
   },
   {
     q: "Are you a government office?",
-    a: "No. Best Solution is a private business consultancy. We are not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.",
+    a: "No. Best Solution is a private business consultancy. We are not a government entity and do not act on behalf of any government authority. Official decisions are made only by the relevant UAE authorities.",
   },
   {
     q: "Can I talk to you without coming to the office?",
@@ -153,7 +153,7 @@ export const MAINLAND: AdvicePage = {
     { href: "#compare", label: "Compare" },
     { href: "#faq", label: "FAQ" },
   ],
-  blurb: "Mainland business advice from a private consultancy in Business Bay, Dubai. One advisor, with any fees confirmed in writing.",
+  blurb: `Mainland business advice from a private consultancy in Business Bay, Dubai.${FOOTER_TAIL}`,
 };
 
 const OFF_WA = "Hi, I'd like advice on an offshore structure (OFF-AD)";
@@ -255,5 +255,5 @@ export const OFFSHORE: AdvicePage = {
     { href: "#reviews", label: "Reviews" },
     { href: "#faq", label: "FAQ" },
   ],
-  blurb: "Offshore structure advice from a private consultancy in Business Bay, Dubai. One advisor, with any fees confirmed in writing.",
+  blurb: `Offshore structure advice from a private consultancy in Business Bay, Dubai.${FOOTER_TAIL}`,
 };

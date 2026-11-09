@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { FZ_FAQS, FZ_FAQ_TOPICS } from "@/content/freezone";
-import { SITE } from "@/content/site";
+import { CLAIMS, SITE } from "@/content/site";
 import { PlannerProvider } from "./PlannerProvider";
 import { FzHeader } from "./FzHeader";
 import { FzMotion } from "./FzMotion";
@@ -18,9 +18,9 @@ import "@/app/freezone/freezone.css";
 
 const TITLE = "Compare UAE Free Zones with an Advisor | Best Solution";
 const DESCRIPTION =
-  "Compare UAE free zones by activity and workspace type, plan what to budget for and talk it through with a dedicated advisor in Business Bay.";
+  `Compare UAE free zones by activity and workspace type, plan what to budget for and talk it through with ${CLAIMS.oneAdvisor ? "a dedicated advisor" : "an advisor"} in Business Bay.`;
 const SHARE_TITLE = "Compare UAE free zones with an advisor";
-const SHARE_DESCRIPTION = "Compare UAE free zones by activity and workspace type, then talk it through with a dedicated advisor.";
+const SHARE_DESCRIPTION = `Compare UAE free zones by activity and workspace type, then talk it through with ${CLAIMS.oneAdvisor ? "a dedicated advisor" : "an advisor"}.`;
 
 /** Shared by /freezone and every sitelink route (/freezone/planner, ...): one canonical for all of them. */
 export const FZ_METADATA: Metadata = {

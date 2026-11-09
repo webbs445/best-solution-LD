@@ -27,9 +27,63 @@ export const SITE = {
   rating: { score: 4.8, count: 200 },
 };
 
-/** Shown under every hero and in every footer (Google Ads: "Clearly disclose that you are a private entity"). */
-export const DISCLAIMER =
-  "Best Solution is a private business consultancy. We are not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.";
+/*
+  PARTNER LOGOS: one flag per zone (free zones and the RAK ICC registry), all false. A zone's logo image renders only
+  when its flag is true; otherwise its text badge stays. Set a flag to true only after Best Solution confirms a signed
+  agreement that allows logo use. Government department emblems (DET, DED, SEDD, emirate emblems) are never shown and
+  have no flag.
+*/
+export const PARTNER_ZONES = {
+  ifza: { zone: "f0", name: "IFZA", logo: "/zones/ifza.webp" },
+  meydan: { zone: "f1", name: "Meydan Free Zone", logo: "/zones/meydan.webp" },
+  dmcc: { zone: "f2", name: "DMCC", logo: "/zones/dmcc.webp" },
+  jafza: { zone: "f3", name: "JAFZA", logo: "/zones/jafza.svg" },
+  siliconOasis: { zone: "f4", name: "Dubai Silicon Oasis", logo: "/zones/dubai-silicon-oasis.svg" },
+  internetCity: { zone: "f5", name: "Dubai Internet City", logo: "/zones/dubai-internet-city.webp" },
+  mediaCity: { zone: "f6", name: "Dubai Media City", logo: "/zones/dubai-media-city.webp" },
+  dafza: { zone: "f7", name: "DAFZA", logo: "/zones/dafza.webp" },
+  dubaiSouth: { zone: "f8", name: "Dubai South", logo: "/zones/dubai-south.svg" },
+  healthcareCity: { zone: "f9", name: "Dubai Healthcare City", logo: "/zones/dubai-healthcare-city.svg" },
+  difc: { zone: "f10", name: "DIFC", logo: "/zones/difc.webp" },
+  commerCity: { zone: "f11", name: "Dubai CommerCity", logo: "/zones/dubai-commercity.svg" },
+  adgm: { zone: "f12", name: "ADGM", logo: "/zones/adgm.svg" },
+  kezad: { zone: "f13", name: "KEZAD", logo: "/zones/kezad.webp" },
+  masdar: { zone: "f14", name: "Masdar City Free Zone", logo: "/zones/masdar-city.webp" },
+  shams: { zone: "f15", name: "SHAMS", logo: "/zones/shams.webp" },
+  saif: { zone: "f16", name: "SAIF Zone", logo: "/zones/saif-zone.webp" },
+  hamriyah: { zone: "f17", name: "Hamriyah Free Zone", logo: "/zones/hamriyah.webp" },
+  spc: { zone: "f18", name: "SPC Free Zone", logo: "/zones/spc.webp" },
+  srtip: { zone: "f19", name: "SRTIP", logo: "/zones/srtip.webp" },
+  ajmanFz: { zone: "f20", name: "Ajman Free Zone", logo: "/zones/ajman-free-zone.webp" },
+  nuVenture: { zone: "f21", name: "Ajman Nu Venture Free Zone", logo: "/zones/ajman-nu-venture.webp" },
+  rakez: { zone: "f22", name: "RAKEZ", logo: "/zones/rakez.webp" },
+  rakMaritime: { zone: "f23", name: "RAK Maritime City", logo: null },
+  innovationCity: { zone: "f24", name: "Innovation City", logo: "/zones/innovation-city.svg" },
+  fujairahFz: { zone: "f25", name: "Fujairah Free Zone", logo: "/zones/fujairah-free-zone.webp" },
+  creativeCity: { zone: "f26", name: "Creative City Fujairah", logo: "/zones/creative-city-fujairah.webp" },
+  uaqFtz: { zone: "f27", name: "Umm Al Quwain FTZ", logo: "/zones/uaq-ftz.webp" },
+  rakIcc: { zone: "o0", name: "RAK ICC", logo: "/zones/rak-icc.webp" },
+} as const;
+export type PartnerKey = keyof typeof PARTNER_ZONES;
+
+export const PARTNER_LOGOS: Record<PartnerKey, boolean> = {
+  ifza: false, meydan: false, dmcc: false, jafza: false, siliconOasis: false, internetCity: false, mediaCity: false,
+  dafza: false, dubaiSouth: false, healthcareCity: false, difc: false, commerCity: false, adgm: false, kezad: false,
+  masdar: false, shams: false, saif: false, hamriyah: false, spc: false, srtip: false, ajmanFz: false, nuVenture: false,
+  rakez: false, rakMaritime: false, innovationCity: false, fujairahFz: false, creativeCity: false, uaqFtz: false,
+  rakIcc: false,
+};
+
+const PARTNER_KEYS = (Object.keys(PARTNER_ZONES) as PartnerKey[]).filter((k) => PARTNER_LOGOS[k]);
+/** Partner zones (flag true), in config order. */
+export const PARTNERS = PARTNER_KEYS.map((k) => PARTNER_ZONES[k]);
+/** The logo to render for a zone or registry id ("f0", "o0"), or null: only when its partner flag is true. */
+export function partnerLogo(zoneId: string): string | null {
+  return PARTNERS.find((p) => p.zone === zoneId)?.logo ?? null;
+}
+/** Strip heading while at least one partner flag is true; null keeps each page's own heading. */
+export const PARTNER_HEADING = PARTNERS.length ? "Free zones we work with as a registered partner" : null;
+const listNames = (n: string[]) => (n.length < 2 ? n.join("") : `${n.slice(0, -1).join(", ")} and ${n[n.length - 1]}`);
 
 /*
   [CONFIRM] business claims. null = not confirmed, so the claim is not rendered at all (left out of the HTML at build
@@ -56,9 +110,55 @@ export const CLAIMS: {
   packageSaving: string | null;
   /** /accounting quote heading, e.g. "Your monthly quote, in writing." */
   writtenQuote: string | null;
-  /** Home closing card point, e.g. "Fees confirmed in writing" */
+  /**
+   * Fees confirmed in writing before work begins, e.g. "Fees confirmed in writing". Switches on every fees-in-writing
+   * line (hero, cards, closing bands, footers).
+   */
   writtenFees: string | null;
-} = { since: null, rating: null, businesses: null, countries: null, team: null, ownership: null, zones: null, emirates: null, packageSaving: null, writtenQuote: null, writtenFees: null };
+  /** One named advisor per client, e.g. "One advisor". Switches on every "one advisor" / "dedicated consultant" line. */
+  oneAdvisor: string | null;
+  /** In-house specialists, e.g. "In-house specialists under one roof". Switches on the in-house expertise lines. */
+  inHouse: string | null;
+  /** Registered channel partner sentence: set from PARTNER_LOGOS (null while every flag is false). */
+  partners: string | null;
+} = {
+  since: null,
+  rating: null,
+  businesses: null,
+  countries: null,
+  team: null,
+  ownership: null,
+  zones: null,
+  emirates: null,
+  packageSaving: null,
+  writtenQuote: null,
+  writtenFees: null,
+  oneAdvisor: null,
+  inHouse: null,
+  partners: PARTNERS.length
+    ? `We are a registered channel partner of ${listNames(PARTNERS.map((p) => p.name))}. Free zone names and logos identify the zones we work with.`
+    : null,
+};
+
+/** The confirmed wording while a CLAIMS key is set, the neutral wording in the same place until then. */
+export const claimText = (key: keyof typeof CLAIMS, confirmed: string, neutral: string) => (CLAIMS[key] ? confirmed : neutral);
+
+/** Shown under every hero and in every footer (Google Ads: "Clearly disclose that you are a private entity"). */
+export const DISCLAIMER =
+  "Best Solution is a private business consultancy. We are not a government entity and do not act on behalf of any government authority. Official decisions are made only by the relevant UAE authorities." +
+  (CLAIMS.partners ? ` ${CLAIMS.partners}` : "");
+
+/** The second footer note on free zone pages: drops "do not imply any affiliation" once partners are confirmed. */
+export const ZONE_NAMES_NOTE = CLAIMS.partners ? "" : "Free zone names identify the zones we advise on and do not imply any affiliation.";
+
+/** Footer blurb tail: "One advisor, with any fees confirmed in writing." only as far as those claims are confirmed. */
+export const FOOTER_TAIL = CLAIMS.oneAdvisor && CLAIMS.writtenFees
+  ? " One advisor, with any fees confirmed in writing."
+  : CLAIMS.oneAdvisor
+    ? " One advisor."
+    : CLAIMS.writtenFees
+      ? " Any fees are confirmed in writing."
+      : "";
 
 /*
   Stat tiles: a confirmed claim fills the number slot; until then the slot shows plain, true text in the same style
@@ -137,11 +237,20 @@ export const TRUST = [
   { count: 200, suffix: "+", label: "Google reviews" },
 ];
 
+/* Neutral cards that stand in for an unconfirmed claim card, in the same place and style. */
+const WHY_NEUTRAL = {
+  plain: { title: "Advice in plain terms", body: "We explain your options clearly, so you can compare them and decide." },
+  meet: { title: "In person or by video call", body: "Meet us at our office in Business Bay, Dubai, or talk it through online." },
+  office: { title: "Based in Business Bay", body: "Our advisors work from our office in Business Bay, Dubai." },
+  noObligation: { title: "No obligation", body: "A consultation does not commit you to anything." },
+};
+
+/* Used by /services (first three) and /freezone. Claim cards show only once their CLAIMS key is confirmed. */
 export const WHY = [
-  { title: "A dedicated consultant", body: "Your advisor remains your single point of contact throughout." },
-  { title: "Fees in writing", body: "Fees are confirmed in writing before you proceed." },
-  { title: "In-house expertise", body: "Specialists across company structuring, taxation, accounting and compliance, under one roof." },
-  { title: "Emirati-owned", body: "Founded by Essa Al Harthi and based in Business Bay, Dubai." },
+  CLAIMS.oneAdvisor ? { title: "A dedicated consultant", body: "Your advisor remains your single point of contact throughout." } : WHY_NEUTRAL.plain,
+  CLAIMS.writtenFees ? { title: "Fees in writing", body: "Fees are confirmed in writing before you proceed." } : WHY_NEUTRAL.meet,
+  CLAIMS.inHouse ? { title: "In-house expertise", body: "Specialists across company structuring, taxation, accounting and compliance, under one roof." } : WHY_NEUTRAL.office,
+  CLAIMS.ownership ? { title: "Emirati-owned", body: "Founded by Essa Al Harthi and based in Business Bay, Dubai." } : WHY_NEUTRAL.noObligation,
   { title: "Continued support", body: "Tax, accounting and compliance guidance as your business grows." },
 ];
 
@@ -200,9 +309,9 @@ export const JURIS: Record<Jurisdiction, JurisdictionCopy> = {
 
 /* Home page "Why Best Solution" list (WHY above is still used by /freezone and /services). */
 export const HOME_WHY = [
-  { title: "A dedicated advisor", body: "One advisor stays your point of contact from the first conversation." },
+  CLAIMS.oneAdvisor ? { title: "A dedicated advisor", body: "One advisor stays your point of contact from the first conversation." } : WHY_NEUTRAL.office,
   { title: "Advice in plain terms", body: "We explain your options clearly, so you can compare them and decide." },
-  { title: "In-house expertise", body: "Specialists in company structure, tax, accounting and compliance, under one roof." },
+  CLAIMS.inHouse ? { title: "In-house expertise", body: "Specialists in company structure, tax, accounting and compliance, under one roof." } : WHY_NEUTRAL.noObligation,
   { title: "In person or by video call", body: "Meet us at our office in Business Bay, Dubai, or talk it through online." },
   { title: "Continued support", body: "Tax, accounting and compliance guidance as your business grows." },
 ];
@@ -218,11 +327,11 @@ export const HOME_FAQS = [
     a: "It depends on your activity, where your customers are and how you want to work. Your advisor compares the options with you in plain terms.",
   },
   { q: "Do I need to be in the UAE for the consultation?", a: "No. You can meet us in Business Bay or talk it through by video call." },
-  { q: "Who will handle my enquiry?", a: "A dedicated advisor from our Business Bay office." },
+  { q: "Who will handle my enquiry?", a: CLAIMS.oneAdvisor ? "A dedicated advisor from our Business Bay office." : "An advisor from our Business Bay office." },
   { q: "Do you help businesses that are already running?", a: "Yes. We give ongoing tax, accounting and compliance guidance." },
   {
     q: "Are you a government office?",
-    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.",
+    a: "No. Best Solution is a private business consultancy. We are not a government entity and do not act on behalf of any government authority. Official decisions are made only by the relevant UAE authorities.",
   },
 ];
 
@@ -310,6 +419,51 @@ export const REVIEW_ROWS: Review[][] = [
   ],
 ];
 
+/*
+  REVIEWS: the real Google reviews shown on /services, /freezone, /mainland, /offshore and the home page. Add one only
+  from the live Google profile:
+  - quote: word for word, as on Google (set `lang` when it is not English)
+  - name: first name only
+  - role and company: only if they are shown on the Google review
+  - photo: optional; without it the card shows the first initial in a neutral circle
+  - title: optional, a phrase taken word for word from the quote
+  No licence, visa, residency, price or timing wording (REVIEW_BANNED; src/content/site.test.ts checks every quote).
+  Each review shows once per loop; with fewer than four the row stands still instead of scrolling.
+*/
+export interface SiteReview {
+  quote: string;
+  name: string;
+  title?: string;
+  role?: string;
+  company?: string;
+  lang?: string;
+  photo?: string;
+  logo?: string;
+}
+export const REVIEW_BANNED =
+  /licen[cs]e|\bvisas?\b|residen|\bprices?\b|\bcosts?\b|\bfees?\b|\bcharges?\b|\bAED\b|cheap|(?<![-\w])free\b|on time|\bfast\b|\bquick|\b\d+\s*(days?|weeks?|hours?|minutes?)\b|same[- ]day|guarantee/i;
+export const REVIEWS: SiteReview[] = [
+  {
+    title: "In safe hands",
+    quote: "25+ years in banking and corporate services, and Best Solution truly stands apart. From day one, I knew I was in safe hands.",
+    name: "Michael",
+    role: "Chief Executive Officer",
+    company: "Doherty Capital",
+    photo: "/testimonials/michael-doherty.webp",
+    logo: "/testimonials/logo-doherty-capital.webp",
+  },
+  {
+    title: "Everything became structured",
+    quote: "Everything became structured, professional, and stress-free after switching to Best Solution.",
+    name: "Hadi",
+    role: "Chief Executive Officer",
+    company: "Soft Miller",
+    logo: "/testimonials/logo-soft-miller.webp",
+  },
+];
+/** Scroll the review row only once there are enough reviews to fill it without repeating one on screen. */
+export const REVIEWS_SCROLL = REVIEWS.length >= 4;
+
 export const FAQS = [
   {
     q: "How much does a UAE company cost?",
@@ -324,6 +478,6 @@ export const FAQS = [
   { q: "Who will handle my enquiry?", a: "A dedicated consultant from our Business Bay office." },
   {
     q: "Is Best Solution a government entity?",
-    a: "No. Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Official decisions are made only by the relevant UAE authorities.",
+    a: "No. Best Solution is a private business consultancy. We are not a government entity and do not act on behalf of any government authority. Official decisions are made only by the relevant UAE authorities.",
   },
 ];

@@ -53,9 +53,9 @@ const CARDS: Card[] = [
     title: "Bookkeeping",
     desc: "Every sale, purchase and expense recorded, so your ledger is always current.",
     // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
-    price: AC_FEES ? { small: "From", b: aed(AC_FEES.bookkeeping.amount), span: `${AC_FEES.bookkeeping.unit}, plus VAT` } : { small: "Pricing", b: "Written quote", span: "based on your volume" },
+    price: AC_FEES ? { small: "From", b: aed(AC_FEES.bookkeeping.amount), span: `${AC_FEES.bookkeeping.unit}, plus VAT` } : { small: "Pricing", b: CLAIMS.writtenQuote ? "Written quote" : "On request", span: "based on your volume" },
     items: ["Sales and purchases recorded", "Expense and income tracking", "Daily, weekly or monthly entry", "Monthly income and cost summary"],
-    foot: { b: "Fixed monthly fee", t: "confirmed in writing" },
+    foot: { b: "Fixed monthly fee", t: CLAIMS.writtenQuote ? "confirmed in writing" : "priced on your volume" },
     cta: { label: "Get a quote", href: "#contact", service: "bookkeeping", className: "btn btn-navy", location: "AC Services - Bookkeeping" },
   },
   {

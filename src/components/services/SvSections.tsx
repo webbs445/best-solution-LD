@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CLAIMS, SITE, WHY } from "@/content/site";
+import { CLAIMS, SITE, WHY, claimText } from "@/content/site";
 import { JOURNEY, SERVICES, SHOW_TEAM, TEAM, type ServiceId } from "@/content/services";
 import { ArrowIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import { CallbackLink, CallbackTrigger } from "@/components/freezone/CallbackTrigger";
@@ -20,7 +20,7 @@ export function SvGrid() {
             <span />
             Our services
           </p>
-          <h2 id="svGridTitle">Every service, one advisor</h2>
+          <h2 id="svGridTitle">{claimText("oneAdvisor", "Every service, one advisor", "Every service, explained clearly")}</h2>
           <p>Pick a service to see how we can help. Each one has its own page.</p>
         </div>
         <ul className="sv-grid">
@@ -140,7 +140,7 @@ export function SvTrust() {
             Why Best Solution
           </p>
           <h2 id="svTeamTitle">One team to talk your plans through</h2>
-          <p className="sv-trust-lede">A private consultancy in Business Bay, Dubai. One advisor stays your point of contact.</p>
+          <p className="sv-trust-lede">A private consultancy in Business Bay, Dubai.{CLAIMS.oneAdvisor && " One advisor stays your point of contact."}</p>
           {TRUST_LINE && <p className="sv-trust-lede">{TRUST_LINE}</p>}
           <CallbackTrigger className="btn btn-primary sv-why-cta" location="SV Why - Book a Consultation">
             Book a Consultation <ArrowIcon />
@@ -187,7 +187,7 @@ export function SvClosing() {
         <div className="fz-close-in">
           <div>
             <h2 id="closeTitle">Not sure which service fits?</h2>
-            <p>Tell us what you are planning. An advisor suggests where to begin and confirms any fees in writing.</p>
+            <p>Tell us what you are planning. An advisor suggests where to begin{claimText("writtenFees", " and confirms any fees in writing.", ".")}</p>
           </div>
           <div className="fz-close-cta">
             <CallbackTrigger className="btn btn-primary" location="SV Closing - Book a Consultation">

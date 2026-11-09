@@ -1,3 +1,5 @@
+import { CLAIMS } from "@/content/site";
+
 /* Why Best Solution (bento). Converted from the structuring landing page HTML. */
 export function SpvTrust() {
   return (
@@ -29,16 +31,16 @@ export function SpvTrust() {
           <div className="ad-nodes"><span><b></b>Meet</span><span><b></b>Plan</span><span><b></b>Compare</span><span><b></b>Review</span></div>
           <span className="ad-av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg></span>
         </div>
-        <span className="bt-k">One advisor throughout</span>
-        <h3>The person you meet is the person who follows your case.</h3>
+        <span className="bt-k">{CLAIMS.oneAdvisor ? "One advisor throughout" : "Plain advice"}</span>
+        <h3>{CLAIMS.oneAdvisor ? "The person you meet is the person who follows your case." : "We explain each option clearly, so you can decide."}</h3>
       </article>
       <article className="bt bt-c rv d2">
         <div className="fe-vis" aria-hidden="true">
-          <div className="fe-doc"><div className="fe-h"><b>Fee breakdown</b><small>Written</small></div><div className="fe-r"><span>Advisory fee</span><i></i></div><div className="fe-r"><span>Yearly review fee</span><i></i></div><div className="fe-r"><span>Structure map</span><i></i></div><div className="fe-t"><span>Agreed before work begins</span><i></i></div></div>
-          <span className="fe-stamp">In<br />writing</span>
+          <div className="fe-doc"><div className="fe-h"><b>Fee breakdown</b><small>{CLAIMS.writtenFees ? "Written" : "Explained"}</small></div><div className="fe-r"><span>Advisory fee</span><i></i></div><div className="fe-r"><span>Yearly review fee</span><i></i></div><div className="fe-r"><span>Structure map</span><i></i></div><div className="fe-t"><span>{CLAIMS.writtenFees ? "Agreed before work begins" : "Talked through first"}</span><i></i></div></div>
+          <span className="fe-stamp">{CLAIMS.writtenFees ? <>In<br />writing</> : <>Fees<br />explained</>}</span>
         </div>
-        <span className="bt-k">Fees in writing</span>
-        <h3>A written breakdown before any work begins.</h3>
+        <span className="bt-k">{CLAIMS.writtenFees ? "Fees in writing" : "Fees explained"}</span>
+        <h3>{CLAIMS.writtenFees ? "A written breakdown before any work begins." : "Your advisor explains any fees before work begins."}</h3>
       </article>
       <article className="bt bt-d rv">
         <div className="ju-vis" aria-hidden="true">

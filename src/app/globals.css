@@ -408,8 +408,8 @@ input {
     transition-delay: var(--reveal-delay, 0ms);
   }
 
+  /* Starts visible (no opacity 0): text is never hidden until scrolled, for every visitor and bot. Only the slide plays. */
   [data-reveal]:not(.is-in) {
-    opacity: 0;
     transform: translateY(22px);
   }
 }
@@ -449,4 +449,16 @@ input {
     font-size: 15px;
     gap: 8px;
   }
+}
+
+/* A reviewer without a photo: their first initial in a neutral circle (size and shape come from the photo class). */
+.review-initial {
+  font-style: normal;
+  display: grid;
+  place-items: center;
+  background: var(--tint, #f6ebe4);
+  color: var(--copper-ink, #8f5538);
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1;
 }

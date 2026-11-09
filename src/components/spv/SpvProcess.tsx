@@ -1,3 +1,5 @@
+import { CLAIMS } from "@/content/site";
+
 /* Four-step journey with the scroll-drawn path. Converted from the structuring landing page HTML. */
 export function SpvProcess() {
   return (
@@ -40,17 +42,17 @@ export function SpvProcess() {
         </article>
         <article className="jr-c" data-i="3">
           <span className="jr-wm" aria-hidden="true">04</span>
-          <div className="jr-ch"><span className="jr-k">Step 04</span><span className="jr-pill">One advisor</span></div>
+          <div className="jr-ch"><span className="jr-k">Step 04</span><span className="jr-pill">{CLAIMS.oneAdvisor ? "One advisor" : "Your advisor"}</span></div>
           <h3>Ongoing advice</h3>
           <p>We review the structure with you every year and answer your questions as things change.</p>
-          <div className="jr-get"><small>You get</small><b>The same advisor, year after year</b></div>
+          <div className="jr-get"><small>You get</small><b>{CLAIMS.oneAdvisor ? "The same advisor, year after year" : "Advice as things change"}</b></div>
           <span className="jr-line"></span>
         </article>
       </div>
     </div>
   </div></div></div>
   <div className="wrap">
-    <div className="jr-cta rv"><p>Nothing begins until you agree the plan and the fees in writing.</p><a className="btn btn-nv" href="#consult" data-cta-location="SPV Process Book">Book a Consultation <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a></div>
+    <div className="jr-cta rv"><p>{CLAIMS.writtenFees ? "Nothing begins until you agree the plan and the fees in writing." : "Nothing begins until you agree the plan and the fees."}</p><a className="btn btn-nv" href="#consult" data-cta-location="SPV Process Book">Book a Consultation <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a></div>
   </div>
 </section>
     </>

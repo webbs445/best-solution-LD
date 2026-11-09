@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { ZONE_BY_ID } from "@/content/freezone";
+import { partnerLogo } from "@/content/site";
 import { CC_CALCULATOR_ID, CC_PRICE_FORM_ID, CC_QUOTE_FORM_ID, LEAD_RULES } from "@/lib/lead";
 import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry } from "@/lib/phone";
 import { attributionFields } from "@/lib/attribution";
@@ -117,7 +118,8 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
 
   const shortNm = (o: PlanOption) => o.name;
   const actName = () => (A.activity ? ACT_UI[A.activity][0] : "");
-  const logo = (o: PlanOption) => `<b>${esc(mono(o))}</b>`;
+  // A confirmed partner zone shows its logo (content/site PARTNER_LOGOS); every other option its text badge.
+  const logo = (o: PlanOption) => { const src = partnerLogo(o.id); return src ? `<img src="${src}" alt="" loading="lazy">` : `<b>${esc(mono(o))}</b>`; };
   const teamTxt = (n: number) => (n >= MAX_TEAM ? `${MAX_TEAM} or more people` : n === 1 ? "Just me" : `${n} people`);
 
   /* ---------- state and steps ---------- */

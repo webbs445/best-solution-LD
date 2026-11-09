@@ -1,4 +1,4 @@
-import { DISCLAIMER, SITE } from "@/content/site";
+import { CLAIMS, DISCLAIMER, SITE } from "@/content/site";
 import { CtaLink } from "@/components/ui/CtaLink";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { HeroCard } from "./HeroCard";
@@ -20,7 +20,7 @@ export function Hero() {
             <br /> before you decide.
           </h1>
           <p className={styles.sub}>
-            Talk to a dedicated advisor about mainland, free zone and offshore options. We explain what fits your plans
+            Talk to {CLAIMS.oneAdvisor ? "a dedicated advisor" : "an advisor"} about mainland, free zone and offshore options. We explain what fits your plans
             in plain terms, so you can choose your next step.
           </p>
           <div className={`cta-row ${styles.ctaRow}`}>

@@ -1,11 +1,12 @@
 import Image from "next/image";
-import { CLAIMS, DISCLAIMER, REVIEW_ROWS, SITE, firstName, statTile } from "@/content/site";
+import { CLAIMS, DISCLAIMER, claimText, REVIEWS, statTile } from "@/content/site";
+import { ReviewAvatar } from "@/components/ui/ReviewAvatar";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
-import { CallbackTrigger } from "@/components/freezone/CallbackTrigger";
+import { CallbackLink, CallbackTrigger } from "@/components/freezone/CallbackTrigger";
 import { SvLive } from "./SvLive";
 
 /* The hero review: a Google review already shown on /freezone. */
-const REVIEW = REVIEW_ROWS.flat().find((r) => r.name === "Michael Doherty")!;
+const REVIEW = REVIEWS.find((r) => r.name === "Michael")!;
 /* Its closing sentence, word for word. */
 const QUOTE_LINE = REVIEW.quote.slice(REVIEW.quote.indexOf("From day one"));
 
@@ -28,11 +29,11 @@ export function SvHero() {
             For founders and business owners in the UAE
           </p>
           <h1 id="svTitle">
-            Plan and run your UAE business, <span className="accent sv-keep">with one advisor.</span>
+            Plan and run your UAE business, <span className="accent sv-keep">{claimText("oneAdvisor", "with one advisor.", "with clear advice.")}</span>
           </h1>
           <h2 className="sv-hero-h2">
-            Advice on where to base your business, budgeting, bookkeeping, corporate tax and holding structures. Any fees are
-            confirmed in writing before work begins.
+            Advice on where to base your business, budgeting, bookkeeping, corporate tax and holding structures.
+            {CLAIMS.writtenFees && " Any fees are confirmed in writing before work begins."}
           </h2>
           <div className="sv-hero-cta">
             <CallbackTrigger className="btn btn-primary" location="SV Hero - Book a Consultation">
@@ -70,7 +71,9 @@ export function SvHero() {
             <SvLive />
           </div>
           {/* Rotating seal: Google reviews in the middle, the consultation promise turning around it. */}
-          <a className="sv-seal" href={SITE.googleReviews} target="_blank" rel="noopener" data-cta-location="SV Hero - Google Reviews" aria-label="Read our Google reviews">
+          {/* The badge reads "Book a consultation • No obligation", so it opens the consultation pop-up. */}
+          <CallbackLink className="sv-seal" location="SV Hero - Seal Book a Consultation">
+            <span className="sr-only">Book a consultation, no obligation</span>
             <svg className="sv-seal-ring" viewBox="0 0 120 120" aria-hidden="true">
               <defs>
                 <path id="svSealPath" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
@@ -85,13 +88,14 @@ export function SvHero() {
               {CLAIMS.rating && <b>{CLAIMS.rating}</b>}
               <StarIcon />
             </span>
-          </a>
+          </CallbackLink>
           <figure className="sv-quote">
-            <Image src={REVIEW.photo} alt="" width={44} height={44} />
+            <ReviewAvatar r={REVIEW} className="sv-quote-av" />
             <div>
               <blockquote data-review-quote>&ldquo;{QUOTE_LINE}&rdquo;</blockquote>
               <figcaption>
-                {firstName(REVIEW.name)}, {REVIEW.company}
+                {REVIEW.name}
+                {REVIEW.company && `, ${REVIEW.company}`}
               </figcaption>
             </div>
           </figure>

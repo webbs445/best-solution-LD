@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE } from "@/content/site";
+import { CLAIMS, FOOTER_TAIL, SITE } from "@/content/site";
 import { HUB_FAQS, SERVICES } from "@/content/services";
 import { SERVICES_FORM_ID } from "@/lib/lead";
 import { FzMotion } from "@/components/freezone/FzMotion";
@@ -17,7 +17,7 @@ import "./services.css";
 
 const TITLE = "UAE Business Advice Services | Best Solution";
 const DESCRIPTION =
-  "Private business advice in Dubai: free zone, mainland and offshore, budgeting, bookkeeping, corporate tax and holding structures. One advisor.";
+  `Private business advice in Dubai: free zone, mainland and offshore, budgeting, bookkeeping, corporate tax and holding structures.${CLAIMS.oneAdvisor ? " One advisor." : ""}`;
 
 // noindex comes from the root layout (robots) and the X-Robots-Tag header, as on every page of this subdomain.
 export const metadata: Metadata = {
@@ -54,7 +54,7 @@ export default function ServicesPage() {
         <SvClosing />
       </main>
       <FzFooter
-        blurb="Business advice from a private consultancy in Business Bay, Dubai. One advisor, with any fees confirmed in writing."
+        blurb={`Business advice from a private consultancy in Business Bay, Dubai.${FOOTER_TAIL}`}
         nav={SERVICES.map((s) => ({ href: s.href, label: s.name }))}
         navLabel="Services"
         defaultInterest="not_sure"

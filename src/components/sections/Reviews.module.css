@@ -85,6 +85,15 @@
   width: 380px;
 }
 
+/* Fewer reviews than fill a row: shown once, still and centred (content/site REVIEWS_SCROLL). */
+.static {
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 10px 24px;
+}
+
 .card {
   display: flex;
   flex-direction: column;

@@ -100,9 +100,10 @@ html:has(.cc-page){scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-s
 .cc-page .avs img+img{margin-inline-start:-11px}
 .cc-page .proof .st{display:block;color:#e3a008;letter-spacing:1px;font-size:13px;line-height:1.2}
 .cc-page .hero .trust{margin-top:22px}
-.cc-page .h-in{opacity:0;transform:translateY(18px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--k) * 100ms + 150ms)}
+/* Starts visible (no opacity 0): text is never hidden until scrolled, for every visitor and bot. Only the slide plays. */
+.cc-page .h-in{transform:translateY(18px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--k) * 100ms + 150ms)}
 .cc-page .hero.go .h-in{opacity:1;transform:none}
-.cc-page .mock-w{position:relative;padding:34px 0;opacity:0;transform:translateY(30px);transition:opacity 1s var(--ease) .35s,transform 1.1s var(--ease) .35s}
+.cc-page .mock-w{position:relative;padding:34px 0;transform:translateY(30px);transition:opacity 1s var(--ease) .35s,transform 1.1s var(--ease) .35s}
 .cc-page .hero.go .mock-w{opacity:1;transform:none}
 .cc-page .orb{position:absolute;inset:6% 2% 0 14%;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e7b394,#cc8667 45%,transparent 70%);filter:blur(64px);opacity:.42;animation:cc-orb 10s ease-in-out infinite alternate}
 @keyframes cc-orb{to{transform:translate(-30px,24px) scale(1.08)}}
@@ -648,9 +649,9 @@ html:has(.cc-page){scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-s
 .cc-page[lang="ru"] .cfg-top h1,.cc-page[lang="fr"] .cfg-top h1{font-size:clamp(34px,4.2vw,56px)}
 
 /* reveal */
-.cc-page .rv{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:calc(var(--d,0) * 80ms)}
+.cc-page .rv{transform:translateY(22px);transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:calc(var(--d,0) * 80ms)}
 .cc-page .rv.in{opacity:1;transform:none}
-.cc-page .cfg .in-a{opacity:0;transform:translateY(20px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--k) * 110ms)}
+.cc-page .cfg .in-a{transform:translateY(20px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--k) * 110ms)}
 .cc-page .cfg.go .in-a{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){
   html:has(.cc-page){scroll-behavior:auto}

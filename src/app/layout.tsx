@@ -16,9 +16,9 @@ const inter = Inter({
 });
 
 // Brand first so it stays visible in a narrow browser tab.
-const TITLE = "Best Solution | UAE Company Cost Estimate";
-const DESCRIPTION =
-  "Estimate the first-year cost of your UAE company, then review it with a dedicated Best Solution consultant. Fees confirmed in writing.";
+const TITLE = "Best Solution | UAE Business Advice";
+// Default for pages without their own description: advice only, no prices or unconfirmed claims.
+const DESCRIPTION = "Private business advice in Business Bay, Dubai: plan your UAE company structure with an advisor.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),

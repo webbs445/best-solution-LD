@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { DISCLAIMER, MAPS_URL, SITE, SOCIAL } from "@/content/site";
+import { DISCLAIMER, FOOTER_TAIL, MAPS_URL, SITE, SOCIAL, ZONE_NAMES_NOTE } from "@/content/site";
 import { FZ_NAV } from "@/content/freezone";
 import { ALL_SERVICES } from "@/content/services";
 import { CallbackButton } from "@/components/sections/Callback";
@@ -31,7 +31,7 @@ const CONTACTS = [
 /* The /freezone page footer. Its "Book a Callback" button owns the page's one callback popup;
    every other "callback" button opens it through CallbackTrigger. */
 export function FzFooter({
-  blurb = "Free zone advice from a private consultancy in Business Bay, Dubai. One advisor, with any fees confirmed in writing.",
+  blurb = `Free zone advice from a private consultancy in Business Bay, Dubai.${FOOTER_TAIL}`,
   nav = FZ_NAV,
   navLabel = "This page",
   defaultInterest = "freezone",
@@ -106,8 +106,8 @@ export function FzFooter({
             <b>Important information</b>
             <p data-legal>{DISCLAIMER}</p>
             <p>
-              Free zone names identify the zones we advise on and do not imply any affiliation. 0% corporate tax applies only
-              to qualifying income under Qualifying Free Zone Person (QFZP) conditions.
+              {ZONE_NAMES_NOTE && `${ZONE_NAMES_NOTE} `}0% corporate tax applies only to qualifying income under Qualifying
+              Free Zone Person (QFZP) conditions.
             </p>
           </div>
         </div>

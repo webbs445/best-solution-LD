@@ -25,7 +25,8 @@ export function AcFooter() {
           <div>
             <h3>Clean books begin with one conversation.</h3>
             <p>
-              {AC_OFFER}, confirmed in writing. No obligation.
+              {AC_OFFER}
+              {CLAIMS.writtenQuote ? ", confirmed in writing" : " for your books"}. No obligation.
             </p>
           </div>
           <div className="acts">

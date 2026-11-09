@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { HOME_WHY } from "@/content/site";
+import { CLAIMS, HOME_WHY } from "@/content/site";
 import { ArrowIcon } from "@/components/ui/Icons";
 import styles from "./WhyUs.module.css";
 
@@ -31,7 +31,7 @@ export function WhyUs() {
           <div className={styles.quote}>
             <span>Best Solution</span>
             <strong>
-              One advisor.
+              {CLAIMS.oneAdvisor ? "One advisor." : "Clear advice."}
               <br />
               One clear path.
             </strong>

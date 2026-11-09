@@ -25,7 +25,7 @@ const HEADS: Record<number, [string, string]> = {
 const NEXT_STEPS = [
   "An accountant reviews your details",
   "They reply on WhatsApp or email",
-  "You get a fixed monthly quote in writing",
+  CLAIMS.writtenQuote ? "You get a fixed monthly quote in writing" : "You get a monthly quote for your books",
 ];
 const MIN_SENDING_MS = 900;
 const THANK_YOU_URL = process.env.NEXT_PUBLIC_THANK_YOU_URL || "";
@@ -379,7 +379,9 @@ export function AcQuote() {
             {[
               ["Tell us about your books", "Service, volume and software. A few short questions."],
               ["An accountant reviews it", "We reply by WhatsApp or email."],
-              ["You get a fixed quote in writing", "Monthly fee and scope agreed before any work begins."],
+              CLAIMS.writtenQuote
+                ? ["You get a fixed quote in writing", "Monthly fee and scope agreed before any work begins."]
+                : ["You get a quote", "Monthly fee and scope explained before any work begins."],
             ].map(([b, p], i) => (
               <li key={b}>
                 <span className="nn">{i + 1}</span>

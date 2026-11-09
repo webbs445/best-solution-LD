@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { EMIRATES, PLANNER_ACTS, PRIORITIES, SECT, ZONES, ZONE_BY_ID, ACT_LABEL, type Priority } from "@/content/freezone";
-import { SITE, zonesPhrase } from "@/content/site";
+import { CLAIMS, SITE, zonesPhrase } from "@/content/site";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 import { QuickCapture } from "@/components/ui/QuickCapture";
 import { UNLOCK_THANKS_MS, UnlockDialog } from "@/components/ui/UnlockDialog";
@@ -295,7 +295,7 @@ export function FzPlanner() {
                     <ul>
                       <li>What each zone allows for your exact activity</li>
                       <li>Shareholder and activity limits for each zone</li>
-                      <li>Any fees for our work, in writing</li>
+                      <li>{CLAIMS.writtenFees ? "Any fees for our work, in writing" : "Your options, in plain terms"}</li>
                       <li>Your next step, with no obligation</li>
                     </ul>
                   </div>

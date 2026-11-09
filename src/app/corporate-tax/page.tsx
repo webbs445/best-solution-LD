@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CT_FAQS } from "@/content/corporateTax";
-import { DISCLAIMER, SITE } from "@/content/site";
+import { CLAIMS, DISCLAIMER, SITE } from "@/content/site";
 import { CT_MARKUP } from "@/components/corporateTax/markup";
 import { CtScript } from "@/components/corporateTax/CtScript";
 import "./corporate-tax.css";
@@ -26,6 +26,11 @@ const faqSchema = {
 };
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+/* Fees-in-writing lines show only once confirmed (content/site CLAIMS.writtenFees); neutral wording in the same place until then. */
+const FEES_CHIP = CLAIMS.writtenFees ? "Fees <b>in writing</b> first" : "Fees <b>explained</b> first";
+const FEES_CARD = CLAIMS.writtenFees
+  ? "<h3>Fees in writing first</h3><p>You get a written fee breakdown after your review call, before any work begins.</p>"
+  : "<h3>Fees explained first</h3><p>Your advisor explains the fees for the work you need after your review call, before any work begins.</p>";
 // The first question starts open, as in the design.
 const faqHtml = CT_FAQS.map(
   (f, i) =>
@@ -44,7 +49,9 @@ export default function CorporateTaxPage() {
         Skip to main content
       </a>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
-      <div dangerouslySetInnerHTML={{ __html: CT_MARKUP.replace("__FAQ__", () => faqHtml).replaceAll("__DISCLAIMER__", esc(DISCLAIMER)) }} />
+      <div dangerouslySetInnerHTML={{ __html: CT_MARKUP.replace("__FAQ__", () => faqHtml).replaceAll("__DISCLAIMER__", esc(DISCLAIMER)).replace("__CT_FEES_CHIP__", FEES_CHIP).replace("__CT_FEES_CARD__", FEES_CARD)
+            .replace("__CT_FEES_LINE__", CLAIMS.writtenFees ? "You get them in writing before any work begins." : "Your advisor explains them before any work begins.")
+            .replace("__CT_FEES_LEGAL__", CLAIMS.writtenFees ? "Fees are confirmed in writing after your review." : "Fees are explained after your review.") }} />
       <CtScript />
     </div>
   );

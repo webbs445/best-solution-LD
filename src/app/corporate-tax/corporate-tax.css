@@ -416,7 +416,8 @@
 .ct-page .h1x{font-size:clamp(48px,6.6vw,96px)!important;max-width:12ch!important}
 .ct-page .h1x .l2 .sw>span{background:linear-gradient(100deg,#b5775a 0%,#e2a684 25%,#cc8667 50%,#8f5538 75%,#cc8667 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:ct-sheen 6s linear infinite}
 @keyframes ct-sheen{to{background-position:-220% 0}}
-.ct-page .hero-t>*:not(h1){opacity:0;transform:translateY(18px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+/* Starts visible (no opacity 0): text is never hidden until scrolled, for every visitor and bot. Only the slide plays. */
+.ct-page .hero-t>*:not(h1){transform:translateY(18px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
 .ct-page .hero.go .hero-t>*:not(h1){opacity:1;transform:none}
 .ct-page .hero.go .hero-t>.lede{transition-delay:.45s}.ct-page .hero.go .hero-t>.hero-cta{transition-delay:.6s}.ct-page .hero.go .hero-t>.hero-facts{transition-delay:.75s}
 .ct-page .hero-facts dt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:30px!important}
@@ -755,7 +756,7 @@ html:has(.ct-page){scroll-padding-top:92px}
 @media (max-width:640px){.ct-page .hd.on .hd-in{height:60px}.ct-page .hd.on .brand img{height:30px}}
 
 /* Fade-up on scroll: the script adds .fu to content blocks and .in when they come into view. */
-.ct-page .fu{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease);transition-delay:calc(var(--fd,0) * 70ms)}
+.ct-page .fu{transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease);transition-delay:calc(var(--fd,0) * 70ms)}
 .ct-page .fu.in{opacity:1;transform:none}
 
 /* Hover and press states. */

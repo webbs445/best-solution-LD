@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { REVIEW_ROWS, firstName } from "@/content/site";
+import { REVIEWS } from "@/content/site";
 import styles from "./UnlockDialog.module.css";
 
 /*
@@ -15,7 +15,7 @@ import styles from "./UnlockDialog.module.css";
 export const UNLOCK_THANKS_MS = 4000;
 
 /** A verified Google review shown with the form. */
-const REVIEW = REVIEW_ROWS.flat().find((r) => r.name === "Hadi Hamedi");
+const REVIEW = REVIEWS.find((r) => r.name === "Hadi");
 
 export const LOCK_ICON = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -94,7 +94,8 @@ export function UnlockDialog({ open, onClose, sent, intro, tags, children }: Pro
             <figure className={styles.review}>
               <blockquote data-review-quote>&ldquo;{REVIEW.quote}&rdquo;</blockquote>
               <figcaption>
-                {firstName(REVIEW.name)}, {REVIEW.company}. Google review
+                {REVIEW.name}
+                {REVIEW.company && `, ${REVIEW.company}`}. Google review
               </figcaption>
             </figure>
           ) : null}

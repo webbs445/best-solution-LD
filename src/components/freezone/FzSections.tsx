@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { CLAIMS, REVIEW_ROWS, SITE, WHY, type Review, firstName, statTile } from "@/content/site";
+import { CLAIMS, REVIEWS, REVIEWS_SCROLL, SITE, WHY, type SiteReview, statTile } from "@/content/site";
+import { ReviewAvatar } from "@/components/ui/ReviewAvatar";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
 
@@ -96,7 +97,7 @@ export interface BriefBlock {
 export const FZ_BRIEF: BriefBlock = {
   id: "consultation",
   title: "What you leave your consultation with",
-  text: "One conversation with a dedicated advisor, in person or by video call. No obligation to proceed.",
+  text: `One conversation with ${CLAIMS.oneAdvisor ? "a dedicated advisor" : "an advisor"}, in person or by video call. No obligation to proceed.`,
   cta: { label: "Book a Consultation", location: "FZ Consultation - Book My Consultation" },
   briefTitle: "Your free zone brief",
   briefNote: "Prepared by your advisor",
@@ -144,23 +145,9 @@ const PHOTOS = [
   { src: "/images/why-consultation.webp", alt: "Client consultation at the Best Solution office", w: 760, h: 563 },
 ];
 
-/* The home page's WHY list; the ownership card (a claim not yet confirmed: content/site CLAIMS) becomes "In person or by video call". */
-const WHY_CARDS = WHY.map((w) =>
-  w.title === "Fees in writing"
-    ? { title: "Fees confirmed in writing", body: "Any fees are set out in writing before work begins." }
-    : w.title === "Emirati-owned"
-      ? { title: "In person or by video call", body: "Meet us at our office in Business Bay, Dubai, or talk it through online." }
-      : w,
-);
+/* The shared WHY list: claim cards show only once confirmed (content/site CLAIMS), neutral cards in their place until then. */
+const WHY_CARDS = WHY;
 
-/*
-  Reviews kept off this page because their wording uses terms our Google Ads rules exclude (same as the
-  home page). The rest are repeated within the row so the loop fills wide screens; repeats are hidden
-  from screen readers.
-*/
-const FZ_EXCLUDED = ["Chandra Mohan", "Javed Khan", "Tanwir Chowdhury", "Carlos Freyre"];
-const FZ_REVIEWS = REVIEW_ROWS.flat().filter((r) => !FZ_EXCLUDED.includes(r.name));
-const FZ_REVIEW_LOOP = Array.from({ length: Math.max(1, Math.ceil(6 / FZ_REVIEWS.length)) }, () => FZ_REVIEWS).flat();
 
 const WHY_STATS = [
   statTile(CLAIMS.zones, "Free zones compared", "explain"),
@@ -204,7 +191,7 @@ export function FzWhyUs() {
                 <figcaption className="wy-quote">
                   <span>Best Solution</span>
                   <strong>
-                    One consultant.{" "}
+                    {CLAIMS.oneAdvisor ? "One consultant." : "Clear advice."}{" "}
                     <br />
                     One clear path.
                   </strong>
@@ -237,19 +224,19 @@ function Stars({ label }: { label?: string }) {
   );
 }
 
-function ReviewCard({ r, copy }: { r: Review; copy: boolean }) {
+function ReviewCard({ r, copy }: { r: SiteReview; copy: boolean }) {
   return (
     <figure className="t-card">
       <div className="t-top">
         <Stars label={copy ? undefined : "5 out of 5 stars"} />
-        <Image className="t-logo" src={r.logo} alt={copy ? "" : r.company} width={92} height={30} />
+        {r.logo && <Image className="t-logo" src={r.logo} alt={copy ? "" : (r.company ?? "")} width={92} height={30} />}
       </div>
-      <h3>{r.title}</h3>
+      {r.title && <h3>{r.title}</h3>}
       <blockquote lang={r.lang} data-review-quote>&ldquo;{r.quote}&rdquo;</blockquote>
       <figcaption>
-        <Image className="t-photo" src={r.photo} alt="" width={44} height={44} />
+        <ReviewAvatar r={r} className="t-photo" />
         <span>
-          <b>{firstName(r.name)}</b>
+          <b>{r.name}</b>
           {r.role}
         </span>
         <em>Google review</em>
@@ -284,22 +271,29 @@ export function FzReviews() {
           </a>
         </div>
       </div>
-      <div className="marquee t-marquee">
-        <div className="marquee-track">
-          {[false, true].map((copy) => (
-            <ul key={String(copy)} className="t-row" aria-hidden={copy || undefined}>
-              {FZ_REVIEW_LOOP.map((r, k) => {
-                const repeat = copy || k >= FZ_REVIEWS.length;
-                return (
-                  <li key={`${r.name}-${k}`} aria-hidden={!copy && repeat ? true : undefined}>
-                    <ReviewCard r={r} copy={repeat} />
+      {REVIEWS_SCROLL ? (
+        <div className="marquee t-marquee">
+          <div className="marquee-track">
+            {[false, true].map((copy) => (
+              <ul key={String(copy)} className="t-row" aria-hidden={copy || undefined}>
+                {REVIEWS.map((r) => (
+                  <li key={r.name}>
+                    <ReviewCard r={r} copy={copy} />
                   </li>
-                );
-              })}
-            </ul>
-          ))}
+                ))}
+              </ul>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <ul className="t-row t-static">
+          {REVIEWS.map((r) => (
+            <li key={r.name}>
+              <ReviewCard r={r} copy={false} />
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

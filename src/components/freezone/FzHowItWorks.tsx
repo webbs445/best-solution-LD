@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
+import { claimText } from "@/content/site";
 
 const STEPS = [
   {
@@ -66,14 +67,14 @@ export interface HowItWorksText {
 }
 export const FZ_HOW: HowItWorksText = {
   title: "From first question to the right free zone",
-  sub: "Four steps, one advisor, and nothing to commit to.",
+  sub: claimText("oneAdvisor", "Four steps, one advisor, and nothing to commit to.", "Four steps, and nothing to commit to."),
   steps: STEPS.map((x) => [x.time, x.title, x.body]),
   cta: { label: "Book a Consultation", location: "FZ How It Works - Book a Consultation" },
 };
 /** The same four steps in general words, for pages other than /freezone. */
 export const GENERAL_HOW: HowItWorksText = {
   title: "How a consultation works",
-  sub: "Four steps, one advisor, and nothing to commit to.",
+  sub: claimText("oneAdvisor", "Four steps, one advisor, and nothing to commit to.", "Four steps, and nothing to commit to."),
   steps: [
     ["A short form", "Tell us your plans", "Share what your business does and what you want to achieve, in the form or on WhatsApp."],
     ["A conversation", "Consult", "Your advisor talks through your plans, in person in Business Bay or by video call."],

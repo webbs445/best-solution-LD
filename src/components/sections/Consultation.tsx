@@ -1,3 +1,4 @@
+import { CLAIMS } from "@/content/site";
 import type { CSSProperties, ReactNode } from "react";
 import { ChecklistIcon, PinIcon, ReceiptIcon, StructureIcon } from "@/components/ui/Icons";
 import styles from "./Consultation.module.css";
@@ -17,7 +18,7 @@ export function Consultation() {
           <p className="section-kicker">The consultation</p>
           <h2>What your consultation covers</h2>
           <p className="lede">
-            One conversation with a dedicated advisor, so you can make an informed decision.
+            One conversation with {CLAIMS.oneAdvisor ? "a dedicated advisor" : "an advisor"}, so you can make an informed decision.
           </p>
         </div>
         <div className={styles.cards}>

@@ -19,8 +19,10 @@ const WHY: { title: string; body: string; icon: ReactNode }[] = [
     ),
   },
   {
-    title: "In-house team",
-    body: "Accountants and tax specialists in one office, so your questions are answered in-house.",
+    title: CLAIMS.inHouse ? "In-house team" : "Business Bay office",
+    body: CLAIMS.inHouse
+      ? "Accountants and tax specialists in one office, so your questions are answered in-house."
+      : "Talk to us at our office in Business Bay, Dubai, or by video call.",
     icon: (
       <>
         <circle cx="9" cy="8" r="3" />

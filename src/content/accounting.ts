@@ -38,7 +38,8 @@ export const AC_STATS: { value: string; label: string }[] = [
 ];
 
 /* The page's single offer. */
-export const AC_OFFER = "Get a written quote";
+/** "Get a written quote" only once the written quote is confirmed (content/site CLAIMS.writtenQuote). */
+export const AC_OFFER = CLAIMS.writtenQuote ? "Get a written quote" : "Get a quote";
 
 export type ServiceKey = "bookkeeping" | "reconciliation" | "statements" | "complete" | "not_sure";
 

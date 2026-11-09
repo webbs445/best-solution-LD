@@ -423,7 +423,8 @@
 .ac-page .drawer .x {width:44px;height:44px;border-radius:12px;background:var(--ground);font-size:22px}
 .ac-page .drawer nav a {display:block;padding:15px 6px;font-weight:700;font-size:18px;text-decoration:none;border-bottom:1px solid var(--rule)}
 .ac-page .drawer nav a.btn {border:0;margin-top:14px;color:#fff;width:100%}
-.ac-page .rv {opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+/* Starts visible (no opacity 0): text is never hidden until scrolled, for every visitor and bot. Only the slide plays. */
+.ac-page .rv {transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
 .ac-page .rv[data-in] {opacity:1;transform:none}
 .ac-page .d1 {transition-delay:.08s}
 .ac-page .d2 {transition-delay:.16s}

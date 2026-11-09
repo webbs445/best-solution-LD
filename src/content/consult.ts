@@ -91,7 +91,7 @@ export const CONSULT_FAQS: { q: string; a: string }[] = [
   ...(CONSULT_CONFIRM.chargeAnswer ? [{ q: "Is there a charge for the first consultation?", a: CONSULT_CONFIRM.chargeAnswer }] : []),
   {
     q: "Are you a government office?",
-    a: "No. Best Solution is a private consultancy and is not affiliated with any government entity or free zone authority.",
+    a: "No. Best Solution is a private business consultancy. We are not a government entity and do not act on behalf of any government authority. Official decisions are made only by the relevant UAE authorities.",
   },
   { q: "Do you help businesses that are already running?", a: "Yes. We offer ongoing bookkeeping and accounts support." },
 ];
