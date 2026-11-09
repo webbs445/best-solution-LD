@@ -92,7 +92,7 @@ export const AUTHORITIES = [
   { name: "RAKEZ", file: "rakez" },
   { name: "Hamriyah Free Zone", file: "hamriyah-free-zone" },
   { name: "Ajman Free Zone", file: "ajman-free-zone" },
-  { name: "UAQ Free Trade Zone", file: "uaq-free-trade-zone" },
+  { name: "Umm Al Quwain FTZ", file: "uaq-free-trade-zone" },
   { name: "SRTIP", file: "srtip" },
 ].map((a) => ({ ...a, src: `/authorities/${a.file}.webp` }));
 

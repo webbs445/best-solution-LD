@@ -78,7 +78,8 @@ const sess = (k: string, v?: string) => { try { if (v === undefined) return sess
 const ALL_OPTIONS = PLAN_OPTIONS.mainland.length + PLAN_OPTIONS.freezone.length + PLAN_OPTIONS.offshore.length;
 /* A text monogram in the logo slot (no authority logos): the zone's short name, or the name's initials. */
 /* Authority logos in /public/zones (free zones share the /freezone map); a text monogram where there is none. */
-const LOGO: Record<string, string> = { ...ZONE_LOGOS, o1: "jafza.svg", m0: "det.webp", m1: "det.webp", m2: "det.webp", m3: "det.webp", m4: "det.webp", m5: "added.webp", m6: "sedd.webp", m7: "ajman-government.webp", m8: "rak-government.webp", m9: "fujairah-government.webp", o0: "rak-icc.webp", o2: "ajman-free-zone.webp" };
+// Mainland options (government departments) show their name badge: no government emblems.
+const LOGO: Record<string, string> = { ...ZONE_LOGOS, o0: "rak-icc.webp", o1: "jafza.svg", o2: "ajman-free-zone.webp" };
 /* 36 rotated ellipses and rings: a fine guilloche rosette */
 const GUILLOCHE = (() => {
   let g = "";

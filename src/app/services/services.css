@@ -409,4 +409,9 @@
 .sv-page .sv-photo::after {background:linear-gradient(180deg,rgba(15,31,61,0) 55%,rgba(15,31,61,.45))}
 .sv-page .sv-live {top:auto;bottom:16%}
 .sv-page .sv-hero-h2 {font-weight:400;font-size:clamp(17px,1.35vw,19px);line-height:1.55;color:var(--ink-soft)}
-.sv-page .sv-stats b {font-size:clamp(18px,1.5vw,21px);white-space:nowrap}
+.sv-page .sv-stats b {font-size:clamp(18px,1.5vw,21px);text-wrap:balance}
+/* Phones: the three stat words share the width and may wrap, so the hero column never grows past the screen. */
+@media (max-width:600px) {
+  .sv-page .sv-stats {grid-template-columns:repeat(3,minmax(0,1fr))}
+  .sv-page .sv-stats b {font-size:16px;line-height:1.15}
+}
