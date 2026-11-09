@@ -1,27 +1,45 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
-import { ACT_LABEL, ACTS, EM_SHORT, POPULAR_ACTS, SECT, ZONES, ZONE_BY_ID, activityIcon, type Activity, type SectorKey, type Zone, type ZoneGroup } from "@/content/freezone";
+import {
+  ACT_LABEL,
+  ACTS,
+  EM_SHORT,
+  PK,
+  POPULAR_ACTS,
+  RATES,
+  SECT,
+  ZONES,
+  ZONE_BY_ID,
+  activityIcon,
+  type Activity,
+  type SectorKey,
+  type Zone,
+  type ZoneGroup,
+} from "@/lib/freezoneRates";
+import { findActs, maxPack, norm, renewalFor, zoneHaystack, zonesForSector } from "@/lib/freezone";
 import { CLAIMS, zonesPhrase } from "@/content/site";
-import { findActs, norm, zoneHaystack, zonesForSector } from "@/lib/zoneSearch";
+import { formatAED } from "@/lib/pricing";
 import { FZ_FORM_ID } from "@/lib/lead";
 import { trackEvent, trackJurisdictionInterest } from "@/lib/analytics";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
+import { LockedFigure, useEstimateUnlocked } from "@/components/ui/LockedFigure";
 import { QuickCapture } from "@/components/ui/QuickCapture";
-import { UNLOCK_THANKS_MS, UnlockDialog } from "@/components/ui/UnlockDialog";
+import { LOCK_ICON, UNLOCK_THANKS_MS, UnlockDialog } from "@/components/ui/UnlockDialog";
 import { CallbackTrigger } from "./CallbackTrigger";
 import { plannerPayload, usePlanner } from "./PlannerProvider";
 import { ZoneLogo } from "./ZoneLogo";
 import s from "./FzZones.module.css";
 
 /*
-  "Explore all 28 free zones": search by activity, filter, compare up to three. Advice only (Google Ads policy): no
-  prices, packages, renewals or residency, zone names as text badges; "Ask about this zone" opens the details popup.
+  "Explore all free zones": the original design, restored at the owner's request (Nov 2026): search by activity,
+  filter, compare up to three, rate-card prices from lib/freezoneRates locked until the visitor sends their details
+  once (the same popup as the planner); then all prices show. The 28-zone and 2,000+ codes counts stay behind CLAIMS.
   Laptop: the list beside a sticky detail panel. Phones: cards, and a tapped zone opens its details in place.
 */
 
 type Group = "all" | ZoneGroup;
-type Sort = "name" | "emirate";
+type Sort = "price" | "name";
 
 /** Dispatch on window (a CustomEvent with this detail) to preset the explorer, e.g. from a sitelink route. */
 export const FZ_ZONES_PRESET = "fz-zones-preset";
@@ -32,6 +50,7 @@ export interface ZonesPreset {
 
 const FILTERS: { g: Group; label: string }[] = [
   { g: "all", label: "All zones" },
+  { g: "value", label: "Cost-efficient" },
   { g: "dubai", label: "Dubai" },
   { g: "sector", label: "Specialist" },
   { g: "trade", label: "Trade" },
@@ -138,11 +157,6 @@ const PLUS = (
     <path d="M12 5v14M5 12h14" />
   </svg>
 );
-const CHAT_ICON = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
-);
 const ARROW = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M5 12h14M13 6l6 6-6 6" />
@@ -154,22 +168,34 @@ const ARROW = (
 function ZoneDetail({
   zone,
   act,
+  unlocked,
   inCmp,
   onCompare,
   onCost,
 }: {
   zone: Zone;
   act: Activity | null;
+  unlocked: boolean;
   inCmp: boolean;
   onCompare: () => void;
   onCost: () => void;
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
+  const pk = PK[zone.id];
+  const mp = maxPack(zone);
+  const base = zone.exact ? zone.exact["0"] : zone.price;
+  const lock = (text: string) => <LockedFigure text={text} unlocked={unlocked} />;
+
   const facts: [string, ReactNode][] = [
-    ["Emirate", zone.emirate],
-    ["Often suits", zone.t.map((t) => ACT_LABEL[t]).join(", ")],
-    ["Activity range", `${zone.sect.length} activity groups`],
-    ["Workspace", "Options confirmed with your advisor"],
+    ["Residency", mp !== null ? `Package covers up to ${mp} people` : unlocked ? `AED ${formatAED(RATES.residencyPerPerson)} per person` : "Priced per person"],
+    ["Year-two renewal", lock(`About AED ${formatAED(renewalFor(zone))}`)],
+    ["Workspace", "Flexi-desk included"],
+    ...(pk
+      ? ([
+          ["Activities", pk.actTxt],
+          ["Shareholders", pk.shTxt],
+        ] as [string, string][])
+      : ([["Price basis", "Catalogue estimate"]] as [string, string][])),
     ...(act ? ([["Your activity", `${zone.sect.includes(act[1]) ? "Typically covered: " : "Not typically covered: "}${act[0]}`]] as [string, string][]) : []),
   ];
 
@@ -200,10 +226,16 @@ function ZoneDetail({
 
       <div className={s.dPrice}>
         <div>
-          <small>Known for</small>
-          <b>{ACT_LABEL[zone.t[0]]}</b>
+          <small>First year from</small>
+          <b>{lock(`AED ${formatAED(zone.price)}`)}</b>
         </div>
-        <span className={s.dInc}>{CHECK} Advice only</span>
+        {unlocked ? (
+          <span className={s.dInc}>{CHECK} Flexi-desk included</span>
+        ) : (
+          <span className={s.dLock}>
+            <i>{LOCK_ICON}</i> Locked
+          </span>
+        )}
       </div>
 
       <dl className={s.facts}>
@@ -214,6 +246,27 @@ function ZoneDetail({
           </div>
         ))}
       </dl>
+
+      {pk?.years && (
+        <div className={s.years}>
+          <p className={s.sub}>Multi-year package, no residency</p>
+          <ul>
+            <li>
+              <small>1 year</small>
+              <b>{lock(`AED ${formatAED(base)}`)}</b>
+            </li>
+            {pk.years.map(([y, total]) => (
+              <li key={y}>
+                <small>{y} years</small>
+                <b>{lock(`AED ${formatAED(total)}`)}</b>
+                {/* A multi-year saving only when it is meaningful (2%+), not rounding-level differences. */}
+                {unlocked && base * y - total >= base * y * 0.02 && <em>Save AED {formatAED(base * y - total)}</em>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {pk?.note && <p className={s.dNote}>{pk.note}</p>}
 
       <p className={s.sub}>Known for</p>
       <ul className={s.tags}>
@@ -230,7 +283,8 @@ function ZoneDetail({
 
       <div className={s.dActions}>
         <button type="button" className={s.cta} onClick={onCost}>
-          Ask about this zone {ARROW}
+          {unlocked ? null : <span className={s.ctaLock}>{LOCK_ICON}</span>}
+          {unlocked ? "Plan this zone" : "Get my cost"} {ARROW}
         </button>
         <button type="button" className={s.cmpBtn} aria-pressed={inCmp} onClick={onCompare}>
           {inCmp ? CHECK : PLUS} {inCmp ? "In compare" : "Compare"}
@@ -244,19 +298,20 @@ function ZoneDetail({
 
 function CompareSheet({
   ids,
-  act,
+  unlocked,
   onClose,
   onCost,
   onRemove,
 }: {
   ids: string[];
-  act: Activity | null;
+  unlocked: boolean;
   onClose: () => void;
   onCost: (id: string) => void;
   onRemove: (id: string) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const zs = ids.map((id) => ZONE_BY_ID[id]);
+  const low = Math.min(...zs.map((zn) => zn.price));
 
   useEffect(() => {
     const d = dialog.current;
@@ -270,12 +325,27 @@ function CompareSheet({
   }, []);
 
   const rows: [string, (zn: Zone) => ReactNode][] = [
-    ["Emirate", (zn) => zn.emirate],
+    [
+      "First year from",
+      (zn) => (
+        <>
+          <LockedFigure text={`AED ${formatAED(zn.price)}`} unlocked={unlocked} />
+          {unlocked && zn.price === low && zs.length > 1 ? <em className={s.cmpBest}>Lowest</em> : null}
+        </>
+      ),
+    ],
+    ["Year-two renewal", (zn) => <LockedFigure text={`AED ${formatAED(renewalFor(zn))}`} unlocked={unlocked} />],
     ["Suited to", (zn) => zn.d],
-    ["Often suits", (zn) => zn.t.map((t) => ACT_LABEL[t]).join(", ")],
-    ...(act ? ([[`Covers ${act[0].toLowerCase()}`, (zn: Zone) => (zn.sect.includes(act[1]) ? "Typically yes" : "Not typically")]] as [string, (zn: Zone) => ReactNode][]) : []),
-    ["Activity range", (zn) => `${zn.sect.length} activity groups`],
-    ["Workspace", () => "Options confirmed with your advisor"],
+    ["Workspace", () => "Flexi-desk included"],
+    ["Activities", (zn) => PK[zn.id]?.actTxt ?? "Confirmed by your advisor"],
+    ["Shareholders", (zn) => PK[zn.id]?.shTxt ?? "Confirmed by your advisor"],
+    [
+      "Residency",
+      (zn) => {
+        const m = maxPack(zn);
+        return m !== null ? `Package covers up to ${m} people` : "Priced per person";
+      },
+    ],
   ];
 
   return (
@@ -284,7 +354,7 @@ function CompareSheet({
         <div className={s.cmpHead}>
           <div>
             <h3 id="cmpTitle">Compare free zones</h3>
-            <p>Activity coverage is indicative. Your advisor confirms what each zone allows for your activity.</p>
+            <p>{unlocked ? "Indicative rate-card prices. Your advisor confirms the final cost in writing." : "Prices unlock with one quick form."}</p>
           </div>
           <button type="button" className={s.close} aria-label="Close" onClick={() => dialog.current?.close()}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -314,7 +384,8 @@ function CompareSheet({
               </dl>
               <div className={s.cardActs}>
                 <button type="button" className={s.cta} onClick={() => onCost(zn.id)}>
-                  Ask about this zone
+                  {unlocked ? null : <span className={s.ctaLock}>{LOCK_ICON}</span>}
+                  {unlocked ? "Plan this zone" : "Get my cost"}
                 </button>
                 <button type="button" className={s.linkBtn} onClick={() => onRemove(zn.id)}>
                   Remove
@@ -355,13 +426,20 @@ function CompareSheet({
         </div>
 
         <div className={s.cmpFoot}>
-          <div className={s.cmpVals}>
-            {zs.map((zn) => (
-              <button key={zn.id} type="button" className={s.planBtn} onClick={() => onCost(zn.id)}>
-                Ask about {zn.short[0]}
-              </button>
-            ))}
-          </div>
+          {unlocked ? (
+            <div className={s.cmpVals}>
+              {zs.map((zn) => (
+                <button key={zn.id} type="button" className={s.planBtn} onClick={() => onCost(zn.id)}>
+                  Plan {zn.short[0]}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <button type="button" className={`${s.cta} ${s.full}`} onClick={() => onCost(zs[0].id)}>
+              <span className={s.ctaLock}>{LOCK_ICON}</span>
+              Unlock prices for these zones {ARROW}
+            </button>
+          )}
         </div>
       </div>
     </dialog>
@@ -372,13 +450,13 @@ function CompareSheet({
 
 export function FzZones() {
   const { state, goPlanner } = usePlanner();
-  const [sentIds, setSentIds] = useState<string[]>([]);
+  const unlocked = useEstimateUnlocked();
   const [group, setGroup] = useState<Group>("all");
   const [input, setInput] = useState("");
   const [q, setQ] = useState("");
   const [qs, setQs] = useState<SectorKey[] | null>(null);
   const [act, setAct] = useState<Activity | null>(null);
-  const [sort, setSort] = useState<Sort>("name");
+  const [sort, setSort] = useState<Sort>("price");
   const [cmp, setCmp] = useState<string[]>([]);
   const [selId, setSelId] = useState<string | null>(null);
   // Phones: the zone whose details are open under its card.
@@ -403,7 +481,7 @@ export function FzZones() {
       return !!qs && qs.some((x) => zn.sect.includes(x));
     };
     return ZONES.filter((zn) => (group === "all" || zn.g.includes(group)) && textOk(zn)).sort((a, b) =>
-      sort === "emirate" ? a.emirate.localeCompare(b.emirate) || a.name.localeCompare(b.name) : a.name.localeCompare(b.name),
+      sort === "price" ? a.price - b.price : a.name.localeCompare(b.name),
     );
   }, [group, q, qs, act, sort]);
 
@@ -552,11 +630,11 @@ export function FzZones() {
   };
   const closeCmp = useCallback(() => setCmpOpen(false), []);
 
-  // "Ask about this zone": the details popup; once sent for that zone, the zone goes to the planner's shortlist.
+  // "Get my cost": the details popup the first time; once unlocked, the zone goes to the planner's full estimate.
   const cost = (id: string, source: "zone_card" | "compare" | "unlock_strip") => {
     track("zone_card_click", { zone: ZONE_BY_ID[id].name, source });
     setCmpOpen(false);
-    if (sentIds.includes(id)) {
+    if (unlocked) {
       goPlanner(id);
       return;
     }
@@ -574,6 +652,7 @@ export function FzZones() {
       key={`${zn.id}|${act?.[0] ?? ""}`}
       zone={zn}
       act={act}
+      unlocked={unlocked}
       inCmp={cmp.includes(zn.id)}
       onCompare={() => toggleCmp(zn.id)}
       onCost={() => cost(zn.id, "zone_card")}
@@ -639,7 +718,10 @@ export function FzZones() {
                     <ActIcon name={a[0]} className={s.sugIc} />
                     <span className={s.sugT}>
                       <b>{highlight(a[0], input.trim())}</b>
-                      <small>{SECT[a[1]]}</small>
+                      <small>
+                        {SECT[a[1]]}
+                        {a[3] ? " · extra regulator sign-off" : ""}
+                      </small>
                     </span>
                     <span className={s.sugN}>{zonesForSector(a[1])} zones</span>
                   </button>
@@ -722,7 +804,8 @@ export function FzZones() {
               </span>
               <span>
                 {zonesCovering}
-                {zonesCovering === 1 ? " zone covers" : " zones typically cover"} this activity. Your advisor confirms what applies to you.
+                {zonesCovering === 1 ? " zone covers" : " zones typically cover"} this activity. Your advisor confirms the exact activity code.
+                {act[3] ? " It may need an extra regulator sign-off; we check this for you." : ""}
               </span>
             </>
           ) : likeActs.length ? (
@@ -730,31 +813,32 @@ export function FzZones() {
           ) : null}
         </div>
 
-        {/* The same strip, now an invitation to talk to an advisor */}
-        <div className={s.unlockStrip}>
-          <span className={s.unlockIc}>{CHAT_ICON}</span>
-          <span className={s.unlockText}>
-            <b>Not sure which zone fits?</b>
-            <small>Send your activity and an advisor compares the zones with you. No obligation.</small>
-          </span>
-          <button type="button" className={s.cta} onClick={() => current && cost(current.id, "unlock_strip")}>
-            Ask an advisor {ARROW}
-          </button>
-        </div>
+        {/* One quick form unlocks every price */}
+        {unlocked ? null : (
+          <div className={s.unlockStrip}>
+            <span className={s.unlockIc}>{LOCK_ICON}</span>
+            <span className={s.unlockText}>
+              <b>Prices for all {zonesPhrase()} are locked</b>
+              <small>One quick form shows every price, renewal and multi-year package.</small>
+            </span>
+            <button type="button" className={s.cta} onClick={() => current && cost(current.id, "unlock_strip")}>
+              Unlock all prices {ARROW}
+            </button>
+          </div>
+        )}
 
         <div className={s.shell}>
           <div className={s.listWrap}>
             <div className={s.listHead}>
               <p aria-live="polite">
-                {/* The full count is a claim until confirmed (content/site CLAIMS.zones); a filtered count is just the list. */}
                 {list.length === ZONES.length && !CLAIMS.zones ? "All zones listed" : <><b>{list.length}</b> zones listed</>}
               </p>
               <div className={s.sort} role="group" aria-label="Sort">
+                <button type="button" aria-pressed={sort === "price"} onClick={() => setSort("price")}>
+                  Lowest cost first
+                </button>
                 <button type="button" aria-pressed={sort === "name"} onClick={() => setSort("name")}>
                   A to Z
-                </button>
-                <button type="button" aria-pressed={sort === "emirate"} onClick={() => setSort("emirate")}>
-                  By emirate
                 </button>
               </div>
             </div>
@@ -776,8 +860,10 @@ export function FzZones() {
                           </small>
                         </span>
                         <span className={s.rowP}>
-                          <small>Known for</small>
-                          <b>{ACT_LABEL[zn.t[0]]}</b>
+                          <small>from</small>
+                          <b>
+                            <LockedFigure text={`AED ${formatAED(zn.price)}`} unlocked={unlocked} />
+                          </b>
                         </span>
                       </button>
                       <button
@@ -798,7 +884,7 @@ export function FzZones() {
             </ul>
             {!showAll && list.length > FIRST ? (
               <button type="button" className={s.showAll} onClick={() => setShowAll(true)}>
-                Show all zones
+                Show all {list.length} zones
               </button>
             ) : null}
 
@@ -840,14 +926,16 @@ export function FzZones() {
       </div>
 
       {cmpOpen && cmp.length > 0 && (
-        <CompareSheet ids={cmp} act={act} onClose={closeCmp} onCost={(id) => cost(id, "compare")} onRemove={(id) => toggleCmp(id)} />
+        <CompareSheet ids={cmp} unlocked={unlocked} onClose={closeCmp} onCost={(id) => cost(id, "compare")} onRemove={(id) => toggleCmp(id)} />
       )}
 
       <UnlockDialog
         open={!!unlockZone}
         onClose={() => setUnlockId(null)}
-        sent={!!unlockZone && sentIds.includes(unlockZone.id)}
-        intro="Send your details and an advisor will talk this zone through with you. No obligation."
+        sent={unlocked}
+        intro="Send your details and every free zone price appears straight away. No obligation."
+        title="Unlock your exact figure"
+        sentText="Showing your figure in a moment…"
         tags={unlockZone ? [unlockZone.name, unlockZone.emirate] : undefined}
       >
         {unlockZone ? (
@@ -856,13 +944,10 @@ export function FzZones() {
             formId={FZ_FORM_ID}
             service="free_zone"
             tone="light"
-            cta="Send to an advisor"
+            cta="Show all prices"
             payload={() => ({ planner: plannerPayload(state, unlockZone.id) })}
-            summary={unlockZone.name}
-            onSent={() => {
-              setSentIds((ids) => [...ids, unlockZone.id]);
-              window.setTimeout(() => setUnlockId(null), UNLOCK_THANKS_MS);
-            }}
+            summary={`${unlockZone.name}${unlocked ? `, from AED ${formatAED(unlockZone.price)}` : ""}`}
+            onSent={() => window.setTimeout(() => setUnlockId(null), UNLOCK_THANKS_MS)}
             onDone={() => setUnlockId(null)}
           />
         ) : null}

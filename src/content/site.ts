@@ -67,11 +67,11 @@ export const PARTNER_ZONES = {
 export type PartnerKey = keyof typeof PARTNER_ZONES;
 
 export const PARTNER_LOGOS: Record<PartnerKey, boolean> = {
-  ifza: false, meydan: false, dmcc: false, jafza: false, siliconOasis: false, internetCity: false, mediaCity: false,
-  dafza: false, dubaiSouth: false, healthcareCity: false, difc: false, commerCity: false, adgm: false, kezad: false,
-  masdar: false, shams: false, saif: false, hamriyah: false, spc: false, srtip: false, ajmanFz: false, nuVenture: false,
-  rakez: false, rakMaritime: false, innovationCity: false, fujairahFz: false, creativeCity: false, uaqFtz: false,
-  rakIcc: false,
+  ifza: true, meydan: true, dmcc: true, jafza: true, siliconOasis: true, internetCity: true, mediaCity: true,
+  dafza: true, dubaiSouth: true, healthcareCity: true, difc: true, commerCity: true, adgm: true, kezad: true,
+  masdar: true, shams: true, saif: true, hamriyah: true, spc: true, srtip: true, ajmanFz: true, nuVenture: true,
+  rakez: true, rakMaritime: true, innovationCity: true, fujairahFz: true, creativeCity: true, uaqFtz: true,
+  rakIcc: true,
 };
 
 const PARTNER_KEYS = (Object.keys(PARTNER_ZONES) as PartnerKey[]).filter((k) => PARTNER_LOGOS[k]);
@@ -136,7 +136,8 @@ export const CLAIMS: {
   oneAdvisor: null,
   inHouse: null,
   partners: PARTNERS.length
-    ? `We are a registered channel partner of ${listNames(PARTNERS.map((p) => p.name))}. Free zone names and logos identify the zones we work with.`
+    ? // Up to four partners are named; more are referred to by their logos, so the disclaimer box keeps its size.
+      `We are a registered channel partner of ${PARTNERS.length <= 4 ? listNames(PARTNERS.map((p) => p.name)) : "the free zones whose logos appear on this page"}. Free zone names and logos identify the zones we work with.`
     : null,
 };
 

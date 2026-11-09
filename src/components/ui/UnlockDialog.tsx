@@ -32,10 +32,22 @@ interface Props {
   intro: string;
   /** The visitor's choices as small tags, e.g. the zone and team size. */
   tags?: string[];
+  /** Heading and sent line; default to the advice wording (the /freezone zone explorer passes the price-unlock wording). */
+  title?: string;
+  sentText?: string;
   children: ReactNode;
 }
 
-export function UnlockDialog({ open, onClose, sent, intro, tags, children }: Props) {
+export function UnlockDialog({
+  open,
+  onClose,
+  sent,
+  intro,
+  tags,
+  title = "Talk it through with an advisor",
+  sentText = "Thank you. Your advisor will be in touch.",
+  children,
+}: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
 
   // `open` drives the native dialog both ways; closing it any way (Escape, backdrop, X) reports back via onClose.
@@ -73,12 +85,12 @@ export function UnlockDialog({ open, onClose, sent, intro, tags, children }: Pro
           </button>
           {sent ? (
             <p id="unlockTitle" className={styles.soon}>
-              Thank you. Your advisor will be in touch.
+              {sentText}
             </p>
           ) : (
             <div className={styles.head}>
               <span className={styles.lock}>{LOCK_ICON}</span>
-              <h3 id="unlockTitle">Talk it through with an advisor</h3>
+              <h3 id="unlockTitle">{title}</h3>
               <p>{intro}</p>
               {tags?.length ? (
                 <ul className={styles.tags}>

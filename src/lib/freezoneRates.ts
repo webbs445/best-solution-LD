@@ -1,7 +1,8 @@
 /* ============================================================
-   SERVER ONLY: the old /freezone rate card and planner data. No page imports this file (Google Ads policy: no
-   licence or residency prices on landing pages). It is kept only for lib/freezone and lib/calculatorLead, which
-   still describe planner leads that reach /api/lead. Do not import it from any component.
+   The /freezone rate card and planner data. Used by lib/freezone and lib/calculatorLead for planner leads that
+   reach /api/lead, and, since the owner restored the original design (Nov 2026), by the /freezone zone explorer
+   (components/freezone/FzZones), which shows these prices locked until the visitor sends their details. Every other
+   page stays advice-only: do not import it from any other component.
    RATE CARD: copied from best-solution.ae/pricing.
    ============================================================ */
 
