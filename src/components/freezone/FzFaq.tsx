@@ -17,10 +17,12 @@ export function FzFaq({
   title = "Free zone questions, answered",
   tabs = true,
   ctaLocation = "FZ FAQ - Request a Callback",
+  sub,
 }: {
   faqs: { c?: FaqTopic; q: string; a: string }[];
   topics?: { c: FaqTopic | "all"; label: string }[];
   title?: string;
+  sub?: string;
   tabs?: boolean;
   ctaLocation?: string;
 }) {
@@ -31,7 +33,14 @@ export function FzFaq({
     <section className="fz-block fq" id="faq" aria-labelledby="faqTitle">
       <div className="wrap">
         <div className="fq-head">
-          <h2 id="faqTitle">{title}</h2>
+          {sub ? (
+            <div>
+              <h2 id="faqTitle">{title}</h2>
+              <p className="lede">{sub}</p>
+            </div>
+          ) : (
+            <h2 id="faqTitle">{title}</h2>
+          )}
           {tabs && (
             <div className="fq-tabs" role="tablist" aria-label="Question topics">
               {topics.map((t) => (

@@ -50,7 +50,7 @@ export default function ServicesPage() {
         <SvTrust />
         <FzPartners />
         <FzReviews />
-        <FzFaq faqs={HUB_FAQS} title="Common questions" tabs={false} ctaLocation="SV FAQ - Request a Callback" />
+        <FzFaq faqs={HUB_FAQS} title="Common questions" sub="Questions about your plans? Ask us." tabs={false} ctaLocation="SV FAQ - Request a Callback" />
         <SvClosing />
       </main>
       <FzFooter

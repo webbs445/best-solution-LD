@@ -69,8 +69,8 @@ export function SvGrid() {
               </span>
               <span className="sv-banner-txt">
                 <small>Not sure where to begin?</small>
-                <b>Talk it through with an advisor</b>
-                <span>Talk it through with an advisor, in person or by video call, at a time that suits you. No obligation.</span>
+                <b>Book a consultation</b>
+                <span>Talk it through with an advisor, in person or by video call, at a time that suits you. No obligation, no pressure.</span>
               </span>
               <span className="sv-banner-cta">
                 Book a Consultation <ArrowIcon />
