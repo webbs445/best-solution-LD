@@ -32,8 +32,8 @@ export function SvHero() {
             Plan and run your UAE business, <span className="accent sv-keep">{claimText("oneAdvisor", "with one advisor.", "with clear advice.")}</span>
           </h1>
           <h2 className="sv-hero-h2">
-            Advice on where to base your business, budgeting, bookkeeping, corporate tax and holding structures.
-            {CLAIMS.writtenFees && " Any fees are confirmed in writing before work begins."}
+            Get a second opinion on your plans from a private consultancy in Business Bay. Advice on where to base your
+            business, budgeting, bookkeeping, corporate tax and holding structures.
           </h2>
           <div className="sv-hero-cta">
             <CallbackTrigger className="btn btn-primary" location="SV Hero - Book a Consultation">

@@ -70,7 +70,7 @@ export function SvGrid() {
               <span className="sv-banner-txt">
                 <small>Not sure where to begin?</small>
                 <b>Talk it through with an advisor</b>
-                <span>One conversation, in person or by video call. No obligation.</span>
+                <span>Talk it through with an advisor, in person or by video call, at a time that suits you. No obligation.</span>
               </span>
               <span className="sv-banner-cta">
                 Book a Consultation <ArrowIcon />

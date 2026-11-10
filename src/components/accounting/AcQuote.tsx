@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AC_WHATSAPP, BOOK_STATES, SERVICE_NAMES, SERVICE_OPTIONS, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
-import { CLAIMS, SITE } from "@/content/site";
+import { CLAIMS, MAPS_URL, SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { AC_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
@@ -415,7 +415,7 @@ export function AcQuote() {
           </div>
           <p className="hours">
             {SITE.hours.short} ·{" "}
-            <a href="https://www.google.com/maps/search/?api=1&query=Best+Solution+Business+Setup+Consultancy+Business+Bay+Dubai" target="_blank" rel="noopener">
+            <a href={MAPS_URL} target="_blank" rel="noopener">
               Business Bay, Dubai
             </a>
           </p>
