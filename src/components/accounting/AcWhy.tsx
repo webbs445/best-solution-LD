@@ -9,8 +9,10 @@ import { prefersReducedMotion } from "@/lib/useReducedMotion";
 const WHY: { title: string; body: string; icon: ReactNode }[] = [
   { title: "A private firm in Business Bay", body: "An accounting team in our Business Bay office, advising UAE companies on their books.", icon: <path d="M12 3l8 4v5c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V7z" /> },
   {
-    title: "One point of contact",
-    body: "One person for your books, reachable by phone, email or WhatsApp.",
+    title: CLAIMS.oneAdvisor ? "One point of contact" : "Clear monthly updates",
+    body: CLAIMS.oneAdvisor
+      ? "One person for your books, reachable by phone, email or WhatsApp."
+      : "Your reports each month, with answers by phone, email or WhatsApp.",
     icon: (
       <>
         <circle cx="12" cy="8" r="4" />

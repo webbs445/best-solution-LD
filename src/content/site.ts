@@ -119,6 +119,8 @@ export const CLAIMS: {
   oneAdvisor: string | null;
   /** In-house specialists, e.g. "In-house specialists under one roof". Switches on the in-house expertise lines. */
   inHouse: string | null;
+  /** /accounting fixed monthly fee, e.g. "Fixed monthly fee". Switches on the "Fixed monthly fee" card footers. */
+  fixedFee: string | null;
   /** Registered channel partner sentence: set from PARTNER_LOGOS (null while every flag is false). */
   partners: string | null;
 } = {
@@ -135,6 +137,7 @@ export const CLAIMS: {
   writtenFees: null,
   oneAdvisor: null,
   inHouse: null,
+  fixedFee: null,
   partners: PARTNERS.length
     ? `We are a registered channel partner of ${listNames(PARTNERS.map((p) => p.name))}. Free zone names and logos identify the zones we work with.`
     : null,
@@ -210,6 +213,8 @@ export const SOCIAL = {
   linkedin: "https://www.linkedin.com/company/bestsolutionhq/",
 };
 
+// TODO(owner): replace with the maps.app.goo.gl share link from Best Solution. This search URL still contains
+// "Business Setup". Every Maps link on the site uses this constant.
 export const MAPS_URL =
   "https://www.google.com/maps/search/?api=1&query=Best+Solution+Business+Setup+Consultancy+Business+Bay+Dubai";
 

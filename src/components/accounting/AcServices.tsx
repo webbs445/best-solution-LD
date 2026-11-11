@@ -5,6 +5,14 @@ import { trackEvent } from "@/lib/analytics";
 import { AC_FEES, aed } from "@/content/accounting";
 import { CLAIMS } from "@/content/site";
 
+/* The fee footer: "Fixed monthly fee" only once confirmed (CLAIMS.fixedFee), neutral wording in the same place until then. */
+const feeFoot = (confirmedTail: string) =>
+  CLAIMS.fixedFee
+    ? { b: "Fixed monthly fee", t: confirmedTail }
+    : CLAIMS.writtenQuote
+      ? { b: "Fee based on your volume,", t: "agreed before we begin" }
+      : { b: "Ask us about fees", t: "for your volume" };
+
 const CHECK = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="9" />
@@ -55,7 +63,7 @@ const CARDS: Card[] = [
     // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
     price: AC_FEES ? { small: "From", b: aed(AC_FEES.bookkeeping.amount), span: `${AC_FEES.bookkeeping.unit}, plus VAT` } : { small: "Pricing", b: CLAIMS.writtenQuote ? "Written quote" : "On request", span: "based on your volume" },
     items: ["Sales and purchases recorded", "Expense and income tracking", "Daily, weekly or monthly entry", "Monthly income and cost summary"],
-    foot: { b: "Fixed monthly fee", t: CLAIMS.writtenQuote ? "confirmed in writing" : "priced on your volume" },
+    foot: feeFoot(CLAIMS.writtenQuote ? "confirmed in writing" : "priced on your volume"),
     cta: { label: "Get a quote", href: "#contact", service: "bookkeeping", className: "btn btn-navy", location: "AC Services - Bookkeeping" },
   },
   {
@@ -94,10 +102,10 @@ const CARDS: Card[] = [
     title: "Complete package",
     // A package saving shows only once confirmed (content/site CLAIMS.packageSaving).
     tag: CLAIMS.packageSaving ?? "All in one",
-    desc: "All three as one monthly service, with one point of contact.",
+    desc: `All three as one monthly service, with ${CLAIMS.oneAdvisor ? "one point of contact" : "clear monthly updates"}.`,
     price: { small: "Pricing", b: "One fee", span: "for all three, quoted on your volume" },
-    items: ["Bookkeeping, reconciliation, statements", "Monthly reports", "Audit-ready records", "One point of contact"],
-    foot: { b: "Fixed monthly fee", t: "priced on your volume" },
+    items: ["Bookkeeping, reconciliation, statements", "Monthly reports", "Audit-ready records", CLAIMS.oneAdvisor ? "One point of contact" : "Clear monthly updates"],
+    foot: feeFoot("priced on your volume"),
     cta: { label: "Quote the package", href: "#contact", service: "complete", className: "btn", location: "AC Services - Complete package" },
   },
   {
