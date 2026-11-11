@@ -213,10 +213,8 @@ export const SOCIAL = {
   linkedin: "https://www.linkedin.com/company/bestsolutionhq/",
 };
 
-// TODO(owner): replace with the maps.app.goo.gl share link from Best Solution. This search URL still contains
-// "Business Setup". Every Maps link on the site uses this constant.
-export const MAPS_URL =
-  "https://www.google.com/maps/search/?api=1&query=Best+Solution+Business+Setup+Consultancy+Business+Bay+Dubai";
+/** Best Solution's Google Maps share link (from the owner). Every Maps link on the site uses this constant. */
+export const MAPS_URL = "https://maps.app.goo.gl/oj6wTSvAcXPfBxCb6";
 
 /** Footer columns. Items without an href are shown as plain text, as on the source page. */
 export const FOOTER_COLUMNS: { title: string; links: { label: string; href?: string; external?: boolean }[] }[] = [

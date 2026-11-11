@@ -71,7 +71,7 @@ export function FzFooter({
             <h4>Contact</h4>
             <div className="f5-contact">
               {CONTACTS.map((c) => (
-                <a key={c.title} className="bs-fci" href={c.href} {...(c.external ? { target: "_blank", rel: "noopener" } : null)}>
+                <a key={c.title} className="bs-fci" href={c.href} {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : null)}>
                   <span className="bs-ico">{c.icon}</span>
                   <span>
                     <b>{c.title}</b>

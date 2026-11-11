@@ -415,7 +415,7 @@ export function AcQuote() {
           </div>
           <p className="hours">
             {SITE.hours.short} ·{" "}
-            <a href={MAPS_URL} target="_blank" rel="noopener">
+            <a href={MAPS_URL} target="_blank" rel="noopener noreferrer">
               Business Bay, Dubai
             </a>
           </p>

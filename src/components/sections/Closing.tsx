@@ -83,7 +83,7 @@ export function Closing() {
                   <b>{SITE.phone.display}</b>
                 </span>
               </a>
-              <a className={styles.tile} href={MAPS_URL} target="_blank" rel="noopener">
+              <a className={styles.tile} href={MAPS_URL} target="_blank" rel="noopener noreferrer">
                 <span className={styles.tileIco}>
                   <PinIcon />
                 </span>
@@ -149,7 +149,7 @@ export function Footer() {
                   {col.links.map((l) => (
                     <li key={l.label}>
                       {l.href ? (
-                        <a href={l.href} {...(l.external ? { target: "_blank", rel: "noopener" } : null)}>
+                        <a href={l.href} {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : null)}>
                           {l.label}
                         </a>
                       ) : (
@@ -181,7 +181,7 @@ export function Footer() {
                 key={c.title}
                 className={styles.ci}
                 href={c.href}
-                {...(c.external ? { target: "_blank", rel: "noopener" } : null)}
+                {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : null)}
               >
                 <span className={styles.ico}>{c.icon}</span>
                 <span>

@@ -93,7 +93,7 @@ export function AcFooter() {
               )}
               {SITE.email}
             </a>
-            <a href={MAPS_URL} target="_blank" rel="noopener">
+            <a href={MAPS_URL} target="_blank" rel="noopener noreferrer">
               {ico(
                 <>
                   <path d="M12 22s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" />
