@@ -18,11 +18,11 @@ import { CallbackButton } from "./Callback";
 import { AdvisorsBadge } from "@/components/ui/AdvisorsBadge";
 import styles from "./Closing.module.css";
 
-/* The middle point shows only once confirmed (content/site CLAIMS.writtenFees). */
-const POINTS = ["No obligation", CLAIMS.writtenFees, "Reply by phone, WhatsApp or email"].filter((p): p is string => !!p);
+/* The middle point shows only once confirmed (content/site CLAIMS.writtenQuote). */
+const POINTS = ["No obligation", CLAIMS.writtenQuote && "Fees confirmed in writing", "Reply by phone, WhatsApp or email"].filter((p): p is string => !!p);
 
 /* Second footer note: the zone-names line (until partners are confirmed) and the fees line (once confirmed). */
-const FOOTER_NOTE = [ZONE_NAMES_NOTE, CLAIMS.writtenFees && "Any fees are confirmed in writing before work begins."].filter(Boolean).join(" ");
+const FOOTER_NOTE = [ZONE_NAMES_NOTE, CLAIMS.writtenQuote && "Any fees are confirmed in writing before work begins."].filter(Boolean).join(" ");
 
 /* Closing CTA: a card on the page ground, just above the footer. */
 export function Closing() {

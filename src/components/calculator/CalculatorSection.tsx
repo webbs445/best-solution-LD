@@ -18,7 +18,7 @@ export function CalculatorSection() {
           <div className={styles.note}>
             <span>NO OBLIGATION</span>
             <b>Clear before you commit.</b>
-            <small>{CLAIMS.writtenFees ? "Advice only · any fees confirmed in writing" : "Advice only · in plain terms"}</small>
+            <small>{CLAIMS.writtenQuote ? "Advice only · any fees confirmed in writing" : "Advice only · in plain terms"}</small>
           </div>
         </div>
         <div className={styles.frame}>

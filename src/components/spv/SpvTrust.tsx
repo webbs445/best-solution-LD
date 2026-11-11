@@ -36,11 +36,11 @@ export function SpvTrust() {
       </article>
       <article className="bt bt-c rv d2">
         <div className="fe-vis" aria-hidden="true">
-          <div className="fe-doc"><div className="fe-h"><b>Fee breakdown</b><small>{CLAIMS.writtenFees ? "Written" : "Explained"}</small></div><div className="fe-r"><span>Advisory fee</span><i></i></div><div className="fe-r"><span>Yearly review fee</span><i></i></div><div className="fe-r"><span>Structure map</span><i></i></div><div className="fe-t"><span>{CLAIMS.writtenFees ? "Agreed before work begins" : "Talked through first"}</span><i></i></div></div>
-          <span className="fe-stamp">{CLAIMS.writtenFees ? <>In<br />writing</> : <>Fees<br />explained</>}</span>
+          <div className="fe-doc"><div className="fe-h"><b>Fee breakdown</b><small>{CLAIMS.writtenQuote ? "Written" : "Explained"}</small></div><div className="fe-r"><span>Advisory fee</span><i></i></div><div className="fe-r"><span>Yearly review fee</span><i></i></div><div className="fe-r"><span>Structure map</span><i></i></div><div className="fe-t"><span>{CLAIMS.writtenQuote ? "Agreed before work begins" : "Talked through first"}</span><i></i></div></div>
+          <span className="fe-stamp">{CLAIMS.writtenQuote ? <>In<br />writing</> : <>Fees<br />explained</>}</span>
         </div>
-        <span className="bt-k">{CLAIMS.writtenFees ? "Fees in writing" : "Fees explained"}</span>
-        <h3>{CLAIMS.writtenFees ? "A written breakdown before any work begins." : "Your advisor explains any fees before work begins."}</h3>
+        <span className="bt-k">{CLAIMS.writtenQuote ? "Fees in writing" : "Fees explained"}</span>
+        <h3>{CLAIMS.writtenQuote ? "A written breakdown before any work begins." : "Your advisor explains any fees before work begins."}</h3>
       </article>
       <article className="bt bt-d rv">
         <div className="ju-vis" aria-hidden="true">

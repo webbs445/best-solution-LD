@@ -1,4 +1,4 @@
-import { CLAIMS, statTile } from "@/content/site";
+import { ASK_FEES, CLAIMS, statTile } from "@/content/site";
 /* ============================================================
    /accounting page content, from BestSolution_Accounting_LandingPage.html.
    Google Ads (UAE): no "start/setup/register/documents/fast/guarantee" style words in visitor-facing
@@ -130,7 +130,7 @@ export const AC_FAQS = [
       AC_FEES
         ? `Bookkeeping is ${feeLine(AC_FEES.bookkeeping).toLowerCase()}, bank reconciliation ${feeLine(AC_FEES.reconciliation).toLowerCase()} and financial statements ${feeLine(AC_FEES.statements).toLowerCase()}. `
         : ""
-    }Your fee depends on transaction volume, the number of bank accounts and how up to date your records are. An accountant reviews your details and confirms the fee in a written quote before work begins. Fees exclude VAT.`,
+    }Your fee depends on transaction volume, the number of bank accounts and how up to date your records are. An accountant reviews your details${CLAIMS.writtenQuote ? " and confirms the fee in a written quote before work begins." : `. ${ASK_FEES}`} Fees exclude VAT.`,
   },
   {
     q: "My books are behind by several months. Can you still help?",

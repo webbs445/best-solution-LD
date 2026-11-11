@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CLAIMS, SITE, WHY, claimText } from "@/content/site";
+import { ASK_FEES, CLAIMS, SITE, WHY, claimText } from "@/content/site";
 import { JOURNEY, SERVICES, SHOW_TEAM, TEAM, type ServiceId } from "@/content/services";
 import { ArrowIcon, WhatsAppIcon } from "@/components/ui/Icons";
 import { CallbackLink, CallbackTrigger } from "@/components/freezone/CallbackTrigger";
@@ -187,7 +187,7 @@ export function SvClosing() {
         <div className="fz-close-in">
           <div>
             <h2 id="closeTitle">Not sure which service fits?</h2>
-            <p>Tell us what you are planning. An advisor suggests where to begin{claimText("writtenFees", " and confirms any fees in writing.", ".")}</p>
+            <p>Tell us what you are planning. An advisor suggests where to begin{claimText("writtenQuote", " and confirms any fees in writing.", `. ${ASK_FEES}`)}</p>
           </div>
           <div className="fz-close-cta">
             <CallbackTrigger className="btn btn-primary" location="SV Closing - Book a Consultation">

@@ -12,7 +12,7 @@ const WHY: { title: string; body: string; icon: ReactNode }[] = [
     title: CLAIMS.oneAdvisor ? "One point of contact" : "Clear monthly updates",
     body: CLAIMS.oneAdvisor
       ? "One person for your books, reachable by phone, email or WhatsApp."
-      : "Your reports each month, with answers by phone, email or WhatsApp.",
+      : "Monthly reports, and answers by phone, email or WhatsApp.",
     icon: (
       <>
         <circle cx="12" cy="8" r="4" />

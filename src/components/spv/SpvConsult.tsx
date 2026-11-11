@@ -1,4 +1,4 @@
-import { SITE } from "@/content/site";
+import { ASK_FEES, CLAIMS, SITE } from "@/content/site";
 import { SPV_WA_HREF } from "@/content/spv";
 import { SpvConsultForm } from "./SpvConsultForm";
 
@@ -56,7 +56,7 @@ export function SpvConsult() {
               <i>3</i>
               <div>
                 <b>Receive your plan</b>
-                <span>A written structure map and fees, no obligation.</span>
+                <span>{CLAIMS.writtenQuote ? "A written structure map and fees, no obligation." : `A written structure map, no obligation. ${ASK_FEES}`}</span>
               </div>
             </li>
           </ol>

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { AC_OFFER, AC_WHATSAPP } from "@/content/accounting";
-import { CLAIMS, DISCLAIMER, MAPS_URL, SITE } from "@/content/site";
+import { ASK_FEES, CLAIMS, DISCLAIMER, MAPS_URL, SITE } from "@/content/site";
 import { CookieSettingsButton } from "@/components/analytics/CookieConsentBanner";
 
 const ARROW = (
@@ -47,7 +47,7 @@ export function AcFooter() {
             <div className="badges">
               {([CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].filter(Boolean).length
                 ? [CLAIMS.rating, CLAIMS.ownership, CLAIMS.since].filter(Boolean)
-                : ["Business Bay, Dubai", "Private consultancy", "Written quotes"]
+                : ["Business Bay, Dubai", "Private consultancy", CLAIMS.writtenQuote ? "Written quotes" : "Fees on request"]
               ).map((c) => (
                 <span key={c}>{c}</span>
               ))}
@@ -128,8 +128,9 @@ export function AcFooter() {
             )}
             <span data-legal>
               {DISCLAIMER} We are not affiliated with the Federal Tax Authority.
-              Tax assessments, refunds and penalties are decided solely by the relevant UAE authorities. Any fees are
-              confirmed in a written quote and exclude VAT. Reports and figures on this page are illustrations.
+              Tax assessments, refunds and penalties are decided solely by the relevant UAE authorities.{" "}
+              {CLAIMS.writtenQuote ? "Any fees are confirmed in a written quote and exclude VAT." : `${ASK_FEES} Fees exclude VAT.`} Reports and
+              figures on this page are illustrations.
             </span>
           </p>
           <div className="f-meta">

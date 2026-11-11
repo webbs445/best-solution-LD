@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { CLAIMS } from "@/content/site";
 
 const STEPS: { title: string; body: string; tags: string[]; icon: ReactNode }[] = [
   {
     title: "Review",
     body: "We look at your business, your transactions and how records are kept today.",
-    tags: ["Written scope", "Fixed quote"],
+    tags: [CLAIMS.writtenQuote ? "Written scope" : "Clear scope", CLAIMS.fixedFee ? "Fixed quote" : "Quote on request"],
     icon: (
       <>
         <circle cx="11" cy="11" r="6.5" />

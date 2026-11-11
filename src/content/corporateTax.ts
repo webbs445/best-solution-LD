@@ -1,4 +1,5 @@
 /* /corporate-tax page content shared by the page, its script and /api/corporate-tax. */
+import { ASK_FEES, CLAIMS } from "./site";
 
 /** Shown as the FAQ list and as FAQPage structured data. */
 export const CT_FAQS: { q: string; a: string }[] = [
@@ -20,7 +21,7 @@ export const CT_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How much does your service cost?",
-    a: "It depends on the size of your business and the state of your books. After your review call you receive a written fee breakdown, before any work begins.",
+    a: `It depends on the size of your business and the state of your books. ${CLAIMS.writtenQuote ? "After your review call you receive a written fee breakdown, before any work begins." : ASK_FEES}`,
   },
 ];
 

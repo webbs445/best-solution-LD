@@ -7,7 +7,7 @@ import styles from "./Process.module.css";
 const STEPS = [
   { title: "Share your plans", body: "Tell us about your activity, your customers and your team.", meta: "A short form" },
   { title: "Consult", body: "Your advisor reviews your objectives and recommends a structure.", meta: "No obligation" },
-  { title: "Decide", body: `You choose your next step in your own time.${CLAIMS.writtenFees ? " Any fees are confirmed in writing." : ""}`, meta: "Your decision" },
+  { title: "Decide", body: `You choose your next step in your own time.${CLAIMS.writtenQuote ? " Any fees are confirmed in writing." : ""}`, meta: "Your decision" },
 ];
 
 /* The rail fills, and each step lights up, as the timeline passes 60% of the viewport height. */

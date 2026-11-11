@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { AC_FEES, aed } from "@/content/accounting";
-import { CLAIMS } from "@/content/site";
+import { ASK_FEES, CLAIMS } from "@/content/site";
 
 /* The fee footer: "Fixed monthly fee" only once confirmed (CLAIMS.fixedFee), neutral wording in the same place until then. */
 const feeFoot = (confirmedTail: string) =>
@@ -73,7 +73,7 @@ const CARDS: Card[] = [
     title: "Bank reconciliation",
     desc: "Every bank line matched to your books, so nothing slips through.",
     // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
-    price: AC_FEES ? { small: "From", b: aed(AC_FEES.reconciliation.amount), span: `${AC_FEES.reconciliation.unit}, plus VAT` } : { small: "Pricing", b: "Written quote", span: "per bank account" },
+    price: AC_FEES ? { small: "From", b: aed(AC_FEES.reconciliation.amount), span: `${AC_FEES.reconciliation.unit}, plus VAT` } : { small: "Pricing", b: CLAIMS.writtenQuote ? "Written quote" : "On request", span: "per bankaccount" },
     items: ["Every transaction matched", "Discrepancies flagged with notes", "Missing entries and fees traced", "Multiple bank accounts"],
     foot: { b: "Every bank account", t: "matched line by line" },
     cta: { label: "Get a quote", href: "#contact", service: "reconciliation", className: "btn btn-copper", location: "AC Services - Bank reconciliation" },
@@ -85,7 +85,7 @@ const CARDS: Card[] = [
     title: "Financial statements",
     desc: "Clear reports you can hand to a bank, an auditor or a partner.",
     // Fees show only once confirmed (content/accounting AC_FEES_CONFIRMED).
-    price: AC_FEES ? { small: "From", b: aed(AC_FEES.statements.amount), span: `${AC_FEES.statements.unit}, plus VAT` } : { small: "Pricing", b: "Written quote", span: "per set of statements" },
+    price: AC_FEES ? { small: "From", b: aed(AC_FEES.statements.amount), span: `${AC_FEES.statements.unit}, plus VAT` } : { small: "Pricing", b: CLAIMS.writtenQuote ? "Written quote" : "On request", span: "per set of statements" },
     items: ["Profit and Loss statement", "Balance Sheet", "Cash Flow statement", "Monthly or periodic reporting"],
     foot: { b: "Monthly or year-end", t: "for banks and auditors" },
     cta: { label: "Get a quote", href: "#contact", service: "statements", className: "btn btn-navy", location: "AC Services - Financial statements" },
@@ -251,7 +251,7 @@ export function AcServices() {
             <div>
               <span className="kicker">{AC_FEES ? "Services and pricing" : "Services"}</span>
               <h2>Pick one, or let us run it all.</h2>
-              <p className="lede">{AC_FEES ? "Every price is a from-price, confirmed in writing before any work begins." : "Every fee is confirmed in a written quote before any work begins."}</p>
+              <p className="lede">{AC_FEES ? "Every price is a from-price, confirmed in writing before any work begins." : CLAIMS.writtenQuote ? "Every fee is confirmed in a written quote before any work begins." : ASK_FEES}</p>
             </div>
             <div className="meter-box">
               <div className="counter">

@@ -124,7 +124,7 @@ export const HUB_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How are your fees set?",
-    a: CLAIMS.writtenFees
+    a: CLAIMS.writtenQuote
       ? "Your advisor explains our fees for the work you need and confirms them in writing before any work begins."
       : "Your advisor explains our fees for the work you need before any work begins.",
   },

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AC_WHATSAPP, BOOK_STATES, SERVICE_NAMES, SERVICE_OPTIONS, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
-import { CLAIMS, MAPS_URL, SITE } from "@/content/site";
+import { ASK_FEES, CLAIMS, MAPS_URL, SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { AC_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
@@ -237,7 +237,9 @@ export function AcQuote() {
             </h2>
           )}
           <p className="lede">
-            How it works: tell us what you need, an accountant talks it through with you, and you get a written quote. No obligation.
+            {CLAIMS.writtenQuote
+              ? "How it works: tell us what you need, an accountant talks it through with you, and you get a written quote. No obligation."
+              : `How it works: tell us what you need and an accountant talks it through with you. ${ASK_FEES} No obligation.`}
           </p>
         </div>
 
@@ -246,7 +248,7 @@ export function AcQuote() {
             {phase.kind === "sent" ? (
               <LeadSuccess
                 firstName={phase.firstName}
-                message="An accountant will review your details and reply with your written quote."
+                message={CLAIMS.writtenQuote ? "An accountant will review your details and reply with your written quote." : "An accountant will review your details and reply about your fees."}
                 summary={SERVICE_NAMES[service]}
                 steps={NEXT_STEPS}
               />

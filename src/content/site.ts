@@ -108,13 +108,11 @@ export const CLAIMS: {
   emirates: string | null;
   /** Complete accounting package saving, e.g. "Save about 20%" */
   packageSaving: string | null;
-  /** /accounting quote heading, e.g. "Your monthly quote, in writing." */
-  writtenQuote: string | null;
   /**
-   * Fees confirmed in writing before work begins, e.g. "Fees confirmed in writing". Switches on every fees-in-writing
-   * line (hero, cards, closing bands, footers).
+   * Fees confirmed in writing / a written quote, e.g. "Your monthly quote, in writing." (also the /accounting quote
+   * heading). Switches on every "written quote" / "fees in writing" line on every route.
    */
-  writtenFees: string | null;
+  writtenQuote: string | null;
   /** One named advisor per client, e.g. "One advisor". Switches on every "one advisor" / "dedicated consultant" line. */
   oneAdvisor: string | null;
   /** In-house specialists, e.g. "In-house specialists under one roof". Switches on the in-house expertise lines. */
@@ -134,7 +132,6 @@ export const CLAIMS: {
   emirates: null,
   packageSaving: null,
   writtenQuote: null,
-  writtenFees: null,
   oneAdvisor: null,
   inHouse: null,
   fixedFee: null,
@@ -154,14 +151,13 @@ export const DISCLAIMER =
 /** The second footer note on free zone pages: drops "do not imply any affiliation" once partners are confirmed. */
 export const ZONE_NAMES_NOTE = CLAIMS.partners ? "" : "Free zone names identify the zones we advise on and do not imply any affiliation.";
 
+/** Neutral fee sentence wherever a fees-in-writing line stands until CLAIMS.writtenQuote is confirmed. */
+export const ASK_FEES = "Ask us about fees before any work begins.";
+
 /** Footer blurb tail: "One advisor, with any fees confirmed in writing." only as far as those claims are confirmed. */
-export const FOOTER_TAIL = CLAIMS.oneAdvisor && CLAIMS.writtenFees
+export const FOOTER_TAIL = CLAIMS.oneAdvisor && CLAIMS.writtenQuote
   ? " One advisor, with any fees confirmed in writing."
-  : CLAIMS.oneAdvisor
-    ? " One advisor."
-    : CLAIMS.writtenFees
-      ? " Any fees are confirmed in writing."
-      : "";
+  : `${CLAIMS.oneAdvisor ? " One advisor." : ""} ${CLAIMS.writtenQuote ? "Any fees are confirmed in writing." : ASK_FEES}`;
 
 /*
   Stat tiles: a confirmed claim fills the number slot; until then the slot shows plain, true text in the same style
@@ -251,7 +247,7 @@ const WHY_NEUTRAL = {
 /* Used by /services (first three) and /freezone. Claim cards show only once their CLAIMS key is confirmed. */
 export const WHY = [
   CLAIMS.oneAdvisor ? { title: "A dedicated consultant", body: "Your advisor remains your single point of contact throughout." } : WHY_NEUTRAL.plain,
-  CLAIMS.writtenFees ? { title: "Fees in writing", body: "Fees are confirmed in writing before you proceed." } : WHY_NEUTRAL.meet,
+  CLAIMS.writtenQuote ? { title: "Fees in writing", body: "Fees are confirmed in writing before you proceed." } : { title: "Clear on fees", body: "Ask about fees before you decide." },
   CLAIMS.inHouse ? { title: "In-house expertise", body: "Specialists across company structuring, taxation, accounting and compliance, under one roof." } : WHY_NEUTRAL.office,
   CLAIMS.ownership ? { title: "Emirati-owned", body: "Founded by Essa Al Harthi and based in Business Bay, Dubai." } : WHY_NEUTRAL.noObligation,
   { title: "Continued support", body: "Tax, accounting and compliance guidance as your business grows." },
@@ -474,7 +470,7 @@ export const FAQS = [
   },
   {
     q: "Is the calculator result a final price?",
-    a: "No. It is an estimate for planning purposes. Your final cost is confirmed in writing following your consultation.",
+    a: `No. It is an estimate for planning purposes. ${CLAIMS.writtenQuote ? "Your final cost is confirmed in writing following your consultation." : ASK_FEES}`,
   },
   { q: "Is there a charge for the consultation?", a: "No. The consultation is complimentary and carries no obligation." },
   { q: "Do I need to be in the UAE?", a: "Not in every case. Your consultant will advise on what applies to you." },

@@ -5,7 +5,7 @@
    mentions registries or government documents.
    ============================================================ */
 
-import { SITE } from "./site";
+import { ASK_FEES, CLAIMS, SITE } from "./site";
 
 export const SPV_WA_TEXT = "Hello, I would like advice on a foundation or holding structure.";
 export const SPV_WA_HREF = `${SITE.whatsapp}?text=${encodeURIComponent(SPV_WA_TEXT)}`;
@@ -26,7 +26,7 @@ export const SPV_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How much does a structure cost?",
-    a: "It depends on the jurisdiction, the number of entities and the yearly upkeep. After the consultation you receive a written breakdown, before any work begins.",
+    a: `It depends on the jurisdiction, the number of entities and the yearly upkeep. ${CLAIMS.writtenQuote ? "After the consultation you receive a written breakdown, before any work begins." : ASK_FEES}`,
   },
   {
     q: "Is my information confidential?",

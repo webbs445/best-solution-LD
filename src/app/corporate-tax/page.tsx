@@ -26,9 +26,9 @@ const faqSchema = {
 };
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
-/* Fees-in-writing lines show only once confirmed (content/site CLAIMS.writtenFees); neutral wording in the same place until then. */
-const FEES_CHIP = CLAIMS.writtenFees ? "Fees <b>in writing</b> first" : "Fees <b>explained</b> first";
-const FEES_CARD = CLAIMS.writtenFees
+/* Fees-in-writing lines show only once confirmed (content/site CLAIMS.writtenQuote); neutral wording in the same place until then. */
+const FEES_CHIP = CLAIMS.writtenQuote ? "Fees <b>in writing</b> first" : "Fees <b>explained</b> first";
+const FEES_CARD = CLAIMS.writtenQuote
   ? "<h3>Fees in writing first</h3><p>You get a written fee breakdown after your review call, before any work begins.</p>"
   : "<h3>Fees explained first</h3><p>Your advisor explains the fees for the work you need after your review call, before any work begins.</p>";
 // The first question starts open, as in the design.
@@ -50,8 +50,8 @@ export default function CorporateTaxPage() {
       </a>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
       <div dangerouslySetInnerHTML={{ __html: CT_MARKUP.replace("__FAQ__", () => faqHtml).replaceAll("__DISCLAIMER__", esc(DISCLAIMER)).replace("__CT_FEES_CHIP__", FEES_CHIP).replace("__CT_FEES_CARD__", FEES_CARD)
-            .replace("__CT_FEES_LINE__", CLAIMS.writtenFees ? "You get them in writing before any work begins." : "Your advisor explains them before any work begins.")
-            .replace("__CT_FEES_LEGAL__", CLAIMS.writtenFees ? "Fees are confirmed in writing after your review." : "Fees are explained after your review.") }} />
+            .replace("__CT_FEES_LINE__", CLAIMS.writtenQuote ? "You get them in writing before any work begins." : "Your advisor explains them before any work begins.")
+            .replace("__CT_FEES_LEGAL__", CLAIMS.writtenQuote ? "Fees are confirmed in writing after your review." : "Fees are explained after your review.") }} />
       <CtScript />
     </div>
   );

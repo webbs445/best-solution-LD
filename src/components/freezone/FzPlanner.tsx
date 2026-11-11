@@ -295,7 +295,7 @@ export function FzPlanner() {
                     <ul>
                       <li>What each zone allows for your exact activity</li>
                       <li>Shareholder and activity limits for each zone</li>
-                      <li>{CLAIMS.writtenFees ? "Any fees for our work, in writing" : "Your options, in plain terms"}</li>
+                      <li>{CLAIMS.writtenQuote ? "Any fees for our work, in writing" : "Your options, in plain terms"}</li>
                       <li>Your next step, with no obligation</li>
                     </ul>
                   </div>
