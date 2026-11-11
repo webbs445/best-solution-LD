@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { FZ_FAQS, FZ_FAQ_TOPICS } from "@/content/freezone";
+import { FZ_FAQS, FZ_FAQ_TOPICS, POPULAR_ACTS } from "@/content/freezone";
+import { activityIcon } from "@/content/activityIcons";
 import { CLAIMS, SITE } from "@/content/site";
 import { PlannerProvider } from "./PlannerProvider";
 import { FzHeader } from "./FzHeader";
@@ -63,7 +64,8 @@ export function FreeZoneLanding({ view }: { view?: string }) {
           <FzHero />
           <FzPartners />
           <FzPlanner />
-          <FzZones />
+          {/* Only the popular chips' icons ship with the page; the full icon set loads when the search is used. */}
+          <FzZones popularIcons={Object.fromEntries(POPULAR_ACTS.map((n) => [n, activityIcon(n)]))} />
           <FzVsMainland />
           <FzConsultation />
           <FzHowItWorks />

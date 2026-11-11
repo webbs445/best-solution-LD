@@ -3,8 +3,6 @@
    browser. The rate card the /api/lead planner route still uses lives server-side in lib/freezone.ts.
    ============================================================ */
 
-import ACTIVITY_ICONS from "./activity-icons.json";
-
 export type Emirate = "Dubai" | "Abu Dhabi" | "Sharjah" | "Northern Emirates";
 
 /** Business types on the zone tags. */
@@ -342,13 +340,7 @@ export const POPULAR_ACTS = [
   "Real estate brokerage",
 ];
 
-/* Lucide icon bodies for the activity search, keyed by activity name. */
-const ICONS = ACTIVITY_ICONS as { map: Record<string, string>; icons: Record<string, string> };
-
-/** The inner SVG markup of an activity's icon (static Lucide paths from our own content file). */
-export function activityIcon(name: string): string {
-  return ICONS.icons[ICONS.map[name]] || ICONS.icons["briefcase-business"];
-}
+/* Activity icons live in content/activityIcons.ts (server, or loaded on demand by FzZones). */
 
 /* The planner's "What will you do?" choices (lib/zoneSearch ranks the zones by them). No prices. */
 export const PLANNER_ACTS: { v: ActKey; label: string; icon: string }[] = [

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
-import { ACT_LABEL, ACTS, EM_SHORT, POPULAR_ACTS, SECT, ZONES, ZONE_BY_ID, activityIcon, type Activity, type SectorKey, type Zone, type ZoneGroup } from "@/content/freezone";
+import { ACT_LABEL, ACTS, EM_SHORT, POPULAR_ACTS, SECT, ZONES, ZONE_BY_ID, type Activity, type SectorKey, type Zone, type ZoneGroup } from "@/content/freezone";
 import { CLAIMS, zonesPhrase } from "@/content/site";
 import { findActs, norm, zoneHaystack, zonesForSector } from "@/lib/zoneSearch";
 import { FZ_FORM_ID } from "@/lib/lead";
@@ -99,10 +99,10 @@ function dragScroll(el: HTMLDivElement | null) {
   );
 }
 
-function ActIcon({ name, className }: { name: string; className?: string }) {
+function ActIcon({ svg, className }: { svg: string; className?: string }) {
   return (
     <span className={className} aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: activityIcon(name) }} />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: svg }} />
     </span>
   );
 }
@@ -370,8 +370,15 @@ function CompareSheet({
 
 /* ---------- The explorer ---------- */
 
-export function FzZones() {
+export function FzZones({ popularIcons }: { popularIcons: Record<string, string> }) {
   const { state, goPlanner } = usePlanner();
+  // The full icon set (content/activityIcons, 32 KB) loads the first time the search is used; until then the
+  // popular chips' icons come from the server. ponytail: a suggestion shows an empty icon box until it arrives.
+  const [fullIcon, setFullIcon] = useState<((name: string) => string) | null>(null);
+  const loadIcons = () => {
+    if (!fullIcon) void import("@/content/activityIcons").then((m) => setFullIcon(() => m.activityIcon));
+  };
+  const icon = (name: string) => fullIcon?.(name) ?? popularIcons[name] ?? "";
   const [sentIds, setSentIds] = useState<string[]>([]);
   const [group, setGroup] = useState<Group>("all");
   const [input, setInput] = useState("");
@@ -503,6 +510,7 @@ export function FzZones() {
   };
 
   const onInput = (v: string) => {
+    loadIcons();
     setInput(v);
     if (act && v !== act[0]) setAct(null);
     window.clearTimeout(debounce.current);
@@ -611,7 +619,10 @@ export function FzZones() {
                 value={input}
                 onChange={(e) => onInput(e.target.value)}
                 onKeyDown={onKeyDown}
-                onFocus={() => input.trim().length > 1 && !act && openSug()}
+                onFocus={() => {
+                  loadIcons();
+                  if (input.trim().length > 1 && !act) openSug();
+                }}
                 onBlur={() => window.setTimeout(closeSug, 120)}
               />
             </label>
@@ -636,7 +647,7 @@ export function FzZones() {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => chooseAct(a, "search")}
                   >
-                    <ActIcon name={a[0]} className={s.sugIc} />
+                    <ActIcon svg={icon(a[0])} className={s.sugIc} />
                     <span className={s.sugT}>
                       <b>{highlight(a[0], input.trim())}</b>
                       <small>{SECT[a[1]]}</small>
@@ -701,7 +712,7 @@ export function FzZones() {
                   if (a) chooseAct(a, "popular");
                 }}
               >
-                <ActIcon name={name} className={s.popIc} />
+                <ActIcon svg={icon(name)} className={s.popIc} />
                 {name}
               </button>
             ))}
@@ -712,7 +723,7 @@ export function FzZones() {
           {act ? (
             <>
               <span className={s.actChip}>
-                <ActIcon name={act[0]} className={s.popIc} />
+                <ActIcon svg={icon(act[0])} className={s.popIc} />
                 <b>{act[0]}</b>
                 <button type="button" aria-label="Clear activity" onClick={clearAct}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
