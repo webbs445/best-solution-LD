@@ -27,8 +27,12 @@ const ACTIONS: Record<FzSitelinkView, () => void> = {
       document.getElementById("zxQ")?.focus({ preventScroll: true });
     }
   },
-  // The consultation section lists what to plan for in a budget (no prices on this page).
-  budget: () => scrollTo("consultation"),
+  // The FAQ opens on "What should I plan for in my budget?" (advice only, no prices). Opened in code, so no faq_expand is reported.
+  budget: () => {
+    const q = document.querySelector<HTMLDetailsElement>('#faq details[data-c="cost"]');
+    if (q) q.open = true;
+    scrollTo("faq");
+  },
   dubai: () => {
     presetZones({ group: "dubai" });
     scrollTo("zones");
