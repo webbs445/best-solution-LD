@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ACT_LABEL, EM_SHORT, HERO_DEMO, ZONES, ZONE_BY_ID } from "@/content/freezone";
 import Image from "next/image";
-import { CLAIMS, DISCLAIMER, partnerLogo, statTile, zonesPhrase } from "@/content/site";
+import { CLAIMS, DISCLAIMER, SITE, partnerLogo, statTile, zonesPhrase } from "@/content/site";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
@@ -50,6 +50,8 @@ export interface HeroConfig {
   primary: { label: string; location: string };
   /** Secondary call to action: a link on the page. */
   secondary: { label: string; href: string; location: string; external?: boolean };
+  /** A WhatsApp text link under the buttons; the text is the whatsapp_click location (data-area). */
+  wa?: { label: string; location: string };
   proof: { value: string; label: string }[];
   trustline: string;
   wall: HeroTile[];
@@ -68,6 +70,7 @@ export const FZ_HERO: HeroConfig = {
   sub: "Each UAE free zone covers different activities and offers different workspace options. Tell us your activity, and an advisor helps you compare the zones that may suit you.",
   primary: { label: "Book a Consultation", location: "FZ Hero - Book a Consultation" },
   secondary: { label: "Plan my free zone", href: "#planner", location: "FZ Hero - Plan My Free Zone" },
+  wa: { label: "Ask a quick question on WhatsApp", location: "FZ Hero - WhatsApp" },
   proof: [statTile(CLAIMS.zones, "Free zones to compare", "office"), statTile(CLAIMS.emirates, "Emirates", "meet"), statTile(null, "", "explain")],
   trustline: "Private consultancy · Business Bay, Dubai",
   wall: ZONES.map((zn) => ({ key: zn.id, mono: zn.short[1], title: zn.short[0], sub: EM_SHORT[zn.emirate], logo: partnerLogo(zn.id) })),
@@ -174,6 +177,13 @@ export function FzHero({ c = FZ_HERO }: { c?: HeroConfig } = {}) {
               {c.secondary.label}
             </a>
           </div>
+          {c.wa && (
+            <p className="fz-sub">
+              <a href={SITE.whatsapp} target="_blank" rel="noopener" data-area={c.wa.location}>
+                {c.wa.label}
+              </a>
+            </p>
+          )}
           <ul className="fz-proof" aria-label="At a glance">
             {/* A confirmed claim fills the number slot; until then plain text (content/site statTile). */}
             {c.proof.map((p) => (

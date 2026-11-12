@@ -28,6 +28,8 @@ export const FZ_ZONES_PRESET = "fz-zones-preset";
 export interface ZonesPreset {
   group?: Group;
   sort?: Sort;
+  /** A zone id whose details open (phones: under its card), e.g. from /freezone/dmcc. */
+  zone?: string;
 }
 
 const FILTERS: { g: Group; label: string }[] = [
@@ -40,7 +42,7 @@ const FILTERS: { g: Group; label: string }[] = [
 
 /** Phones show this many zones before "Show all". */
 const FIRST = 8;
-const PHONE = "(max-width: 900px)";
+export const PHONE = "(max-width: 900px)";
 
 /* Normalised like the query (norm), so "IFZA (Dubai)" finds "ifza dubai". */
 const HAY = Object.fromEntries(ZONES.map((zn) => [zn.id, norm(zoneHaystack(zn))]));
@@ -166,9 +168,10 @@ function ZoneDetail({
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const facts: [string, ReactNode][] = [
-    ["Emirate", zone.emirate],
+    ["Location", zone.emirate],
     ["Often suits", zone.t.map((t) => ACT_LABEL[t]).join(", ")],
-    ["Activity range", `${zone.sect.length} activity groups`],
+    ["Main activity groups", mainGroups(zone)],
+    // Our zone data has no workspace types per zone, so this stays general until it does.
     ["Workspace", "Options confirmed with your advisor"],
     ...(act ? ([["Your activity", `${zone.sect.includes(act[1]) ? "Typically covered: " : "Not typically covered: "}${act[0]}`]] as [string, string][]) : []),
   ];
@@ -236,9 +239,18 @@ function ZoneDetail({
           {inCmp ? CHECK : PLUS} {inCmp ? "In compare" : "Compare"}
         </button>
       </div>
+      <p className={s.dDesc}>
+        Our advisor compares this zone with others for your activity. Free zone names identify the zones we advise on and do not imply any affiliation.
+      </p>
     </div>
   );
 }
+
+/** The zone's first four activity groups from our data, then how many more. */
+const mainGroups = (zone: Zone) => {
+  const names = zone.sect.map((t) => SECT[t]);
+  return names.length > 4 ? `${names.slice(0, 4).join(", ")} and ${names.length - 4} more` : names.join(", ");
+};
 
 /* ---------- Side-by-side comparison: zones in columns, one row per detail (fits 3 zones on a phone) ---------- */
 
@@ -446,9 +458,14 @@ export function FzZones({ popularIcons }: { popularIcons: Record<string, string>
   // Presets from outside the explorer (sitelink routes). Not visitor choices, so nothing is tracked.
   useEffect(() => {
     const onPreset = (e: Event) => {
-      const { group: g, sort: so } = (e as CustomEvent<ZonesPreset>).detail ?? {};
+      const { group: g, sort: so, zone } = (e as CustomEvent<ZonesPreset>).detail ?? {};
       if (g) setGroup(g);
       if (so) setSort(so);
+      if (zone && ZONE_BY_ID[zone]) {
+        setShowAll(true);
+        setSelId(zone);
+        if (window.matchMedia(PHONE).matches) setOpenId(zone);
+      }
     };
     window.addEventListener(FZ_ZONES_PRESET, onPreset);
     return () => window.removeEventListener(FZ_ZONES_PRESET, onPreset);

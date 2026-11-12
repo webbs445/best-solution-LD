@@ -386,8 +386,16 @@ export const ZONE_QUESTIONS = [
 ];
 
 /* Google Ads sitelink routes: /freezone/<view> serves this page and scrolls to the matching section (FzSitelink). */
-export const FZ_SITELINK_VIEWS = ["planner", "compare", "activity", "budget", "vs-mainland", "consultation", "dubai"] as const;
+export const FZ_SITELINK_VIEWS = [
+  "planner", "compare", "activity", "budget", "vs-mainland", "consultation", "dubai",
+  "dmcc", "meydan", "rakez", "shams", "ifza", "ajman", "spc", "dafza",
+] as const;
 export type FzSitelinkView = (typeof FZ_SITELINK_VIEWS)[number];
+
+/** Zone deep links (/freezone/dmcc, ...): the zone whose card opens in the explorer. */
+export const FZ_ZONE_VIEWS: Partial<Record<FzSitelinkView, string>> = {
+  dmcc: "f2", meydan: "f1", rakez: "f22", shams: "f15", ifza: "f0", ajman: "f20", spc: "f18", dafza: "f7",
+};
 
 /* On-page navigation (header, mobile menu and footer). */
 export const FZ_NAV = [

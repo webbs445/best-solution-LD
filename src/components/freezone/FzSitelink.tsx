@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { FZ_SITELINK_VIEWS, type FzSitelinkView } from "@/content/freezone";
+import { FZ_SITELINK_VIEWS, FZ_ZONE_VIEWS, type FzSitelinkView } from "@/content/freezone";
 import { trackEvent } from "@/lib/analytics";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
-import { FZ_ZONES_PRESET, type ZonesPreset } from "./FzZones";
+import { FZ_ZONES_PRESET, PHONE, type ZonesPreset } from "./FzZones";
 
 /*
   Google Ads sitelink routes (/freezone/<view>): once the page has laid out, scroll to the matching
@@ -17,7 +17,13 @@ const scrollTo = (id: string) =>
 
 const presetZones = (detail: ZonesPreset) => window.dispatchEvent(new CustomEvent(FZ_ZONES_PRESET, { detail }));
 
-const ACTIONS: Record<FzSitelinkView, () => void> = {
+// Zone deep links: open the zone in code (no zone_select), then bring its card (phones) or the explorer into view.
+const openZone = (id: string) => {
+  presetZones({ zone: id });
+  window.setTimeout(() => scrollTo(window.matchMedia(PHONE).matches ? `zx-${id}` : "zones"), 120);
+};
+
+const ACTIONS: Partial<Record<FzSitelinkView, () => void>> = {
   planner: () => scrollTo("planner"),
   compare: () => scrollTo("zones"),
   activity: () => {
@@ -58,7 +64,8 @@ export function FzSitelink({ view }: { view: string }) {
     let timer = 0;
     const run = () => {
       raf = requestAnimationFrame(() => {
-        timer = window.setTimeout(ACTIONS[view], 300);
+        const zone = FZ_ZONE_VIEWS[view];
+        timer = window.setTimeout(zone ? () => openZone(zone) : ACTIONS[view]!, 300);
       });
     };
     if (document.readyState === "complete") run();

@@ -17,6 +17,7 @@ export function MobileEstimateBar({
   location,
   label = "Get my estimate",
   callback = false,
+  aboveCookie = false,
 }: {
   targetId: string;
   hideOver?: string[];
@@ -24,8 +25,11 @@ export function MobileEstimateBar({
   label?: string;
   /** The main button opens the page's callback popup instead of scrolling to targetId (/services). */
   callback?: boolean;
+  /** Sit just above the cookie banner while it shows (stacked, not covering it), so the bar is visible before the choice. */
+  aboveCookie?: boolean;
 }) {
   const [hidden, setHidden] = useState(false);
+  const [lift, setLift] = useState(0);
   const watch = [targetId, ...hideOver].join(" ");
 
   // Hidden while any watched section (the calculator, or one with its own bottom bar) is on screen.
@@ -44,8 +48,37 @@ export function MobileEstimateBar({
     return () => io.disconnect();
   }, [watch]);
 
+  // The banner (in the root layout, a direct child of <body>) is found by its title, so the consent code is untouched.
+  useEffect(() => {
+    if (!aboveCookie) return;
+    let ro: ResizeObserver | undefined;
+    const measure = () => {
+      const card = document.getElementById("consent-title")?.closest("[role=region]");
+      // The fixed banner's offset and height (layout values, so its slide-in transform doesn't skew them).
+      const banner = card?.parentElement;
+      setLift(banner ? Math.ceil(parseFloat(getComputedStyle(banner).bottom) + banner.offsetHeight) + 8 : 0);
+      return card;
+    };
+    const watch = () => {
+      ro?.disconnect();
+      const card = measure();
+      if (card && "ResizeObserver" in window) (ro = new ResizeObserver(measure)).observe(card);
+    };
+    watch();
+    const mo = new MutationObserver(watch);
+    mo.observe(document.body, { childList: true });
+    window.addEventListener("resize", measure);
+    return () => {
+      mo.disconnect();
+      ro?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [aboveCookie]);
+
   return (
-    <div className={`${styles.bar}${hidden ? ` ${styles.hidden}` : ""}`} data-area="Mobile Bar" aria-hidden={hidden || undefined}>
+    <div
+      style={lift && !hidden ? { bottom: lift } : undefined}
+      className={`${styles.bar}${hidden ? ` ${styles.hidden}` : ""}`} data-area="Mobile Bar" aria-hidden={hidden || undefined}>
       {callback ? (
         <button
           type="button"
