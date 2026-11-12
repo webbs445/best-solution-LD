@@ -408,9 +408,11 @@ export const FZ_FAQ_TOPICS: { c: FaqTopic | "all"; label: string }[] = [
   { c: "us", label: "About us" },
 ];
 
-export const FZ_FAQS: { c: FaqTopic; q: string; a: string }[] = [
+/** `cta`: the data-cta-location of a "Get a budget breakdown" button under the answer. */
+export const FZ_FAQS: { c: FaqTopic; q: string; a: string; cta?: string }[] = [
   {
     c: "cost",
+    cta: "FZ FAQ - Budget Breakdown",
     q: "What should I plan for in my budget?",
     a: "Running costs differ from zone to zone. They depend on your activity, the type of workspace, the size of your team and yearly items such as bookkeeping. Your advisor walks you through what to plan for in each zone you are considering.",
   },

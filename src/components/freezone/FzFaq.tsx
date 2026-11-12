@@ -5,6 +5,7 @@ import type { FaqTopic } from "@/content/freezone";
 import { trackEvent } from "@/lib/analytics";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
+import { BudgetTrigger, BUDGET_CTA } from "./BudgetConsult";
 
 /*
   Free zone FAQ: topic tabs, one question open at a time. Opens are reported by AnalyticsInit (data-faq-question).
@@ -19,7 +20,7 @@ export function FzFaq({
   ctaLocation = "FZ FAQ - Request a Callback",
   sub,
 }: {
-  faqs: { c?: FaqTopic; q: string; a: string }[];
+  faqs: { c?: FaqTopic; q: string; a: string; cta?: string }[];
   topics?: { c: FaqTopic | "all"; label: string }[];
   title?: string;
   sub?: string;
@@ -79,6 +80,13 @@ export function FzFaq({
                 {f.q}
               </summary>
               <p>{f.a}</p>
+              {f.cta && (
+                <p>
+                  <BudgetTrigger className="btn btn-primary" location={f.cta}>
+                    {BUDGET_CTA} <ArrowIcon />
+                  </BudgetTrigger>
+                </p>
+              )}
             </details>
           ))}
         </div>

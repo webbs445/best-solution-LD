@@ -25,9 +25,11 @@ type Props = {
   idPrefix?: string;
   /** Starting text for the message box (e.g. the planner choices); the visitor can edit or clear it. */
   message?: string;
+  /** A CONSULT_TOPICS entry to preselect (e.g. "Budget planning"); the visitor can change it. */
+  topic?: string;
 };
 
-export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation", idPrefix = "ad", message: startMessage = "" }: Props = {}) {
+export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation", idPrefix = "ad", message: startMessage = "", topic: startTopic = "" }: Props = {}) {
   const [errors, setErrors] = useState<Partial<Record<Field, boolean>>>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const success = useRef<HTMLDivElement>(null);
@@ -113,7 +115,7 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
       </div>
       <div className="ad-field">
         <label htmlFor={`${idPrefix}-topic`}>What would you like advice on?</label>
-        <select id={`${idPrefix}-topic`} name="topic" required defaultValue="" {...aria("topic")}>
+        <select id={`${idPrefix}-topic`} name="topic" required defaultValue={startTopic} {...aria("topic")}>
           <option value="" disabled>
             Choose one
           </option>

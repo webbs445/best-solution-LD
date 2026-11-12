@@ -13,6 +13,7 @@ import { FzHowItWorks } from "./FzHowItWorks";
 import { FzFaq } from "./FzFaq";
 import { FzFooter } from "./FzFooter";
 import { FzSitelink } from "./FzSitelink";
+import { BudgetConsult } from "./BudgetConsult";
 import { FzClosing, FzConsultation, FzReviews, FzVsMainland, FzWhyUs } from "./FzSections";
 import { MobileEstimateBar } from "@/components/ui/MobileEstimateBar";
 import "@/app/freezone/freezone.css";
@@ -76,6 +77,7 @@ export function FreeZoneLanding({ view }: { view?: string }) {
         </main>
         <FzFooter />
         <MobileEstimateBar targetId="planner" hideOver={["zones"]} label="Plan my free zone" location="FZ Mobile Bar - Plan My Free Zone" />
+        <BudgetConsult />
         {view && <FzSitelink view={view} />}
       </PlannerProvider>
     </div>

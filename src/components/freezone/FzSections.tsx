@@ -3,6 +3,7 @@ import { CLAIMS, REVIEWS, REVIEWS_SCROLL, SITE, WHY, type SiteReview, statTile }
 import { ReviewAvatar } from "@/components/ui/ReviewAvatar";
 import { ArrowIcon, StarIcon } from "@/components/ui/Icons";
 import { CallbackTrigger } from "./CallbackTrigger";
+import { BudgetTrigger, BUDGET_CTA } from "./BudgetConsult";
 
 /*
   The /freezone page's static sections. Server components: no client JavaScript. Advice only (Google Ads government
@@ -80,7 +81,7 @@ export function FzVsMainland({ c = FZ_VS }: { c?: VsBand } = {}) {
 
 const BRIEF = [
   { title: "A shortlist of zones to consider", body: "Matched to your activity, customers and team." },
-  { title: "What to plan for in your budget", body: "Workspace, team size and the yearly running costs to think about." },
+  { title: "What to plan for in your budget", body: "Workspace, team size and the yearly running costs to think about.", cta: "FZ Consultation Brief - Budget Breakdown" },
   { title: "Answers to your questions", body: "Including how corporate tax rules may apply to your business." },
   { title: "Your next step", body: "Decided by you, with no obligation to proceed." },
 ];
@@ -92,7 +93,7 @@ export interface BriefBlock {
   cta: { label: string; location: string };
   briefTitle: string;
   briefNote: string;
-  items: { title: string; body: string }[];
+  items: { title: string; body: string; cta?: string }[];
 }
 export const FZ_BRIEF: BriefBlock = {
   id: "consultation",
@@ -127,6 +128,11 @@ export function FzConsultation({ c = FZ_BRIEF }: { c?: BriefBlock } = {}) {
                 <div>
                   <h3>{b.title}</h3>
                   <p>{b.body}</p>
+                  {b.cta && (
+                    <BudgetTrigger className="fz-budget-link" location={b.cta}>
+                      {BUDGET_CTA} <ArrowIcon />
+                    </BudgetTrigger>
+                  )}
                 </div>
               </li>
             ))}
