@@ -70,7 +70,7 @@ export const FZ_HERO: HeroConfig = {
   sub: "Each UAE free zone covers different activities and offers different workspace options. Tell us your activity, and an advisor helps you compare the zones that may suit you.",
   primary: { label: "Book a Consultation", location: "FZ Hero - Book a Consultation" },
   secondary: { label: "Plan my free zone", href: "#planner", location: "FZ Hero - Plan My Free Zone" },
-  wa: { label: "Ask a quick question on WhatsApp", location: "FZ Hero - WhatsApp" },
+  wa: { label: "Ask a question on WhatsApp", location: "FZ Hero - WhatsApp" },
   proof: [statTile(CLAIMS.zones, "Free zones to compare", "office"), statTile(CLAIMS.emirates, "Emirates", "meet"), statTile(null, "", "explain")],
   trustline: "Private consultancy · Business Bay, Dubai",
   wall: ZONES.map((zn) => ({ key: zn.id, mono: zn.short[1], title: zn.short[0], sub: EM_SHORT[zn.emirate], logo: partnerLogo(zn.id) })),

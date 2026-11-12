@@ -76,7 +76,7 @@ export function FreeZoneLanding({ view }: { view?: string }) {
           <FzClosing />
         </main>
         <FzFooter />
-        <MobileEstimateBar targetId="planner" hideOver={["zones"]} label="Plan my free zone" location="FZ Mobile Bar - Plan My Free Zone" aboveCookie />
+        <MobileEstimateBar targetId="planner" hideOver={["zones"]} label="Plan my free zone" location="FZ Mobile Bar - Plan My Free Zone" />
         <BudgetConsult />
         {view && <FzSitelink view={view} />}
       </PlannerProvider>
