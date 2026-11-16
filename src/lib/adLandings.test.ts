@@ -35,6 +35,38 @@ describe("allowedOrigin", () => {
     expect(allowedOrigin("https://evil.example")).toBe(false);
     expect(allowedOrigin(null)).toBe(false);
   });
+  it("on a preview deployment, also accepts that deployment's own address, never another", () => {
+    vi.stubEnv("VERCEL_ENV", "preview");
+    vi.stubEnv("VERCEL_URL", "best-solution-abc.vercel.app");
+    expect(allowedOrigin("https://best-solution-abc.vercel.app")).toBe(true);
+    expect(allowedOrigin("https://other-abc.vercel.app")).toBe(false);
+    vi.stubEnv("VERCEL_ENV", "production");
+    expect(allowedOrigin("https://best-solution-abc.vercel.app")).toBe(false);
+    vi.unstubAllEnvs();
+  });
+});
+
+describe("preview keys", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+  it("writes preview counts to adl-preview: and live counts to adl:", async () => {
+    vi.stubEnv("KV_REST_API_URL", "https://kv.test");
+    vi.stubEnv("KV_REST_API_TOKEN", "t");
+    const keys: string[] = [];
+    vi.stubGlobal("fetch", async (_u: string, init: { body: string }) => {
+      keys.push(...(JSON.parse(init.body) as string[][]).map((c) => c[1]));
+      return new Response(JSON.stringify([{ result: 1 }, { result: 1 }]));
+    });
+    vi.stubEnv("VERCEL_ENV", "preview");
+    await countBeacon({ path: "/", param: "gbraid", metrics: ["land"] });
+    vi.stubEnv("VERCEL_ENV", "production");
+    await countBeacon({ path: "/", param: "gbraid", metrics: ["land"] });
+    expect(keys.every((k) => /^adl(-preview)?:\d{4}-\d{2}-\d{2}$/.test(k))).toBe(true);
+    expect(keys.filter((k) => k.startsWith("adl-preview:"))).toHaveLength(3);
+    expect(keys.filter((k) => k.startsWith("adl:"))).toHaveLength(3);
+  });
 });
 
 describe("parseBeacon", () => {

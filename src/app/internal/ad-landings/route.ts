@@ -1,5 +1,5 @@
 import { adsAuthFailure } from "@/lib/adsAuth";
-import { kvConfigured, readDays, type DayRow } from "@/lib/adLandings";
+import { kvConfigured, previewData, readDays, type DayRow } from "@/lib/adLandings";
 
 /*
   /internal/ad-landings: daily ad landing totals and cookie banner outcomes, for the team. Same sign-in as the ads
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
   const tr = (r: DayRow, cell = "td") => `<tr>${COLS.map(([k]) => `<${cell}>${r[k]}</${cell}>`).join("")}</tr>`;
 
   return new Response(
-    page(`<h1>Ad landings</h1>
+    page(`<h1>Ad landings${previewData() ? " (preview test data, not the live site)" : ""}</h1>
 <p>Page loads with a Google Ads click ID (gclid, gbraid or wbraid) and the cookie banner outcome on those loads, last ${days} days. Daily totals only: no cookies, IP addresses or IDs are stored. No choice = banner shown minus Accept, Reject and Manage (saved a custom choice).</p>
 <div class="wrap"><table><thead><tr>${COLS.map(([, h]) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => tr(r)).join("")}</tbody><tfoot>${tr(total)}</tfoot></table></div>`),
     { headers: HEADERS },

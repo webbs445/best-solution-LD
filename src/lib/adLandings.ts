@@ -1,7 +1,8 @@
 /*
   Ad landing counts: aggregate daily totals only. No cookies, no IP, no IDs, no click ID values: the browser reports
   that a page was opened with a gclid / gbraid / wbraid (the parameter's name only), whether the cookie banner showed,
-  and the banner choice. Stored in Vercel KV (Upstash Redis REST API) as one hash per Dubai day,
+  and the banner choice. Stored in Vercel KV (Upstash Redis REST API) as one hash per Dubai day (key adl:<date>, or
+  adl-preview:<date> on preview deployments, so test counts never mix with the live site's),
   field `<path>|<param>|<metric>`, kept for 400 days, plus `<path>|*` (beacons that day, for the daily cap; not shown).
   "No choice" is derived: banner shown minus the three choices.
 */
@@ -37,7 +38,10 @@ export function parseBeacon(body: string): Beacon | null {
 /** YYYY-MM-DD in Dubai time (UTC+4, no daylight saving). */
 export const dubaiDate = (ms = Date.now()) => new Date(ms + 4 * 3_600_000).toISOString().slice(0, 10);
 
-const key = (date: string) => `adl:${date}`;
+const key = (date: string) => `${isPreview() ? "adl-preview" : "adl"}:${date}`;
+
+/** True on a preview deployment, whose counts are kept apart from the live site's. */
+export const previewData = () => isPreview();
 
 function kv() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -64,8 +68,17 @@ async function pipeline(cmds: (string | number)[][]): Promise<{ result: unknown 
 /** Beacons counted per path per day; anything above is ignored, so a flood can't inflate a day's totals without limit. */
 export const DAILY_CAP = 5000;
 
-/** The only page origin whose beacons count (AD_LANDING_ORIGIN overrides it for local test runs). */
-export const allowedOrigin = (origin: string | null) => origin === (process.env.AD_LANDING_ORIGIN || "https://business.best-solution.ae");
+/** Vercel preview deployments share the production store, so they count into their own keys (adl-preview:). */
+const isPreview = () => process.env.VERCEL_ENV === "preview";
+
+/**
+ * The page origins whose beacons count: the live site (AD_LANDING_ORIGIN overrides it for local test runs) and, on a
+ * preview deployment only, that deployment's own address.
+ */
+export const allowedOrigin = (origin: string | null) =>
+  !!origin &&
+  (origin === (process.env.AD_LANDING_ORIGIN || "https://business.best-solution.ae") ||
+    (isPreview() && [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL].some((h) => h && origin === `https://${h}`)));
 
 /** Add one to each metric of the beacon in today's totals, unless the path already had DAILY_CAP beacons today. */
 export async function countBeacon(b: Beacon, ms = Date.now()): Promise<boolean> {
