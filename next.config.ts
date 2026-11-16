@@ -10,7 +10,7 @@ const SITELINK_REDIRECTS = [
 ];
 
 const nextConfig: NextConfig = {
-  // The dashboard reads its page template at run time.
+  // The dashboard reads its page template at run time (its Ad landings view borrows the styles from it too).
   outputFileTracingIncludes: { "/api/ads-report": ["./src/lib/adsReportPage.html"] },
   // Nothing on this subdomain goes in search results: the header also covers images, PDFs and other files the
   // pages' noindex tag can't reach. Crawling stays allowed so it is seen (src/app/robots.ts).

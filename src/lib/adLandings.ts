@@ -17,7 +17,7 @@ export interface Beacon {
   metrics: Metric[];
 }
 
-const KEEP_DAYS = 400;
+export const KEEP_DAYS = 400;
 const PATH_RE = /^\/[a-z0-9-]{0,40}(\/[a-z0-9-]{1,40})?$/;
 
 /** The beacon body, or null for anything outside the fixed vocabulary (so nothing free-form is ever stored). */
@@ -89,31 +89,9 @@ export async function countBeacon(b: Beacon, ms = Date.now()): Promise<boolean> 
   return true;
 }
 
-export interface DayRow {
-  date: string;
-  land: number;
-  shown: number;
-  accept_all: number;
-  reject_all: number;
-  manage: number;
-  none: number;
-}
-
-/** One day's hash (flat [field, value, ...] from HGETALL) summed across paths and click parameters. */
-export function summarize(date: string, flat: unknown): DayRow {
-  const row: DayRow = { date, land: 0, shown: 0, accept_all: 0, reject_all: 0, manage: 0, none: 0 };
-  const list = Array.isArray(flat) ? flat : [];
-  for (let i = 0; i + 1 < list.length; i += 2) {
-    const metric = String(list[i]).split("|")[2] as Metric;
-    if (METRICS.includes(metric)) row[metric] += Number(list[i + 1]) || 0;
-  }
-  row.none = Math.max(0, row.shown - row.accept_all - row.reject_all - row.manage);
-  return row;
-}
-
-/** The last `days` Dubai days, newest first. */
-export async function readDays(days: number, ms = Date.now()): Promise<DayRow[]> {
-  const dates = Array.from({ length: days }, (_, i) => dubaiDate(ms - i * 86_400_000));
+/** Each day's stored hash as HGETALL returns it (flat [field, value, ...]), keyed by date. Read only. */
+export async function readRaw(dates: string[]): Promise<Record<string, unknown>> {
+  if (!dates.length) return {};
   const out = await pipeline(dates.map((d) => ["HGETALL", key(d)]));
-  return dates.map((d, i) => summarize(d, out[i]?.result));
+  return Object.fromEntries(dates.map((d, i) => [d, out[i]?.result]));
 }

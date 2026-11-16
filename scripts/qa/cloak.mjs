@@ -28,8 +28,9 @@ for (const r of ROUTES) {
     await p.goto(BASE + r, { waitUntil: "networkidle2", timeout: 180000 });
     await wait(800);
     rendered[k] = await p.evaluate(() => {
-      // #closePct: the /accounting hero's animated "N of 3 reports" counter.
-      document.querySelectorAll(".hx-swap, .hx-match-row, [aria-live], .mk-co, #mkL, #mkTot, .rot, [data-rotate], #closePct").forEach((e) => e.remove());
+      // #closePct: the /accounting hero's animated "N of 3 reports" counter. #mapSvg, #mapCap: the /spv hero's structure
+      // map, which cycles through examples on a timer.
+      document.querySelectorAll(".hx-swap, .hx-match-row, [aria-live], .mk-co, #mkL, #mkTot, .rot, [data-rotate], #closePct, #mapSvg, #mapCap").forEach((e) => e.remove());
       return document.body.innerText.replace(/\s+/g, " ").trim();
     });
     await ctx.close();

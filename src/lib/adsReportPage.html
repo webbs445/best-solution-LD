@@ -304,13 +304,14 @@ body::before {
 
 .lr-switch { /* glass track via .lr-glass */
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: var(--s1);
   width: 100%;
   padding: var(--s1);
   border-radius: calc(var(--r-control) + var(--s1));
 }
-@media (min-width: 768px) { .lr-switch { width: 480px; } }
+@media (min-width: 768px) { .lr-switch { width: 600px; } }
 
 /* Phone: label above the number (fits "Connect" without wrapping); laptop: one line. */
 .lr-switch__side {
@@ -1635,8 +1636,9 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
   /* Sticky source switch: an iPhone-style segmented control on a blurred band (cards scrolling under it are
      softened, never see-through). Grey track, one white raised pill, a count badge per side; no sheen. */
   .lr-switchbar { padding: 8px var(--pad-page); background: rgba(241,237,232,.72); -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 1px 0 rgba(20,37,62,.06); }
-  .lr-switch.lr-glass { grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border: 0; border-radius: 13px; background: rgba(20,37,62,.07); box-shadow: inset 0 1px 2px rgba(20,37,62,.08); -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .lr-switch__side { flex-direction: row; gap: 8px; min-height: 38px; padding: 0 8px; border-radius: 10px; color: var(--muted); font: 600 14px/1 var(--font); white-space: nowrap; }
+  .lr-switch.lr-glass { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; padding: 3px; border: 0; border-radius: 13px; background: rgba(20,37,62,.07); box-shadow: inset 0 1px 2px rgba(20,37,62,.08); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  /* Three views: label above the count, so "Google leads" and its badge fit a third of the phone width. */
+  .lr-switch__side { flex-direction: column; gap: 4px; min-height: 48px; padding: 4px 6px; border-radius: 10px; color: var(--muted); font: 600 13px/1 var(--font); white-space: nowrap; }
   .lr-switch__side:hover { background: none; }
   .lr-switch__side[aria-current="page"] { color: var(--text); }
   .lr-switch__hl { border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(20,37,62,.12), 0 6px 14px -8px rgba(20,37,62,.4); }
@@ -2564,6 +2566,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
           <p class="lr-nav__label">Dashboards</p>
           <a class="lr-nav__item" href="${esc(viewHref(ctx, "google"))}" data-view="google"${ctx.view === "google" ? ' aria-current="page"' : ""}>${icon("bars")}<span>Google leads</span>${d.google.connected ? `<b>${esc(fmtCount(d.google.totals.formConversions))}</b>` : `<em class="lr-nav__setup">Connect<span class="lr-sr">, not connected yet</span></em>`}</a>
           <a class="lr-nav__item" href="${esc(viewHref(ctx, "erp"))}" data-view="erp"${ctx.view === "erp" ? ' aria-current="page"' : ""}>${icon("db")}<span>ERP status</span>${d.erp.available ? `<b>${esc(fmtCount(d.erp.leads.length))}</b>` : ""}</a>
+          <a class="lr-nav__item" href="${esc(viewHref(ctx, "landings"))}">${icon("layers")}<span>Ad landings</span></a>
         </nav>
         <div class="lr-fresh" role="status" aria-label="Data freshness">
           <span class="lr-fresh__item" data-state="${erpState}">
@@ -2601,7 +2604,9 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
                                  : side("google", "Google leads", "Connect", "not connected");
     const e = d.erp.available ? side("erp", "ERP status", fmtCount(d.erp.leads.length))
                               : side("erp", "ERP status", DASH, "ERP not answering");
-    return `<div class="lr-switchbar"><nav class="lr-switch lr-glass" aria-label="Data source">${g}${e}</nav></div>`;
+    // Ad landings is its own page (served by the same route): a plain link, not an in-page swap.
+    const l = `<a class="lr-switch__side" href="${esc(viewHref(ctx, "landings"))}" data-full><span class="lr-switch__label">Ad landings</span></a>`;
+    return `<div class="lr-switchbar"><nav class="lr-switch lr-glass" aria-label="Data source">${g}${e}${l}</nav></div>`;
   }
 
   /* ---------- C3 Date range ---------- */
@@ -2818,7 +2823,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
     if (e.target.closest('[data-action="refresh"]')) { saveScroll(); location.reload(); }
     // Both views come in one page: swap them in place.
     const side = e.target.closest(".lr-switch__side");
-    if (side && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+    if (side && !side.hasAttribute("data-full") && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
       e.preventDefault();
       if (side.getAttribute("aria-current") === "page") return;
       const go = () => { setQuery(side.getAttribute("href")); render(); document.querySelector(`.lr-switch__side[data-view="${side.dataset.view}"]`)?.focus(); };
@@ -3406,7 +3411,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
       setTimeout(() => view.classList.remove("lr-anim"), 3000);
     }
     document.addEventListener("click", (e) => {
-      const n = e.target.closest(".lr-nav__item"); if (!n || e.metaKey || e.ctrlKey) return;
+      const n = e.target.closest(".lr-nav__item"); if (!n || !n.dataset.view || e.metaKey || e.ctrlKey) return;
       e.preventDefault(); document.querySelector(`.lr-switch__side[data-view="${n.dataset.view}"]`)?.click();
     });
     const root = document.getElementById("lr-root");

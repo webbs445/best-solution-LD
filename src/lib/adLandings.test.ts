@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { allowedOrigin, countBeacon, DAILY_CAP, dubaiDate, parseBeacon, summarize } from "./adLandings";
+import { allowedOrigin, countBeacon, DAILY_CAP, dubaiDate, parseBeacon } from "./adLandings";
 
 describe("countBeacon daily cap", () => {
   afterEach(() => {
@@ -84,14 +84,6 @@ describe("parseBeacon", () => {
     expect(parseBeacon('{"path":"/","param":"gclid","metrics":["land","email"]}')).toBeNull();
     expect(parseBeacon('{"path":"/","param":"gclid","metrics":[]}')).toBeNull();
     expect(parseBeacon("not json")).toBeNull();
-  });
-});
-
-describe("summarize", () => {
-  it("sums across paths and params and derives no choice", () => {
-    const flat = ["/|gclid|land", "5", "/|gclid|shown", "4", "/spv|wbraid|land", "2", "/spv|wbraid|shown", "2", "/|gclid|accept_all", "2", "/spv|wbraid|reject_all", "1"];
-    expect(summarize("2026-11-16", flat)).toEqual({ date: "2026-11-16", land: 7, shown: 6, accept_all: 2, reject_all: 1, manage: 0, none: 3 });
-    expect(summarize("2026-11-16", null).land).toBe(0);
   });
 });
 
