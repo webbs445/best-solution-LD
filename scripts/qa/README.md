@@ -1,11 +1,18 @@
 # QA scripts
 
-Browser checks run before every merge. They drive a local Chrome with puppeteer-core, which is not a project
-dependency, so install it without saving:
+Browser checks run before every merge. They drive a local Chrome with puppeteer-core.
+
+## Setup (once per machine)
+
+puppeteer-core is not in `package.json` (the site doesn't need it), so install it in the repo folder without saving:
 
 ```
 npm i --no-save puppeteer-core@24
 ```
+
+Run this again after any `npm ci` or `npm install`, which removes packages that aren't in `package.json`.
+
+## Run
 
 Build and start the site, then run the checks against it:
 
@@ -27,5 +34,6 @@ Rules every run follows:
   a test against production without these blocks.
 - Lead APIs are answered inside the test browser by `forms-mock.mjs`, so nothing reaches the ERP or the lead sheet.
 - Test data only: name `TEST AUDIT - DELETE`, email `test-audit@xerebo.com`, phone `+971500000000`.
-- `strict-scan.mjs` allows the corporate tax threshold "AED 375,000" and reports `/privacy` and `/terms` as
+- `strict-scan.mjs` allows the corporate tax threshold "AED 375,000" everywhere, and on `/corporate-tax` any AED amount
+  as a tax fact unless fee(s), price, pricing, cost, package, "from AED" or "starting at" is within about 6 words. It reports `/privacy` and `/terms` as
   "pending legal" (not counted) while `LEGAL_V2` is `false` in `src/content/legal.ts`.
