@@ -314,6 +314,35 @@ function chart(rows: DayRow[]) {
 
 const NOT_RECORDED_HELP = "Ad landings from before device counting started, or from pages opened before that update.";
 
+/**
+ * One card for device and system (they share the same landings, so one table each would repeat itself): two columns
+ * of bars, each type's share of the landings that carry device data, with its accept rate; "Not recorded" once, below.
+ */
+function deviceCard(dev: GroupRow[], os: GroupRow[]) {
+  const recorded = (rows: GroupRow[]) => rows.filter((r) => r.key !== NOT_RECORDED);
+  const devRows = recorded(dev), base = devRows.reduce((s, r) => s + r.land, 0);
+  const notRec = dev.find((r) => r.key === NOT_RECORDED)?.land ?? 0;
+  const column = (title: string, rows: GroupRow[]) => {
+    const total = rows.reduce((s, r) => s + r.land, 0);
+    const items = rows
+      .map((r) => {
+        const share = total ? r.land / total : 0;
+        return `<li class="alx-dv__row">
+            <div class="alx-dv__top"><span class="alx-dv__name">${esc(r.label)}</span><span class="alx-dv__num">${esc(num(r.land))}<small>${esc(pct(share))}</small></span></div>
+            <div class="alx-fn__track"><span class="alx-fn__bar" data-k="${esc(r.key)}" style="--w:${(share * 100).toFixed(1)}%"></span></div>
+            <span class="alx-fn__share">Accept rate ${esc(pct(rates(r).accept))} · ${esc(num(r.accept_all))} accepted</span>
+          </li>`;
+      })
+      .join("");
+    return `<div class="alx-dv__col"><h3 class="alx-split__title">${esc(title)}</h3>${items ? `<ol class="alx-dv__list">${items}</ol>` : `<p class="alx-dv__none">No device data in this period yet.</p>`}</div>`;
+  };
+  return `<section class="lr-card alx-dv" aria-labelledby="alx-dv-title">
+    <div class="lr-card__head"><h2 class="lr-card__title" id="alx-dv-title">Device and system${info("device and system", "Worked out in the browser: the device type from the screen size, the system from the browser. Only these names are stored, never browser details or the screen size.")}</h2></div>
+    <div class="alx-dv__cols">${column("Device", devRows)}${column("System", recorded(os))}</div>
+    <p class="alx-caption">Shares of the ${esc(num(base))} ad landings with device data.${notRec ? ` ${esc(num(notRec))} more are not recorded${info("not recorded", NOT_RECORDED_HELP)}` : ""}</p>
+  </section>`;
+}
+
 /** Each row's share of ad landings, as one bar (same style as the banner-choices bar). */
 function shareBar(rows: GroupRow[]) {
   const total = rows.reduce((s, r) => s + r.land, 0);
@@ -429,10 +458,7 @@ export function adLandingsHtml(state: PageState): string {
                    : "Clicks that carry a gclid: most clicks outside iOS.", shareBar(types));
              })()}
              ${(() => {
-               const dev = byDim(d.dims, "dev", t), os = byDim(d.dims, "os", t);
-               const nr = (r: GroupRow) => (r.key === NOT_RECORDED ? NOT_RECORDED_HELP : "");
-               return groupTable("alx-dev-title", "By device", "Phone, tablet or desktop, worked out in the browser from the screen size. Only the device type is stored.", dev, "Device", nr, shareBar(dev))
-                 + groupTable("alx-os-title", "By system", "iOS, Android or other, worked out in the browser. Only the system name is stored, never browser details.", os, "System", nr, shareBar(os));
+               return deviceCard(byDim(d.dims, "dev", t), byDim(d.dims, "os", t));
              })()}
              ${dailyTable(rows, t, d.notes, d.excludeTests)}`}
       </main>`;
@@ -546,11 +572,30 @@ const CSS = `
 [data-k="phone"] { --c: var(--g1); } [data-k="tablet"] { --c: var(--g2); } [data-k="desktop"] { --c: var(--g3); } [data-k="android"] { --c: var(--g2); }
 [data-k="notrec"] { --c: #d5dae2; }
 .alx-camp { color: var(--copper-lo); font-weight: 600; }
+/* Device and system card: two columns of bars (one column on phones), "Not recorded" once in the caption. */
+.alx-dv__cols { display: grid; gap: var(--s4); }
+@media (min-width: 768px) { .alx-dv__cols { grid-template-columns: 1fr 1fr; gap: var(--s5); } }
+.alx-dv__list { list-style: none; display: grid; gap: var(--s3); margin-top: var(--s3); }
+.alx-dv__top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); }
+.alx-dv__name { font: 600 var(--fs-small)/1.3 var(--font); }
+.alx-dv__num { font: 700 20px/1 var(--font); letter-spacing: -.02em; }
+.alx-dv__num small { margin-left: 8px; color: var(--muted); font: 600 12px/1 var(--font); letter-spacing: 0; }
+.alx-dv .alx-fn__bar { background: var(--c, var(--g2)); }
+.alx-dv__none { margin-top: var(--s3); color: var(--muted); font: 500 var(--fs-small)/1.4 var(--font); }
+.alx-dv .alx-caption { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 /* Side-by-side breakdown cards keep their own height instead of stretching to the taller one. */
 .alx-view > .is-half { align-self: start; }
+/* Side by side only where a table fits in half the width (1024 px and up); narrower, each card takes the full width. */
+@media (max-width: 1023px) { .alx-view > .is-half { grid-column: 1 / -1; } }
 .alx-scroll:focus-visible { outline-offset: 2px; }
 .alx-table { width: 100%; border-collapse: separate; border-spacing: 0; font: 500 var(--fs-table)/var(--lh-table) var(--font); font-variant-numeric: tabular-nums; }
 .alx-table th, .alx-table td { padding: 10px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+/* Names and column headers wrap, so a long page name never pushes the numbers out of the card (no sideways scroll). */
+.alx-table th[scope="row"], .alx-table thead th:first-child { white-space: normal; }
+@media (max-width: 1199px) { .alx-table thead th { white-space: normal; } }
+.alx-path { overflow-wrap: anywhere; }
+/* Info popups keep their own small wrapped box, even inside a table cell. */
+.alx .lr-info__pop { white-space: normal; text-align: left; font-weight: 400; }
 .alx-table th:first-child, .alx-table td:first-child { text-align: left; }
 .alx-table thead th { position: sticky; top: 0; z-index: 2; background: var(--surface); color: var(--muted); font: 600 var(--fs-label)/1.3 var(--font); letter-spacing: .06em; text-transform: uppercase; }
 .alx-table tbody tr:nth-child(even) { background: var(--surface-low); }
@@ -568,7 +613,7 @@ th[aria-sort="ascending"] .alx-sort::after { content: "▲"; width: auto; font-s
 .alx-none { text-align: center !important; color: var(--muted); }
 /* Phones: each row becomes a small card (name on top, labelled values in a grid) instead of a sideways-scrolling table.
    The column headers stay for screen readers. */
-@media (max-width: 640px) {
+@media (max-width: 767px) {
   .alx-scroll, .alx-scroll--tall { overflow: visible; max-height: none; }
   .alx-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .alx-table, .alx-table tbody, .alx-table tfoot { display: block; }
