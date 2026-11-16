@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { SITE } from "@/content/site";
 import { AnalyticsInit } from "@/components/analytics/AnalyticsInit";
 import { AttributionCapture } from "@/components/analytics/AttributionCapture";
+import { AdLandingCounter } from "@/components/analytics/AdLandingCounter";
 import { ConsentInit, PageContextInit } from "@/components/analytics/ConsentInit";
 import { CookieConsentBanner } from "@/components/analytics/CookieConsentBanner";
 import { GoogleTagManager, GtmNoScript } from "@/components/analytics/GoogleTagManager";
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <CookieConsentBanner />
         <AnalyticsInit />
         <AttributionCapture />
+        <AdLandingCounter />
         <GoogleTagManager />
       </body>
     </html>
