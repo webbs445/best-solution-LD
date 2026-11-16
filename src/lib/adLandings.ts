@@ -4,17 +4,27 @@
   and the banner choice. Stored in Vercel KV (Upstash Redis REST API) as one hash per Dubai day (key adl:<date>, or
   adl-preview:<date> on preview deployments, so test counts never mix with the live site's),
   field `<path>|<param>|<metric>`, kept for 400 days, plus `<path>|*` (beacons that day, for the daily cap; not shown).
+  Also, since device counting went live, `dev|<device>|<metric>` and `os|<system>|<metric>`: the device type and system as bucket
+  names only (worked out in the browser; the user agent string and screen size never leave it). Days before that, and
+  pages loaded before the update, have no device fields: the dashboard shows them as "Not recorded".
   "No choice" is derived: banner shown minus the three choices.
 */
 
 export const CLICK_PARAMS = ["gclid", "gbraid", "wbraid"] as const;
 export const METRICS = ["land", "shown", "accept_all", "reject_all", "manage"] as const;
+export const DEVICES = ["phone", "tablet", "desktop"] as const;
+export const SYSTEMS = ["ios", "android", "other"] as const;
 export type ClickParam = (typeof CLICK_PARAMS)[number];
 export type Metric = (typeof METRICS)[number];
+export type Device = (typeof DEVICES)[number];
+export type System = (typeof SYSTEMS)[number];
 export interface Beacon {
   path: string;
   param: ClickParam;
   metrics: Metric[];
+  /** Bucket names only; missing on pages loaded before device counting started. */
+  device?: Device;
+  system?: System;
 }
 
 export const KEEP_DAYS = 400;
@@ -29,7 +39,14 @@ export function parseBeacon(body: string): Beacon | null {
     if (typeof b.path !== "string" || !PATH_RE.test(b.path)) return null;
     if (!CLICK_PARAMS.includes(b.param as ClickParam)) return null;
     if (!metrics.length || metrics.length > 2 || !metrics.every((m) => METRICS.includes(m as Metric))) return null;
-    return { path: b.path, param: b.param as ClickParam, metrics: metrics as Metric[] };
+    // Device and system: optional, but when sent they must be one of the bucket names (never a raw value).
+    if (b.device !== undefined && !DEVICES.includes(b.device as Device)) return null;
+    if (b.system !== undefined && !SYSTEMS.includes(b.system as System)) return null;
+    // Only these fields are kept: anything else in the body is dropped here.
+    const out: Beacon = { path: b.path, param: b.param as ClickParam, metrics: metrics as Metric[] };
+    if (b.device) out.device = b.device as Device;
+    if (b.system) out.system = b.system as System;
+    return out;
   } catch {
     return null;
   }
@@ -85,7 +102,13 @@ export async function countBeacon(b: Beacon, ms = Date.now()): Promise<boolean> 
   const k = key(dubaiDate(ms));
   const [seen] = await pipeline([["HINCRBY", k, `${b.path}|*`, 1], ["EXPIRE", k, KEEP_DAYS * 86_400]]);
   if (Number(seen?.result) > DAILY_CAP) return false;
-  await pipeline(b.metrics.map((m) => ["HINCRBY", k, `${b.path}|${b.param}|${m}`, 1]));
+  await pipeline(
+    b.metrics.flatMap((m) => [
+      ["HINCRBY", k, `${b.path}|${b.param}|${m}`, 1],
+      ...(b.device ? [["HINCRBY", k, `dev|${b.device}|${m}`, 1]] : []),
+      ...(b.system ? [["HINCRBY", k, `os|${b.system}|${m}`, 1]] : []),
+    ]),
+  );
   return true;
 }
 

@@ -3,7 +3,7 @@
   the previous period, test-visit exclusion, breakdowns by page and click type, and the CSV. Pure functions only; the
   stored data comes from lib/adLandings (readRaw) and the notes from lib/adLandingsNotes.
 */
-import { KEEP_DAYS, METRICS, type ClickParam, type Metric } from "@/lib/adLandings";
+import { CLICK_PARAMS, DEVICES, KEEP_DAYS, METRICS, SYSTEMS, type ClickParam, type Device, type Metric, type System } from "@/lib/adLandings";
 import type { TestNote } from "@/lib/adLandingsNotes";
 
 export interface Entry {
@@ -79,14 +79,37 @@ export function pickRange(q: URLSearchParams, today: string): Range {
 
 /* ---------- Entries, exclusion and totals ---------- */
 
-/** One day's stored hash (flat [field, value, ...]) as entries. Skips the daily-cap field (`<path>|*`) and anything unknown. */
+/** One day's stored hash (flat [field, value, ...]) as page entries. Skips the daily-cap, device and system fields. */
 export function parseDay(date: string, flat: unknown): Entry[] {
   const list = Array.isArray(flat) ? flat : [];
   const out: Entry[] = [];
   for (let i = 0; i + 1 < list.length; i += 2) {
     const [path, param, metric] = String(list[i]).split("|");
     const n = Number(list[i + 1]) || 0;
-    if (path && param && METRICS.includes(metric as Metric) && n > 0) out.push({ date, path, param: param as ClickParam, metric: metric as Metric, n });
+    if (path?.startsWith("/") && CLICK_PARAMS.includes(param as ClickParam) && METRICS.includes(metric as Metric) && n > 0)
+      out.push({ date, path, param: param as ClickParam, metric: metric as Metric, n });
+  }
+  return out;
+}
+
+export type Dim = "dev" | "os";
+export interface DimEntry {
+  date: string;
+  dim: Dim;
+  bucket: string;
+  metric: Metric;
+  n: number;
+}
+
+/** One day's device (`dev|…`) and system (`os|…`) fields. Days before device counting simply have none. */
+export function parseDims(date: string, flat: unknown): DimEntry[] {
+  const list = Array.isArray(flat) ? flat : [];
+  const out: DimEntry[] = [];
+  for (let i = 0; i + 1 < list.length; i += 2) {
+    const [dim, bucket, metric] = String(list[i]).split("|");
+    const n = Number(list[i + 1]) || 0;
+    const known = dim === "dev" ? DEVICES.includes(bucket as Device) : dim === "os" ? SYSTEMS.includes(bucket as System) : false;
+    if (known && METRICS.includes(metric as Metric) && n > 0) out.push({ date, dim: dim as Dim, bucket, metric: metric as Metric, n });
   }
   return out;
 }
@@ -169,6 +192,39 @@ export const byPath = (entries: Entry[]) => group(entries, (e) => e.path, (k) =>
 export const CLICK_TYPE_LABEL = { ios: "iPhone / iOS clicks", other: "Other clicks" } as const;
 export const byClickType = (entries: Entry[]) =>
   group(entries, (e) => (e.param === "gclid" ? "other" : "ios"), (k) => CLICK_TYPE_LABEL[k as keyof typeof CLICK_TYPE_LABEL]);
+
+export const DEVICE_LABEL: Record<Device, string> = { phone: "Phone", tablet: "Tablet", desktop: "Desktop" };
+export const SYSTEM_LABEL: Record<System, string> = { ios: "iOS", android: "Android", other: "Other" };
+export const NOT_RECORDED = "notrec";
+
+/**
+ * Device or system rows for the range, plus "Not recorded": everything in `overall` (the page totals) that carries no
+ * device field, i.e. landings from before device counting started, or from pages loaded before the update.
+ */
+export function byDim(dims: DimEntry[], dim: Dim, overall: Totals): GroupRow[] {
+  const labels: Record<string, string> = dim === "dev" ? DEVICE_LABEL : SYSTEM_LABEL;
+  const rows = (dim === "dev" ? DEVICES : SYSTEMS)
+    .map((b) => {
+      const t: Totals = { land: 0, shown: 0, accept_all: 0, reject_all: 0, manage: 0, none: 0 };
+      for (const e of dims) if (e.dim === dim && e.bucket === b) t[e.metric] += e.n;
+      t.none = Math.max(0, t.shown - t.accept_all - t.reject_all - t.manage);
+      return { key: b as string, label: labels[b], ...t };
+    })
+    .filter((r) => r.land > 0 || r.shown > 0);
+  const sum = (k: keyof Totals) => rows.reduce((s, r) => s + r[k], 0);
+  const rest: Totals = { land: 0, shown: 0, accept_all: 0, reject_all: 0, manage: 0, none: 0 };
+  for (const k of ["land", "shown", "accept_all", "reject_all", "manage"] as const) rest[k] = Math.max(0, overall[k] - sum(k));
+  rest.none = Math.max(0, rest.shown - rest.accept_all - rest.reject_all - rest.manage);
+  rows.sort((a, b) => b.land - a.land);
+  return rest.land > 0 || rest.shown > 0 ? [...rows, { key: NOT_RECORDED, label: "Not recorded", ...rest }] : rows;
+}
+
+/** The Google Ads campaign each landing page belongs to (set by the owner; any other page is "Other"). */
+export function campaignLabel(path: string): string {
+  if (path === "/services") return "Demand Gen · Competitor";
+  if (path === "/freezone" || path.startsWith("/freezone/")) return "Search · Free Zone";
+  return "Other";
+}
 
 /* ---------- Chart axis ---------- */
 

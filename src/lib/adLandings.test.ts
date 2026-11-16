@@ -22,6 +22,17 @@ describe("countBeacon daily cap", () => {
     expect(counted).toBe(true);
     expect(calls[1]).toEqual([["HINCRBY", expect.any(String), "/|gclid|land", 1], ["HINCRBY", expect.any(String), "/|gclid|shown", 1]]);
   });
+  it("adds the device and system bucket fields next to the page fields", async () => {
+    vi.stubEnv("KV_REST_API_URL", "https://kv.test");
+    vi.stubEnv("KV_REST_API_TOKEN", "t");
+    const calls: string[][][] = [];
+    vi.stubGlobal("fetch", async (_u: string, init: { body: string }) => {
+      calls.push(JSON.parse(init.body));
+      return new Response(JSON.stringify([{ result: 1 }, { result: 1 }]));
+    });
+    await countBeacon({ path: "/spv", param: "gclid", metrics: ["accept_all"], device: "tablet", system: "android" });
+    expect(calls[1].map((c) => c[2])).toEqual(["/spv|gclid|accept_all", "dev|tablet|accept_all", "os|android|accept_all"]);
+  });
   it("ignores increments above the cap", async () => {
     const { counted, calls } = await run(DAILY_CAP + 1);
     expect(counted).toBe(false);
@@ -76,6 +87,19 @@ describe("parseBeacon", () => {
       param: "gclid",
       metrics: ["land", "shown"],
     });
+  });
+  it("keeps device and system bucket names, and only the known fields", () => {
+    const b = parseBeacon('{"path":"/","param":"gbraid","metrics":["land"],"device":"phone","system":"ios","ua":"Mozilla/5.0 (iPhone)","width":390}');
+    expect(b).toEqual({ path: "/", param: "gbraid", metrics: ["land"], device: "phone", system: "ios" });
+    expect(JSON.stringify(b)).not.toMatch(/Mozilla|390|ua|width/);
+  });
+  it("refuses a raw user agent or screen width sent as the device or system", () => {
+    expect(parseBeacon('{"path":"/","param":"gclid","metrics":["land"],"device":"390"}')).toBeNull();
+    expect(parseBeacon('{"path":"/","param":"gclid","metrics":["land"],"device":390}')).toBeNull();
+    expect(parseBeacon('{"path":"/","param":"gclid","metrics":["land"],"system":"Mozilla/5.0 (Linux; Android 14)"}')).toBeNull();
+  });
+  it("still accepts a beacon without device fields (pages loaded before the update)", () => {
+    expect(parseBeacon('{"path":"/","param":"gclid","metrics":["land"]}')).toEqual({ path: "/", param: "gclid", metrics: ["land"] });
   });
   it("rejects anything outside the fixed vocabulary", () => {
     expect(parseBeacon('{"path":"/","param":"fbclid","metrics":["land"]}')).toBeNull();

@@ -1,7 +1,7 @@
 import { dubaiDate, kvConfigured, previewData, readRaw } from "@/lib/adLandings";
 import { TEST_NOTES } from "@/lib/adLandingsNotes";
 import { adLandingsHtml } from "@/lib/adLandingsPage";
-import { dailyRows, datesBetween, excludeTests, parseDay, pickRange, toCsv, totals, type Entry } from "@/lib/adLandingsReport";
+import { dailyRows, datesBetween, excludeTests, parseDay, parseDims, pickRange, toCsv, totals, type Entry } from "@/lib/adLandingsReport";
 
 /*
   The "Ad landings" view of the ads dashboard (/ads-report?view=landings; the route has already checked the sign-in).
@@ -39,5 +39,6 @@ export async function adLandingsResponse(query: URLSearchParams): Promise<Respon
       headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="ad-landings-${range.from}-to-${range.to}.csv"`, ...PRIVATE },
     });
   }
-  return html(adLandingsHtml({ kind: "ok", data: { ...base, excludeTests: skipTests, entries, prevEntries: prev.length ? load(prev) : null, notes: TEST_NOTES } }));
+  const dims = cur.flatMap((d) => parseDims(d, raw[d]));
+  return html(adLandingsHtml({ kind: "ok", data: { ...base, excludeTests: skipTests, entries, dims, prevEntries: prev.length ? load(prev) : null, notes: TEST_NOTES } }));
 }

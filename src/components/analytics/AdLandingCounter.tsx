@@ -6,9 +6,9 @@ import { CLICK_PARAMS, type Metric } from "@/lib/adLandings";
 
 /*
   Aggregate ad landing counts (lib/adLandings): when a page opens with a gclid / gbraid / wbraid, one beacon after the
-  page has loaded says so (parameter name and path only, never its value), and whether the cookie banner showed; if it
-  did, one more beacon carries the choice. Not a tag: no cookie, no ID, nothing sent to a third party, so it runs before
-  consent. Renders nothing.
+  page has loaded says so (parameter name and path only, never its value), the device type and system as bucket names,
+  and whether the cookie banner showed; if it did, one more beacon carries the choice. Not a tag: no cookie, no ID,
+  nothing sent to a third party, so it runs before consent. Renders nothing.
 */
 
 const same = (a: ConsentChoices, b: ConsentChoices) => a.analytics === b.analytics && a.marketing === b.marketing;
@@ -20,8 +20,15 @@ export function AdLandingCounter() {
     if (!param) return;
     const path = location.pathname;
     const shown = !readConsent(); // The banner shows exactly when no choice is saved (CookieConsentBanner).
+    // Device and system as bucket names only; the user agent string and the screen size never leave the browser.
+    // Device from the screen's shorter side (so a turned phone is still a phone); a big touch screen is a tablet.
+    const side = Math.min(screen.width, screen.height);
+    const device = side < 600 ? "phone" : side < 1100 && matchMedia("(pointer: coarse)").matches ? "tablet" : "desktop";
+    const ua = navigator.userAgent;
+    // iPadOS reports a Mac user agent; a Mac with a touch screen is an iPad.
+    const system = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? "ios" : /Android/.test(ua) ? "android" : "other";
     const send = (metrics: Metric[]) => {
-      const body = JSON.stringify({ path, param, metrics });
+      const body = JSON.stringify({ path, param, metrics, device, system });
       if (!navigator.sendBeacon?.("/api/ad-landing", body)) fetch("/api/ad-landing", { method: "POST", body, keepalive: true }).catch(() => {});
     };
 

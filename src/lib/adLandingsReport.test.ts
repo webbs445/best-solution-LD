@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { TEST_NOTES } from "./adLandingsNotes";
+import type { TestNote } from "./adLandingsNotes";
 import { pageLabel } from "./adLandingsPage";
 import {
   byClickType,
+  byDim,
   byPath,
+  campaignLabel,
+  parseDims,
   countChange,
   dailyRows,
   excludeTests,
@@ -24,6 +27,11 @@ const FLAT = [
   "/services|gbraid|land", "5", "/services|gbraid|shown", "5", "/services|gbraid|accept_all", "2", "/services|gbraid|reject_all", "1",
   "/freezone|gclid|land", "10", "/freezone|gclid|shown", "8", "/freezone|gclid|accept_all", "5", "/freezone|gclid|manage", "1",
   "/services|*", "15", // daily-cap counter: never a metric
+];
+
+// A fixed note (the first QA visits), so editing the live list in adLandingsNotes never changes these tests.
+const QA_NOTE: TestNote[] = [
+  { date: TODAY, note: "QA test visits", path: "/services", param: "gbraid", counts: { land: 3, shown: 3, accept_all: 1, reject_all: 1, manage: 0, none: 1 } },
 ];
 
 describe("parseDay and totals", () => {
@@ -49,15 +57,15 @@ describe("rates", () => {
 
 describe("test-visit exclusion", () => {
   it("takes the seeded QA visits off 16 Nov, /services, gbraid only", () => {
-    const e = excludeTests(parseDay(TODAY, FLAT), TEST_NOTES);
+    const e = excludeTests(parseDay(TODAY, FLAT), QA_NOTE);
     expect(totals(e)).toEqual({ land: 12, shown: 10, accept_all: 6, reject_all: 0, manage: 1, none: 3 });
     const services = byPath(e).find((r) => r.key === "/services")!;
     expect([services.land, services.shown, services.accept_all, services.reject_all]).toEqual([2, 2, 1, 0]);
   });
   it("never goes below zero and leaves other days alone", () => {
-    const e = excludeTests(parseDay(TODAY, ["/services|gbraid|land", "1"]), TEST_NOTES);
+    const e = excludeTests(parseDay(TODAY, ["/services|gbraid|land", "1"]), QA_NOTE);
     expect(totals(e).land).toBe(0);
-    expect(totals(excludeTests(parseDay("2026-11-17", FLAT), TEST_NOTES)).land).toBe(15);
+    expect(totals(excludeTests(parseDay("2026-11-17", FLAT), QA_NOTE)).land).toBe(15);
   });
 });
 
@@ -90,6 +98,39 @@ describe("period comparison", () => {
     expect(rateChange(0.575, 0.55, 20, 20)).toBe(2.5);
     expect(rateChange(0.6, 0.45, 4, 20)).toBeNull();
     expect(rateChange(null, 0.45, 20, 20)).toBeNull();
+  });
+});
+
+describe("device and system", () => {
+  // 15 landings on the day; only the 9 since the update carry device and system fields.
+  const DAY = [...FLAT, "dev|phone|land", "6", "dev|phone|shown", "6", "dev|phone|accept_all", "4", "dev|desktop|land", "3", "dev|desktop|shown", "2",
+    "os|ios|land", "5", "os|android|land", "1", "os|other|land", "3", "dev|laptop|land", "9", "os|Mozilla|land", "9"];
+  it("keeps device and system out of the page entries, and unknown buckets out of both", () => {
+    expect(totals(parseDay(TODAY, DAY)).land).toBe(15);
+    const d = parseDims(TODAY, DAY);
+    expect(d.every((e) => ["phone", "tablet", "desktop", "ios", "android", "other"].includes(e.bucket))).toBe(true);
+  });
+  it("adds 'Not recorded' for landings without device fields, so the rows add up to the total", () => {
+    const overall = totals(parseDay(TODAY, DAY));
+    const dev = byDim(parseDims(TODAY, DAY), "dev", overall);
+    expect(dev.map((r) => [r.label, r.land])).toEqual([["Phone", 6], ["Desktop", 3], ["Not recorded", 6]]);
+    expect(dev.reduce((s, r) => s + r.land, 0)).toBe(overall.land);
+    const os = byDim(parseDims(TODAY, DAY), "os", overall);
+    expect(os.map((r) => [r.label, r.land])).toEqual([["iOS", 5], ["Other", 3], ["Android", 1], ["Not recorded", 6]]);
+  });
+  it("shows only 'Not recorded' for a day from before device counting", () => {
+    const overall = totals(parseDay(TODAY, FLAT));
+    expect(byDim(parseDims(TODAY, FLAT), "dev", overall).map((r) => [r.label, r.land])).toEqual([["Not recorded", 15]]);
+  });
+});
+
+describe("campaign labels", () => {
+  it("follows the owner's mapping", () => {
+    expect(campaignLabel("/services")).toBe("Demand Gen · Competitor");
+    expect(campaignLabel("/freezone")).toBe("Search · Free Zone");
+    expect(campaignLabel("/freezone/dmcc")).toBe("Search · Free Zone");
+    expect(campaignLabel("/freezones")).toBe("Other");
+    expect(campaignLabel("/")).toBe("Other");
   });
 });
 

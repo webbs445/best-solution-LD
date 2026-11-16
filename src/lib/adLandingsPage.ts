@@ -13,6 +13,10 @@ import {
   rates,
   totals,
   yTicks,
+  byDim,
+  campaignLabel,
+  NOT_RECORDED,
+  type DimEntry,
   type DayRow,
   type Entry,
   type GroupRow,
@@ -89,6 +93,8 @@ export interface PageData {
   excludeTests: boolean;
   /** Entries for the range and for the previous period, already filtered for test visits as the toggle says. */
   entries: Entry[];
+  /** Device and system fields for the range (none on days before device counting). */
+  dims: DimEntry[];
   prevEntries: Entry[] | null;
   notes: TestNote[];
   query: URLSearchParams;
@@ -306,7 +312,9 @@ function chart(rows: DayRow[]) {
   </section>`;
 }
 
-/** Each click type's share of ad landings, as one bar (same style as the banner-choices bar). */
+const NOT_RECORDED_HELP = "Ad landings from before device counting started, or from pages opened before that update.";
+
+/** Each row's share of ad landings, as one bar (same style as the banner-choices bar). */
 function shareBar(rows: GroupRow[]) {
   const total = rows.reduce((s, r) => s + r.land, 0);
   if (!total) return "";
@@ -323,8 +331,12 @@ function groupTable(id: string, title: string, help: string, rows: GroupRow[], f
     ? rows
         .map((r) => {
           const ar = rates(r).accept;
-          const path = r.key.startsWith("/") && r.label !== r.key ? `<small class="alx-path">${esc(r.key)}</small>` : "";
-          return `<tr><th scope="row"><span class="alx-cell"><span class="alx-name">${esc(r.label)}${path}</span>${rowHelp ? info(r.label, rowHelp(r)) : ""}</span></th>
+          // Pages: the path (when the name differs) and the Google Ads campaign the page belongs to.
+          const path = r.key.startsWith("/")
+            ? `<small class="alx-path">${r.label !== r.key ? `${esc(r.key)} · ` : ""}<span class="alx-camp">${esc(campaignLabel(r.key))}</span></small>`
+            : "";
+          const help = rowHelp?.(r);
+          return `<tr><th scope="row"><span class="alx-cell"><span class="alx-name">${esc(r.label)}${path}</span>${help ? info(r.label, help) : ""}</span></th>
             <td data-v="${r.land}" data-label="Ad landings">${num(r.land)}</td><td data-v="${r.accept_all}" data-label="Accept">${num(r.accept_all)}</td><td data-v="${ar ?? -1}" data-label="Accept rate">${pct(ar)}</td></tr>`;
         })
         .join("")
@@ -376,7 +388,7 @@ const empty = (q: URLSearchParams, range: Range) => `<section class="lr-card lr-
   </section>`;
 
 const footer = () => `<footer class="alx-foot">
-    <p>${icon("info")}Anonymous daily totals. No IP, no click ID value, no cookies.</p>
+    <p>${icon("info")}Anonymous daily totals. No IP, no click ID value, no cookies, no browser details: only the device type and system.</p>
     <p>Counts start ${dayMonth(COUNT_START)} ${COUNT_START.slice(0, 4)} · Data kept ${KEEP_DAYS} days.</p>
   </footer>`;
 
@@ -415,6 +427,12 @@ export function adLandingsHtml(state: PageState): string {
                  r.key === "ios"
                    ? "Google uses gbraid or wbraid instead of gclid for many clicks from iPhones and iPads (Apple's privacy rules)."
                    : "Clicks that carry a gclid: most clicks outside iOS.", shareBar(types));
+             })()}
+             ${(() => {
+               const dev = byDim(d.dims, "dev", t), os = byDim(d.dims, "os", t);
+               const nr = (r: GroupRow) => (r.key === NOT_RECORDED ? NOT_RECORDED_HELP : "");
+               return groupTable("alx-dev-title", "By device", "Phone, tablet or desktop, worked out in the browser from the screen size. Only the device type is stored.", dev, "Device", nr, shareBar(dev))
+                 + groupTable("alx-os-title", "By system", "iOS, Android or other, worked out in the browser. Only the system name is stored, never browser details.", os, "System", nr, shareBar(os));
              })()}
              ${dailyTable(rows, t, d.notes, d.excludeTests)}`}
       </main>`;
@@ -525,6 +543,9 @@ const CSS = `
 .alx-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; border-radius: var(--r-small); }
 .alx-scroll--tall { overflow-y: auto; max-height: 560px; }
 [data-k="other"] { --c: var(--g1); } [data-k="ios"] { --c: var(--g3); }
+[data-k="phone"] { --c: var(--g1); } [data-k="tablet"] { --c: var(--g2); } [data-k="desktop"] { --c: var(--g3); } [data-k="android"] { --c: var(--g2); }
+[data-k="notrec"] { --c: #d5dae2; }
+.alx-camp { color: var(--copper-lo); font-weight: 600; }
 /* Side-by-side breakdown cards keep their own height instead of stretching to the taller one. */
 .alx-view > .is-half { align-self: start; }
 .alx-scroll:focus-visible { outline-offset: 2px; }
