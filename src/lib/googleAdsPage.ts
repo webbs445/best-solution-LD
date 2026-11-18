@@ -438,7 +438,7 @@ export function googleAdsHtml(state: GoogleAdsState): string {
       <div class="lr-controls">${viewSwitch(q, "", "google-ads")}</div>
       <section class="lr-card alx-error gad-card" role="${off ? "status" : "alert"}">
         <h2 class="lr-empty__title">${icon(off ? "link" : "alert")}${off ? "Google Ads data not connected" : "Couldn't read the Google Ads Sheet"}</h2>
-        <p class="lr-empty__lead">${off ? "Add ADS_REPORT_SHEET_ID, GOOGLE_SHEETS_CLIENT_EMAIL and GOOGLE_SHEETS_PRIVATE_KEY to this deployment, share the Sheet with the service account (Viewer), then redeploy." : "Google didn't answer and there's no earlier copy to show. Try again in a minute."}</p>
+        <p class="lr-empty__lead">${off ? "Needs ADS_REPORT_SHEET_ID and the four GCP_* variables, OIDC federation turned on in the Vercel project, and the Sheet shared with the service account (Viewer). Works on Vercel deployments only." : "Google didn't answer and there's no earlier copy to show. Try again in a minute."}</p>
         ${off ? "" : `<a class="lr-btn-ghost" href="${esc(href(q, { refresh: null, note: null }))}" data-nav>${icon("refresh")}Try again</a>`}
       </section>`;
   } else {

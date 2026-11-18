@@ -32,6 +32,11 @@ Rules every run follows:
 - Every tag host is blocked (`TAG_HOSTS` in `common.mjs`: Stape `marktmen.best-solution.ae`, `googletagmanager.com`,
   `google-analytics.com`, `googleadservices.com`, `doubleclick.net`, `connect.facebook.net`, Clarity, Bing). Never run
   a test against production without these blocks.
+- Every Google API host the Google Ads view uses is blocked too (`GOOGLE_API_HOSTS` in `common.mjs`:
+  `sts.googleapis.com`, `iamcredentials.googleapis.com`, `sheets.googleapis.com`), so no test reaches Google. This
+  applies to every automated test, including server-side mocks: a local test server answers these hosts itself
+  (the auth library calls STS and IAM through its own HTTP client, so a mock of the global `fetch` alone does not
+  catch them) and must never pass a request through to Google.
 - Lead APIs are answered inside the test browser by `forms-mock.mjs`, so nothing reaches the ERP or the lead sheet.
 - Test data only: name `TEST AUDIT - DELETE`, email `test-audit@xerebo.com`, phone `+971500000000`.
 - `strict-scan.mjs` allows the corporate tax threshold "AED 375,000" everywhere, and on `/corporate-tax` any AED amount

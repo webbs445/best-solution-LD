@@ -1,9 +1,12 @@
-import { createSign } from "node:crypto";
+import { getVercelOidcToken } from "@vercel/oidc";
+import { ExternalAccountClient, type BaseExternalAccountClient } from "google-auth-library";
 
 /*
   The Google Ads report Sheet (/ads-report?view=google-ads): a Google Ads Script writes it 3 times a day; the site only
-  reads it, server side, with a service account limited to spreadsheets.readonly. Off unless ADS_REPORT_SHEET_ID,
-  GOOGLE_SHEETS_CLIENT_EMAIL and GOOGLE_SHEETS_PRIVATE_KEY are set. Only the tabs in TABS are ever requested:
+  reads it, server side, limited to spreadsheets.readonly. Keyless sign-in (the Google org blocks service account keys):
+  the deployment's Vercel OIDC token is exchanged through Workload Identity Federation for a short-lived token of the
+  ads-report-reader service account (https://vercel.com/docs/oidc/gcp). Works on Vercel deployments only.
+  Off unless ADS_REPORT_SHEET_ID and the four GCP_* variables are set. Only the tabs in TABS are ever requested:
   Perf_Clicks_Last7Days (click IDs) is never read.
 */
 
@@ -21,37 +24,51 @@ export interface SheetData {
 }
 
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
-const TOKEN_URL = "https://oauth2.googleapis.com/token";
 
 function config() {
-  const id = process.env.ADS_REPORT_SHEET_ID, email = process.env.GOOGLE_SHEETS_CLIENT_EMAIL, key = process.env.GOOGLE_SHEETS_PRIVATE_KEY;
-  // The key is stored with literal \n in the env var.
-  return id && email && key ? { id, email, key: key.replace(/\\n/g, "\n") } : null;
+  const e = process.env;
+  const id = e.ADS_REPORT_SHEET_ID, project = e.GCP_PROJECT_NUMBER, serviceAccount = e.GCP_SERVICE_ACCOUNT_EMAIL;
+  const pool = e.GCP_WORKLOAD_IDENTITY_POOL_ID, provider = e.GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID;
+  return id && project && serviceAccount && pool && provider ? { id, project, serviceAccount, pool, provider } : null;
 }
 type Config = NonNullable<ReturnType<typeof config>>;
 
 export const googleAdsConfigured = () => !!config();
 
-let token: { value: string; exp: number } | null = null;
+let client: BaseExternalAccountClient | null = null;
 
-/** A service-account access token (JWT bearer grant), reused until a minute before it expires. */
-async function accessToken(c: Config): Promise<string> {
-  if (token && token.exp > Date.now() + 60_000) return token.value;
-  const now = Math.floor(Date.now() / 1000);
-  const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString("base64url");
-  const unsigned = `${b64({ alg: "RS256", typ: "JWT" })}.${b64({ iss: c.email, scope: SCOPE, aud: TOKEN_URL, iat: now, exp: now + 3600 })}`;
-  const sig = createSign("RSA-SHA256").update(unsigned).sign(c.key, "base64url");
-  const res = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion: `${unsigned}.${sig}` }),
-    cache: "no-store",
-    signal: AbortSignal.timeout(10_000),
+/** The federated client; it keeps the access token and renews it when it expires. */
+function authClient(c: Config): BaseExternalAccountClient {
+  client ??= ExternalAccountClient.fromJSON({
+    type: "external_account",
+    audience: `//iam.googleapis.com/projects/${c.project}/locations/global/workloadIdentityPools/${c.pool}/providers/${c.provider}`,
+    subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
+    token_url: "https://sts.googleapis.com/v1/token",
+    service_account_impersonation_url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${c.serviceAccount}:generateAccessToken`,
+    // No custom audience: the provider allows the team URL, the token's default audience.
+    subject_token_supplier: { getSubjectToken: () => getVercelOidcToken() },
+    scopes: [SCOPE],
   });
-  const out = (await res.json().catch(() => null)) as { access_token?: string; expires_in?: number } | null;
-  if (!res.ok || !out?.access_token) throw new Error(`token request answered ${res.status}`);
-  token = { value: out.access_token, exp: Date.now() + (out.expires_in ?? 3600) * 1000 };
-  return token.value;
+  if (!client) throw new Error("external account client not created");
+  return client;
+}
+
+async function accessToken(c: Config): Promise<string> {
+  const { token } = await authClient(c).getAccessToken();
+  if (!token) throw new Error("no access token from Workload Identity Federation");
+  return token;
+}
+
+/** Whether this deployment gets a Vercel OIDC token (OIDC federation on in the project). Logs "present" or "missing" only. */
+async function oidcPresent(): Promise<boolean> {
+  try {
+    await getVercelOidcToken();
+    console.info("Vercel OIDC token: present");
+    return true;
+  } catch {
+    console.warn("Vercel OIDC token: missing");
+    return false;
+  }
 }
 
 /** The tab list, then every known tab that exists in one values:batchGet (a missing tab would fail the whole batch). */
@@ -95,14 +112,16 @@ export async function readGoogleAdsSheet(force = false): Promise<SheetRead> {
   if (!force && last && now - last.fetchedAt < CACHE_MS) return { kind: "ok", data: last };
   // Right after a failure, don't ask Google again on every page load.
   if (!force && last && now - lastFail < RETRY_MS) return { kind: "stale", data: last };
+  // Without a Vercel OIDC token (local runs, or OIDC federation off in the project) there is no way in: "not connected".
+  if (!(await oidcPresent())) return last ? { kind: "stale", data: last } : { kind: "off" };
   try {
     inflight ??= fetchSheet(c).finally(() => (inflight = null));
     last = await inflight;
     return { kind: "ok", data: last };
   } catch (err) {
     lastFail = Date.now();
-    // The message only (a status code): never the token, key or response body.
-    console.error("Google Ads sheet unreachable:", err instanceof Error ? err.message : "unknown error");
+    // The error message only, cut short: never a token.
+    console.error("Google Ads sheet unreachable:", err instanceof Error ? err.message.slice(0, 200) : "unknown error");
     return last ? { kind: "stale", data: last } : { kind: "error" };
   }
 }
