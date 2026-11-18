@@ -29,9 +29,15 @@ Set `CHROME_PATH` if Chrome is not at `C:/Program Files/Google/Chrome/Applicatio
 
 Rules every run follows:
 
-- Every tag host is blocked (`TAG_HOSTS` in `common.mjs`: Stape `marktmen.best-solution.ae`, `googletagmanager.com`,
+- Every tag host is blocked (`TAG_HOSTS` in `hosts.mjs`: Stape `marktmen.best-solution.ae`, `googletagmanager.com`,
   `google-analytics.com`, `googleadservices.com`, `doubleclick.net`, `connect.facebook.net`, Clarity, Bing). Never run
   a test against production without these blocks.
+- Every Google host is blocked too (`GOOGLE_API_HOSTS` in `hosts.mjs`: `sts.googleapis.com`,
+  `iamcredentials.googleapis.com`, `sheets.googleapis.com`, and the Apps Script bridge the Google Ads view reads,
+  `script.google.com` with its redirect target `script.googleusercontent.com`), so no test reaches Google or the real
+  bridge. This applies to every automated test: the browser scripts abort these hosts (`blockTags`), the unit tests
+  get a `fetch` that throws for them (`vitest.setup.mjs`), and a local server mock answers them itself and never
+  passes a request through.
 - Lead APIs are answered inside the test browser by `forms-mock.mjs`, so nothing reaches the ERP or the lead sheet.
 - Test data only: name `TEST AUDIT - DELETE`, email `test-audit@xerebo.com`, phone `+971500000000`.
 - `strict-scan.mjs` allows the corporate tax threshold "AED 375,000" everywhere, and on `/corporate-tax` any AED amount
