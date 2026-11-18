@@ -2567,6 +2567,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
           <a class="lr-nav__item" href="${esc(viewHref(ctx, "google"))}" data-view="google"${ctx.view === "google" ? ' aria-current="page"' : ""}>${icon("bars")}<span>Google leads</span>${d.google.connected ? `<b>${esc(fmtCount(d.google.totals.formConversions))}</b>` : `<em class="lr-nav__setup">Connect<span class="lr-sr">, not connected yet</span></em>`}</a>
           <a class="lr-nav__item" href="${esc(viewHref(ctx, "erp"))}" data-view="erp"${ctx.view === "erp" ? ' aria-current="page"' : ""}>${icon("db")}<span>ERP status</span>${d.erp.available ? `<b>${esc(fmtCount(d.erp.leads.length))}</b>` : ""}</a>
           <a class="lr-nav__item" href="${esc(viewHref(ctx, "landings"))}">${icon("layers")}<span>Ad landings</span></a>
+          <a class="lr-nav__item" href="${esc(viewHref(ctx, "google-ads"))}">${icon("link")}<span>Google Ads</span></a>
         </nav>
         <div class="lr-fresh" role="status" aria-label="Data freshness">
           <span class="lr-fresh__item" data-state="${erpState}">
@@ -2604,9 +2605,10 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
                                  : side("google", "Google leads", "Connect", "not connected");
     const e = d.erp.available ? side("erp", "ERP status", fmtCount(d.erp.leads.length))
                               : side("erp", "ERP status", DASH, "ERP not answering");
-    // Ad landings is its own page (served by the same route): a plain link, not an in-page swap.
+    // Ad landings and Google Ads are their own pages (served by the same route): a plain link, not an in-page swap.
     const l = `<a class="lr-switch__side" href="${esc(viewHref(ctx, "landings"))}" data-full><span class="lr-switch__label">Ad landings</span></a>`;
-    return `<div class="lr-switchbar"><nav class="lr-switch lr-glass" aria-label="Data source">${g}${e}${l}</nav></div>`;
+    const a = `<a class="lr-switch__side" href="${esc(viewHref(ctx, "google-ads"))}" data-full><span class="lr-switch__label">Google Ads</span></a>`;
+    return `<div class="lr-switchbar"><nav class="lr-switch lr-glass" aria-label="Data source">${g}${e}${l}${a}</nav></div>`;
   }
 
   /* ---------- C3 Date range ---------- */
