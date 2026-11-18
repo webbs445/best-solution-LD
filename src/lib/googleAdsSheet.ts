@@ -35,6 +35,53 @@ type Config = NonNullable<ReturnType<typeof config>>;
 
 export const googleAdsConfigured = () => !!config();
 
+/* ---------- Diagnosis: which stage failed, shown on the "not connected" / error card (signed-in users only) ---------- */
+
+export const ENV_NAMES = ["ADS_REPORT_SHEET_ID", "GCP_PROJECT_NUMBER", "GCP_SERVICE_ACCOUNT_EMAIL", "GCP_WORKLOAD_IDENTITY_POOL_ID", "GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID"] as const;
+export const STAGES = ["Env vars", "Vercel OIDC token", "Google STS exchange", "Service account impersonation", "Sheets read"] as const;
+export interface Diagnosis {
+  /** Each variable's name and whether it is set (never its value). */
+  env: { name: string; set: boolean }[];
+  /** The stage that failed (1-5), or 0 when every stage passed. */
+  failed: number;
+  status: number | null;
+  code: string;
+  message: string;
+}
+
+/** A failure at one stage, with Google's HTTP status and short error code / message. */
+export class StageError extends Error {
+  constructor(readonly stage: number, readonly status: number | null, readonly code: string, message: string) {
+    super(message);
+  }
+}
+
+/** Google's text, cut short, with anything shaped like a token blanked out (it never should contain one). */
+export const clean = (s: unknown) => String(s ?? "").replace(/ey[\w-]{10,}\.[\w-]+\.[\w-]*|ya29\.[\w.-]+|Bearer\s+\S+/g, "[hidden]").slice(0, 240);
+
+/**
+ * Stage, status and code from an auth library error: it keeps the HTTP response of the failing call, so the URL tells
+ * STS (3) from impersonation (4). STS answers {error, error_description}; IAM answers {error: {code, status, message}}.
+ */
+export function authStage(err: unknown): StageError {
+  const e = err as { config?: { url?: unknown }; response?: { status?: number; data?: unknown; config?: { url?: unknown } }; message?: string } | null;
+  const url = String(e?.config?.url ?? e?.response?.config?.url ?? "");
+  const d = e?.response?.data as { error?: string | { status?: string; code?: number; message?: string }; error_description?: string } | undefined;
+  const code = typeof d?.error === "string" ? d.error : (d?.error?.status ?? (d?.error?.code ? String(d.error.code) : ""));
+  const message = typeof d?.error === "string" ? d.error_description : (d?.error?.message ?? e?.message);
+  return new StageError(url.includes("iamcredentials.") ? 4 : 3, e?.response?.status ?? null, clean(code), clean(message));
+}
+
+const diagnose = (failed: number, status: number | null = null, code = "", message = ""): Diagnosis => ({
+  env: ENV_NAMES.map((name) => ({ name, set: !!process.env[name] })),
+  failed,
+  status,
+  code,
+  message,
+});
+
+/* ---------- Sign-in and read ---------- */
+
 let client: BaseExternalAccountClient | null = null;
 
 /** The federated client; it keeps the access token and renews it when it expires. */
@@ -54,8 +101,13 @@ function authClient(c: Config): BaseExternalAccountClient {
 }
 
 async function accessToken(c: Config): Promise<string> {
-  const { token } = await authClient(c).getAccessToken();
-  if (!token) throw new Error("no access token from Workload Identity Federation");
+  let token: string | null | undefined;
+  try {
+    ({ token } = await authClient(c).getAccessToken());
+  } catch (err) {
+    throw authStage(err);
+  }
+  if (!token) throw new StageError(4, null, "", "No access token returned.");
   return token;
 }
 
@@ -76,8 +128,14 @@ async function fetchSheet(c: Config): Promise<SheetData> {
   const auth = { Authorization: `Bearer ${await accessToken(c)}` };
   const base = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(c.id)}`;
   const get = async (url: string) => {
-    const res = await fetch(url, { headers: auth, cache: "no-store", signal: AbortSignal.timeout(20_000) });
-    if (!res.ok) throw new Error(`Sheets answered ${res.status}`);
+    const res = await fetch(url, { headers: auth, cache: "no-store", signal: AbortSignal.timeout(20_000) }).catch((e: unknown) => {
+      throw new StageError(5, null, "", clean(e instanceof Error ? e.message : "no answer"));
+    });
+    if (!res.ok) {
+      // Google's error body: {error: {code, status: "PERMISSION_DENIED", message}}.
+      const d = (await res.json().catch(() => null)) as { error?: { status?: string; message?: string } } | null;
+      throw new StageError(5, res.status, clean(d?.error?.status), clean(d?.error?.message || `Sheets answered ${res.status}`));
+    }
     return res.json();
   };
   const meta = (await get(`${base}?fields=sheets.properties.title`)) as { sheets?: { properties?: { title?: string } }[] };
@@ -99,29 +157,31 @@ let last: SheetData | null = null;
 let lastFail = 0;
 let inflight: Promise<SheetData> | null = null;
 
-export type SheetRead = { kind: "off" } | { kind: "error" } | { kind: "ok" | "stale"; data: SheetData };
+export type SheetRead = { kind: "off" | "error"; diagnosis: Diagnosis } | { kind: "ok" | "stale"; data: SheetData };
 
 /**
  * The Sheet, from memory when under 15 minutes old. `force` (the Refresh button) reads it now. When Google doesn't
- * answer: the last copy as "stale", or "error" with none. Never throws.
+ * answer: the last copy as "stale", or "error" with none. Without env vars or an OIDC token: "off". Never throws.
  */
 export async function readGoogleAdsSheet(force = false): Promise<SheetRead> {
   const c = config();
-  if (!c) return { kind: "off" };
+  if (!c) return { kind: "off", diagnosis: diagnose(1) };
   const now = Date.now();
   if (!force && last && now - last.fetchedAt < CACHE_MS) return { kind: "ok", data: last };
   // Right after a failure, don't ask Google again on every page load.
   if (!force && last && now - lastFail < RETRY_MS) return { kind: "stale", data: last };
   // Without a Vercel OIDC token (local runs, or OIDC federation off in the project) there is no way in: "not connected".
-  if (!(await oidcPresent())) return last ? { kind: "stale", data: last } : { kind: "off" };
+  if (!(await oidcPresent())) return last ? { kind: "stale", data: last } : { kind: "off", diagnosis: diagnose(2) };
   try {
     inflight ??= fetchSheet(c).finally(() => (inflight = null));
     last = await inflight;
     return { kind: "ok", data: last };
   } catch (err) {
     lastFail = Date.now();
-    // The error message only, cut short: never a token.
-    console.error("Google Ads sheet unreachable:", err instanceof Error ? err.message.slice(0, 200) : "unknown error");
-    return last ? { kind: "stale", data: last } : { kind: "error" };
+    const s = err instanceof StageError ? err : new StageError(5, null, "", clean(err instanceof Error ? err.message : "unknown error"));
+    const d = diagnose(s.stage, s.status, s.code, s.message);
+    // Stage, status and Google's short code only: never a token or header.
+    console.error(`Google Ads sheet unreachable: stage ${s.stage} (${STAGES[s.stage - 1]}) ${s.status ?? ""} ${s.code}`.trim());
+    return last ? { kind: "stale", data: last } : { kind: "error", diagnosis: d };
   }
 }

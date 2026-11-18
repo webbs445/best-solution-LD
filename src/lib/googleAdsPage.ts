@@ -1,6 +1,6 @@
 import { CSS, SCRIPT, dashCss, esc, href, icon, info, sprite, topbar, viewSwitch } from "@/lib/adLandingsPage";
 import { yTicks } from "@/lib/adLandingsReport";
-import type { SheetData } from "@/lib/googleAdsSheet";
+import { STAGES, type Diagnosis, type SheetData } from "@/lib/googleAdsSheet";
 import {
   DASH,
   PERIODS,
@@ -387,7 +387,7 @@ function changes(d: SheetData, campaign: string, q: URLSearchParams) {
 /* ---------- Whole page ---------- */
 
 export type GoogleAdsState =
-  | { kind: "off" | "error"; query: URLSearchParams; today: string }
+  | { kind: "off" | "error"; query: URLSearchParams; today: string; diagnosis: Diagnosis }
   | { kind: "ok"; query: URLSearchParams; today: string; data: SheetData; stale: boolean; note: string };
 
 const NOTES: Record<string, string> = {
@@ -395,6 +395,25 @@ const NOTES: Record<string, string> = {
   wait: "Refresh can be used once every 2 minutes. Showing the latest copy.",
   failed: "Data could not be refreshed. Showing the last copy read.",
 };
+
+/** Which variables are set (names only) and which sign-in stage failed, with Google's status and short error. */
+function diagnosisHtml(d: Diagnosis) {
+  const mark = (ok: boolean | null) => `<span class="gad-diag__mark" data-tone="${ok == null ? "neutral" : ok ? "good" : "bad"}" aria-hidden="true">${ok == null ? "–" : ok ? "✓" : "✗"}</span>`;
+  const env = d.env.map((e) => `<li>${mark(e.set)}<code>${esc(e.name)}</code><span class="lr-sr">${e.set ? "set" : "missing"}</span></li>`).join("");
+  const stages = STAGES.map((name, i) => {
+    const n = i + 1, state = d.failed === 0 || n < d.failed ? true : n === d.failed ? false : null;
+    const words = state == null ? "not reached" : state ? "passed" : "failed";
+    const detail = n === d.failed && n >= 3 ? `<small class="gad-diag__err">${esc([d.status ? `HTTP ${d.status}` : "", d.code, d.message].filter(Boolean).join(" · ") || "No details from Google")}</small>` : "";
+    return `<li>${mark(state)}<span><b>${n}. ${esc(name)}</b> <span class="gad-muted">${words}</span>${detail}</span></li>`;
+  }).join("");
+  return `<div class="gad-diag">
+      <h3 class="alx-split__title">Diagnosis</h3>
+      <div class="gad-diag__cols">
+        <div><p class="gad-muted">Environment variables (names only)</p><ul>${env}</ul></div>
+        <div><p class="gad-muted">Sign-in stages</p><ol>${stages}</ol></div>
+      </div>
+    </div>`;
+}
 
 function controls(q: URLSearchParams, period: Period, today: string) {
   const chips = PERIODS.map(([k, l]) => `<a class="lr-chip lr-glass" href="${esc(href(q, { range: k, from: null, to: null, refresh: null, note: null }))}"${period.key === k ? ' aria-current="page"' : ""} data-nav>${l}</a>`).join("");
@@ -438,8 +457,9 @@ export function googleAdsHtml(state: GoogleAdsState): string {
       <div class="lr-controls">${viewSwitch(q, "", "google-ads")}</div>
       <section class="lr-card alx-error gad-card" role="${off ? "status" : "alert"}">
         <h2 class="lr-empty__title">${icon(off ? "link" : "alert")}${off ? "Google Ads data not connected" : "Couldn't read the Google Ads Sheet"}</h2>
-        <p class="lr-empty__lead">${off ? "Needs ADS_REPORT_SHEET_ID and the four GCP_* variables, OIDC federation turned on in the Vercel project, and the Sheet shared with the service account (Viewer). Works on Vercel deployments only." : "Google didn't answer and there's no earlier copy to show. Try again in a minute."}</p>
+        <p class="lr-empty__lead">${off ? "Needs ADS_REPORT_SHEET_ID and the four GCP_* variables, OIDC federation turned on in the Vercel project, and the Sheet shared with the service account (Viewer). Works on Vercel deployments only." : "Signing in to Google or reading the Sheet failed, and there's no earlier copy to show. The diagnosis below says where."}</p>
         ${off ? "" : `<a class="lr-btn-ghost" href="${esc(href(q, { refresh: null, note: null }))}" data-nav>${icon("refresh")}Try again</a>`}
+        ${diagnosisHtml(state.diagnosis)}
       </section>`;
   } else {
     const d = state.data;
@@ -611,6 +631,15 @@ const GAD_CSS = `
 .gad-timeline .is-changed { background: #fff4e0; box-shadow: inset 3px 0 0 #b26a00; }
 .gad-timeline .is-changed dd { font-weight: 700; }
 .gad-foot { grid-column: 1 / -1; }
+.gad-diag { width: 100%; margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); display: grid; gap: var(--s2); }
+.gad-diag__cols { display: grid; gap: var(--s3); }
+@media (min-width: 768px) { .gad-diag__cols { grid-template-columns: 1fr 1.4fr; } }
+.gad-diag ul, .gad-diag ol { list-style: none; display: grid; gap: 6px; margin-top: 6px; }
+.gad-diag li { display: flex; align-items: flex-start; gap: 8px; font: 500 var(--fs-small)/1.4 var(--font); }
+.gad-diag li > span { display: grid; gap: 2px; min-width: 0; }
+.gad-diag code { font: 600 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+.gad-diag__mark { flex: none; width: 18px; text-align: center; font-weight: 800; color: var(--c); }
+.gad-diag__err { color: #8a2c20; overflow-wrap: anywhere; }
 @media (max-width: 767px) {
   .gad-title { font-size: 24px; }
   /* Eight periods don't fit the phone chip row the other views size for five: they wrap. */

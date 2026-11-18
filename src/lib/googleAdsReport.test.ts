@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TABS } from "./googleAdsSheet";
+import { TABS, authStage, clean } from "./googleAdsSheet";
 import {
   alertsOf,
   campaignRows,
@@ -208,6 +208,23 @@ describe("status, alerts, freshness, history", () => {
     expect(steps[0].lines).toEqual([["budget", "150", true], ["bidding.type", "MAX_CLICKS", false]]);
     expect(steps[1].lines.every(([, , c]) => !c)).toBe(true);
     expect(historySteps(rows, "222")[0].lines).toEqual([["Settings", "not json", false]]);
+  });
+});
+
+describe("sign-in diagnosis", () => {
+  it("an STS failure is stage 3 with the OAuth error code", () => {
+    const e = authStage({ config: { url: "https://sts.googleapis.com/v1/token" }, response: { status: 400, data: { error: "invalid_grant", error_description: "The audience in ID Token does not match." } } });
+    expect([e.stage, e.status, e.code, e.message]).toEqual([3, 400, "invalid_grant", "The audience in ID Token does not match."]);
+  });
+  it("an impersonation failure is stage 4 with Google's status code", () => {
+    const e = authStage({ response: { status: 403, config: { url: new URL("https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/x:generateAccessToken") }, data: { error: { code: 403, status: "PERMISSION_DENIED", message: "Permission 'iam.serviceAccounts.getAccessToken' denied" } } } });
+    expect([e.stage, e.status, e.code]).toEqual([4, 403, "PERMISSION_DENIED"]);
+  });
+  it("an error without a response stays at stage 3 with its message", () => {
+    expect(authStage(new Error("socket hang up"))).toMatchObject({ stage: 3, status: null, code: "", message: "socket hang up" });
+  });
+  it("never shows anything shaped like a token", () => {
+    expect(clean("bad eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ4In0.c2ln and ya29.a0AfB_x and Bearer abc.def")).toBe("bad [hidden] and [hidden] and [hidden]");
   });
 });
 

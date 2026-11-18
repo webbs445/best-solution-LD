@@ -23,8 +23,8 @@ export async function googleAdsResponse(query: URLSearchParams): Promise<Respons
   const read = await readGoogleAdsSheet();
   const base = { query, today: dubaiDate() };
   const body =
-    read.kind === "ok" || read.kind === "stale"
+    "data" in read
       ? googleAdsHtml({ kind: "ok", ...base, data: read.data, stale: read.kind === "stale", note: query.get("note") ?? "" })
-      : googleAdsHtml({ kind: read.kind, ...base });
+      : googleAdsHtml({ kind: read.kind, ...base, diagnosis: read.diagnosis });
   return new Response(body, { status: read.kind === "error" ? 502 : 200, headers: { "Content-Type": "text/html; charset=utf-8", ...PRIVATE } });
 }
