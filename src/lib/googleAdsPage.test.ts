@@ -145,3 +145,49 @@ describe("Chart change pill", () => {
     expect(await pill(TARGETING, campaignRow(20))).toBe("18 Nov · Accounting Search · budget changed");
   });
 });
+describe("Preview fixes", () => {
+  const googleMode = (data: SheetData, qs = "") =>
+    body(googleAdsHtml({ kind: "ok", query: new URLSearchParams(`view=google-ads&${qs}`), today: TODAY, data, stale: false, note: "", erp: null, joinReady: false, landings: null }));
+  it("Google conversions fallback: the heatmap says Google conversions, never form leads; one compact card for quality and cost", async () => {
+    const { data } = await load(ids);
+    const g = googleMode(data);
+    expect(g).toMatch(/<p class="gx-take gx-take--plain" data-tone="bad">No Google conversions since 5 Nov \(14 days\)\.<\/p>/);
+    expect(/id="gx-heat"[\s\S]*?<\/section>/.exec(g)?.[0]).not.toContain("form lead");
+    expect(g).toContain("Lead quality and cost per qualified lead need the ERP lead status. Shown on the live site.");
+    expect(g).not.toContain('id="gx-quality"');
+    expect(g).not.toContain('id="gx-cpl"');
+  });
+  it("Google conversions fallback: banner, chart, spend, funnel and campaigns say conversions, never leads", async () => {
+    const { data } = await load(ids);
+    const g = googleMode(data, "range=30d");
+    const card = (id: string) => new RegExp(`id="${id}"[\\s\\S]*?</section>`).exec(g)?.[0] ?? "";
+    expect(/<div class="gx-banner"[\s\S]*?<\/p>/.exec(googleMode(data))?.[0] ?? "").toMatch(/ · \d+ Google conversions?\. Lead numbers may be missing/);
+    expect(card("gx-chart")).toContain("Spend and conversions");
+    expect(card("gx-spend")).toMatch(/\d+ clicks? · \d+ conv\./);
+    expect(card("gx-funnel")).toMatch(/gx-fn__l">Conversions</);
+    expect(card("gx-funnel")).toMatch(/>Conv\. ([\d.]+%|–)</);
+    expect(card("gx-camps")).toMatch(/clicks? · \d+ conv\./);
+    for (const id of ["gx-chart", "gx-spend", "gx-funnel", "gx-camps", "gx-heat"]) expect(card(id).replace(/Lead Insights|lead status/g, "")).not.toMatch(/\blead/i);
+  });  it("with the ERP: form leads wording, both cards as before, no compact card", async () => {
+    const { data } = await load(ids);
+    const e = body(page(data, ""));
+    expect(e).toContain('id="gx-quality"');
+    expect(e).toContain('id="gx-cpl"');
+    expect(e).not.toContain("gx-needs");
+    expect(e).toMatch(/gx-take gx-take--plain[^>]*>(No form leads since|\d+ leads? in 6 weeks)/);
+  });
+  it("search term counts never break inside: \"1 conv.\" is one unit", async () => {
+    const { data } = await load(ids);
+    expect(body(page(data, "range=30d"))).toMatch(/<b class="gx-nowrap">\d+ conv\.<\/b>/);
+  });
+  it("changes in 30 days: one per (campaign, date-time), however many fields; the History tab shows the same number", async () => {
+    const { data } = await load(ids);
+    const tabs = structuredClone(data.tabs);
+    // One edit, three field rows: one change.
+    for (const f of ["status", "name", "campaign_budget"]) tabs.Change_Log_30d!.push(["2026-11-17 11:00", "owner@example.com", "Google Ads web", "CAMPAIGN", "UPDATE", f, "fz_search_061026", ""]);
+    const h = body(page({ ...data, tabs }, "details=history"));
+    const n = Number(/(\d+) changes in 30 days/.exec(h)?.[1]);
+    expect(n).toBe(new Set(tabs.Change_Log_30d!.slice(1).filter((r) => String(r[0]) >= "2026-10-20").map((r) => `${r[6]}|${r[0]}`)).size);
+    expect(h).toMatch(new RegExp(`History[^<]*<span[^>]*>${n}<`));
+  });
+});

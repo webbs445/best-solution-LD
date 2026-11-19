@@ -288,7 +288,7 @@ export function blocks(i: BlocksInput) {
       key: "leads",
       label: lsrc === "google" ? "Google conversions" : "Tracked leads",
       value: leadsCur?.length ?? null,
-      reason: erp ? (leadsCur ? "" : "ERP leads start 12 Oct") : erpReason,
+      reason: erp ? (leadsCur ? "" : lsrc === "google" ? "Conversions counted from 12 Oct" : lsrc === "sheet" ? "Lead log starts 12 Oct" : "ERP leads start 12 Oct") : erpReason,
       delta: leadsCur && leadsPrev ? delta(leadsCur.length, leadsPrev.length, false) : null,
       spark: days.map((day) => leadsCur?.filter((l) => l.created.slice(0, 10) === day).length ?? 0),
       sub: `${lastLead ? `last ${lsrc === "google" ? "conversion" : "lead"} ${dayMonth(lastLead)}` : `none since ${dayMonth(REPORT_START)}`}${lsrc === "sheet" ? " · lead log" : ""}`,
@@ -328,8 +328,8 @@ export function blocks(i: BlocksInput) {
       leads: leads30 ? leads30.filter((l) => l.created.slice(0, 10) === day).length : 0,
     })),
     markers: allMarkers.filter((m) => m.day >= d30[0] && inScope(m.campaign)),
-    /** Rows in Change_Log_30d for the campaigns in view (the History section lists them all). */
-    changeCount: changes.filter((r) => inScope(str(r, "Campaign")) && stampOf(r["Changed at"]).slice(0, 10) >= d30[0]).length,
+    /** Changes in Change_Log_30d for the campaigns in view: distinct (campaign, date-time), as one edit logs a row per field. Also the History tab's number. */
+    changeCount: new Set(changes.filter((r) => inScope(str(r, "Campaign")) && stampOf(r["Changed at"]).slice(0, 10) >= d30[0]).map((r) => `${str(r, "Campaign")}|${stampOf(r["Changed at"])}`)).size,
     leadsKnown: leads30 != null,
     lastLead,
     foot: {

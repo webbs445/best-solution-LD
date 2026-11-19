@@ -160,7 +160,7 @@ function banner(b: Blocks) {
   const { since, landings, leads } = b.banner;
   return `<div class="gx-banner" role="alert">
       <span class="gx-banner__i">${svg(I.alert, 16, ' stroke-width="2.6"')}</span>
-      <p><b>Lead tracking under test since ${esc(since ? dayMonth(since) : DASH)}</b> · ${landings != null ? `${n0(landings)} landings, ` : ""}${plural(leads, "form lead")}. Lead numbers may be missing.</p>
+      <p><b>Lead tracking under test since ${esc(since ? dayMonth(since) : DASH)}</b> · ${landings != null ? `${n0(landings)} landings, ` : ""}${plural(leads, b.leadSource === "google" ? "Google conversion" : "form lead")}. Lead numbers may be missing.</p>
       <button type="button" class="gx-banner__b" aria-expanded="false" aria-controls="form-test">Run form test</button>
     </div>
     <section class="lr-card gx-card gx-test" id="form-test" hidden aria-labelledby="form-test-t">
@@ -214,6 +214,10 @@ const KIND_WORD = { Status: "status changed", Budget: "budget changed", Bidding:
 /** How lead numbers are named, by where they come from. */
 const LEADS_WORD = { erp: "Leads (ERP)", sheet: "Leads (lead log)", google: "Google conversions" } as const;
 const SOURCE_WORD = { erp: "ERP", sheet: "lead log", google: "Google conversions" } as const;
+/** One lead number, for plural(): "lead" only where the numbers are leads (ERP, lead log). */
+const UNIT = { erp: "lead", sheet: "lead", google: "Google conversion" } as const;
+/** "3 leads", or "3 conv." in the Google conversions fallback (the abbreviation has no plural). */
+const nLeads = (src: keyof typeof UNIT, n: number) => (src === "google" ? `${n0(n)} conv.` : plural(n, "lead"));
 
 /** Round steps (1, 2, 2.5 or 5 × 10ⁿ): three gridlines above 0, the top about 15% above the highest day. */
 function threeTicks(max: number) {
@@ -253,7 +257,7 @@ function chart(b: Blocks, today: string, q: URLSearchParams) {
   const xl = [0, 7, 14, 21, n - 1].map((i, k) => `<span class="gx-ax${k % 2 ? " gx-ax--wide" : ""}" style="left:${px(i).toFixed(2)}%">${esc(dayMonth(c.days[i].day))}</span>`).join("");
   // Lead dots float just above the top line on lead days, bigger with more leads.
   const dots = c.leadsKnown
-    ? c.days.map((d, i) => (d.leads ? `<span class="gx-ld" style="left:${px(i).toFixed(2)}%;top:${py(tops[i]).toFixed(2)}%;--r:${4 + 2 * Math.min(d.leads, 3)}px" title="${esc(`${dayMonth(d.day)} · ${plural(d.leads, "lead")}`)}"></span>` : "")).join("")
+    ? c.days.map((d, i) => (d.leads ? `<span class="gx-ld" style="left:${px(i).toFixed(2)}%;top:${py(tops[i]).toFixed(2)}%;--r:${4 + 2 * Math.min(d.leads, 3)}px" title="${esc(`${dayMonth(d.day)} · ${plural(d.leads, UNIT[b.leadSource])}`)}"></span>` : "")).join("")
     : "";
   // Two labels at most: the newest channel start ("Demand Gen on") and the newest bidding or budget change, with its new
   // value (a status change only when there's none: channel starts have their own label).
@@ -275,15 +279,15 @@ function chart(b: Blocks, today: string, q: URLSearchParams) {
   // Per-day numbers for the tooltip (hover, or focus the chart and use the arrow keys).
   const tipDays = c.days.map((d) => ({
     t: `${dayMonth(d.day)}${d.day === today ? " (partial)" : ""}`,
-    r: [...c.stacks.map((s, k) => [s.label, aed0(d.costs[k])]), ["Leads", c.leadsKnown ? String(d.leads) : DASH]],
+    r: [...c.stacks.map((s, k) => [s.label, aed0(d.costs[k])]), [b.leadSource === "google" ? "Conversions" : "Leads", c.leadsKnown ? String(d.leads) : DASH]],
   }));
   const f = c.foot;
-  const label = `Daily spend, last 30 days: ${c.stacks.map((s, k) => `${s.label} ${aed0(c.days.reduce((a, d) => a + d.costs[k], 0))}`).join(", ") || "no spend"}. ${f.leads == null ? "ERP leads not connected." : `${plural(f.leads, "ERP lead")}.`}${c.lastLead ? ` Last lead ${dayMonth(c.lastLead)}.` : ""}${start ? ` ${start.s.label} started ${dayMonth(c.days[start.i].day)}.` : ""}${last ? ` Latest change: ${dayMonth(last.day)}, ${friendly(last.campaign)}, ${last.detail || KIND_WORD[last.kind]}.` : ""}`;
-  const legend = `${c.stacks.map((s) => `<span class="leg"><span class="sw" style="background:${s.color}"></span>${esc(s.label)}</span>`).join("")}${c.leadsKnown ? '<span class="leg"><span class="sw sw--dot"></span>Leads</span>' : ""}`;
+  const label = `Daily spend, last 30 days: ${c.stacks.map((s, k) => `${s.label} ${aed0(c.days.reduce((a, d) => a + d.costs[k], 0))}`).join(", ") || "no spend"}. ${f.leads == null ? "ERP leads not connected." : `${plural(f.leads, b.leadSource === "erp" ? "ERP lead" : UNIT[b.leadSource])}.`}${c.lastLead ? ` Last ${b.leadSource === "google" ? "conversion" : "lead"} ${dayMonth(c.lastLead)}.` : ""}${start ? ` ${start.s.label} started ${dayMonth(c.days[start.i].day)}.` : ""}${last ? ` Latest change: ${dayMonth(last.day)}, ${friendly(last.campaign)}, ${last.detail || KIND_WORD[last.kind]}.` : ""}`;
+  const legend = `${c.stacks.map((s) => `<span class="leg"><span class="sw" style="background:${s.color}"></span>${esc(s.label)}</span>`).join("")}${c.leadsKnown ? `<span class="leg"><span class="sw sw--dot"></span>${b.leadSource === "google" ? "Conversions" : "Leads"}</span>` : ""}`;
   const late = f.lastLeadDays != null && f.lastLeadDays > THRESHOLDS.bannerLeadDays;
   return card(
     "gx-chart",
-    "Spend and leads",
+    b.leadSource === "google" ? "Spend and conversions" : "Spend and leads",
     "last 30 days",
     `<div class="gx-chart" tabindex="0" aria-label="Daily numbers: use the left and right arrow keys" data-days="${esc(JSON.stringify(tipDays))}">
       <div class="gx-plot" role="img" aria-label="${esc(label)}">
@@ -300,7 +304,7 @@ function chart(b: Blocks, today: string, q: URLSearchParams) {
     <div class="gx-foot4">
       <div><p class="cap">30-day spend</p><p class="num">${esc(aed0(f.spend))}</p></div>
       <div><p class="cap">${LEADS_WORD[b.leadSource]}</p><p class="num">${esc(f.leads == null ? DASH : n0(f.leads))}</p></div>
-      <div><p class="cap">${b.leadSource === "google" ? "Cost per conversion" : "Cost per lead"}</p><p class="num">${esc(f.leads ? aed0(f.spend / f.leads) : f.leads === 0 ? "No leads" : DASH)}</p></div>
+      <div><p class="cap">${b.leadSource === "google" ? "Cost per conversion" : "Cost per lead"}</p><p class="num">${esc(f.leads ? aed0(f.spend / f.leads) : f.leads === 0 ? (b.leadSource === "google" ? "No conversions" : "No leads") : DASH)}</p></div>
       <div><p class="cap">${b.leadSource === "google" ? "Last conversion" : "Last lead"}</p><p class="num"${late ? ' data-tone="bad"' : ""}>${esc(f.lastLeadDays == null ? DASH : f.lastLeadDays === 0 ? "today" : `${plural(f.lastLeadDays, "day")} ago`)}</p></div>
     </div>
     ${c.changeCount ? `<a class="gx-chlink" href="${esc(detailsHref(q, "history"))}">${plural(c.changeCount, "change")} in 30 days →</a>` : ""}`,
@@ -349,7 +353,7 @@ function spendCard(b: Blocks) {
   const label = s.parts.map((p) => `${p.label} ${pct(p.share)}`).join(", ");
   const body = s.total
     ? `<div class="gx-dn">${donut(s.parts.map((p) => ({ v: p.cost, c: p.color })), `Spend by channel: ${label}. Total ${aed0(s.total)}`, `<p class="num gx-dn__v${aed0(s.total).length > 7 ? " gx-dn__v--sm" : ""}">${esc(aed0(s.total))}</p><p class="cap">total</p>`)}
-        <ul class="gx-dn__l">${s.parts.map((p) => `<li><span class="leg"><span class="sw" style="background:${p.color}"></span>${esc(p.label)}</span><p class="gx-dn__n">${esc(aed0(p.cost))} <span class="cap">${esc(pct(p.share))}</span></p><p class="cap">${esc(plural(p.clicks, "click"))} · ${p.leads == null ? `${DASH} leads` : esc(plural(p.leads, "lead"))}</p></li>`).join("")}</ul></div>`
+        <ul class="gx-dn__l">${s.parts.map((p) => `<li><span class="leg"><span class="sw" style="background:${p.color}"></span>${esc(p.label)}</span><p class="gx-dn__n">${esc(aed0(p.cost))} <span class="cap">${esc(pct(p.share))}</span></p><p class="cap">${esc(plural(p.clicks, "click"))} · ${p.leads == null ? `${DASH} leads` : esc(nLeads(b.leadSource, p.leads))}</p></li>`).join("")}</ul></div>`
     : none("No spend in this period.");
   return card("gx-spend", "Spend by channel", span(b.period.from, b.period.to), body);
 }
@@ -380,21 +384,21 @@ function funnelCard(b: Blocks) {
     ["Seen", f.seen, "linear-gradient(90deg,#2F5BD3,#4F7CFF)"],
     ["Clicked", f.clicked, "linear-gradient(90deg,#4F7CFF,#7B8CFF)"],
     ["Landed", f.landed, "linear-gradient(90deg,#7B8CFF,#7B5CE0)"],
-    ["Leads", f.leads, f.leads ? COLORS.good : COLORS.bad],
+    [b.leadSource === "google" ? "Conversions" : "Leads", f.leads, f.leads ? COLORS.good : COLORS.bad],
   ];
   const top = Math.log10((f.seen ?? 0) + 1) || 1;
   const rows = steps
     .map(([l, v, bg]) => `<li><span class="cap gx-fn__l">${l}</span><span class="gx-fn__t"><span style="width:${v == null ? 0 : Math.max(3, (Math.log10(v + 1) / top) * 100).toFixed(1)}%;background:${bg}"></span></span><b>${esc(v == null ? DASH : n0(v))}</b></li>`)
     .join("");
   const rateTone = (v: number | null) => (v === 0 ? "bad" : "neu");
-  const label = `Search funnel: seen ${n0(f.seen)}, clicked ${n0(f.clicked)}, landed ${f.landed == null ? "not known" : n0(f.landed)}, leads ${f.leads == null ? "not known" : n0(f.leads)}.`;
+  const label = `Search funnel: seen ${n0(f.seen)}, clicked ${n0(f.clicked)}, landed ${f.landed == null ? "not known" : n0(f.landed)}, ${b.leadSource === "google" ? "Google conversions" : "leads"} ${f.leads == null ? "not known" : n0(f.leads)}.`;
   const landTip = `${f.note ? `${f.note} ` : ""}Landings are counted per page, not per campaign: pages of the Search ads (/freezone…). The funnel is Search only, whatever the Channel filter.`;
   return card(
     "gx-funnel",
     "Conversion funnel",
     `Search, ${span(b.period.from, b.period.to)}`,
     `<ol class="gx-fn" role="img" aria-label="${esc(label)}">${rows}</ol>
-     <div class="gx-chips"><span class="chip" data-tone="neu">CTR ${esc(pct(f.ctr, 1))}</span><span class="chip" data-tone="neu">Landed ${esc(pct(f.landedRate))}</span><span class="chip" data-tone="${rateTone(f.formRate)}">Form ${esc(pct(f.formRate, 1))}</span>${tip("Landed", landTip)}</div>`,
+     <div class="gx-chips"><span class="chip" data-tone="neu">CTR ${esc(pct(f.ctr, 1))}</span><span class="chip" data-tone="neu">Landed ${esc(pct(f.landedRate))}</span><span class="chip" data-tone="${rateTone(f.formRate)}">${b.leadSource === "google" ? "Conv." : "Form"} ${esc(pct(f.formRate, 1))}</span>${tip("Landed", landTip)}</div>`,
   );
 }
 
@@ -432,26 +436,29 @@ const SHADES = ["#F1ECE6", "#C9EEDB", "#6FD3A5", "#12A16B"];
 function heatCard(b: Blocks, today: string) {
   const heatTitle = b.leadSource === "google" ? "Conversions per day" : "Leads per day", heatSub = `${SOURCE_WORD[b.leadSource]}, last 6 weeks`;
   if (!b.heat) return card("gx-heat", heatTitle, heatSub, none(b.erpReason));
+  const unit = b.leadSource === "google" ? "conversion" : "lead";
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const cells = b.heat
     .map((w) => `<span class="cap gx-heat__w">${esc(dayMonth(w[0].day))}</span>${w
       .map((c) => {
         if (c.n == null) return `<span class="gx-heat__c is-off" title="${esc(`${dayMonth(c.day)} · ${c.day > today ? "not yet" : "before counting started"}`)}"></span>`;
         const lvl = Math.min(c.n, 3);
-        return `<span class="gx-heat__c" style="background:${SHADES[lvl]};color:${lvl >= 3 ? "#FFFFFF" : "#0E3B28"}" title="${esc(`${dayMonth(c.day)} · ${plural(c.n, "lead")}`)}">${c.n || ""}</span>`;
+        return `<span class="gx-heat__c" style="background:${SHADES[lvl]};color:${lvl >= 3 ? "#FFFFFF" : "#0E3B28"}" title="${esc(`${dayMonth(c.day)} · ${plural(c.n, unit)}`)}">${c.n || ""}</span>`;
       })
       .join("")}`)
     .join("");
   const total = b.heat.flat().reduce((s, c) => s + (c.n ?? 0), 0);
   const last = b.lastLead;
   const gap = last ? Math.round((Date.parse(today) - Date.parse(last)) / 86_400_000) : null;
-  const take = !last ? "No form leads since counting started." : gap! > THRESHOLDS.bannerLeadDays ? `No form leads since ${dayMonth(last)} (${gap} days).` : `${plural(total, "lead")} in 6 weeks; the last on ${dayMonth(last)}.`;
+  // "Form leads" only where the numbers are leads (ERP, lead log); the fallback counts Google conversions.
+  const noneWord = b.leadSource === "google" ? "No Google conversions" : "No form leads";
+  const take = !last ? `${noneWord} since counting started.` : gap! > THRESHOLDS.bannerLeadDays ? `${noneWord} since ${dayMonth(last)} (${gap} days).` : `${plural(total, unit)} in 6 weeks; the last on ${dayMonth(last)}.`;
   return card(
     "gx-heat",
     heatTitle,
     heatSub,
-    `<div class="gx-heat" role="img" aria-label="${esc(`Google Ads leads per day over 6 weeks from ${dayMonth(b.heatStart)}: ${total} in all. ${take}`)}"><span></span>${DAYS.map((d) => `<span class="cap gx-heat__d">${d}</span>`).join("")}${cells}</div>
-     <p class="gx-take" data-tone="${gap != null && gap > THRESHOLDS.bannerLeadDays ? "bad" : "neu"}">${esc(take)}</p>`,
+    `<div class="gx-heat" role="img" aria-label="${esc(`Google Ads ${unit}s per day over 6 weeks from ${dayMonth(b.heatStart)}: ${total} in all. ${take}`)}"><span></span>${DAYS.map((d) => `<span class="cap gx-heat__d">${d}</span>`).join("")}${cells}</div>
+     <p class="gx-take gx-take--plain" data-tone="${gap != null && gap > THRESHOLDS.bannerLeadDays ? "bad" : "neu"}">${esc(take)}</p>`,
     `<span class="gx-heat__lg"><span class="cap">0</span>${SHADES.map((s) => `<span class="sw" style="background:${s}"></span>`).join("")}<span class="cap">3+</span></span>`,
   );
 }
@@ -504,7 +511,7 @@ function termsCard(b: Blocks) {
   const t = b.terms;
   if (t.searchOnly) return card("gx-terms", "Search terms", "30D", none("Search terms exist for Search campaigns only. Switch Channel to All or Search."));
   const wMax = Math.max(1, ...t.winning.slice(0, 5).map((x) => x.conv)), bMax = Math.max(1, ...t.wasted.slice(0, 5).map((x) => x.cost));
-  const row = (term: string, v: string, w: number, c: string) => `<li><div class="gx-bars__top"><span>${esc(term)}</span><b>${esc(v)}</b></div><div class="track track--thin"><span style="width:${w.toFixed(1)}%;background:${c}"></span></div></li>`;
+  const row = (term: string, v: string, w: number, c: string) => `<li><div class="gx-bars__top"><span>${esc(term)}</span><b class="gx-nowrap">${esc(v)}</b></div><div class="track track--thin"><span style="width:${w.toFixed(1)}%;background:${c}"></span></div></li>`;
   const kw = t.erpKeywords?.length ? `<ul class="gx-kw">${t.erpKeywords.map((k) => `<li>Keyword <b>${esc(k.keyword)}</b> brought ${esc(plural(k.n, "ERP lead"))}</li>`).join("")}</ul>` : "";
   return card(
     "gx-terms",
@@ -535,7 +542,7 @@ function campaignsCard(b: Blocks, q: URLSearchParams) {
           const meta = [ch.label, x.budget ? `AED ${x.budget}/day` : "", x.maxCpc ? `cap AED ${x.maxCpc}` : ""].filter(Boolean).join(" · ");
           return `<li class="gx-camp">${chTag(x.channel, "gx-tag gx-tag--lg")}
             <div class="gx-camp__b"><p class="gx-camp__n" title="${esc(x.name)}">${esc(friendly(x.name))}</p><p class="cap">${esc(meta)}</p></div>
-            <div class="gx-camp__r"><p class="gx-camp__c">${esc(aed0(x.t.cost))}</p><p class="cap">${esc(plural(x.t.clicks ?? 0, "click"))} · ${leads == null ? DASH : esc(plural(leads, "lead"))}</p></div>
+            <div class="gx-camp__r"><p class="gx-camp__c">${esc(aed0(x.t.cost))}</p><p class="cap">${esc(plural(x.t.clicks ?? 0, "click"))} · ${leads == null ? DASH : esc(nLeads(b.leadSource, leads))}</p></div>
             <span class="chip" data-tone="good"><span class="gx-dot" aria-hidden="true"></span>Live</span></li>`;
         })
         .join("")
@@ -656,7 +663,7 @@ function details(b: Blocks, d: SheetData, q: URLSearchParams, erp: ErpLead[] | n
   const convs = conversionRows(cut("Perf_Conversions_Daily"));
   const assets = inCh(rowsOf(d.tabs.Perf_CampaignAssets_30d));
   const changes = inCh(log).sort((a, z) => stampOf(z["Changed at"]).localeCompare(stampOf(a["Changed at"])));
-  const counts: Record<TabKey, number> = { campaigns: camps.length, adgroups: adGroups.length, keywords: keywords.length, terms: terms.length, ads: ads.length, conversions: convs.length, sitelinks: assets.length, history: changes.length };
+  const counts: Record<TabKey, number> = { campaigns: camps.length, adgroups: adGroups.length, keywords: keywords.length, terms: terms.length, ads: ads.length, conversions: convs.length, sitelinks: assets.length, history: b.chart.changeCount };
   const erpKw = new Set((erp ?? []).map((l) => kwKey(l.keyword)).filter(Boolean));
   const wastedTerm = (t: TermRow) => (t.t.cost ?? 0) >= THRESHOLDS.searchTermCostAed && (t.t.conv ?? 0) === 0 && !/excluded|added/i.test(t.added) && !erpKw.has(kwKey(t.term));
 
@@ -893,8 +900,12 @@ export function googleAdsHtml(state: GoogleAdsState): string {
       ${banner(b)}
       ${kpis(b)}
       <div class="g84">${chart(b, state.today, q)}${attentionCard(b, q)}</div>
-      <div class="g3">${spendCard(b)}${qualityCard(b)}${funnelCard(b)}</div>
-      <div class="g2">${cplCard(b)}${heatCard(b, state.today)}</div>
+      ${b.leadSource === "erp"
+        ? `<div class="g3">${spendCard(b)}${qualityCard(b)}${funnelCard(b)}</div>
+      <div class="g2">${cplCard(b)}${heatCard(b, state.today)}</div>`
+        : // Without the ERP's lead status both cards would be empty: one line instead.
+          `<div class="g3">${spendCard(b)}${funnelCard(b)}${heatCard(b, state.today)}</div>
+      <section class="lr-card gx-card gx-needs" aria-label="Lead quality and cost per qualified lead"><p>${svg(I.info, 16)}Lead quality and cost per qualified lead need the ERP lead status. Shown on the live site.</p></section>`}
       <div class="g3">${devicesCard(b)}${citiesCard(b)}${pagesCard(b)}</div>
       <div class="g2">${termsCard(b)}${campaignsCard(b, q)}</div>
       ${details(b, d, q, state.erp)}
@@ -1124,6 +1135,11 @@ const GX_CSS = `
 .gx-take[data-tone="good"] { background: rgba(18,161,107,.1); color: #0A5C3D; }
 .gx-take[data-tone="bad"] { background: rgba(214,69,69,.09); color: #8A2323; }
 .gx-take[data-tone="info"] { background: rgba(47,91,211,.08); color: #1E3F99; }
+.gx-take.gx-take--plain { padding: 0; background: none; }
+.gx-nowrap { white-space: nowrap; flex: none; }
+.gx-needs { padding: 14px 20px; }
+.gx-needs p { display: flex; align-items: center; gap: 8px; font: 600 13.5px/1.45 var(--font); color: var(--text); }
+.gx-needs svg { flex: none; }
 /* Heatmap */
 .gx-heat { display: grid; grid-template-columns: 48px repeat(7, minmax(0, 1fr)); gap: 6px; align-items: center; }
 .gx-heat__d { text-align: center; }

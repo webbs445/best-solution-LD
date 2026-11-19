@@ -1,5 +1,5 @@
 // Nothing sticks out of its card on the Google Ads view: at 375, 1024, 1280 and 1440 px wide, every visible element in
-// the KPI cards, the header, the chart card and Needs attention must sit inside that card's box, and no KPI number is
+// the KPI cards, the header, the chart card, Needs attention, the leads heatmap, the no-ERP note and search terms must sit inside that card's box, and no KPI number is
 // cut short. Same local setup as
 // google-ads-view.mjs (README "Google Ads view"); starts the mock itself, blocks every outside host.
 //   node scripts/qa/google-ads-boxes.mjs [base URL] [screenshot folder]
@@ -16,7 +16,7 @@ if (!USER || !PASS) throw new Error("Set ADS_EXPORT_USER and ADS_EXPORT_PASSWORD
 
 const WIDTHS = [375, 1024, 1280, 1440];
 const PAGES = ["view=google-ads", "view=google-ads&range=30d", "view=google-ads&range=today"];
-const CARDS = [".gx-kpi", ".gx-head", "#gx-chart", ".gx-attn"];
+const CARDS = [".gx-kpi", ".gx-head", "#gx-chart", ".gx-attn", "#gx-heat", ".gx-needs", "#gx-terms"];
 
 const server = await startMock();
 const browser = await launch();
