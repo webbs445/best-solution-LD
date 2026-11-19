@@ -4,5 +4,5 @@ export const dynamic = "force-dynamic";
 export function GET(request: Request) {
   const q = new URL(request.url).searchParams;
   q.set("view", "landings");
-  return new Response(null, { status: 308, headers: { Location: `/ads-report?${q}`, "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } });
+  return new Response(null, { status: 308, headers: { Location: `/ads-report?${q}`, "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow, noarchive" } });
 }

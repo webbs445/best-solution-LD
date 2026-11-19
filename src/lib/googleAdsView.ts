@@ -20,7 +20,7 @@ import { rateLimit } from "@/lib/rateLimit";
   lead carries only its click's device, city and keyword on to the page.
 */
 
-const PRIVATE = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };
+const PRIVATE = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow, noarchive" };
 export const REFRESH_EVERY_MS = 2 * 60_000;
 const ERP_CACHE_MS = 5 * 60_000;
 

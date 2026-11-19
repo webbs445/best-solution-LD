@@ -10,7 +10,7 @@ import { googleAdsResponse } from "@/lib/googleAdsView";
    password (lib/adsAuth) and stays signed in for 30 days on that browser. */
 export const dynamic = "force-dynamic";
 
-const PRIVATE = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };
+const PRIVATE = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow, noarchive" };
 const html = (body: string, status = 200, extra: Record<string, string> = {}) =>
   new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", ...PRIVATE, ...extra } });
 /* After signing in or out, back to the view the form was on (from the Referer; only the known view names). */

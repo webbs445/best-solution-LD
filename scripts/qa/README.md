@@ -60,6 +60,7 @@ $env:ADS_EXPORT_USER="qa"; $env:ADS_EXPORT_PASSWORD="qa-local-only"
 npx next start -p 3010
 node scripts/qa/google-ads-view.mjs http://localhost:3010 qa-out   # starts the mock itself; same ADS_EXPORT_* set
 node scripts/qa/google-ads-boxes.mjs http://localhost:3010 qa-out  # nothing outside its card at 375/1024/1280/1440
+node scripts/qa/robots-headers.mjs http://localhost:3010           # report routes noindex, nofollow, noarchive; landing pages noindex only
 ```
 
 Without the `ERPNEXT_*` values the view runs on Google conversions, as on Vercel Preview; run the box check that way too.
