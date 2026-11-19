@@ -13,6 +13,7 @@ import {
   inPeriod,
   keywordRows,
   lostBudget,
+  nextRun,
   imprShare,
   num,
   pickPeriod,
@@ -103,9 +104,11 @@ describe("pickPeriod", () => {
   });
   it("last 30 days, this month, last month", () => {
     expect(pickPeriod(q("range=30d"), TODAY, "")).toMatchObject({ from: "2026-10-19", to: "2026-11-17", prevFrom: "2026-09-19", prevTo: "2026-10-18" });
-    expect(pickPeriod(q("range=month"), TODAY, "")).toMatchObject({ from: "2026-11-01", to: "2026-11-18", prevFrom: "2026-10-14", prevTo: "2026-10-31" });
-    expect(pickPeriod(q("range=lastmonth"), TODAY, "")).toMatchObject({ from: "2026-10-01", to: "2026-10-31", prevFrom: "2026-08-31", prevTo: "2026-09-30" });
+    expect(pickPeriod(q("range=month"), TODAY, "")).toMatchObject({ from: "2026-11-01", to: "2026-11-18", prevFrom: "2026-10-01", prevTo: "2026-10-18" });
+    expect(pickPeriod(q("range=lastmonth"), TODAY, "")).toMatchObject({ from: "2026-10-01", to: "2026-10-31", prevFrom: "2026-09-01", prevTo: "2026-09-30" });
     expect(pickPeriod(q("range=lastmonth"), "2026-03-10", "")).toMatchObject({ from: "2026-02-01", to: "2026-02-28" });
+    // This month to date on 31 Mar: 1-28 Feb (February is shorter), never into March.
+    expect(pickPeriod(q("range=month"), "2026-03-31", "")).toMatchObject({ prevFrom: "2026-02-01", prevTo: "2026-02-28" });
   });
   it("today, since start and custom", () => {
     expect(pickPeriod(q("range=today"), TODAY, "")).toMatchObject({ from: TODAY, to: TODAY, prevFrom: "2026-11-17" });
@@ -140,6 +143,16 @@ describe("campaign table: status now from Setup_Campaigns", () => {
   it("campaign filter keeps one campaign", () => {
     const one = campaignRows(inPeriod(rowsOf(CAMPAIGNS_DAILY), "2026-11-10", "2026-11-17", "New campaign"), rowsOf(SETUP_CAMPAIGNS), "New campaign");
     expect(one.map((r) => r.id)).toEqual(["444"]);
+  });
+  it("A2 every campaign in Setup_Campaigns is listed, paused or removed and without spend too, with its channel", () => {
+    const rows = campaignRows([], rowsOf(SETUP_CAMPAIGNS));
+    // No spend anywhere: name order.
+    expect(rows.map((r) => [r.id, r.status, r.inactive, r.channel, r.t.cost])).toEqual([
+      ["222", "PAUSED", true, "demandgen", null],
+      ["444", "ENABLED", false, "search", null],
+      ["333", "REMOVED", true, "search", null],
+      ["111", "ENABLED", false, "search", null],
+    ]);
   });
 });
 
@@ -182,11 +195,32 @@ describe("Spend, no conv. flag and keyword join", () => {
 });
 
 describe("status, alerts, freshness, history", () => {
-  it("alerts: Checked at in row 1, headers in row 2; none means all clear", () => {
-    const a = alertsOf([["Checked at 2026-11-18 13:00"], ["Type", "Where", "Detail"], ["Budget", "Search · Free Zone", "Limited by budget"]]);
-    expect(a.checkedAt).toBe("Checked at 2026-11-18 13:00");
-    expect(a.items).toEqual([{ type: "Budget", where: "Search · Free Zone", detail: "Limited by budget" }]);
-    expect(alertsOf([["Checked at"], ["Type", "Where", "Detail"]]).items).toEqual([]);
+  it("A1 alerts: the real Alerts tab (timestamp in header col A, Type/Where/Detail in cols B-D), no header leak", () => {
+    const a = alertsOf([
+      ["Checked at 2026-11-18 13:20", "Type", "Where", "Detail"],
+      ["", "No leads", "fz_search_061026", "AED 257.89 spent, 97 clicks, 0 conversions in the last 7 days"],
+      ["", "No leads", "BS_DemandGen_Competitor_061126", "AED 215.99 spent, 3140 clicks, 0 conversions in the last 7 days"],
+      ["", "CPC change", "fz_search_061026", "Avg CPC AED 1.36 yesterday vs AED 3.49 the 7 days before"],
+      ["", "Tracking check", "All campaigns", "1421 clicks and 0 conversions in the last 3 days: check the lead form tracking"],
+    ]);
+    expect(a.checkedAt).toBe("2026-11-18 13:20");
+    expect(a.items).toEqual([
+      { type: "No leads", where: "fz_search_061026", detail: "AED 257.89 spent, 97 clicks, 0 conversions in the last 7 days" },
+      { type: "No leads", where: "BS_DemandGen_Competitor_061126", detail: "AED 215.99 spent, 3140 clicks, 0 conversions in the last 7 days" },
+      { type: "CPC change", where: "fz_search_061026", detail: "Avg CPC AED 1.36 yesterday vs AED 3.49 the 7 days before" },
+      { type: "Tracking check", where: "All campaigns", detail: "1421 clicks and 0 conversions in the last 3 days: check the lead form tracking" },
+    ]);
+    expect(JSON.stringify(a)).not.toContain("Type");
+  });
+  it("A1 alerts: the script's 'All clear' row is not an alert", () => {
+    expect(alertsOf([["Checked at 2026-11-18 06:00", "Type", "Where", "Detail"], ["", "All clear", "", "No problems found"]])).toEqual({ checkedAt: "2026-11-18 06:00", items: [] });
+    expect(alertsOf(undefined)).toEqual({ checkedAt: "", items: [] });
+  });
+  it("next run after an update (06:00, 13:00, 20:00 Dubai)", () => {
+    expect(nextRun("2026-11-18 13:20")).toBe("20:00");
+    expect(nextRun("2026-11-18 06:05")).toBe("13:00");
+    expect(nextRun("2026-11-18 20:10")).toBe("06:00");
+    expect(nextRun("not a time")).toBe("");
   });
   it("freshness: under 9 h good, 9-24 h warn, over 24 h bad", () => {
     const now = stampMs("2026-11-18 20:00")!;

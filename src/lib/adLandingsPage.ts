@@ -128,10 +128,11 @@ const viewHref = (q: URLSearchParams, view: string) => {
 };
 
 /** The dashboard's views: [view, label, icon]. */
-const NAV = [["google", "Google leads", "bars"], ["erp", "ERP status", "db"], ["landings", "Ad landings", "layers"], ["google-ads", "Google Ads", "link"]] as const;
+const NAV = [["erp", "ERP status", "db"], ["landings", "Ad landings", "layers"], ["google-ads", "Google Ads", "link"]] as const;
 type View = (typeof NAV)[number][0];
 
-export function topbar(preview: boolean, updated: string, q: URLSearchParams, current: View = "landings") {
+/** `fresh`: show the data-freshness badges (the Google Ads view has its own, so it passes false). */
+export function topbar(preview: boolean, updated: string, q: URLSearchParams, current: View = "landings", fresh = true) {
   const badge = preview
     ? `<span class="alx-env" data-env="preview">Preview test data, not the live site</span>`
     : `<span class="alx-env" data-env="live"><span class="lr-dot" aria-hidden="true"></span>Live data</span>`;
@@ -139,11 +140,11 @@ export function topbar(preview: boolean, updated: string, q: URLSearchParams, cu
     <div class="lr-topbar__in">
       <a class="lr-brand" href="${esc(viewHref(q, current))}" aria-label="Lead Insights, Best Solution">
         <img class="lr-brand__mark" src="/lead-insights/icon-192.png" alt="" width="32" height="32">
-        <span class="lr-brand__text"><span class="lr-brand__name">Lead Insights</span><span class="lr-brand__by">Best Solution</span><span class="lr-brand__live" aria-hidden="true">${preview ? "Preview test data" : `<span class="lr-dot"></span>Live data · ${esc(updated)}`}</span></span>
+        <span class="lr-brand__text"><span class="lr-brand__name">Lead Insights</span><span class="lr-brand__by">Best Solution</span>${fresh ? `<span class="lr-brand__live" aria-hidden="true">${preview ? "Preview test data" : `<span class="lr-dot"></span>Live data · ${esc(updated)}`}</span>` : ""}</span>
       </a>
       <button type="button" class="lr-menu-btn" popovertarget="lr-menu" aria-label="Menu">${icon("more")}</button>
       <div class="lr-menu" id="lr-menu" popover>
-        <p class="lr-menu__state">${preview ? "Preview test data, not the live site" : `<span class="lr-dot" aria-hidden="true"></span>Live data · updated ${esc(updated)}`}</p>
+        ${fresh ? `<p class="lr-menu__state">${preview ? "Preview test data, not the live site" : `<span class="lr-dot" aria-hidden="true"></span>Live data · updated ${esc(updated)}`}</p>` : ""}
         <form method="post" action="/ads-report"><input type="hidden" name="action" value="signout">
           <button type="submit" class="lr-menu__item" data-tone="out">${icon("signout")}Sign out</button></form>
       </div>
@@ -151,10 +152,10 @@ export function topbar(preview: boolean, updated: string, q: URLSearchParams, cu
         <p class="lr-nav__label">Dashboards</p>
         ${NAV.map(([v, label, ic]) => `<a class="lr-nav__item" href="${esc(viewHref(q, v))}"${v === current ? ' aria-current="page"' : ""}>${icon(ic)}<span>${label}</span></a>`).join("")}
       </nav>
-      <div class="lr-fresh" role="status" aria-label="Data source">
+      ${fresh ? `<div class="lr-fresh" role="status" aria-label="Data source">
         <span class="lr-fresh__item">${badge}</span>
         <span class="lr-fresh__item">Updated ${esc(updated)} (UAE)</span>
-      </div>
+      </div>` : ""}
       <form class="lr-signout" method="post" action="/ads-report">
         <input type="hidden" name="action" value="signout">
         <button class="lr-btn-ghost" type="submit" aria-label="Sign out">${icon("signout")}<span class="lr-signout__label">Sign out</span></button>

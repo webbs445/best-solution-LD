@@ -67,14 +67,25 @@ function googleSetup() {
 export const HIDDEN_STATUS = "Contacted by sales";
 
 /**
+ * The Google Ads leads since REPORT_START: the ERP's, plus the ones the lead log sheet has but the ERP hides (status
+ * HIDDEN_STATUS). Shared by the ERP status view and the Google Ads view, so both count leads the same way.
+ */
+export function googleAdsLeads(all: ReportLead[] | null, sheet: SheetLead[] | null): (ReportLead & { hidden?: boolean })[] {
+  const seen = new Set(all?.map((l) => l.name));
+  const hidden = all ? (sheet ?? []).filter((l) => !seen.has(l.name)).map((l) => ({ ...l, status: HIDDEN_STATUS, hidden: true })) : [];
+  return [...(all ?? []), ...hidden].filter((l) => l.creation >= REPORT_START && isGoogleAdsLead(l));
+}
+
+/** Qualified, as the ERP status view counts it: every lead except Junk, Duplicate and Lost (won or in progress). */
+export const isQualifiedStatus = (status: string) => ["won", "progress"].includes(groupOf(status));
+
+/**
  * The page's data object. `all` is the ERP's leads (null when it did not answer); `sheet` is the Google Ads lead log,
  * which adds the leads the ERP no longer shows.
  */
 export function adsReportData(all: ReportLead[] | null, sheet: SheetLead[] | null, q: URLSearchParams, now = uaeNow()) {
   const range = reportRange(q, now.slice(0, 10));
-  const seen = new Set(all?.map((l) => l.name));
-  const hidden = all ? (sheet ?? []).filter((l) => !seen.has(l.name)).map((l) => ({ ...l, status: HIDDEN_STATUS, hidden: true })) : [];
-  const google = [...(all ?? []), ...hidden].filter((l) => l.creation >= REPORT_START && isGoogleAdsLead(l));
+  const google = googleAdsLeads(all, sheet);
   const inRange = (l: ReportLead, from: string, to: string) => l.creation.slice(0, 10) >= from && l.creation.slice(0, 10) <= to;
   const prev = range.prevFrom ? google.filter((l) => inRange(l, range.prevFrom!, range.prevTo!)) : null;
   const count = (g: string[]) => prev && prev.filter((l) => g.includes(groupOf(l.status))).length;

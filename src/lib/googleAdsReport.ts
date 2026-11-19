@@ -79,7 +79,7 @@ export const daysIn = (from: string, to: string) => Math.round((Date.parse(to) -
 const isDate = (v: string | null): v is string => !!v && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v));
 
 export const PERIODS = [
-  ["today", "Today"], ["yesterday", "Yesterday"], ["7d", "Last 7 days (to yesterday)"], ["30d", "Last 30 days (to yesterday)"],
+  ["today", "Today"], ["yesterday", "Yesterday"], ["7d", "7 days"], ["30d", "30 days"],
   ["month", "This month"], ["lastmonth", "Last month"], ["since", "Since start"],
 ] as const;
 export type PeriodKey = (typeof PERIODS)[number][0] | "custom";
@@ -120,6 +120,14 @@ export function pickPeriod(q: URLSearchParams, today: string, start: string): Pe
     else if (qt > today) error = "The end date can't be in the future.";
     else if (qt < qf) error = "The end date must be on or after the start date.";
     else [key, from, to] = ["custom", qf, qt];
+  }
+  // This month and last month compare with whole calendar months (this month to date: the same days of last month);
+  // every other period with the same number of days just before it.
+  if (key === "month" || key === "lastmonth") {
+    const pFrom = `${addDays(from, -1).slice(0, 7)}-01`;
+    const pEnd = addDays(from, -1);
+    const pTo = key === "lastmonth" ? pEnd : [addDays(pFrom, daysIn(from, to) - 1), pEnd].sort()[0];
+    return { key, from, to, prevFrom: pFrom, prevTo: pTo, error };
   }
   const prevTo = addDays(from, -1);
   return { key, from, to, prevFrom: addDays(from, -daysIn(from, to)), prevTo, error };
@@ -213,19 +221,25 @@ export interface CampaignRow {
   t: Totals;
   /** Not enabled now: shown greyed. */
   inactive: boolean;
+  channel: Channel;
 }
 
 export const isEnabled = (status: string) => /^enabled$/i.test(status.trim());
 
+/** Search, Demand Gen, or other (Performance Max, Display, …: only in "All"). */
+export type Channel = "search" | "demandgen" | "other";
+export const channelOf = (type: string): Channel => (/search/i.test(type) ? "search" : /demand/i.test(type) ? "demandgen" : "other");
+export const CHANNEL_LABEL: Record<Channel | "all", string> = { all: "All", search: "Search", demandgen: "Demand Gen", other: "Other" };
+
 /**
- * One row per campaign with activity in `perf` (already cut to the period), plus every campaign enabled now, joined
- * with Setup_Campaigns by Campaign ID (or name). Cost high to low.
+ * Every campaign in Setup_Campaigns (enabled, paused or removed, with or without spend), plus any campaign that only
+ * appears in `perf` (already cut to the period), with its period totals; joined by Campaign ID (or name). Cost high to low.
  */
 export function campaignRows(perf: Row[], setup: Row[], campaign = ""): CampaignRow[] {
   const keyOf = (r: Row) => str(r, "Campaign ID") || str(r, "Campaign");
   const setupBy = new Map(setup.flatMap((r) => [[keyOf(r), r], [`name:${str(r, "Campaign")}`, r]] as [string, Row][]));
   const groups = groupBy(perf, keyOf);
-  for (const s of setup) if (isEnabled(str(s, "Campaign status")) && !groups.has(keyOf(s)) && (!campaign || str(s, "Campaign") === campaign)) groups.set(keyOf(s), []);
+  for (const s of setup) if (!groups.has(keyOf(s)) && (!campaign || str(s, "Campaign") === campaign)) groups.set(keyOf(s), []);
   return [...groups]
     .map(([id, rows]) => {
       const last = rows.length ? newest(rows) : undefined;
@@ -241,9 +255,10 @@ export function campaignRows(perf: Row[], setup: Row[], campaign = ""): Campaign
         maxCpc: num(s, "Max CPC cap (AED)") || null,
         t: totals(rows),
         inactive: !isEnabled(status),
+        channel: channelOf(str(s, "Campaign type") || str(last, "Campaign type")),
       };
     })
-    .sort(byCostDesc);
+    .sort((a, b) => byCostDesc(a, b) || a.name.localeCompare(b.name));
 }
 
 /* ---------- Keywords and search terms ---------- */
@@ -266,6 +281,7 @@ export interface KeywordRow {
   expCtr: string;
   adRelevance: string;
   landingPage: string;
+  finalUrl: string;
   flag: boolean;
 }
 
@@ -286,6 +302,7 @@ export function keywordRows(perf: Row[], setup: Row[]): KeywordRow[] {
         expCtr: str(s, "Expected CTR"),
         adRelevance: str(s, "Ad relevance"),
         landingPage: str(s, "Landing page experience"),
+        finalUrl: str(s, "Keyword final URL"),
         flag: spendNoConv(t),
       };
     })
@@ -366,20 +383,32 @@ export function segmentRows(rows: Row[], column: string): NamedRow[] {
 export const statusOf = (values: Cell[][] | undefined) => new Map((values ?? []).map((r) => [String(r[0] ?? "").trim().toLowerCase(), r[1] ?? ""] as const));
 
 export interface Alerts {
+  /** "YYYY-MM-DD HH:MM" (Dubai), or "" when the tab has no "Checked at". */
   checkedAt: string;
   items: { type: string; where: string; detail: string }[];
 }
 
-/** The Alerts tab: "Checked at …" in A1 (the time may be in B1), headers in row 2. */
+/**
+ * The Alerts tab, by position: header row ["Checked at <time>", "Type", "Where", "Detail"] (the time in A1), then one
+ * row per alert ["", type, where, detail]. "All clear" is the script's "nothing found" row, not an alert.
+ */
 export function alertsOf(values: Cell[][] | undefined): Alerts {
   const v = values ?? [];
   const a1 = String(v[0]?.[0] ?? "").trim();
-  const hasCheck = /^checked at/i.test(a1);
-  const checkedAt = hasCheck ? (v[0]?.[1] != null && v[0][1] !== "" ? `${a1} ${stampOf(v[0][1])}`.trim() : a1) : "";
-  const items = rowsOf(v, hasCheck ? 1 : 0)
-    .map((r) => ({ type: str(r, "Type"), where: str(r, "Where"), detail: str(r, "Detail") }))
-    .filter((a) => a.type || a.where || a.detail);
+  const checkedAt = /^checked at\b/i.test(a1) ? stampOf(a1.replace(/^checked at\s*/i, "")) : "";
+  const cell = (r: Cell[], i: number) => String(r[i] ?? "").trim();
+  const items = v
+    .slice(1)
+    .map((r) => ({ type: cell(r, 1), where: cell(r, 2), detail: cell(r, 3) }))
+    .filter((a) => (a.type || a.where || a.detail) && !/^all clear$/i.test(a.type));
   return { checkedAt, items };
+}
+
+/** The script runs at 06:00, 13:00 and 20:00 Dubai: the next run after a "YYYY-MM-DD HH:MM" update, as "HH:00". */
+export function nextRun(updated: string): string {
+  const h = Number(updated.slice(11, 13));
+  if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(updated)) return "";
+  return `${String([6, 13, 20].find((r) => r > h) ?? 6).padStart(2, "0")}:00`;
 }
 
 export type Fresh = "good" | "warn" | "bad" | "unknown";
