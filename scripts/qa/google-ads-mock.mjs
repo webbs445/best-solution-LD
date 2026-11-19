@@ -31,6 +31,10 @@ export function startMock(port = MOCK_PORT) {
       const since = (JSON.parse(url.searchParams.get("filters") || "[]").find((f) => f[0] === "creation") || [])[2] || "";
       return json(res, { data: erpLeads().filter((l) => l.creation >= since) });
     }
+    // The Google Ads lead log (Apps Script web app): every Google lead's tracking fields, no status.
+    if (req.method === "GET" && url.pathname === "/leadlog") {
+      return json(res, { ok: true, leads: erpLeads().filter((l) => l.custom_platform === "google").map((l) => Object.fromEntries(Object.entries(l).filter(([k]) => k !== "status"))) });
+    }
     if (req.method === "POST" && url.pathname === "/kv/pipeline") {
       stats.kvCalls++;
       const cmds = JSON.parse((await read(req)) || "[]");

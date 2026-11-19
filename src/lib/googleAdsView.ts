@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { dubaiDate, kvConfigured, readRaw } from "@/lib/adLandings";
 import { TEST_NOTES } from "@/lib/adLandingsNotes";
 import { COUNT_START, datesBetween, excludeTests, parseDay, type Entry } from "@/lib/adLandingsReport";
-import { REPORT_START, googleAdsLeads, isQualifiedStatus, isWonStatus } from "@/lib/adsReport";
+import { REPORT_START, googleAdsLeads, isGoogleAdsLead, isQualifiedStatus, isWonStatus } from "@/lib/adsReport";
 import { readAdsSheet, type SheetLead } from "@/lib/adsSheet";
 import { listLeads, type ReportLead } from "@/lib/erp";
 import type { ErpLead } from "@/lib/googleAdsInsights";
@@ -25,7 +25,9 @@ export const REFRESH_EVERY_MS = 2 * 60_000;
 const ERP_CACHE_MS = 5 * 60_000;
 
 type Schedule = (task: () => Promise<unknown>) => void;
-interface ErpRaw { leads: (ErpLead & { clid: string })[] | null; at: number }
+/** Where the leads came from: the ERP (with status), or the lead log sheet (no status) when the ERP isn't reachable. */
+export type LeadSource = "erp" | "sheet";
+interface ErpRaw { leads: (ErpLead & { clid: string })[] | null; at: number; source: LeadSource | null }
 
 // ponytail: per-instance memory copy of the ERP's Google leads (stale-while-revalidate, like the Sheet). A lead shows
 // here up to 5 minutes late; the ERP status view stays live.
@@ -45,11 +47,22 @@ export const toErpLeads = (all: ReportLead[] | null, sheet: SheetLead[] | null):
       }))
     : null;
 
+/** The lead log's Google Ads leads since REPORT_START, for when the ERP isn't reachable: no status, so not "qualified". */
+export const fromLeadLog = (sheet: SheetLead[] | null): ErpRaw["leads"] =>
+  // [] is also what an unset lead log gives: nothing to show, so Google conversions stand in instead.
+  sheet?.length
+    ? sheet
+        .filter((l) => l.creation >= REPORT_START && isGoogleAdsLead({ ...l, status: "" }))
+        .map((l) => ({ created: l.creation.slice(0, 16), campaign: l.custom_campaign ?? "", keyword: l.custom_ad_set_name ?? "", qualified: false, won: false, clid: l.custom_clid?.trim() ?? "" }))
+    : null;
+
 function readErp(): Promise<ErpRaw> {
   erpInflight ??= Promise.all([listLeads(REPORT_START), readAdsSheet()])
     .then(([all, sheet]): ErpRaw => {
-      const leads = toErpLeads(all, sheet);
-      const r = { leads, at: Date.now() };
+      // No ERP here (e.g. a preview without its keys): the lead log sheet still has every Google Ads lead, without status.
+      const fromErp = toErpLeads(all, sheet);
+      const leads = fromErp ?? fromLeadLog(sheet);
+      const r: ErpRaw = { leads, at: Date.now(), source: fromErp ? "erp" : leads ? "sheet" : null };
       // A failed read is not kept: the next load asks the ERP again.
       if (leads) erpLast = r;
       return r;
@@ -113,6 +126,7 @@ export async function googleAdsResponse(query: URLSearchParams): Promise<Respons
           stale: read.kind === "stale",
           note: query.get("note") ?? "",
           erp: erp.leads ? joinClicks(erp.leads, read.data.clicks) : null,
+          leadSource: erp.source,
           joinReady: read.data.clicks != null,
           landings: land,
         })

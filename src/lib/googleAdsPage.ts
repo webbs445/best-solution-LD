@@ -210,6 +210,9 @@ function gauge(v: number, target: number) {
 /* ---------- 4. Spend and leads, last 30 days ---------- */
 
 const KIND_WORD = { Status: "status changed", Budget: "budget changed", Bidding: "bidding changed" } as const;
+/** How lead numbers are named, by where they come from. */
+const LEADS_WORD = { erp: "Leads (ERP)", sheet: "Leads (lead log)", google: "Google conversions" } as const;
+const SOURCE_WORD = { erp: "ERP", sheet: "lead log", google: "Google conversions" } as const;
 
 /** Round steps (1, 2, 2.5 or 5 × 10ⁿ): three gridlines above 0, the top about 15% above the highest day. */
 function threeTicks(max: number) {
@@ -295,9 +298,9 @@ function chart(b: Blocks, today: string, q: URLSearchParams) {
     </div>
     <div class="gx-foot4">
       <div><p class="cap">30-day spend</p><p class="num">${esc(aed0(f.spend))}</p></div>
-      <div><p class="cap">Leads (ERP)</p><p class="num">${esc(f.leads == null ? DASH : n0(f.leads))}</p></div>
-      <div><p class="cap">Cost per lead</p><p class="num">${esc(f.leads ? aed0(f.spend / f.leads) : f.leads === 0 ? "No leads" : DASH)}</p></div>
-      <div><p class="cap">Last lead</p><p class="num"${late ? ' data-tone="bad"' : ""}>${esc(f.lastLeadDays == null ? DASH : f.lastLeadDays === 0 ? "today" : `${plural(f.lastLeadDays, "day")} ago`)}</p></div>
+      <div><p class="cap">${LEADS_WORD[b.leadSource]}</p><p class="num">${esc(f.leads == null ? DASH : n0(f.leads))}</p></div>
+      <div><p class="cap">${b.leadSource === "google" ? "Cost per conversion" : "Cost per lead"}</p><p class="num">${esc(f.leads ? aed0(f.spend / f.leads) : f.leads === 0 ? "No leads" : DASH)}</p></div>
+      <div><p class="cap">${b.leadSource === "google" ? "Last conversion" : "Last lead"}</p><p class="num"${late ? ' data-tone="bad"' : ""}>${esc(f.lastLeadDays == null ? DASH : f.lastLeadDays === 0 ? "today" : `${plural(f.lastLeadDays, "day")} ago`)}</p></div>
     </div>
     ${c.changeCount ? `<a class="gx-chlink" href="${esc(detailsHref(q, "history"))}">${plural(c.changeCount, "change")} in 30 days →</a>` : ""}`,
     `<span class="gx-legend">${legend}</span>`,
@@ -344,7 +347,7 @@ function spendCard(b: Blocks) {
   const s = b.spend;
   const label = s.parts.map((p) => `${p.label} ${pct(p.share)}`).join(", ");
   const body = s.total
-    ? `<div class="gx-dn">${donut(s.parts.map((p) => ({ v: p.cost, c: p.color })), `Spend by channel: ${label}. Total ${aed0(s.total)}`, `<p class="num gx-dn__v">${esc(aed0(s.total))}</p><p class="cap">total</p>`)}
+    ? `<div class="gx-dn">${donut(s.parts.map((p) => ({ v: p.cost, c: p.color })), `Spend by channel: ${label}. Total ${aed0(s.total)}`, `<p class="num gx-dn__v${aed0(s.total).length > 7 ? " gx-dn__v--sm" : ""}">${esc(aed0(s.total))}</p><p class="cap">total</p>`)}
         <ul class="gx-dn__l">${s.parts.map((p) => `<li><span class="leg"><span class="sw" style="background:${p.color}"></span>${esc(p.label)}</span><p class="gx-dn__n">${esc(aed0(p.cost))} <span class="cap">${esc(pct(p.share))}</span></p><p class="cap">${esc(plural(p.clicks, "click"))} · ${p.leads == null ? `${DASH} leads` : esc(plural(p.leads, "lead"))}</p></li>`).join("")}</ul></div>`
     : none("No spend in this period.");
   return card("gx-spend", "Spend by channel", span(b.period.from, b.period.to), body);
@@ -426,7 +429,8 @@ function cplCard(b: Blocks) {
 
 const SHADES = ["#F1ECE6", "#C9EEDB", "#6FD3A5", "#12A16B"];
 function heatCard(b: Blocks, today: string) {
-  if (!b.heat) return card("gx-heat", "Leads per day", "ERP, last 6 weeks", none(b.erpReason));
+  const heatTitle = b.leadSource === "google" ? "Conversions per day" : "Leads per day", heatSub = `${SOURCE_WORD[b.leadSource]}, last 6 weeks`;
+  if (!b.heat) return card("gx-heat", heatTitle, heatSub, none(b.erpReason));
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const cells = b.heat
     .map((w) => `<span class="cap gx-heat__w">${esc(dayMonth(w[0].day))}</span>${w
@@ -443,8 +447,8 @@ function heatCard(b: Blocks, today: string) {
   const take = !last ? "No form leads since counting started." : gap! > THRESHOLDS.bannerLeadDays ? `No form leads since ${dayMonth(last)} (${gap} days).` : `${plural(total, "lead")} in 6 weeks; the last on ${dayMonth(last)}.`;
   return card(
     "gx-heat",
-    "Leads per day",
-    "ERP, last 6 weeks",
+    heatTitle,
+    heatSub,
     `<div class="gx-heat" role="img" aria-label="${esc(`Google Ads leads per day over 6 weeks from ${dayMonth(b.heatStart)}: ${total} in all. ${take}`)}"><span></span>${DAYS.map((d) => `<span class="cap gx-heat__d">${d}</span>`).join("")}${cells}</div>
      <p class="gx-take" data-tone="${gap != null && gap > THRESHOLDS.bannerLeadDays ? "bad" : "neu"}">${esc(take)}</p>`,
     `<span class="gx-heat__lg"><span class="cap">0</span>${SHADES.map((s) => `<span class="sw" style="background:${s}"></span>`).join("")}<span class="cap">3+</span></span>`,
@@ -825,7 +829,7 @@ function diagnosisHtml(d: Diagnosis) {
 
 export type GoogleAdsState =
   | { kind: "off" | "error"; query: URLSearchParams; today: string; diagnosis: Diagnosis }
-  | { kind: "ok"; query: URLSearchParams; today: string; data: SheetData; stale: boolean; note: string; erp: ErpLead[] | null; joinReady: boolean; landings: Entry[] | null };
+  | { kind: "ok"; query: URLSearchParams; today: string; data: SheetData; stale: boolean; note: string; erp: ErpLead[] | null; leadSource?: "erp" | "sheet" | null; joinReady: boolean; landings: Entry[] | null };
 
 const NOTES: Record<string, string> = { done: "Refreshed from the Sheet just now.", wait: "Refresh can be used once every 2 minutes. Showing the latest copy." };
 const minutesAgo = (ms: number) => {
@@ -862,7 +866,14 @@ export function googleAdsHtml(state: GoogleAdsState): string {
           : fr === "bad"
             ? { text: `Report is not updating · last update ${at || "unknown"}`, tone: "bad" }
             : { text: "Update time not in the Sheet", tone: "warn" };
-    const b = blocks({ data: d, erp: state.erp, joinReady: state.joinReady, landings: state.landings, q, today: state.today });
+    const b = blocks({ data: d, erp: state.erp, leadSource: state.leadSource, joinReady: state.joinReady, landings: state.landings, q, today: state.today });
+    // Where lead numbers come from, when it isn't the ERP.
+    const source =
+      b.leadSource === "sheet"
+        ? `<p class="gx-note" role="status">${svg(I.info, 16)}ERP not connected here: leads come from the lead log sheet. It has no lead status, so qualified leads and cost per qualified lead show –.</p>`
+        : b.leadSource === "google"
+          ? `<p class="gx-note" role="status">${svg(I.info, 16)}ERP and lead log not connected here: lead numbers are Google Ads conversions (Google may update them for several days).</p>`
+          : "";
     const note =
       state.stale || state.note === "failed"
         ? `<p class="gx-note" data-tone="bad" role="alert">${svg(I.alert, 16, ' stroke-width="2.6"')}Data could not be refreshed. Showing the copy read ${esc(minutesAgo(d.fetchedAt))}.</p>`
@@ -877,6 +888,7 @@ export function googleAdsHtml(state: GoogleAdsState): string {
     const dataFrom = sv("data from");
     body = `${head(b, q, state.today)}
       ${note}
+      ${source}
       ${banner(b)}
       ${kpis(b)}
       <div class="g84">${chart(b, state.today, q)}${attentionCard(b, q)}</div>
@@ -1073,6 +1085,8 @@ const GX_CSS = `
 .gx-donut__c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); }
 .gx-dn__v { font-size: 20px; color: var(--text); }
 .gx-dn__v--big { font-size: 26px; }
+/* "AED 1,354" and longer: smaller, so it stays inside the ring. */
+.gx-dn__v--sm { font-size: 16px; }
 .gx-dn__l { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 .gx-dn__n { font: 700 16px/1.3 var(--font); margin-top: 2px; font-variant-numeric: tabular-nums; }
 .gx-dn__l--rows { gap: 10px; font-size: 14px; }

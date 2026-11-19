@@ -46,6 +46,11 @@ const daysAgo = (today: string, d: string) => daysIn(d, today) - 1;
 
 /** "all", or a campaign type ("SEARCH", "DEMAND_GEN", …). */
 export type ChannelKey = Channel | "all";
+export type LeadSource = "erp" | "sheet" | "google";
+
+/** Google conversions as stand-in leads (one per whole conversion, on its day and campaign): counts only, no status. */
+export const conversionLeads = (perf: Row[]): ErpLead[] =>
+  perf.flatMap((r) => Array.from({ length: Math.round(num(r, "Conversions") ?? 0) }, () => ({ created: `${dateOf(r.Date)} 12:00`, campaign: str(r, "Campaign"), keyword: "", qualified: false, won: false })));
 /** The campaign type a landing page belongs to (the counter counts pages, not campaigns), or null for other pages. */
 export const pageChannel = (path: string): Channel | null => {
   const lab = campaignLabel(path);
@@ -61,6 +66,8 @@ export interface BlocksInput {
   data: SheetData;
   /** Google Ads leads since REPORT_START (with their click's device/city/keyword when joined), or null: ERP not here. */
   erp: ErpLead[] | null;
+  /** Where `erp` came from: the ERP (with status) or the lead log sheet (no status). Without either: Google conversions. */
+  leadSource?: "erp" | "sheet" | null;
   /** The click join ran (the bridge returned the filtered click rows). */
   joinReady: boolean;
   /** Ad landings in the period from the counter's first day, or null: counter not here. */
@@ -162,7 +169,7 @@ export function changeDetail(m: Pick<Marker, "at" | "campaign" | "kind">, histor
 }
 
 export function blocks(i: BlocksInput) {
-  const { data: d, erp, today, q } = i;
+  const { data: d, today, q } = i;
   const T = THRESHOLDS;
   const period = pickPeriod(q, today);
   const p7 = pickPeriod(new URLSearchParams("range=7d"), today);
@@ -170,6 +177,11 @@ export function blocks(i: BlocksInput) {
   const perfAll = rowsOf(d.tabs.Perf_Campaigns_Daily);
   const setup = rowsOf(d.tabs.Setup_Campaigns);
   const changes = rowsOf(d.tabs.Change_Log_30d);
+  // Leads, best source first: the ERP (with status); the lead log sheet (no status); else Google's own conversions,
+  // one per conversion on its day and campaign. Blocks that need a lead's status (qualified, won) need the ERP.
+  const lsrc: LeadSource = i.erp ? (i.leadSource ?? "erp") : "google";
+  const erp: ErpLead[] = i.erp ?? conversionLeads(perfAll);
+  const qualOk = lsrc === "erp";
 
   // Channel of each campaign (by name), from Setup_Campaigns, else the daily rows.
   const chOf = new Map<string, Channel>();
@@ -196,8 +208,8 @@ export function blocks(i: BlocksInput) {
     const names = lower(ch);
     return leads.filter((l) => names.has(l.campaign.trim().toLowerCase()));
   };
-  const erpScoped = erp ? erpCh(erp) : null;
-  const erpReason = erp ? "" : "ERP not connected here";
+  const erpScoped = erpCh(erp);
+  const erpReason = qualOk ? "" : lsrc === "sheet" ? "Lead status needs the ERP (not connected here)" : "ERP and lead log not connected here";
   const leadsIn = (from: string, to: string, ch: ChannelKey = channel) => (erp && to >= REPORT_START ? erpIn(erpCh(erp, ch), from, to) : null);
   const costByDay = (rows: Row[]) => {
     const m = new Map<string, number>();
@@ -239,9 +251,10 @@ export function blocks(i: BlocksInput) {
   const cpcLabel = "Avg CPC · Search";
   const sinceRows = scoped(inPeriod(perfAll, REPORT_START, period.to));
   const costSince = totals(sinceRows).cost;
-  const qualSince = erpScoped ? erpIn(erpScoped, REPORT_START, period.to).filter((l) => l.qualified).length : null;
+  const qualSince = qualOk ? erpIn(erpScoped, REPORT_START, period.to).filter((l) => l.qualified).length : null;
   const cplSince = div(costSince, qualSince);
-  const qCur = qual(leadsCur), qPrev = qual(leadsPrev);
+  // Qualified counts need a lead's status: unknown (null) unless the leads come from the ERP.
+  const qCur = qualOk ? qual(leadsCur) : null, qPrev = qualOk ? qual(leadsPrev) : null;
   const cplCur = div(tCur.cost, qCur), cplPrev = div(tPrev.cost, qPrev);
   // The cap and the last bidding change of the Search campaigns in view (shown under Avg CPC).
   const searchSetup = setup.filter((r) => channelOf(str(r, "Campaign type")) === "SEARCH" && isEnabled(str(r, "Campaign status")));
@@ -249,7 +262,7 @@ export function blocks(i: BlocksInput) {
   const allMarkers = markers(changes, rowsOf(d.tabs.Setup_History));
   const lastBid = allMarkers.filter((m) => m.kind === "Bidding" && searchSetup.some((r) => str(r, "Campaign") === m.campaign)).at(-1) ?? null;
   // Cumulative cost per qualified lead since REPORT_START, at each day of the period (the sparkline).
-  const cplSpark = days.map((day) => div(totals(scoped(inPeriod(perfAll, REPORT_START, day))).cost, erpScoped ? erpIn(erpScoped, REPORT_START, day).filter((l) => l.qualified).length : null)).filter((v): v is number => v != null);
+  const cplSpark = days.map((day) => div(totals(scoped(inPeriod(perfAll, REPORT_START, day))).cost, qualOk ? erpIn(erpScoped, REPORT_START, day).filter((l) => l.qualified).length : null)).filter((v): v is number => v != null);
   // "Search 145 · Demand Gen 221" (the 3 biggest types) in All; the type's name otherwise.
   const splitSub = (money: boolean) =>
     channel === "all"
@@ -269,12 +282,12 @@ export function blocks(i: BlocksInput) {
     },
     {
       key: "leads",
-      label: "Tracked leads",
+      label: lsrc === "google" ? "Google conversions" : "Tracked leads",
       value: leadsCur?.length ?? null,
       reason: erp ? (leadsCur ? "" : "ERP leads start 12 Oct") : erpReason,
       delta: leadsCur && leadsPrev ? delta(leadsCur.length, leadsPrev.length, false) : null,
       spark: days.map((day) => leadsCur?.filter((l) => l.created.slice(0, 10) === day).length ?? 0),
-      sub: lastLead ? `last lead ${dayMonth(lastLead)}` : erp ? "no lead since 12 Oct" : "",
+      sub: `${lastLead ? `last ${lsrc === "google" ? "conversion" : "lead"} ${dayMonth(lastLead)}` : `none since ${dayMonth(REPORT_START)}`}${lsrc === "sheet" ? " · lead log" : ""}`,
       money: false,
     },
     {
@@ -282,7 +295,7 @@ export function blocks(i: BlocksInput) {
       label: "Cost / qualified",
       value: qCur ? cplCur : null,
       text: qCur === 0 ? "No leads" : undefined,
-      reason: erp ? (qCur == null ? "ERP leads start 12 Oct" : "") : erpReason,
+      reason: qualOk ? (qCur == null ? "ERP leads start 12 Oct" : "") : "Needs lead status from the ERP",
       delta: qCur ? delta(cplCur, cplPrev, true) : null,
       // No qualified lead in the period: a gauge of the since-start cost against the target (a flat line says nothing).
       chip: qCur === 0 && cplSince != null ? undefined : `Target AED ${T.targetCplAed}`,
@@ -324,12 +337,12 @@ export function blocks(i: BlocksInput) {
 
   /* ----- 6. Budget to redirect (7 days) ----- */
   const camps7 = campaignRows(inPeriod(perfAll, p7.from, p7.to), setup);
-  const leads7 = erp ? erpIn(erp, p7.from, p7.to) : null;
+  const leads7 = qualOk ? erpIn(erp, p7.from, p7.to) : null;
   const sources = leads7
     ? camps7.filter((c) => inScope(c.name) && (c.t.cost ?? 0) >= T.noLeadsCostAed && erpFor(leads7, c.name).filter((l) => l.qualified).length === 0).sort((a, b) => (b.t.cost ?? 0) - (a.t.cost ?? 0))
     : [];
   const sinceCost = (name: string) => totals(inPeriod(perfAll, REPORT_START, today, name)).cost;
-  const targets = erp
+  const targets = qualOk
     ? camps7
         .filter((c) => c.channel === "SEARCH" && !c.inactive && (lostBudget(c.t) ?? 0) >= T.redirectLostIs)
         .map((c) => ({ c, cpl: div(sinceCost(c.name), erpFor(erp, c.name).filter((l) => l.qualified).length || null) }))
@@ -347,7 +360,8 @@ export function blocks(i: BlocksInput) {
   const alerts = alertsOf(d.tabs.Alerts);
   const attn: Attention[] = attention({
     campaigns: campsP,
-    erp: erp ? erpIn(erp, period.from, period.to) : null,
+    // With Google conversions only, the checks word it as such ("0 Google conversions").
+    erp: lsrc === "google" ? null : erpIn(erp, period.from, period.to),
     erpAll: erp,
     changes: changes.filter((r) => inScope(str(r, "Campaign"))),
     from: period.from,
@@ -371,7 +385,7 @@ export function blocks(i: BlocksInput) {
   const spend = { total: spendTotal, parts: parts.map((p) => ({ ...p, share: spendTotal ? p.cost / spendTotal : 0 })) };
 
   /* ----- 8. Lead quality, since start ----- */
-  const quality = erpScoped
+  const quality = qualOk
     ? (() => {
         const total = erpScoped.length, qualified = erpScoped.filter((l) => l.qualified).length, won = erpScoped.filter((l) => l.won).length;
         const byCamp = new Map<string, number>();
@@ -406,7 +420,7 @@ export function blocks(i: BlocksInput) {
   };
 
   /* ----- 10. Cost per qualified lead by campaign, since start ----- */
-  const cplRows = erp
+  const cplRows = qualOk
     ? campaignRows(inPeriod(perfAll, REPORT_START, today), setup)
         .filter((c) => inScope(c.name) && (c.t.cost ?? 0) > 0)
         .map((c) => {
@@ -430,7 +444,7 @@ export function blocks(i: BlocksInput) {
 
   /* ----- 12, 13. Devices and cities, 30 days (with qualified leads per device / city when the click join ran) ----- */
   const segCh: Channel = channel === "all" ? "SEARCH" : channel;
-  const joinLeads = i.joinReady && erp ? erpIn(erpCh(erp, segCh), p30.from, p30.to).filter((l) => l.qualified && l.click) : null;
+  const joinLeads = i.joinReady && qualOk ? erpIn(erpCh(erp, segCh), p30.from, p30.to).filter((l) => l.qualified && l.click) : null;
   const devRows = scoped(inPeriod(rowsOf(d.tabs.Perf_Devices_Daily), p30.from, p30.to), segCh);
   const devCost = new Map<string, number>();
   for (const r of devRows) devCost.set(deviceName(str(r, "Device")), (devCost.get(deviceName(str(r, "Device"))) ?? 0) + (num(r, "Cost (AED)") ?? 0));
@@ -445,7 +459,7 @@ export function blocks(i: BlocksInput) {
   const locRows = rowsOf(d.tabs.Perf_Locations_30d).filter((r) => inScope(str(r, "Campaign")));
   const cityCost = new Map<string, number>();
   for (const r of locRows) cityCost.set(cityName(str(r, "City")), (cityCost.get(cityName(str(r, "City"))) ?? 0) + (num(r, "Cost (AED)") ?? 0));
-  const cityLeads = i.joinReady && erp ? erpIn(erpCh(erp), p30.from, p30.to).filter((l) => l.qualified && l.click) : null;
+  const cityLeads = i.joinReady && qualOk ? erpIn(erpCh(erp), p30.from, p30.to).filter((l) => l.qualified && l.click) : null;
   const cities = [...cityCost]
     .filter(([, c]) => c > 0)
     .sort((a, b) => b[1] - a[1])
@@ -533,7 +547,9 @@ export function blocks(i: BlocksInput) {
     heatStart,
     devices,
     deviceChannel: segCh,
-    joinReady: i.joinReady && erp != null,
+    joinReady: i.joinReady && qualOk,
+    /** "erp", "sheet" (lead log, no status) or "google" (Google conversions). */
+    leadSource: lsrc,
     cities,
     pages,
     pagesNote: i.landings == null ? "Landing counter not connected here." : channel !== "all" && channel !== "SEARCH" && channel !== "DEMAND_GEN" ? `Landings are mapped to Search and Demand Gen pages only; ${channelInfo(channel).label} pages aren't.` : period.from < COUNT_START ? `Counter started ${dayMonth(COUNT_START)}: ${span(period.from < COUNT_START ? COUNT_START : period.from, period.to)} only.` : "",

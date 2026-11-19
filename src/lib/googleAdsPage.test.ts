@@ -76,11 +76,20 @@ describe("Google Ads page on the fixture", () => {
     expect(html).toContain("15 of 19 leads came from Free Zone Search");
     expect(html).not.toContain("Google leads");
   });
-  it("ERP not here: ERP blocks say so instead of showing 0", async () => {
+  it("no ERP and no lead log: Google conversions, said so once at the top; status blocks give the reason", async () => {
     const { data } = await load([]);
-    const html = googleAdsHtml({ kind: "ok", query: new URLSearchParams("view=google-ads"), today: TODAY, data, stale: false, note: "", erp: null, joinReady: false, landings: null });
-    expect(html.match(/ERP not connected here/g)!.length).toBeGreaterThanOrEqual(4);
-    expect(body(html)).not.toMatch(/NaN|undefined|Infinity/);
+    const html = body(googleAdsHtml({ kind: "ok", query: new URLSearchParams("view=google-ads"), today: TODAY, data, stale: false, note: "", erp: null, joinReady: false, landings: null }));
+    expect(html).toContain("ERP and lead log not connected here: lead numbers are Google Ads conversions");
+    expect(html).toContain("Conversions per day");
+    expect(html).toContain("Needs lead status from the ERP");
+    expect(html).not.toMatch(/NaN|undefined|Infinity/);
+  });
+  it("no ERP but the lead log: leads from the sheet, said so once at the top", async () => {
+    const { data } = await load([]);
+    const html = body(googleAdsHtml({ kind: "ok", query: new URLSearchParams("view=google-ads"), today: TODAY, data, stale: false, note: "", erp: joinClicks(leadsRaw.map((l) => ({ ...l, qualified: false, won: false })), null), leadSource: "sheet", joinReady: false, landings: null }));
+    expect(html).toContain("ERP not connected here: leads come from the lead log sheet");
+    expect(html).toContain("Leads (lead log)");
+    expect(html).not.toMatch(/NaN|undefined|Infinity/);
   });
 });
 

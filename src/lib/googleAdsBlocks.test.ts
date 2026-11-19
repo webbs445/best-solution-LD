@@ -5,7 +5,7 @@ import { parseDay } from "@/lib/adLandingsReport";
 import { blocks, changeDetail, markers } from "@/lib/googleAdsBlocks";
 import { googleAdsHtml } from "@/lib/googleAdsPage";
 import { filteredClicks, type Cell, type SheetData } from "@/lib/googleAdsSheet";
-import { joinClicks, toErpLeads } from "@/lib/googleAdsView";
+import { fromLeadLog, joinClicks, toErpLeads } from "@/lib/googleAdsView";
 
 /* The fixture as the view would pass it: the bridge answer (asked with the leads' click ids), the ERP leads, the counter. */
 type Raw = { headers: Cell[]; rows: Cell[][] };
@@ -172,19 +172,36 @@ describe("Channel switch", () => {
   });
 });
 
-describe("ERP or counter not here", () => {
-  it("ERP blocks say so instead of 0", () => {
-    const b = blocks({ data, erp: null, joinReady: false, landings: null, q: new URLSearchParams(""), today: TODAY });
+describe("ERP or counter not here: leads from the next source", () => {
+  it("no ERP and no lead log: Google conversions stand in, labelled; status blocks say why they're empty", () => {
+    const b = blocks({ data, erp: null, joinReady: false, landings: null, q: new URLSearchParams("range=30d"), today: TODAY });
     const k = Object.fromEntries(b.kpis.map((x) => [x.key, x]));
-    expect(k.leads).toMatchObject({ value: null, reason: "ERP not connected here" });
+    expect(b.leadSource).toBe("google");
+    // 30 days to yesterday: 20 Oct – 18 Nov, Google conversions of every campaign.
+    expect(k.leads).toMatchObject({ label: "Google conversions", value: total(pick("2026-10-20", "2026-11-18"), 8) });
+    expect(k.cpl).toMatchObject({ value: null, reason: "Needs lead status from the ERP" });
+    expect(b.heat!.flat().reduce((s, c) => s + (c.n ?? 0), 0)).toBe(total(pick("2026-10-11", TODAY), 8));
     expect(b.quality).toBeNull();
-    expect(b.heat).toBeNull();
     expect(b.cplRows).toBeNull();
-    expect(b.banner).toBeNull();
     expect(b.redirect).toBeNull();
+    expect(b.erpReason).toBe("ERP and lead log not connected here");
     expect(b.funnel.landed).toBeNull();
     expect(b.pages).toBeNull();
     expect(b.devices.every((d) => d.qualified == null)).toBe(true);
+  });
+  it("lead log only: counts, campaigns and keywords from the sheet, no status", () => {
+    const log = fromLeadLog(erpLeads().map((l: Record<string, string>) => ({ ...l, status: undefined })))!;
+    expect(log).toHaveLength(19);
+    const b = blocks({ data, erp: log, leadSource: "sheet", joinReady: true, landings: null, q: new URLSearchParams(""), today: TODAY });
+    const k = Object.fromEntries(b.kpis.map((x) => [x.key, x]));
+    expect(b.leadSource).toBe("sheet");
+    expect(k.leads).toMatchObject({ label: "Tracked leads", value: 0, sub: "last lead 5 Nov · lead log" });
+    expect(k.cpl.reason).toBe("Needs lead status from the ERP");
+    expect(b.quality).toBeNull();
+    expect(b.joinReady).toBe(false);
+    expect(b.heat!.flat().reduce((s, c) => s + (c.n ?? 0), 0)).toBe(19);
+    expect(b.terms.erpKeywords![0]).toEqual({ keyword: "free zone setup cost", n: 4 });
+    expect(b.erpReason).toBe("Lead status needs the ERP (not connected here)");
   });
 });
 
