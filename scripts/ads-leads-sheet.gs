@@ -4,8 +4,13 @@
   back, so a lead stays counted even after the ERP hides it from the website's API user.
 
   Uploaded with Google's clasp CLI as a sheet-bound script, with ADS_SHEET_SECRET filled in below, and deployed as a
-  web app (Execute as: me, Access: anyone); its /exec URL is ADS_SHEET_URL. Requests without the secret are refused,
+  web app (Execute as: me, Access: anyone); its /exec URL is ADS_SHEET_URL. Requests without a secret are refused,
   so the public URL alone reads or writes nothing.
+
+  Two secrets:
+  - SECRET (below; the app's ADS_SHEET_SECRET): reads and writes. Production only.
+  - READ_SECRET (Project Settings → Script Properties; the app's ADS_SHEET_READ_SECRET): reads only. doPost never
+    accepts it, and reads change nothing in the sheet. For deployments that must only read (Vercel Preview).
 */
 
 const SECRET = "__ADS_SHEET_SECRET__"; // replaced at upload; never commit the real value
@@ -27,14 +32,24 @@ const COLUMNS = [
 ];
 
 const reply = (obj) => ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
-const allowed = (secret) => !SECRET.startsWith("__") && secret === SECRET;
+
+/** The read-only secret from Script Properties; "" when unset. Shorter than 16 characters counts as unset. */
+function readSecret() {
+  const v = PropertiesService.getScriptProperties().getProperty("READ_SECRET") || "";
+  return v.length >= 16 ? v : "";
+}
+/** Writing (and reading): the write secret only. */
+const canWrite = (secret) => !SECRET.startsWith("__") && secret === SECRET;
+/** Reading: the write secret or the read-only one. */
+const canRead = (secret) => canWrite(secret) || (readSecret() !== "" && secret === readSecret());
 
 /** Run once from the editor (or by the setup script's first visit) so Google asks the owner for access to the sheet. */
 function authorize() {
-  sheet();
+  sheetForWriting();
 }
 
-function sheet() {
+/** The sheet, its header row added or fixed first. Only for writing: reads never change the sheet. */
+function sheetForWriting() {
   const s = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
   if (s.getLastRow() === 0) {
     s.appendRow(COLUMNS.map((c) => c[1]));
@@ -51,17 +66,17 @@ function sheet() {
   return s;
 }
 
-/** Adds a lead. Body: {"secret": "...", "lead": {name, creation, ...}}. A lead number already in the sheet is skipped. */
+/** Adds a lead. Body: {"secret": "...", "lead": {name, creation, ...}}. Only the write secret. A lead number already in the sheet is skipped. */
 function doPost(e) {
   let body;
   try { body = JSON.parse(e.postData.contents); } catch (err) { return reply({ ok: false, error: "bad json" }); }
-  if (!allowed(body.secret)) return reply({ ok: false, error: "forbidden" });
+  if (!canWrite(body.secret)) return reply({ ok: false, error: "forbidden" });
   const lead = body.lead || {};
   if (!/^[A-Z]+-\d+$/.test(String(lead.name || ""))) return reply({ ok: false, error: "no lead number" });
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const s = sheet();
+    const s = sheetForWriting();
     const last = s.getLastRow();
     const names = last > 1 ? s.getRange(2, 1, last - 1, 1).getDisplayValues().map((r) => r[0]) : [];
     if (names.includes(lead.name)) return reply({ ok: true, duplicate: true });
@@ -75,11 +90,34 @@ function doPost(e) {
   }
 }
 
-/** Every lead in the sheet: GET ?secret=... */
+/** Every lead in the sheet: GET ?secret=... (the write or the read-only secret). Strictly read-only. */
 function doGet(e) {
-  if (!allowed(e.parameter.secret)) return reply({ ok: false, error: "forbidden" });
-  const s = sheet();
+  if (!canRead(e.parameter.secret)) return reply({ ok: false, error: "forbidden" });
+  const s = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
   const rows = s.getLastRow() > 1 ? s.getRange(2, 1, s.getLastRow() - 1, COLUMNS.length).getDisplayValues() : [];
-  const leads = rows.filter((r) => r[0]).map((r) => Object.fromEntries(COLUMNS.map((c, i) => [c[0], r[i].trim()])));
+  const leads = rows.filter((r) => r[0]).map((r) => Object.fromEntries(COLUMNS.map((c, i) => [c[0], (r[i] || "").trim()])));
   return reply({ ok: true, leads });
+}
+
+/**
+ * Run from the editor (select it, then Run) after setting READ_SECRET: proves the read-only secret can read and
+ * can't write, without ever writing (the write attempt uses an invalid lead number, so even a wrong check could not
+ * add a row). Results in the Execution log; nothing is changed in the sheet.
+ */
+function testReadSecretCannotWrite() {
+  const rs = readSecret();
+  if (!rs) throw new Error("READ_SECRET is not set (or shorter than 16 characters) in Script Properties.");
+  const s = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  const rowsBefore = s.getLastRow();
+  const json = (out) => JSON.parse(out.getContent());
+  const read = json(doGet({ parameter: { secret: rs } }));
+  const write = json(doPost({ postData: { contents: JSON.stringify({ secret: rs, lead: { name: "not-a-lead" } }) } }));
+  const anon = json(doGet({ parameter: {} }));
+  const rowsAfter = s.getLastRow();
+  const pass = read.ok === true && Array.isArray(read.leads) && write.error === "forbidden" && anon.error === "forbidden" && rowsAfter === rowsBefore;
+  Logger.log(`READ_SECRET reads: ${read.ok ? `yes, ${read.leads.length} leads` : `NO (${read.error})`}`);
+  Logger.log(`READ_SECRET writes: ${write.error === "forbidden" ? "no (forbidden)" : `UNEXPECTED: ${JSON.stringify(write)}`}`);
+  Logger.log(`No secret reads: ${anon.error === "forbidden" ? "no (forbidden)" : "UNEXPECTED"}`);
+  Logger.log(`Rows before ${rowsBefore}, after ${rowsAfter}: ${rowsAfter === rowsBefore ? "unchanged" : "CHANGED"}`);
+  Logger.log(pass ? "PASS" : "FAIL");
 }

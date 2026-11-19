@@ -43,13 +43,13 @@ const slice = (s: string, start: string, end: string, inner = false) => {
   if (i < 0 || j < 0) return "";
   return inner ? s.slice(i + start.length, j) : s.slice(i, j + end.length);
 };
-const dashCss = () => slice(template(), "<style>", "</style>", true);
-const sprite = () => slice(template(), '<svg class="lr-sprite"', "</svg>");
+export const dashCss = () => slice(template(), "<style>", "</style>", true);
+export const sprite = () => slice(template(), '<svg class="lr-sprite"', "</svg>");
 
 /* ---------- Formatting ---------- */
 
 const ESC: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
-const esc = (v: unknown) => String(v ?? "").replace(/[&<>"']/g, (c) => ESC[c]);
+export const esc = (v: unknown) => String(v ?? "").replace(/[&<>"']/g, (c) => ESC[c]);
 const DASH = "–";
 const num = (n: number) => n.toLocaleString("en-US");
 const pct = (v: number | null) => (v == null ? DASH : `${(v * 100).toFixed(1)}%`);
@@ -75,10 +75,10 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const dayMonth = (d: string) => `${Number(d.slice(8))} ${MONTHS[Number(d.slice(5, 7)) - 1]}`;
 const longDate = (d: string) => `${WEEKDAYS[new Date(`${d}T00:00:00Z`).getUTCDay()]} ${dayMonth(d)} ${d.slice(0, 4)}`;
 const span = (a: string, b: string) => (a === b ? dayMonth(a) : `${dayMonth(a)} – ${dayMonth(b)}`);
-const icon = (name: string) => `<svg class="lr-icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+export const icon = (name: string) => `<svg class="lr-icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 
 let infoSeq = 0;
-const info = (label: string, text: string) => {
+export const info = (label: string, text: string) => {
   const id = `alx-info-${++infoSeq}`;
   return `<span class="lr-info"><button type="button" class="lr-info__btn" aria-expanded="false" aria-controls="${id}" aria-label="About: ${esc(label)}">${icon("info")}</button><span class="lr-info__pop lr-glass" id="${id}" role="note" hidden>${esc(text)}</span></span>`;
 };
@@ -107,7 +107,7 @@ const RANGE_LABEL = { today: "Today", "7d": "Last 7 days", "30d": "Last 30 days"
 const PREV_WORDS = { today: "yesterday", "7d": "the previous 7 days", "30d": "the previous 30 days", since: "an earlier period", custom: "the previous period" } as const;
 
 /** The current query with some keys changed (null removes the key). */
-const href = (q: URLSearchParams, set: Record<string, string | null>) => {
+export const href = (q: URLSearchParams, set: Record<string, string | null>) => {
   const n = new URLSearchParams(q);
   for (const [k, v] of Object.entries(set)) {
     if (v == null) n.delete(k);
@@ -127,32 +127,53 @@ const viewHref = (q: URLSearchParams, view: string) => {
   return `?${n}`;
 };
 
-function topbar(preview: boolean, updated: string, q: URLSearchParams) {
+/** The dashboard's views: [view, label, icon]. */
+const NAV = [["erp", "ERP status", "db"], ["landings", "Ad landings", "layers"], ["google-ads", "Google Ads", "link"]] as const;
+type View = (typeof NAV)[number][0];
+
+/** A freshness badge in its own words and colour (the Google Ads view: "Updated 13:20 (UAE) · next 20:00", late, not updating). */
+export interface Freshness {
+  text: string;
+  tone: "good" | "warn" | "bad";
+}
+
+/** `fresh`: the data-freshness badges; a Freshness replaces the plain "Updated <time> (UAE)" with its own words and colour. */
+export function topbar(preview: boolean, updated: string, q: URLSearchParams, current: View = "landings", fresh: boolean | Freshness = true) {
   const badge = preview
     ? `<span class="alx-env" data-env="preview">Preview test data, not the live site</span>`
     : `<span class="alx-env" data-env="live"><span class="lr-dot" aria-hidden="true"></span>Live data</span>`;
+  if (typeof fresh === "object") {
+    const words = esc(fresh.text);
+    return topbarHtml(q, current, `<span class="lr-brand__live" data-tone="${fresh.tone}" aria-hidden="true"><span class="lr-dot"></span>${words}</span>`, `<p class="lr-menu__state" data-tone="${fresh.tone}"><span class="lr-dot" aria-hidden="true"></span>${words}</p>`, `<div class="lr-fresh" role="status" aria-label="Data freshness"><span class="lr-fresh__item">${badge}</span><span class="lr-fresh__item lr-fresh__tone" data-tone="${fresh.tone}">${words}</span></div>`);
+  }
+  return topbarHtml(
+    q,
+    current,
+    fresh ? `<span class="lr-brand__live" aria-hidden="true">${preview ? "Preview test data" : `<span class="lr-dot"></span>Live data · ${esc(updated)}`}</span>` : "",
+    fresh ? `<p class="lr-menu__state">${preview ? "Preview test data, not the live site" : `<span class="lr-dot" aria-hidden="true"></span>Live data · updated ${esc(updated)}`}</p>` : "",
+    fresh ? `<div class="lr-fresh" role="status" aria-label="Data source"><span class="lr-fresh__item">${badge}</span><span class="lr-fresh__item">Updated ${esc(updated)} (UAE)</span></div>` : "",
+  );
+}
+
+/** The header itself; `live` (phone, under the name), `menuState` (phone menu) and `freshHtml` (laptop badges) vary by view. */
+function topbarHtml(q: URLSearchParams, current: View, live: string, menuState: string, freshHtml: string) {
   return `<header class="lr-topbar lr-glass">
     <div class="lr-topbar__in">
-      <a class="lr-brand" href="${esc(viewHref(q, "landings"))}" aria-label="Lead Insights, Best Solution">
+      <a class="lr-brand" href="${esc(viewHref(q, current))}" aria-label="Lead Insights, Best Solution">
         <img class="lr-brand__mark" src="/lead-insights/icon-192.png" alt="" width="32" height="32">
-        <span class="lr-brand__text"><span class="lr-brand__name">Lead Insights</span><span class="lr-brand__by">Best Solution</span><span class="lr-brand__live" aria-hidden="true">${preview ? "Preview test data" : `<span class="lr-dot"></span>Live data · ${esc(updated)}`}</span></span>
+        <span class="lr-brand__text"><span class="lr-brand__name">Lead Insights</span><span class="lr-brand__by">Best Solution</span>${live}</span>
       </a>
       <button type="button" class="lr-menu-btn" popovertarget="lr-menu" aria-label="Menu">${icon("more")}</button>
       <div class="lr-menu" id="lr-menu" popover>
-        <p class="lr-menu__state">${preview ? "Preview test data, not the live site" : `<span class="lr-dot" aria-hidden="true"></span>Live data · updated ${esc(updated)}`}</p>
+        ${menuState}
         <form method="post" action="/ads-report"><input type="hidden" name="action" value="signout">
           <button type="submit" class="lr-menu__item" data-tone="out">${icon("signout")}Sign out</button></form>
       </div>
       <nav class="lr-nav" aria-label="Dashboards">
         <p class="lr-nav__label">Dashboards</p>
-        <a class="lr-nav__item" href="${esc(viewHref(q, "google"))}">${icon("bars")}<span>Google leads</span></a>
-        <a class="lr-nav__item" href="${esc(viewHref(q, "erp"))}">${icon("db")}<span>ERP status</span></a>
-        <a class="lr-nav__item" href="${esc(viewHref(q, "landings"))}" aria-current="page">${icon("layers")}<span>Ad landings</span></a>
+        ${NAV.map(([v, label, ic]) => `<a class="lr-nav__item" href="${esc(viewHref(q, v))}"${v === current ? ' aria-current="page"' : ""}>${icon(ic)}<span>${label}</span></a>`).join("")}
       </nav>
-      <div class="lr-fresh" role="status" aria-label="Data source">
-        <span class="lr-fresh__item">${badge}</span>
-        <span class="lr-fresh__item">Updated ${esc(updated)} (UAE)</span>
-      </div>
+      ${freshHtml}
       <form class="lr-signout" method="post" action="/ads-report">
         <input type="hidden" name="action" value="signout">
         <button class="lr-btn-ghost" type="submit" aria-label="Sign out">${icon("signout")}<span class="lr-signout__label">Sign out</span></button>
@@ -162,10 +183,12 @@ function topbar(preview: boolean, updated: string, q: URLSearchParams) {
 }
 
 /** The dashboard's view switch (phones and tablets; the top bar's tabs replace it on laptops). */
-const viewSwitch = (q: URLSearchParams, landings: string) => `<div class="lr-switchbar"><nav class="lr-switch lr-glass" aria-label="Data source">
-    <a class="lr-switch__side" href="${esc(viewHref(q, "google"))}"><span class="lr-switch__label">Google leads</span></a>
-    <a class="lr-switch__side" href="${esc(viewHref(q, "erp"))}"><span class="lr-switch__label">ERP status</span></a>
-    <a class="lr-switch__side" href="${esc(viewHref(q, "landings"))}" aria-current="page"><span class="lr-switch__hl" aria-hidden="true"></span><span class="lr-switch__label">Ad landings</span>${landings ? `<span class="lr-switch__num">${esc(landings)}</span>` : ""}</a>
+export const viewSwitch = (q: URLSearchParams, num: string, current: View = "landings") => `<div class="lr-switchbar"><nav class="lr-switch lr-glass" aria-label="Data source">
+    ${NAV.map(([v, label]) =>
+      v === current
+        ? `<a class="lr-switch__side" href="${esc(viewHref(q, v))}" aria-current="page"><span class="lr-switch__hl" aria-hidden="true"></span><span class="lr-switch__label">${label}</span>${num ? `<span class="lr-switch__num">${esc(num)}</span>` : ""}</a>`
+        : `<a class="lr-switch__side" href="${esc(viewHref(q, v))}"><span class="lr-switch__label">${label}</span></a>`,
+    ).join("")}
   </nav></div>`;
 
 /** Page head (laptop), view switch and range chips in the ads dashboard's layout, then this view's own tools. */
@@ -495,7 +518,7 @@ ${footer()}
 
 /* ---------- Page-only styles (alx-*), from the dashboard's tokens ---------- */
 
-const CSS = `
+export const CSS = `
 .alx { --accent: var(--copper-hi); --g1: #3f4b5e; --g2: #6a7588; --g3: #9aa3b1; }
 /* Layout: the dashboard's own (page head beside the controls on laptops); this view's rows span the full width. */
 .alx > .alx-bar, .alx > .alx-foot { grid-column: 1 / -1; }
@@ -654,7 +677,7 @@ th[aria-sort="ascending"] .alx-sort::after { content: "▲"; width: auto; font-s
 
 /* ---------- Page-only script: tooltips, info popovers, sort, show all, custom range, loading state ---------- */
 
-const SCRIPT = `(() => {
+export const SCRIPT = `(() => {
   "use strict";
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   // Info popovers (same behaviour as the Ads dashboard: placed under the button, flipped above when needed).

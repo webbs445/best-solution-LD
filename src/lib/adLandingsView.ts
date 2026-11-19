@@ -8,7 +8,7 @@ import { dailyRows, datesBetween, excludeTests, parseDay, parseDims, pickRange, 
   ?range=today|7d|30d|since (default 7d) or ?from=&to=, ?tests=include keeps the test visits in, ?format=csv downloads.
 */
 
-const PRIVATE = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };
+const PRIVATE = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow, noarchive" };
 const html = (body: string, status = 200) => new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", ...PRIVATE } });
 
 export async function adLandingsResponse(query: URLSearchParams): Promise<Response> {

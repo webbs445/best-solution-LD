@@ -6,7 +6,9 @@ import { isPreviewDeployment } from "@/lib/preview";
   The Google Ads lead log: a Google Sheet behind a small Apps Script web app (scripts/ads-leads-sheet.gs). Each new
   Google Ads lead is added once with its tracking fields (never a name, phone or email). The ERP hides a lead from
   the website's API user once sales responds to it; the sheet keeps it, so /ads-report still counts it.
-  Off unless ADS_SHEET_URL and ADS_SHEET_SECRET are set.
+  Writing needs ADS_SHEET_URL and ADS_SHEET_SECRET (the script's write secret). Reading uses ADS_SHEET_READ_SECRET when
+  it is set (the script's READ_SECRET, which can read but never write), else ADS_SHEET_SECRET. Production keeps
+  ADS_SHEET_SECRET; Preview gets only ADS_SHEET_URL + ADS_SHEET_READ_SECRET, so it can read and has no way to write.
 */
 
 /** The tracking fields the sheet stores: a ReportLead without the status, which only the ERP knows, plus the cookie choice. */
@@ -14,8 +16,15 @@ export type SheetLead = Omit<ReportLead, "status"> & { consent?: string };
 
 const FIELDS = ["name", "creation", "custom_campaign", "custom_ad_set_name", "custom_ad_name", "custom_form_name", "custom_platform", "source", "custom_clid", "consent"] as const;
 
+/** For adding leads: the write secret only. */
 function config() {
   const url = process.env.ADS_SHEET_URL, secret = process.env.ADS_SHEET_SECRET;
+  return url && secret ? { url, secret } : null;
+}
+
+/** For reading: the read-only secret when set, else the write secret. */
+function readConfig() {
+  const url = process.env.ADS_SHEET_URL, secret = process.env.ADS_SHEET_READ_SECRET || process.env.ADS_SHEET_SECRET;
   return url && secret ? { url, secret } : null;
 }
 
@@ -42,7 +51,7 @@ export async function recordAdsLead(lead: SheetLead): Promise<void> {
 // copy while it fetches a new one. The ERP stays live; only leads the ERP already hides come from here. A failure throws, so it is never cached.
 const cachedSheet = unstable_cache(
   async () => {
-    const c = config()!;
+    const c = readConfig()!;
     const res = await fetch(`${c.url}?secret=${encodeURIComponent(c.secret)}`, { cache: "no-store", signal: AbortSignal.timeout(15_000) });
     const out = (await res.json()) as { ok?: boolean; leads?: SheetLead[] };
     if (!out.ok || !Array.isArray(out.leads)) throw new Error(`sheet answered ${res.status}`);
@@ -54,7 +63,7 @@ const cachedSheet = unstable_cache(
 
 /** Every lead in the sheet; [] when the sheet is off, null when it is set up but not answering. */
 export async function readAdsSheet(): Promise<SheetLead[] | null> {
-  if (!config()) return [];
+  if (!readConfig()) return [];
   try {
     return await cachedSheet();
   } catch (err) {

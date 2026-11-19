@@ -7,5 +7,7 @@ export default defineConfig({
   },
   test: {
     include: ["src/**/*.test.ts"],
+    // fetch to tag hosts, Google and the Apps Script bridge throws in every test.
+    setupFiles: ["./vitest.setup.mjs"],
   },
 });

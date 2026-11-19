@@ -4,8 +4,9 @@ import puppeteer from "puppeteer-core";
 /** First argument, or the local production build (npm run build && npx next start -p 3010). */
 export const BASE = (process.argv[2] || "http://localhost:3010").replace(/\/$/, "");
 
-/** Every test run blocks these, so no test hit ever reaches GA4, Google Ads, Stape, Meta, Clarity or Bing. */
-export const TAG_HOSTS = /marktmen\.best-solution\.ae|googletagmanager\.com|google-analytics\.com|analytics\.google\.com|googleadservices\.com|doubleclick\.net|connect\.facebook\.net|facebook\.com\/tr|clarity\.ms|bat\.bing/;
+// Every test run blocks the tag hosts and the Google hosts (lists in hosts.mjs, shared with the unit tests).
+export { TAG_HOSTS, GOOGLE_API_HOSTS, BLOCKED_HOSTS } from "./hosts.mjs";
+import { BLOCKED_HOSTS } from "./hosts.mjs";
 
 export const ZONE_PATHS = ["dmcc", "meydan", "rakez", "shams", "ifza", "ajman", "spc", "dafza"].map((z) => `/freezone/${z}`);
 export const ROUTES = [
@@ -18,11 +19,11 @@ export const ROUTES = [
 export const launch = () =>
   puppeteer.launch({ executablePath: process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe", headless: true, protocolTimeout: 300000 });
 
-/** Abort every tag host on this page (call before the first goto). */
+/** Abort every tag host and Google API host on this page (call before the first goto). */
 export async function blockTags(page, onRequest) {
   await page.setRequestInterception(true);
   page.on("request", (q) => {
-    if (TAG_HOSTS.test(q.url())) return q.abort();
+    if (BLOCKED_HOSTS.test(q.url())) return q.abort();
     if (onRequest && onRequest(q)) return;
     q.continue();
   });

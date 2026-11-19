@@ -914,6 +914,9 @@ body::before {
   --rim: linear-gradient(140deg, rgba(255,255,255,1), rgba(255,255,255,.15) 32%, rgba(255,255,255,0) 50%, rgba(255,255,255,.15) 68%, rgba(255,255,255,.9));
   --side-w: 0px;
 }
+/* Focus rings on the light theme: the darker copper keeps 3:1 against the page and the cards (WCAG 1.4.11). */
+:focus-visible { outline-color: var(--copper-lo); }
+.lr-input:focus-visible, .lr-select:focus-visible { border-color: var(--copper-lo); }
 html { background: var(--page); color-scheme: light; }
 body { background: transparent; background-image: none; }
 body::before { opacity: .06; }
@@ -1460,7 +1463,7 @@ body::after {
   .lr-main { grid-template-columns: 1fr auto; align-items: end; }
   .lr-main > .lr-view { grid-column: 1 / -1; }
   .lr-pagehead { display: grid; gap: 6px; }
-  .lr-pagehead span { color: var(--copper-hi); font: 650 12px/1 var(--font); letter-spacing: .14em; text-transform: uppercase; }
+  .lr-pagehead span { color: #7A4530; font: 650 12px/1 var(--font); letter-spacing: .14em; text-transform: uppercase; }
   .lr-pagehead strong { font: 800 34px/1.05 var(--font); letter-spacing: -.035em; color: var(--text); }
 }
 ::view-transition-group(lr-navpill) { animation-duration: 380ms; animation-timing-function: cubic-bezier(.34, 1.3, .64, 1); }
@@ -1630,7 +1633,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
   .lr-fresh, .lr-signout, .lr-brand__by { display: none !important; }
   .lr-brand__live { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font: 500 12px/1.2 var(--font); white-space: nowrap; }
   .lr-brand__live[data-state="down"] { color: var(--bad); }
-  .lr-menu-btn { display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; margin-left: auto; border: 0; border-radius: 50%; background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px rgba(20,37,62,.08); color: var(--text); cursor: pointer; transition: background var(--t-fast) var(--ease); }
+  .lr-menu-btn { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; margin-left: auto; border: 0; border-radius: 50%; background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px rgba(20,37,62,.08); color: var(--text); cursor: pointer; transition: background var(--t-fast) var(--ease); }
   .lr-menu-btn:hover, .lr-menu-btn:focus-visible { background: rgba(255,255,255,.95); }
   .lr-menu-btn .lr-icon { font-size: 20px; }
   /* Sticky source switch: an iPhone-style segmented control on a blurred band (cards scrolling under it are
@@ -1853,7 +1856,6 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
   const DATA = JSON.parse(document.getElementById("lr-data").textContent);
 
   /* ---------- URL state (spec C1) ---------- */
-  const VIEWS = ["google", "erp"];
   const RANGES = ["today", "7d", "30d", "since"];
   function readUrl() {
     const q = new URLSearchParams(QS());
@@ -1861,8 +1863,8 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
     return readRest(q, 1, DATA.range.key, DATA);
   }
   function readRest(q, state, range, data) {
-    // Default view: Google when connected, else ERP.
-    const view = VIEWS.includes(q.get("view")) ? q.get("view") : data && !data.google.connected ? "erp" : "google";
+    // The "Google leads" view is gone (/ads-report?view=google redirects here): ERP status is the only view this page draws.
+    const view = "erp";
     return { state, range, view, data, paused: false, from: data.range.from, to: data.range.to };
   }
 
@@ -2238,7 +2240,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
     // Cost per qualified lead needs the Google spend: a value once connected, a one-line note until then.
     const cpql = d.google.connected
       ? `<p class="lr-journey__note">Cost per qualified lead <b>${esc(fmtMoney(m.cpql))}</b>${deltaHtml(arrow("cpql", m.cpql, m.prevCpql, ctx, { ...lb, google: true }), ctx)}${isPartial(ctx, "cpql") ? partialHtml() : ""}</p>`
-      : `<p class="lr-journey__note">${icon("link")}Cost per qualified lead shows once Google Ads is connected. <a href="${esc(viewHref(ctx, "google"))}">See setup</a></p>`;
+      : `<p class="lr-journey__note">${icon("link")}Cost per lead, from the Google Ads spend: <a href="${esc(viewHref(ctx, "google-ads"))}">see Google Ads</a></p>`;
     const help = "Leads: Google Ads leads that reached the ERP (a Google click ID, or Google ad tags). Qualified: every lead except Junk, Duplicate and Lost. Won: Deal Won or Converted. Bars are to scale.";
     return `<section class="lr-card lr-journey-card" aria-labelledby="lr-journey-title" ${attrs}>
       <div class="lr-card__head"><h2 class="lr-card__title" id="lr-journey-title">Lead pipeline${info("the lead pipeline", help)}</h2><span class="lr-journey__range">${esc(rangePhrase(ctx))}</span></div>
@@ -2464,7 +2466,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
     ["from", "to"].forEach((k) => q.delete(k));
     q.set("range", "since");
     const action = ctx.range === "since"
-      ? `<a class="lr-btn-ghost" href="${esc(viewHref(ctx, "google"))}">See Google leads</a>`
+      ? `<a class="lr-btn-ghost" href="${esc(viewHref(ctx, "google-ads"))}">See Google Ads</a>`
       : `<a class="lr-btn-ghost" href="?${esc(String(q))}">Try a longer range</a>`;
     return `<section class="lr-card lr-empty" aria-labelledby="lr-empty-title" ${attrs}>
       <div class="lr-radar" aria-hidden="true"><span class="lr-radar__sweep"></span><span class="lr-radar__dot"></span></div>
@@ -2536,17 +2538,14 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
     const time = d.updated.slice(11, 16);
     const erpState = !d.erp.available ? "down" : ctx.paused ? "paused" : "live";
     const erp = {
-      live: { long: `ERP · <b>live</b> · ${esc(time)}`, short: `ERP <b>live</b> · ${esc(time)}` },
+      live: { long: `<b>Live data</b>`, short: `<b>Live data</b>` },
       down: { long: `ERP · <b>not answering</b>`, short: `ERP <b>not answering</b>` },
       paused: {
         long: `Paused · <button type="button" class="lr-linkbtn" data-action="refresh">Refresh now</button>`,
         short: `Paused · <button type="button" class="lr-linkbtn" data-action="refresh">Refresh</button>`,
       },
     }[erpState];
-    const g = d.google.connected
-      ? { long: `Google Ads · data as of ${esc(d.google.dataAsOf.slice(11, 16))}`, short: `Google data · ${esc(d.google.dataAsOf.slice(11, 16))}` }
-      : { long: "Google Ads · Not connected", short: "Google Ads · Not connected" };
-    // Phone: the live state sits under the name (plain text: the brand is a link); sign out lives in the ⋯ menu.
+   // Phone: the live state sits under the name (plain text: the brand is a link); sign out lives in the ⋯ menu.
     const live = { live: `ERP live · ${esc(time)}`, down: "ERP not answering", paused: "Paused" }[erpState];
     return `<header class="lr-topbar lr-glass">
       <div class="lr-topbar__in">
@@ -2557,23 +2556,22 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
         <button type="button" class="lr-menu-btn" popovertarget="lr-menu" aria-label="Menu">${icon("more")}</button>
         <div class="lr-menu" id="lr-menu" popover>
           <p class="lr-menu__state"><span class="lr-dot" data-state="${erpState}" aria-hidden="true"></span>${{ live: `ERP live · updated ${esc(time)}`, down: "ERP isn't answering", paused: `Updated ${esc(time)} · refresh paused` }[erpState]}</p>
-          <p class="lr-menu__state">${icon("link")}${esc(g.long)}</p>
-          <button type="button" class="lr-menu__item" data-action="refresh">${icon("refresh")}Refresh now</button>
+         <button type="button" class="lr-menu__item" data-action="refresh">${icon("refresh")}Refresh now</button>
           <form method="post" action="/ads-report"><input type="hidden" name="action" value="signout">
             <button type="submit" class="lr-menu__item" data-tone="out">${icon("signout")}Sign out</button></form>
         </div>
         <nav class="lr-nav" aria-label="Dashboards">
           <p class="lr-nav__label">Dashboards</p>
-          <a class="lr-nav__item" href="${esc(viewHref(ctx, "google"))}" data-view="google"${ctx.view === "google" ? ' aria-current="page"' : ""}>${icon("bars")}<span>Google leads</span>${d.google.connected ? `<b>${esc(fmtCount(d.google.totals.formConversions))}</b>` : `<em class="lr-nav__setup">Connect<span class="lr-sr">, not connected yet</span></em>`}</a>
           <a class="lr-nav__item" href="${esc(viewHref(ctx, "erp"))}" data-view="erp"${ctx.view === "erp" ? ' aria-current="page"' : ""}>${icon("db")}<span>ERP status</span>${d.erp.available ? `<b>${esc(fmtCount(d.erp.leads.length))}</b>` : ""}</a>
           <a class="lr-nav__item" href="${esc(viewHref(ctx, "landings"))}">${icon("layers")}<span>Ad landings</span></a>
+          <a class="lr-nav__item" href="${esc(viewHref(ctx, "google-ads"))}">${icon("link")}<span>Google Ads</span></a>
         </nav>
         <div class="lr-fresh" role="status" aria-label="Data freshness">
           <span class="lr-fresh__item" data-state="${erpState}">
             <span class="lr-dot" data-state="${erpState}" aria-hidden="true"></span>
             <span class="lr-fresh__long">${erp.long}</span><span class="lr-fresh__short">${erp.short}</span>
           </span>
-          <span class="lr-fresh__item"><span class="lr-fresh__long">${g.long}</span><span class="lr-fresh__short">${g.short}</span></span>
+          <span class="lr-fresh__item">Updated ${esc(time)} (UAE)</span>
         </div>
         <form class="lr-signout" method="post" action="/ads-report">
           <input type="hidden" name="action" value="signout">
@@ -2600,13 +2598,12 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
               : `<span class="lr-switch__num">${esc(num)}</span>`}
       </a>`;
     };
-    const g = d.google.connected ? side("google", "Google leads", fmtCount(d.google.totals.formConversions))
-                                 : side("google", "Google leads", "Connect", "not connected");
     const e = d.erp.available ? side("erp", "ERP status", fmtCount(d.erp.leads.length))
                               : side("erp", "ERP status", DASH, "ERP not answering");
-    // Ad landings is its own page (served by the same route): a plain link, not an in-page swap.
+    // Ad landings and Google Ads are their own pages (served by the same route): a plain link, not an in-page swap.
     const l = `<a class="lr-switch__side" href="${esc(viewHref(ctx, "landings"))}" data-full><span class="lr-switch__label">Ad landings</span></a>`;
-    return `<div class="lr-switchbar"><nav class="lr-switch lr-glass" aria-label="Data source">${g}${e}${l}</nav></div>`;
+    const a = `<a class="lr-switch__side" href="${esc(viewHref(ctx, "google-ads"))}" data-full><span class="lr-switch__label">Google Ads</span></a>`;
+    return `<div class="lr-switchbar"><nav class="lr-switch lr-glass" aria-label="Data source">${e}${l}${a}</nav></div>`;
   }
 
   /* ---------- C3 Date range ---------- */
@@ -2698,15 +2695,15 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
     const err = ctx.error;
     const invalid = err ? ` aria-invalid="true" aria-describedby="lr-signin-err"` : "";
     return `<main class="lr-signin">
-      <form class="lr-signin__card lr-card" method="post" action="/ads-report" novalidate>
+      <form class="lr-signin__card lr-card" method="post" action="/ads-report${esc(location.search)}" novalidate>
         <div class="lr-signin__brand">
           <img class="lr-signin__mark" src="/lead-insights/icon-192.png" alt="" width="48" height="48">
           <div><h1 class="lr-signin__title">Lead Insights</h1><p class="lr-signin__by">Best Solution</p></div>
         </div>
-        <p class="lr-signin__lead">Sign in to see the new leads from Google Ads.</p>
-        ${err ? `<p class="lr-alert" id="lr-signin-err" role="alert">${icon("info")}${esc(err)}</p>` : ""}
+        <p class="lr-signin__lead">Sign in to see the ads dashboard: ERP leads, ad landings and Google Ads.</p>
+        ${err ? `<p class="lr-alert" id="lr-signin-err" role="alert">${icon("alert")}${esc(err)}</p>` : ""}
         <label class="lr-field"><span class="lr-field__label">Username</span>
-          <input class="lr-input" name="user" autocomplete="username" autocapitalize="none" spellcheck="false" required${invalid}></label>
+          <input class="lr-input" name="user" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus${invalid}></label>
         <label class="lr-field"><span class="lr-field__label">Password</span>
           <input class="lr-input" name="pass" type="password" autocomplete="current-password" required${invalid}></label>
         <button class="lr-btn lr-btn--block" type="submit">Sign in</button>
@@ -3231,7 +3228,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
       card.querySelectorAll(".lr-bd__tab").forEach((x) => x.setAttribute("aria-selected", String(x === t)));
       card.querySelectorAll(".lr-bd__panel").forEach((p) => p.classList.toggle("on", p.dataset.bd === bdTab));
     });
-    const viewKey = () => new URLSearchParams(QS()).get("view") || "google";
+    const viewKey = () => new URLSearchParams(QS()).get("view") || "erp";
     const rangeKey = () => { const q = new URLSearchParams(QS()); return ["range", "from", "to"].map((k) => q.get(k)).join(); };
     let shownKey = null, shownRange = null;
     function onRender() {

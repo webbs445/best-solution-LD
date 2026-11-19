@@ -15,13 +15,16 @@ const nextConfig: NextConfig = {
   // Nothing on this subdomain goes in search results: the header also covers images, PDFs and other files the
   // pages' noindex tag can't reach. Crawling stays allowed so it is seen (src/app/robots.ts).
   async headers() {
-    // A later rule wins for the same header: the private dashboard and API also say nofollow (this replaces the route's own value).
-    const noFollow = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
+    // A later rule wins for the same header. The team dashboard, its CSV and the API add nofollow and noarchive; the
+    // landing pages keep plain noindex, so the Google Ads bot and links behave as before. The route handlers set the
+    // same value, so whichever applies, the answer is the same.
+    const report = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
     return [
       { source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
-      { source: "/ads-report", headers: noFollow },
-      { source: "/ads-conversions.csv", headers: noFollow },
-      { source: "/api/:path*", headers: noFollow },
+      { source: "/ads-report", headers: report },
+      { source: "/ads-conversions.csv", headers: report },
+      { source: "/api/:path*", headers: report },
+      { source: "/internal/:path*", headers: report },
     ];
   },
   async redirects() {
