@@ -163,7 +163,11 @@ export function changeDetail(m: Pick<Marker, "at" | "campaign" | "kind">, histor
   const lines = step?.lines ?? [];
   const pick = (re: RegExp) => lines.find(([k]) => re.test(k))?.[1]?.replace(/^"|"$/g, "") ?? "";
   if (m.kind === "Status") return words(pick(/status/i));
-  if (m.kind === "Budget") { const b = pick(/budget|amount/i); return b ? `${aedOf(b)}/day` : ""; }
+  if (m.kind === "Budget") {
+    // The amount only: a budget's name or resource id also matches /budget/.
+    const b = lines.find(([k, v]) => /budget|amount/i.test(k) && v.trim() !== "" && Number.isFinite(Number(v)))?.[1];
+    return b ? `budget ${aedOf(b)}` : "";
+  }
   const bid = pick(/bidding|strategy/i), cap = pick(/cap|ceiling|max_?cpc/i);
   return [BIDDING[bid] ?? words(bid), cap ? `cap ${aedOf(cap)}` : ""].filter(Boolean).join(", ");
 }

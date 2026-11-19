@@ -186,10 +186,11 @@ function kpis(b: Blocks) {
     .map((k, i) => {
       const value = k.value != null ? (k.key === "cpc" ? aed2(k.value) : k.money ? aed0(k.value) : n0(k.value)) : k.text ?? DASH;
       const color = k.key === "leads" && k.value === 0 ? COLORS.bad : KPI_COLOR[k.key];
-      const top = k.delta ? chip(k.delta.ch, k.delta.tone, vs) : k.chip ? `<span class="chip" data-tone="neu">${esc(k.chip)}</span>` : "";
+      // Label row: the label only. The change chip sits right of the number; a target is plain text under it.
       return `<section class="lr-card gx-card gx-kpi" aria-label="${esc(k.label)}">
-        <div class="gx-kpi__top"><h3 class="lr-card__title">${esc(k.label)}</h3>${top}</div>
-        <p class="num gx-kpi__v${k.value == null && !k.text ? " is-na" : ""}">${esc(k.value == null && !k.text ? DASH : value)}</p>
+        <div class="gx-kpi__top"><h3 class="lr-card__title" title="${esc(k.label)}">${esc(k.label)}</h3></div>
+        <div class="gx-kpi__vr"><p class="num gx-kpi__v${k.value == null && !k.text ? " is-na" : ""}">${esc(k.value == null && !k.text ? DASH : value)}</p>${k.delta ? chip(k.delta.ch, k.delta.tone, vs) : ""}</div>
+        ${k.chip ? `<p class="cap gx-kpi__tgt">${esc(k.chip)}</p>` : ""}
         ${k.reason ? `<p class="cap gx-kpi__why">${esc(k.reason)}</p>` : k.gauge ? gauge(k.gauge.value, k.gauge.target) : spark(k.spark, color, `kg${i}`)}
         <p class="cap">${esc(k.sub || " ")}</p>
       </section>`;
@@ -997,8 +998,9 @@ const GX_CSS = `
 .gx-customf input { min-height: 40px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 12px; background: #fff; color: var(--text); }
 .gx-customf button { min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--text); color: #fff; font-weight: 700; cursor: pointer; }
 .gx-err { flex-basis: 100%; color: #A12D2D; font-size: 13px; }
-.gx-note { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,.65); color: var(--text); font: 600 13px/1.4 var(--font); }
-.gx-note[data-tone="bad"] { background: #FDECEC; color: #8A2323; }
+.gx-note { display: flex; align-items: center; gap: 8px; color: var(--text); font: 600 13px/1.4 var(--font); }
+.gx-note > svg { flex: none; }
+.gx-note[data-tone="bad"] { padding: 10px 14px; border-radius: 14px; background: #FDECEC; color: #8A2323; }
 /* Header freshness badge (Google Ads): green on time, amber late, red not updating. */
 .lr-fresh__tone[data-tone], .lr-brand__live[data-tone], .lr-menu__state[data-tone] { font-weight: 600; }
 .lr-fresh__tone[data-tone="good"], .lr-brand__live[data-tone="good"], .lr-menu__state[data-tone="good"] { color: #0B6B47; }
@@ -1016,9 +1018,13 @@ const GX_CSS = `
 /* 3. KPIs */
 .gx-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
 .gx-kpi { padding: 18px 20px 14px; display: flex; flex-direction: column; gap: 6px; }
-.gx-kpi__top { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 24px; }
-.gx-kpi__top .lr-card__title { margin: 0; white-space: nowrap; }
-.gx-kpi__v { font-size: 30px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gx-kpi__top { display: flex; align-items: center; min-height: 24px; min-width: 0; }
+.gx-kpi__top .lr-card__title { display: block; margin: 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The chip goes under the number when both don't fit, so the number is never cut for it. */
+.gx-kpi__vr { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; min-width: 0; }
+.gx-kpi__vr .chip { flex: none; white-space: nowrap; }
+.gx-kpi__tgt { color: var(--muted); margin-top: -4px; }
+.gx-kpi__v { min-width: 0; font-size: 30px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gx-kpi__v.is-na { color: var(--muted); }
 .gx-kpi__why { min-height: 40px; display: flex; align-items: center; }
 .gx-spark { display: block; width: 100%; height: 40px; }
@@ -1265,7 +1271,6 @@ th[aria-sort="ascending"] .gx-sort::after { content: " ▲"; font-size: 9px; col
   .gx-kpis { gap: 12px; }
   .gx-kpi { padding: 14px 14px 10px; }
   .gx-kpi__v { font-size: 22px; }
-  .gx-kpi__top { flex-wrap: wrap; }
   .gx-foot4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gx-dn { gap: 14px; }
   .gx-terms { grid-template-columns: minmax(0, 1fr); }
