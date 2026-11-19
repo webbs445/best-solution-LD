@@ -1,112 +1,563 @@
-import { CSS, SCRIPT, dashCss, esc, href, icon, info, sprite, topbar, viewSwitch } from "@/lib/adLandingsPage";
-import { yTicks } from "@/lib/adLandingsReport";
+import { CSS, dashCss, esc, href, sprite, topbar, viewSwitch, type Freshness } from "@/lib/adLandingsPage";
 import { REPORT_START } from "@/lib/adsReport";
-import {
-  THRESHOLDS,
-  attention,
-  erpFor,
-  erpIn,
-  lowQualityScore,
-  negativeCandidate,
-  noLeadKeyword,
-  pausedSince,
-  type Attention,
-  type ErpLead,
-} from "@/lib/googleAdsInsights";
+import { biddingLabel, blocks, dayMonth, span, type Blocks, type Kpi } from "@/lib/googleAdsBlocks";
+import { THRESHOLDS, erpFor, friendly, kwKey, lowQualityScore, noLeadKeyword, pausedSince, type Attention, type ErpLead } from "@/lib/googleAdsInsights";
+import type { Entry } from "@/lib/adLandingsReport";
 import type { Diagnosis, SheetData } from "@/lib/googleAdsSheet";
 import {
-  CHANNEL_LABEL,
   DASH,
   PERIODS,
+  adGroupRows,
   adRows,
-  addDays,
-  alertsOf,
   campaignRows,
-  change,
-  channelOf,
+  channelInfo,
+  conversionRows,
   cpc,
-  ctr,
-  dateOf,
-  daysIn,
   div,
   fmtAed,
   fmtNum,
   fmtShare,
   freshness,
-  groupBy,
   historyEntities,
   historySteps,
-  inPeriod,
   imprShare,
+  inPeriod,
   keywordRows,
-  lostBudget,
   nextRun,
-  pickPeriod,
   rowsOf,
   searchTermRows,
-  segmentRows,
   stampMs,
   stampOf,
   statusOf,
   str,
-  totals,
   type AdRow,
   type CampaignRow,
-  type Channel,
-  type Fresh,
   type KeywordRow,
   type NamedRow,
-  type Period,
   type Row,
   type TermRow,
   type Totals,
 } from "@/lib/googleAdsReport";
 
 /*
-  The Google Ads view of the ads dashboard (/ads-report?view=google-ads), rendered on the server from the report Sheet
-  (through the Apps Script bridge) and the ERP's Google Ads leads. It answers three questions, top to bottom:
-  1. Is anything wrong? (Needs attention)  2. How are we doing? (period, channel, KPIs, trend)  3. Why? (Campaigns ·
-  Search · Audience · History). It wears the dashboard's design: the Ad landings page's top bar, view switch, styles
-  and script are reused; the gad-* rules below add this view's parts.
-  Query: ?range= | ?from=&to=, ?compare=off, ?channel=all|search|demandgen, ?campaign=<name>, ?section=, ?sub=,
-  ?flag=noleads|lowqs|negative, ?hist=<id>, ?note= (after Refresh).
+  The Google Ads view of the ads dashboard (/ads-report?view=google-ads), rendered on the server in the dashboard's light
+  "Copper & Glass" look (the same header, page, cards and copper accent as ERP status and Ad landings: their styles are
+  reused, the gx-* rules below only add this view's parts). Numbers come from lib/googleAdsBlocks (the Sheet through the
+  Apps Script bridge, the ERP's Google Ads leads, the ad landing counter); this file only lays them out, top to bottom:
+  header and filters, tracking banner, KPIs, the 30-day chart with Needs attention and Budget to redirect, channel /
+  lead quality / funnel, cost per qualified lead and the lead heatmap, devices / cities / landing pages, search terms
+  and campaigns, then "All details" (one tabbed table). Charts are inline SVG.
+  Query: ?range=today|7d|30d|month or ?from=&to=, ?channel=<campaign type, e.g. search, demand_gen>,
+  ?details=<tab> (opens All details on that tab), ?hist=<id> (settings history), ?note= (after Refresh).
 */
 
 /* ---------- Formatting ---------- */
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const dayMonth = (d: string) => `${Number(d.slice(8))} ${MONTHS[Number(d.slice(5, 7)) - 1]}`;
-const span = (a: string, b: string) => (a === b ? dayMonth(a) : `${dayMonth(a)} – ${dayMonth(b)}`);
-const datesBetween = (a: string, b: string) => Array.from({ length: Math.max(0, daysIn(a, b)) }, (_, i) => addDays(a, i));
-/** "APPROVED_LIMITED" → "Approved limited". */
+const aed0 = (v: number | null) => (v == null || !Number.isFinite(v) ? DASH : `AED ${Math.round(v).toLocaleString("en-US")}`);
+const aed2 = (v: number | null) => (v == null || !Number.isFinite(v) ? DASH : `AED ${v.toFixed(2)}`);
+const n0 = (v: number | null) => (v == null || !Number.isFinite(v) ? DASH : Math.round(v).toLocaleString("en-US"));
+const pct = (v: number | null, dp = 0) => (v == null || !Number.isFinite(v) ? DASH : `${(v * 100).toFixed(dp)}%`);
+const plural = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString("en-US")} ${n === 1 ? one : many}`;
 const pretty = (s: string) => (s ? (s[0] + s.slice(1).toLowerCase()).replace(/_/g, " ") : DASH);
-const count1 = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString("en-US")} ${n === 1 ? one : many}`;
+const svg = (paths: string, size = 16, extra = "") => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra}>${paths}</svg>`;
+const I = {
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  download: '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
+  alert: '<path d="M12 8v5"/><path d="M12 17h.01"/>',
+  check: '<path d="m5 12 5 5 9-10"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+  phone: '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/>',
+};
+/** A small "i" that shows its text on hover and keyboard focus. */
+const tip = (label: string, text: string) => `<span class="gx-tip" tabindex="0" role="note" aria-label="${esc(`${label}: ${text}`)}" data-tip="${esc(text)}">${svg(I.info, 14)}</span>`;
+// Channel colours live in CHANNELS (googleAdsReport); these are the status colours of the light theme.
+const COLORS = { search: channelInfo("SEARCH").color, extra: "#7B5CE0", good: "#12A16B", bad: "#D64545", warn: "#E09A1E", grey: "#A9A39B" } as const;
+/** A channel colour darkened enough for small text on the light cards (AA). */
+const ink = (c: string) => `color-mix(in srgb, ${c} 72%, #000)`;
 
-type Tone = "good" | "warn" | "bad" | "neutral" | "muted";
-const TONES: [RegExp, Tone][] = [
-  [/^(enabled|approved|excellent|good|above[_ ]average|eligible|added)$/i, "good"],
-  [/^(paused)$/i, "neutral"],
-  [/^(removed)$/i, "muted"],
-  [/^(average|limited|approved[_ ]limited|learning|pending|under[_ ]review)$/i, "warn"],
-  [/^(disapproved|poor|below[_ ]average|excluded|not[_ ]eligible|suspended)$/i, "bad"],
-];
-const toneOf = (s: string): Tone => TONES.find(([re]) => re.test(s.trim()))?.[1] ?? "neutral";
-const pill = (s: string) => (s ? `<span class="gad-pill" data-tone="${toneOf(s)}">${esc(pretty(s))}</span>` : DASH);
-/** A long name cut with an ellipsis; the full name in the tooltip. */
-const trunc = (s: string) => `<span class="gad-trunc" title="${esc(s)}">${esc(s || DASH)}</span>`;
+/** Change chip: arrow and words, not colour alone. */
+function chip(ch: number | null, tone: "good" | "bad" | "neu", vsWords: string) {
+  if (ch == null) return "";
+  const p = Math.round(ch * 100);
+  const dir = p > 0 ? "up" : p < 0 ? "down" : "flat";
+  return `<span class="chip" data-tone="${tone}"><span aria-hidden="true">${dir === "up" ? "▲" : dir === "down" ? "▼" : "→"}</span>${Math.abs(p)}%<span class="sr"> ${dir === "flat" ? "no change" : dir} vs ${esc(vsWords)}</span></span>`;
+}
 
-/* ---------- Tables: sortable, searchable, filterable, CSV of the matching rows, 25 rows then "Show more" ---------- */
+/* ---------- Small charts ---------- */
+
+function spark(vals: number[], color: string, id: string) {
+  const v = vals.length > 1 ? vals : [vals[0] ?? 0, vals[0] ?? 0];
+  const max = Math.max(...v), min = Math.min(...v), rng = max - min || 1;
+  const pts = v.map((y, i) => [(i / (v.length - 1)) * 120, 3 + (1 - (y - min) / rng) * 30]);
+  const line = pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+  return `<svg class="gx-spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${line} L120,36 L0,36 Z" fill="url(#${id})"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+const C = 2 * Math.PI * 54;
+function donut(parts: { v: number; c: string }[], label: string, center: string, size = 140, stroke = 16) {
+  const tot = parts.reduce((s, p) => s + p.v, 0);
+  let acc = 0;
+  const gap = parts.filter((p) => p.v > 0).length > 1 ? 4 : 0;
+  const segs = tot
+    ? parts
+        .filter((p) => p.v > 0)
+        .map((p) => {
+          const len = (p.v / tot) * C;
+          const s = `<circle cx="70" cy="70" r="54" fill="none" stroke="${p.c}" stroke-width="${stroke}" stroke-dasharray="${Math.max(len - gap, 0.5).toFixed(1)} ${C.toFixed(1)}" stroke-dashoffset="${(-acc).toFixed(1)}"/>`;
+          acc += len;
+          return s;
+        })
+        .join("")
+    : "";
+  return `<div class="gx-donut" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 140 140" role="img" aria-label="${esc(label)}"><g transform="rotate(-90 70 70)"><circle cx="70" cy="70" r="54" fill="none" stroke="#EFE9E2" stroke-width="${stroke}"/>${segs}</g></svg><div class="gx-donut__c">${center}</div></div>`;
+}
+
+/** A card in the dashboard's light glass style, its title like the other views' card titles. */
+const card = (id: string, title: string, sub: string, body: string, extra = "", cls = "") =>
+  `<section class="lr-card gx-card ${cls}" aria-labelledby="${id}-t"${id ? ` id="${id}"` : ""}><div class="ct"><h2 class="lr-card__title" id="${id}-t">${esc(title)}</h2>${sub ? `<span class="cap">· ${esc(sub)}</span>` : ""}${extra ? `<span class="ct__x">${extra}</span>` : ""}</div>${body}</section>`;
+const none = (text: string) => `<p class="gx-none">${esc(text)}</p>`;
+
+/* ---------- 1. Header ---------- */
+
+function head(b: Blocks, q: URLSearchParams, today: string) {
+  const p = b.period;
+  const seg = (items: [string, string][], key: string, cur: string, label: string) =>
+    `<nav class="seg" aria-label="${label}">${items.map(([k, l]) => `<a href="${esc(href(q, { [key]: k, from: null, to: null, note: null }))}"${cur === k ? ' aria-current="page"' : ""}>${esc(l)}</a>`).join("")}<button type="button" class="gx-custom-btn" aria-expanded="${p.error ? "true" : "false"}" aria-controls="gx-custom"${p.key === "custom" ? ' aria-current="page"' : ""}>${p.key === "custom" ? esc(span(p.from, p.to)) : "Custom"}</button></nav>`;
+  const keep = q.get("channel") ? `<input type="hidden" name="channel" value="${esc(q.get("channel"))}">` : "";
+  // Channel: All + each campaign type with spend in the period (highest first); more than 4 → the top 3 + "More".
+  const chHref = (k: string) => esc(href(q, { channel: k === "all" ? null : k.toLowerCase(), note: null }));
+  const chLink = (k: string, label: string) => `<a href="${chHref(k)}"${b.channel === k ? ' aria-current="page"' : ""}>${esc(label)}</a>`;
+  const shown = b.channels.length > 4 ? b.channels.slice(0, 3) : b.channels;
+  const rest = b.channels.slice(shown.length);
+  const restOn = rest.some((c) => c.key === b.channel);
+  const channelNav = `<nav class="seg gx-chseg" aria-label="Channel">${chLink("all", "All")}${shown.map((c) => chLink(c.key, c.label)).join("")}${
+    rest.length
+      ? `<details class="gx-more-ch"><summary${restOn ? ' aria-current="page"' : ""}>${restOn ? esc(rest.find((c) => c.key === b.channel)!.label) : "More"}</summary><div class="gx-more-ch__m">${rest.map((c) => chLink(c.key, c.label)).join("")}</div></details>`
+      : ""
+  }</nav>`;
+  return `<div class="gx-head">
+      <div class="gx-head__t"><p class="gx-kicker">Best Solution Management Services · ${esc(span(p.from, p.to))} vs ${esc(span(p.prevFrom, p.prevTo))}</p><h1>Google Ads</h1></div>
+      ${seg(PERIODS.map(([k, l]) => [k, l]), "range", p.key, "Period")}
+      ${channelNav}
+      <a class="gx-refresh" href="${esc(href(q, { refresh: "1", note: null }))}" aria-label="Refresh (once every 2 minutes)" title="Refresh (once every 2 minutes)">${svg(I.refresh, 17)}</a>
+    </div>
+    <form class="gx-customf" id="gx-custom" method="get" action=""${p.error ? "" : " hidden"} aria-label="Custom period">
+      <input type="hidden" name="view" value="google-ads">${keep}
+      <label>From <input type="date" name="from" value="${esc(p.from)}" max="${esc(today)}" required></label>
+      <label>To <input type="date" name="to" value="${esc(p.to)}" max="${esc(today)}" required></label>
+      <button type="submit">Apply</button>
+      ${p.error ? `<p class="gx-err" role="alert">${esc(p.error)}</p>` : ""}
+    </form>`;
+}
+
+/* ---------- 2. Tracking banner and the form test ---------- */
+
+function banner(b: Blocks) {
+  if (!b.banner) return "";
+  const { since, landings, leads } = b.banner;
+  return `<div class="gx-banner" role="alert">
+      <span class="gx-banner__i">${svg(I.alert, 16, ' stroke-width="2.6"')}</span>
+      <p><b>Lead tracking under test since ${esc(since ? dayMonth(since) : DASH)}</b> · ${landings != null ? `${n0(landings)} landings, ` : ""}${plural(leads, "form lead")}. Lead numbers may be missing.</p>
+      <button type="button" class="gx-banner__b" aria-expanded="false" aria-controls="form-test">Run form test</button>
+    </div>
+    <section class="lr-card gx-card gx-test" id="form-test" hidden aria-labelledby="form-test-t">
+      <div class="ct"><h2 class="lr-card__title" id="form-test-t">Form test · 5 steps</h2></div>
+      <ol>
+        <li>Open Google Tag Manager, click <b>Preview</b> and connect it to <b>business.best-solution.ae/freezone</b>.</li>
+        <li>Send the form as a test lead: name <b>Test</b>, phone <b>050 000 0000</b>.</li>
+        <li>In the Preview window, check that the tag <b>"Google Ads - Lead Form Submit"</b> fired on the thank-you step.</li>
+        <li>Check that the test lead arrived in the ERP (and in this view after the next ERP refresh, up to 5 minutes).</li>
+        <li>Delete the test lead in the ERP, so it never counts as a real lead.</li>
+      </ol>
+      <p class="cap">If the tag didn't fire, the form works but Google Ads can't see leads: fix the tag before changing ads or budgets.</p>
+    </section>`;
+}
+
+/* ---------- 3. KPIs ---------- */
+
+const KPI_COLOR: Record<Kpi["key"], string> = { spend: COLORS.search, clicks: COLORS.extra, cpc: COLORS.search, leads: COLORS.good, cpl: COLORS.good };
+
+function kpis(b: Blocks) {
+  const vs = span(b.period.prevFrom, b.period.prevTo);
+  return `<div class="gx-kpis">${b.kpis
+    .map((k, i) => {
+      const value = k.value != null ? (k.key === "cpc" ? aed2(k.value) : k.money ? aed0(k.value) : n0(k.value)) : k.text ?? DASH;
+      const color = k.key === "leads" && k.value === 0 ? COLORS.bad : KPI_COLOR[k.key];
+      const top = k.delta ? chip(k.delta.ch, k.delta.tone, vs) : k.chip ? `<span class="chip" data-tone="neu">${esc(k.chip)}</span>` : "";
+      return `<section class="lr-card gx-card gx-kpi" aria-label="${esc(k.label)}">
+        <div class="gx-kpi__top"><h3 class="lr-card__title">${esc(k.label)}</h3>${top}</div>
+        <p class="num gx-kpi__v${k.value == null && !k.text ? " is-na" : ""}">${esc(k.value == null && !k.text ? DASH : value)}</p>
+        ${k.reason ? `<p class="cap gx-kpi__why">${esc(k.reason)}</p>` : k.gauge ? gauge(k.gauge.value, k.gauge.target) : spark(k.spark, color, `kg${i}`)}
+        <p class="cap">${esc(k.sub || " ")}</p>
+      </section>`;
+    })
+    .join("")}</div>`;
+}
+
+/** Since start vs the target: a bar on a 0 – 2 × target scale with the target marked at the middle; red over, green under. */
+function gauge(v: number, target: number) {
+  const over = v > target;
+  return `<div class="gx-gauge" role="img" aria-label="${esc(`Since start: ${aed0(v)} per qualified lead, target ${aed0(target)}, ${over ? "over" : "under"} target`)}">
+    <div class="gx-gauge__top"><span class="cap">Since start</span><b data-tone="${over ? "bad" : "good"}">${esc(aed0(v))}</b></div>
+    <div class="gx-gauge__tr" aria-hidden="true"><span data-kind="${over ? "over" : "under"}" style="width:${Math.min(100, (v / (2 * target)) * 100).toFixed(1)}%"></span><i></i></div>
+    <div class="gx-gauge__t cap" aria-hidden="true">target ${esc(aed0(target))}</div>
+  </div>`;
+}
+
+/* ---------- 4. Spend and leads, last 30 days ---------- */
+
+const KIND_WORD = { Status: "status changed", Budget: "budget changed", Bidding: "bidding changed" } as const;
+
+/** Round steps (1, 2, 2.5 or 5 × 10ⁿ): three gridlines above 0, the top about 15% above the highest day. */
+function threeTicks(max: number) {
+  const raw = Math.max(1, max * 1.15) / 3;
+  const p = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((s) => s >= raw)!;
+  return [0, step, 2 * step, 3 * step];
+}
+
+/** The All details panel on a tab (and opened there). */
+const detailsHref = (q: URLSearchParams, tab: string) => `${href(q, { details: tab, hist: null, refresh: null, note: null })}#details`;
+
+function chart(b: Blocks, today: string, q: URLSearchParams) {
+  const c = b.chart;
+  const n = c.days.length;
+  const tops = c.days.map((d) => d.costs.reduce((s, v) => s + v, 0));
+  const ticks = threeTicks(Math.max(0, ...tops)), max = ticks[3];
+  // The plot stretches to the card's height: lines and areas in a 1000 × 1000 box drawn without keeping the aspect
+  // ratio; dots, labels and pills are HTML on top (positions in %), so circles and text never stretch.
+  const px = (i: number) => (i / Math.max(1, n - 1)) * 100;
+  const py = (v: number) => (1 - v / max) * 100;
+  const cum = c.stacks.map((_, k) => c.days.map((d) => d.costs.slice(0, k + 1).reduce((s, v) => s + v, 0)));
+  // Soft gradients on light: about 35% at the top, nothing at the bottom; plain 2px lines, no glow.
+  const grads = c.stacks.map((s, k) => `<linearGradient id="gk${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.color}" stop-opacity=".35"/><stop offset="1" stop-color="${s.color}" stop-opacity="0"/></linearGradient>`).join("");
+  // Each type is drawn from its first day with spend (Demand Gen starts mid-chart), so its line never runs over Search.
+  const areas = c.stacks
+    .map((s, k) => {
+      const from = Math.max(0, c.days.findIndex((d) => d.costs[k] > 0));
+      const seg = (vals: number[]) => vals.map((v, i) => [i, v] as const).slice(from);
+      const line = seg(cum[k]).map(([i, v], j) => `${j ? "L" : "M"}${(px(i) * 10).toFixed(1)},${(py(v) * 10).toFixed(1)}`).join(" ");
+      const base = seg(k ? cum[k - 1] : c.days.map(() => 0)).reverse().map(([i, v]) => `L${(px(i) * 10).toFixed(1)},${(py(v) * 10).toFixed(1)}`).join(" ");
+      return `<path d="${line} ${base} Z" fill="url(#gk${k})"/><path d="${line}" fill="none" stroke="${s.color}" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+    })
+    .join("");
+  const grid = ticks.map((v) => `<line x1="0" x2="1000" y1="${(py(v) * 10).toFixed(1)}" y2="${(py(v) * 10).toFixed(1)}" stroke="${v ? "rgba(20,37,62,.08)" : "rgba(20,37,62,.18)"}" vector-effect="non-scaling-stroke"/>`).join("");
+  const yl = ticks.map((v) => `<span class="gx-ay" style="top:${py(v).toFixed(2)}%">${n0(v)}</span>`).join("");
+  const xl = [0, 7, 14, 21, n - 1].map((i, k) => `<span class="gx-ax${k % 2 ? " gx-ax--wide" : ""}" style="left:${px(i).toFixed(2)}%">${esc(dayMonth(c.days[i].day))}</span>`).join("");
+  // Lead dots float just above the top line on lead days, bigger with more leads.
+  const dots = c.leadsKnown
+    ? c.days.map((d, i) => (d.leads ? `<span class="gx-ld" style="left:${px(i).toFixed(2)}%;top:${py(tops[i]).toFixed(2)}%;--r:${4 + 2 * Math.min(d.leads, 3)}px" title="${esc(`${dayMonth(d.day)} · ${plural(d.leads, "lead")}`)}"></span>` : "")).join("")
+    : "";
+  // Two labels at most: the newest channel start ("Demand Gen on") and the newest bidding or budget change, with its new
+  // value (a status change only when there's none: channel starts have their own label).
+  const start = c.stacks
+    .map((s, k) => ({ s, i: c.days.findIndex((d) => d.costs[k] > 0) }))
+    .filter(({ s, i }) => s.key !== "SEARCH" && i > 0)
+    .sort((a, z) => z.i - a.i)[0];
+  const last = c.markers.filter((m) => m.kind !== "Status").at(-1) ?? c.markers.at(-1);
+  const lastI = last ? c.days.findIndex((d) => d.day === last.day) : -1;
+  const vline = (x: number, color: string, dash: string) => `<line x1="${(x * 10).toFixed(1)}" x2="${(x * 10).toFixed(1)}" y1="0" y2="1000" stroke="${color}" stroke-dasharray="${dash}" vector-effect="non-scaling-stroke"/>`;
+  const side = (x: number) => (x > 70 ? "end" : x < 30 ? "start" : "mid");
+  const pills = [
+    start ? `<span class="gx-on" data-side="${side(px(start.i))}" style="left:${px(start.i).toFixed(2)}%;color:${ink(start.s.color)}">${esc(start.s.label)} on</span>` : "",
+    last && lastI >= 0
+      ? `<span class="gx-pill" data-side="${side(px(lastI))}" style="left:${px(lastI).toFixed(2)}%" title="${esc(`${last.campaign}${last.who ? ` · by ${last.who}` : ""}`)}">${esc(dayMonth(last.day))} · <span class="gx-pill__n">${esc(friendly(last.campaign))} · </span>${esc(last.detail || KIND_WORD[last.kind])}</span>`
+      : "",
+  ].join("");
+  const lines = `${start ? vline(px(start.i), start.s.color, "3 6") : ""}${last && lastI >= 0 ? vline(px(lastI), "rgba(20,37,62,.45)", "4 6") : ""}`;
+  // Per-day numbers for the tooltip (hover, or focus the chart and use the arrow keys).
+  const tipDays = c.days.map((d) => ({
+    t: `${dayMonth(d.day)}${d.day === today ? " (partial)" : ""}`,
+    r: [...c.stacks.map((s, k) => [s.label, aed0(d.costs[k])]), ["Leads", c.leadsKnown ? String(d.leads) : DASH]],
+  }));
+  const f = c.foot;
+  const label = `Daily spend, last 30 days: ${c.stacks.map((s, k) => `${s.label} ${aed0(c.days.reduce((a, d) => a + d.costs[k], 0))}`).join(", ") || "no spend"}. ${f.leads == null ? "ERP leads not connected." : `${plural(f.leads, "ERP lead")}.`}${c.lastLead ? ` Last lead ${dayMonth(c.lastLead)}.` : ""}${start ? ` ${start.s.label} started ${dayMonth(c.days[start.i].day)}.` : ""}${last ? ` Latest change: ${dayMonth(last.day)}, ${friendly(last.campaign)}, ${last.detail || KIND_WORD[last.kind]}.` : ""}`;
+  const legend = `${c.stacks.map((s) => `<span class="leg"><span class="sw" style="background:${s.color}"></span>${esc(s.label)}</span>`).join("")}${c.leadsKnown ? '<span class="leg"><span class="sw sw--dot"></span>Leads</span>' : ""}`;
+  const late = f.lastLeadDays != null && f.lastLeadDays > THRESHOLDS.bannerLeadDays;
+  return card(
+    "gx-chart",
+    "Spend and leads",
+    "last 30 days",
+    `<div class="gx-chart" tabindex="0" aria-label="Daily numbers: use the left and right arrow keys" data-days="${esc(JSON.stringify(tipDays))}">
+      <div class="gx-plot" role="img" aria-label="${esc(label)}">
+        <div class="gx-plot__in">
+          ${yl}
+          <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><defs>${grads}</defs>${grid}${areas}${lines}</svg>
+          ${pills}${dots}
+          <span class="gx-guide" hidden></span>
+        </div>
+        <div class="gx-axis">${xl}</div>
+      </div>
+      <div class="gx-ctip" role="status" aria-live="polite" hidden></div>
+    </div>
+    <div class="gx-foot4">
+      <div><p class="cap">30-day spend</p><p class="num">${esc(aed0(f.spend))}</p></div>
+      <div><p class="cap">Leads (ERP)</p><p class="num">${esc(f.leads == null ? DASH : n0(f.leads))}</p></div>
+      <div><p class="cap">Cost per lead</p><p class="num">${esc(f.leads ? aed0(f.spend / f.leads) : f.leads === 0 ? "No leads" : DASH)}</p></div>
+      <div><p class="cap">Last lead</p><p class="num"${late ? ' data-tone="bad"' : ""}>${esc(f.lastLeadDays == null ? DASH : f.lastLeadDays === 0 ? "today" : `${plural(f.lastLeadDays, "day")} ago`)}</p></div>
+    </div>
+    ${c.changeCount ? `<a class="gx-chlink" href="${esc(detailsHref(q, "history"))}">${plural(c.changeCount, "change")} in 30 days →</a>` : ""}`,
+    `<span class="gx-legend">${legend}</span>`,
+    "gx-chartcard",
+  );
+}
+
+/* ---------- 5, 6. Needs attention, budget to redirect ---------- */
+
+/** Where an attention item's action goes: an anchor on the page, or a tab of All details. */
+const actionHref = (q: URLSearchParams, target: string) => (target === "d-campaigns" ? detailsHref(q, "campaigns") : target === "d-changes" ? detailsHref(q, "history") : `#${target}`);
+
+function attentionCard(b: Blocks, q: URLSearchParams) {
+  const items = b.attn;
+  const icon = (a: Attention) => (a.share != null ? "%" : a.level === "red" ? "!" : "▲");
+  const li = items
+    .map((a, i) => `<li class="gx-attn__i" data-level="${a.level}"${i >= THRESHOLDS.visibleItems ? " hidden data-extra" : ""}>
+        <span class="gx-attn__ic" aria-hidden="true">${icon(a)}</span>
+        <div class="gx-attn__b"><p class="gx-attn__t"><span class="sr">${a.level === "red" ? "Urgent" : "Check"}: </span>${esc(a.title)}</p><p class="cap">${esc(a.why)}${a.source === "sheet" ? ` · from the Sheet's ${esc(b.alertsCheckedAt.slice(11, 16) || "")} check` : ""}</p><a href="${esc(actionHref(q, a.action.target))}"${a.action.target.startsWith("d-") ? "" : ` data-open="${a.action.target}"`}>${esc(a.action.label)} →</a></div>
+        <p class="gx-attn__a">${esc(a.share != null ? pct(a.share) : a.aed != null ? aed0(a.aed) : "")}</p>
+      </li>`)
+    .join("");
+  const reds = items.filter((a) => a.level === "red").length;
+  const extra = items.length - THRESHOLDS.visibleItems;
+  const r = b.redirect;
+  const redirect = r
+    ? `<div class="gx-redirect" id="redirect" tabindex="-1" title="${esc(`${friendly(r.from)} spent ${aed0(r.aed)} in 7 days with no qualified lead. ${friendly(r.to)} costs ${aed0(r.cpl)} per qualified lead since ${dayMonth(REPORT_START)} and loses ${pct(r.lost)} of impressions to budget.`)}">
+        <p class="gx-redirect__k">Budget to redirect <span>· estimate</span></p>
+        <p class="num gx-redirect__v">${esc(aed0(r.aed))} / week</p>
+        <p class="gx-redirect__s">${esc(friendly(r.from))} → ${esc(friendly(r.to))} · ~${r.more} more qualified ${r.more === 1 ? "lead" : "leads"}/week</p>
+      </div>`
+    : "";
+  return `<section class="lr-card gx-card gx-attn" aria-labelledby="gx-attn-t">
+      <div class="ct"><h2 class="lr-card__title" id="gx-attn-t">Needs attention</h2>${items.length ? `<span class="chip" data-tone="${reds ? "bad" : "warn"}">${items.length}<span class="sr"> items, ${reds} urgent</span></span>` : ""}</div>
+      ${items.length ? `<ol class="gx-attn__l">${li}</ol>${extra > 0 ? `<button type="button" class="gx-more gx-attn__all" aria-expanded="false">Show all (${extra} more)</button>` : ""}` : `<p class="gx-clear">${svg(I.check, 18)} Nothing needs attention in this period.</p>`}
+      <div class="gx-grow"></div>
+      ${redirect}
+    </section>`;
+}
+
+/* ---------- 7, 8, 9. Spend by channel, lead quality, funnel ---------- */
+
+function spendCard(b: Blocks) {
+  const s = b.spend;
+  const label = s.parts.map((p) => `${p.label} ${pct(p.share)}`).join(", ");
+  const body = s.total
+    ? `<div class="gx-dn">${donut(s.parts.map((p) => ({ v: p.cost, c: p.color })), `Spend by channel: ${label}. Total ${aed0(s.total)}`, `<p class="num gx-dn__v">${esc(aed0(s.total))}</p><p class="cap">total</p>`)}
+        <ul class="gx-dn__l">${s.parts.map((p) => `<li><span class="leg"><span class="sw" style="background:${p.color}"></span>${esc(p.label)}</span><p class="gx-dn__n">${esc(aed0(p.cost))} <span class="cap">${esc(pct(p.share))}</span></p><p class="cap">${esc(plural(p.clicks, "click"))} · ${p.leads == null ? `${DASH} leads` : esc(plural(p.leads, "lead"))}</p></li>`).join("")}</ul></div>`
+    : none("No spend in this period.");
+  return card("gx-spend", "Spend by channel", span(b.period.from, b.period.to), body);
+}
+
+function qualityCard(b: Blocks) {
+  const q = b.quality;
+  if (!q) return card("gx-quality", "Lead quality", "ERP", none(b.erpReason));
+  const label = `${q.qualified} qualified, ${q.notQualified} not qualified, ${q.won} won, of ${q.total} Google Ads leads since ${dayMonth(REPORT_START)}`;
+  const body = q.total
+    ? `<div class="gx-dn">${donut(
+        [{ v: q.qualified - q.won, c: COLORS.good }, { v: q.won, c: COLORS.search }, { v: q.notQualified, c: COLORS.grey }],
+        label,
+        `<p class="num gx-dn__v gx-dn__v--big">${esc(pct(q.share))}</p><p class="cap">qualified</p>`,
+      )}
+      <ul class="gx-dn__l gx-dn__l--rows">
+        <li><span class="leg"><span class="sw" style="background:${COLORS.good}"></span>Qualified</span><b>${q.qualified}</b></li>
+        <li><span class="leg"><span class="sw" style="background:${COLORS.grey}"></span>Not qualified</span><b>${q.notQualified}</b></li>
+        <li><span class="leg"><span class="sw" style="background:${COLORS.search}"></span>Won</span><b>${q.won}</b></li>
+        ${q.top ? `<li class="cap gx-dn__note">${q.top.n} of ${q.total} leads came from ${esc(friendly(q.top.name))}</li>` : ""}
+      </ul></div>`
+    : none(`No Google Ads leads for this channel since ${dayMonth(REPORT_START)}.`);
+  return card("gx-quality", "Lead quality", "ERP", body, `<span class="chip" data-tone="neu">since ${esc(dayMonth(REPORT_START))}</span>`);
+}
+
+function funnelCard(b: Blocks) {
+  const f = b.funnel;
+  const steps: [string, number | null, string][] = [
+    ["Seen", f.seen, "linear-gradient(90deg,#2F5BD3,#4F7CFF)"],
+    ["Clicked", f.clicked, "linear-gradient(90deg,#4F7CFF,#7B8CFF)"],
+    ["Landed", f.landed, "linear-gradient(90deg,#7B8CFF,#7B5CE0)"],
+    ["Leads", f.leads, f.leads ? COLORS.good : COLORS.bad],
+  ];
+  const top = Math.log10((f.seen ?? 0) + 1) || 1;
+  const rows = steps
+    .map(([l, v, bg]) => `<li><span class="cap gx-fn__l">${l}</span><span class="gx-fn__t"><span style="width:${v == null ? 0 : Math.max(3, (Math.log10(v + 1) / top) * 100).toFixed(1)}%;background:${bg}"></span></span><b>${esc(v == null ? DASH : n0(v))}</b></li>`)
+    .join("");
+  const rateTone = (v: number | null) => (v === 0 ? "bad" : "neu");
+  const label = `Search funnel: seen ${n0(f.seen)}, clicked ${n0(f.clicked)}, landed ${f.landed == null ? "not known" : n0(f.landed)}, leads ${f.leads == null ? "not known" : n0(f.leads)}.`;
+  const landTip = `${f.note ? `${f.note} ` : ""}Landings are counted per page, not per campaign: pages of the Search ads (/freezone…). The funnel is Search only, whatever the Channel filter.`;
+  return card(
+    "gx-funnel",
+    "Conversion funnel",
+    `Search, ${span(b.period.from, b.period.to)}`,
+    `<ol class="gx-fn" role="img" aria-label="${esc(label)}">${rows}</ol>
+     <div class="gx-chips"><span class="chip" data-tone="neu">CTR ${esc(pct(f.ctr, 1))}</span><span class="chip" data-tone="neu">Landed ${esc(pct(f.landedRate))}</span><span class="chip" data-tone="${rateTone(f.formRate)}">Form ${esc(pct(f.formRate, 1))}</span>${tip("Landed", landTip)}</div>`,
+  );
+}
+
+/* ---------- 10, 11. Cost per qualified lead, leads per day ---------- */
+
+function cplCard(b: Blocks) {
+  const T = THRESHOLDS.targetCplAed;
+  const rows = b.cplRows;
+  if (!rows) return card("gx-cpl", "Cost per qualified lead", "by campaign", none(b.erpReason));
+  const items = rows
+    .map((r) => {
+      const over = r.cpl != null && r.cpl > T, zero = r.cpl == null;
+      const w = zero ? 100 : Math.min(100, (r.cpl! / (2 * T)) * 100);
+      const word = zero ? "No qualified lead" : `${aed0(r.cpl)}${over ? " · over target" : " · under target"}`;
+      return `<li><div class="gx-cpl__top"><span class="gx-cpl__n" title="${esc(r.name)}">${esc(friendly(r.name))}</span><span class="gx-cpl__v" data-tone="${over || zero ? "bad" : "good"}">${esc(word)}</span></div>
+        <div class="gx-cpl__tr"><span class="gx-cpl__b" data-kind="${zero ? "none" : over ? "over" : "under"}" style="width:${w.toFixed(1)}%"></span><span class="gx-cpl__tg" aria-hidden="true"></span></div>
+        <p class="cap">${esc(aed0(r.cost))} spent · ${esc(plural(r.qualified, "qualified lead"))}</p></li>`;
+    })
+    .join("");
+  const best = rows.find((r) => r.cpl != null && r.cpl <= T);
+  const worst = [...rows].filter((r) => r.cpl == null).sort((a, z) => z.cost - a.cost)[0];
+  const over = rows.filter((r) => r.cpl != null && r.cpl > T)[0];
+  const take = [best ? `${friendly(best.name)} is under the target (${aed0(best.cpl)}).` : "No campaign is under the target.", worst ? `${friendly(worst.name)} has no qualified lead after ${aed0(worst.cost)}.` : over ? `${friendly(over.name)} costs ${aed0(over.cpl)}.` : ""].filter(Boolean).join(" ");
+  const label = `Cost per qualified lead since ${dayMonth(REPORT_START)} against the AED ${T} target: ${rows.map((r) => `${friendly(r.name)} ${r.cpl == null ? "no qualified lead" : aed0(r.cpl)}`).join("; ")}.`;
+  return card(
+    "gx-cpl",
+    "Cost per qualified lead",
+    `by campaign, since ${dayMonth(REPORT_START)}`,
+    rows.length ? `<ul class="gx-cpl" role="img" aria-label="${esc(label)}">${items}</ul><p class="gx-take" data-tone="${best ? "good" : "bad"}">${esc(take)}</p>` : none("No spend since counting started."),
+    `<span class="leg"><span class="gx-target" aria-hidden="true"></span>Target AED ${T}</span>`,
+  );
+}
+
+const SHADES = ["#F1ECE6", "#C9EEDB", "#6FD3A5", "#12A16B"];
+function heatCard(b: Blocks, today: string) {
+  if (!b.heat) return card("gx-heat", "Leads per day", "ERP, last 6 weeks", none(b.erpReason));
+  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const cells = b.heat
+    .map((w) => `<span class="cap gx-heat__w">${esc(dayMonth(w[0].day))}</span>${w
+      .map((c) => {
+        if (c.n == null) return `<span class="gx-heat__c is-off" title="${esc(`${dayMonth(c.day)} · ${c.day > today ? "not yet" : "before counting started"}`)}"></span>`;
+        const lvl = Math.min(c.n, 3);
+        return `<span class="gx-heat__c" style="background:${SHADES[lvl]};color:${lvl >= 3 ? "#FFFFFF" : "#0E3B28"}" title="${esc(`${dayMonth(c.day)} · ${plural(c.n, "lead")}`)}">${c.n || ""}</span>`;
+      })
+      .join("")}`)
+    .join("");
+  const total = b.heat.flat().reduce((s, c) => s + (c.n ?? 0), 0);
+  const last = b.lastLead;
+  const gap = last ? Math.round((Date.parse(today) - Date.parse(last)) / 86_400_000) : null;
+  const take = !last ? "No form leads since counting started." : gap! > THRESHOLDS.bannerLeadDays ? `No form leads since ${dayMonth(last)} (${gap} days).` : `${plural(total, "lead")} in 6 weeks; the last on ${dayMonth(last)}.`;
+  return card(
+    "gx-heat",
+    "Leads per day",
+    "ERP, last 6 weeks",
+    `<div class="gx-heat" role="img" aria-label="${esc(`Google Ads leads per day over 6 weeks from ${dayMonth(b.heatStart)}: ${total} in all. ${take}`)}"><span></span>${DAYS.map((d) => `<span class="cap gx-heat__d">${d}</span>`).join("")}${cells}</div>
+     <p class="gx-take" data-tone="${gap != null && gap > THRESHOLDS.bannerLeadDays ? "bad" : "neu"}">${esc(take)}</p>`,
+    `<span class="gx-heat__lg"><span class="cap">0</span>${SHADES.map((s) => `<span class="sw" style="background:${s}"></span>`).join("")}<span class="cap">3+</span></span>`,
+  );
+}
+
+/* ---------- 12, 13, 14. Devices, cities, landing pages ---------- */
+
+const DEV_COLOR: Record<string, string> = { Mobile: "#2F5BD3", Desktop: "#8FA8E8", Tablet: "#7B5CE0" };
+function devicesCard(b: Blocks) {
+  const d = b.devices;
+  if (!d.length) return card("gx-dev", "Devices", `${channelInfo(b.deviceChannel).label}, 30D`, none("No device data for the last 30 days."));
+  const label = `Share of ${channelInfo(b.deviceChannel).label} cost by device, last 30 days: ${d.map((x) => `${x.name} ${pct(x.share)}`).join(", ")}.`;
+  const withCpl = d.filter((x) => x.cpl != null).sort((a, z) => a.cpl! - z.cpl!);
+  const tipText = b.joinReady && withCpl.length >= 2 ? `${withCpl[0].name} leads cost <b>${pct(1 - withCpl[0].cpl! / withCpl.at(-1)!.cpl!)} less</b> than ${withCpl.at(-1)!.name}.` : "";
+  return card(
+    "gx-dev",
+    "Devices",
+    `${channelInfo(b.deviceChannel).label}, 30D`,
+    `<div class="gx-dn">${donut(d.map((x) => ({ v: x.cost, c: DEV_COLOR[x.name] ?? COLORS.grey })), label, svg(I.phone, 26), 120, 18)}
+      <ul class="gx-dn__l">${d.map((x) => `<li><span class="leg"><span class="sw" style="background:${DEV_COLOR[x.name] ?? COLORS.grey}"></span>${esc(x.name)} ${esc(pct(x.share))}</span><p class="cap">${b.joinReady ? (x.cpl != null ? `${esc(aed0(x.cpl))} per qualified lead` : "no qualified lead") : `${DASH} per qualified lead`}</p></li>`).join("")}</ul></div>
+     ${tipText ? `<p class="gx-take" data-tone="info">${tipText}</p>` : ""}`,
+  );
+}
+
+function citiesCard(b: Blocks) {
+  const c = b.cities;
+  const max = Math.max(1, ...c.map((x) => x.cost));
+  const body = c.length
+    ? `<ul class="gx-bars">${c.map((x) => `<li><div class="gx-bars__top"><span>${esc(x.name)}</span><span><b>${esc(aed0(x.cost))}</b>${x.qualified != null && b.joinReady ? ` <span class="cap">· ${x.qualified} qual.</span>` : ""}</span></div><div class="track"><span style="width:${((x.cost / max) * 100).toFixed(1)}%"></span></div></li>`).join("")}</ul>`
+    : none("No location data in the Sheet.");
+  return card("gx-cities", "Top cities", "spend, 30D", body);
+}
+
+function pagesCard(b: Blocks) {
+  if (!b.pages) return card("gx-pages", "Landing pages", "landings", none("Landing counter not connected here."));
+  const max = Math.max(1, ...b.pages.map((p) => p.n));
+  const body = b.pages.length
+    ? `<ul class="gx-pg">${b.pages.map((p) => `<li><span class="gx-pg__p" title="${esc(`${p.path} · ${p.label}`)}">${esc(p.path)}</span><span class="gx-pg__t"><span style="width:${((p.n / max) * 100).toFixed(1)}%"></span></span><span class="chip" data-tone="neu">${esc(n0(p.n))}</span></li>`).join("")}</ul>`
+    : none("No ad landings in this period.");
+  return card(
+    "gx-pages",
+    "Landing pages",
+    "landings",
+    `${body}<p class="cap gx-pg__note">Landings only: the ERP doesn't store a lead's landing page, so leads per page can't be shown.${b.pagesNote ? ` ${esc(b.pagesNote)}` : ""}</p>`,
+  );
+}
+
+/* ---------- 15, 16. Search terms, campaigns ---------- */
+
+function termsCard(b: Blocks) {
+  const t = b.terms;
+  if (t.searchOnly) return card("gx-terms", "Search terms", "30D", none("Search terms exist for Search campaigns only. Switch Channel to All or Search."));
+  const wMax = Math.max(1, ...t.winning.slice(0, 5).map((x) => x.conv)), bMax = Math.max(1, ...t.wasted.slice(0, 5).map((x) => x.cost));
+  const row = (term: string, v: string, w: number, c: string) => `<li><div class="gx-bars__top"><span>${esc(term)}</span><b>${esc(v)}</b></div><div class="track track--thin"><span style="width:${w.toFixed(1)}%;background:${c}"></span></div></li>`;
+  const kw = t.erpKeywords?.length ? `<ul class="gx-kw">${t.erpKeywords.map((k) => `<li>Keyword <b>${esc(k.keyword)}</b> brought ${esc(plural(k.n, "ERP lead"))}</li>`).join("")}</ul>` : "";
+  return card(
+    "gx-terms",
+    "Search terms",
+    "30D",
+    `<div class="gx-terms">
+      <div><p class="gx-terms__h" data-tone="good">${svg(I.check, 14)} Winning · Google conversions</p>${t.winning.length ? `<ul class="gx-bars">${t.winning.slice(0, 5).map((x) => row(x.term, `${n0(x.conv)} conv.`, (x.conv / wMax) * 100, COLORS.good)).join("")}</ul>` : none("No search term with a Google conversion.")}${kw}</div>
+      <div><p class="gx-terms__h" data-tone="bad">${svg(I.alert, 14, ' stroke-width="2.6"')} Wasted · add as negative</p>${t.wasted.length ? `<ul class="gx-bars">${t.wasted.slice(0, 5).map((x) => row(x.term, aed0(x.cost), (x.cost / bMax) * 100, COLORS.bad)).join("")}</ul>${t.wasted.length > 5 ? `<p class="cap">+ ${t.wasted.length - 5} more in the copied list</p>` : ""}` : none(`No term spent AED ${THRESHOLDS.searchTermCostAed}+ without a conversion.`)}</div>
+    </div>
+    <p class="cap gx-terms__r">Wasted: AED ${THRESHOLDS.searchTermCostAed}+ spent, 0 conversions, not excluded, and not the keyword of any ERP lead.</p>
+    <textarea id="gx-neg" hidden>${esc(t.copy)}</textarea>`,
+    t.wasted.length ? `<button type="button" class="gx-btn" data-copy="gx-neg">${svg(I.copy, 14)}Copy negatives</button><span class="gx-copied" role="status" aria-live="polite"></span>` : "",
+  );
+}
+
+/** The channel tag of a campaign: short letters in its CHANNELS colour. */
+const chTag = (channel: string, cls = "gx-tag") => {
+  const ch = channelInfo(channel);
+  return `<span class="${cls}" style="--c:${ch.color}" title="${esc(ch.label)}"><span aria-hidden="true">${esc(ch.tag)}</span><span class="sr">${esc(ch.label)}</span></span>`;
+};
+
+function campaignsCard(b: Blocks, q: URLSearchParams) {
+  const c = b.campaigns;
+  const cards = c.cards.length
+    ? c.cards
+        .map(({ c: x, leads }) => {
+          const ch = channelInfo(x.channel);
+          const meta = [ch.label, x.budget ? `AED ${x.budget}/day` : "", x.maxCpc ? `cap AED ${x.maxCpc}` : ""].filter(Boolean).join(" · ");
+          return `<li class="gx-camp">${chTag(x.channel, "gx-tag gx-tag--lg")}
+            <div class="gx-camp__b"><p class="gx-camp__n" title="${esc(x.name)}">${esc(friendly(x.name))}</p><p class="cap">${esc(meta)}</p></div>
+            <div class="gx-camp__r"><p class="gx-camp__c">${esc(aed0(x.t.cost))}</p><p class="cap">${esc(plural(x.t.clicks ?? 0, "click"))} · ${leads == null ? DASH : esc(plural(leads, "lead"))}</p></div>
+            <span class="chip" data-tone="good"><span class="gx-dot" aria-hidden="true"></span>Live</span></li>`;
+        })
+        .join("")
+    : `<li>${none("No enabled campaign in this channel.")}</li>`;
+  const bc = c.bidChange;
+  return card(
+    "gx-camps",
+    "Campaigns",
+    span(b.period.from, b.period.to),
+    `<ul class="gx-camps">${cards}</ul>
+     <div class="gx-mini">
+       <div><p class="cap">Lost to budget</p><p class="num">${esc(c.lost ? pct(c.lost.share) : DASH)}</p><p class="cap" title="${esc(c.lost?.name ?? "")}">${esc(c.lost ? friendly(c.lost.name) : "no Search campaign")}</p></div>
+       <div><p class="cap">Avg CPC</p><p class="num">${esc(bc ? aed2(bc.cpc) : DASH)}</p><p class="cap">${bc ? (bc.ch == null ? `since ${esc(dayMonth(bc.day))}` : `${bc.ch < 0 ? "▼" : "▲"} ${Math.abs(Math.round(bc.ch * 100))}% since bidding change ${esc(dayMonth(bc.day))}`) : "no bidding change in 30 days"}</p></div>
+       <div><p class="cap">Paused</p><p class="num">${c.paused}</p><p class="cap">${c.paused === 1 ? "campaign" : "campaigns"}</p></div>
+     </div>`,
+    `<a href="${esc(detailsHref(q, "campaigns"))}">All ${c.all} incl. paused →</a>`,
+  );
+}
+
+/* ---------- 17. All details: one tabbed panel (search, filter chips, sort, CSV of every matching row, 25 rows then "Show more") ---------- */
 
 interface Col<T> {
   label: string;
-  /** Cell HTML. */
   html: (r: T) => string;
-  /** Sort value (numbers sort as numbers). */
   v?: (r: T) => number | string | null;
-  /** Text column (left-aligned). */
   left?: boolean;
 }
-
 const money = <T,>(label: string, get: (r: T) => number | null, dp = 2): Col<T> => ({ label, html: (r) => esc(fmtAed(get(r), dp)), v: get });
 const count = <T,>(label: string, get: (r: T) => number | null): Col<T> => ({ label, html: (r) => esc(fmtNum(get(r))), v: get });
 const share = <T,>(label: string, get: (r: T) => number | null): Col<T> => ({ label, html: (r) => esc(fmtShare(get(r))), v: get });
@@ -114,430 +565,259 @@ const text = <T,>(label: string, get: (r: T) => string): Col<T> => ({ label, htm
 const metricCols = <T,>(t: (r: T) => Totals, impr = true): Col<T>[] => [
   ...(impr ? [count<T>("Impr.", (r) => t(r).impr)] : []),
   count<T>("Clicks", (r) => t(r).clicks),
-  money<T>("Cost", (r) => t(r).cost),
+  money<T>("Spend", (r) => t(r).cost),
   count<T>("Google conv.", (r) => t(r).conv),
 ];
-
+type Tone = "good" | "warn" | "bad" | "neu";
+const TONES: [RegExp, Tone][] = [
+  [/^(enabled|approved|excellent|good|above[_ ]average|eligible|added)$/i, "good"],
+  [/^(average|limited|approved[_ ]limited|learning|pending|under[_ ]review|paused)$/i, "warn"],
+  [/^(disapproved|poor|below[_ ]average|excluded|not[_ ]eligible|suspended|removed)$/i, "bad"],
+];
+const toneOf = (s: string): Tone => TONES.find(([re]) => re.test(s.trim()))?.[1] ?? "neu";
+/** Status as a coloured dot + the word (never colour alone). */
+const status = (s: string, extra = "") => (s ? `<span class="gx-st" data-tone="${toneOf(s)}"><span class="gx-st__d" aria-hidden="true"></span>${esc(pretty(s))}</span>${extra}` : DASH);
+/** A friendly name in bold with Google's own name underneath (small, monospace). */
+const named2 = (label: string, raw: string) => `<span class="gx-name"><b>${esc(label)}</b>${raw && raw !== label ? `<span class="gx-raw" title="${esc(raw)}">${esc(raw).replace(/_/g, "_<wbr>")}</span>` : ""}</span>`;
+const muted = (s: string) => `<span class="gx-sub">${esc(s)}</span>`;
 const PAGE_ROWS = 25;
 
-function table<T>(id: string, name: string, cols: Col<T>[], rows: T[], opts: { empty: string; rowAttr?: (r: T) => string; filters?: string } = { empty: "" }) {
-  const head = cols.map((c, i) => `<th scope="col"${i === 0 || c.left ? "" : ' class="gad-num"'}><button type="button" class="gad-sort" data-col="${i}">${esc(c.label)}</button></th>`).join("");
-  const body = rows.length
-    ? rows
-        .map((r) => {
-          const cells = cols
-            .map((c, i) => {
-              const v = c.v?.(r);
-              const dv = v == null || v === "" ? "" : ` data-v="${esc(v)}"`;
-              return i === 0 ? `<th scope="row"${dv}>${c.html(r)}</th>` : `<td${c.left ? "" : ' class="gad-num"'}${dv}>${c.html(r)}</td>`;
-            })
-            .join("");
-          return `<tr${opts.rowAttr?.(r) ?? ""}>${cells}</tr>`;
+interface TableOpts<T> {
+  empty: string;
+  rowAttr?: (r: T) => string;
+  /** Filter chips: [label, key, value, count]; "All" first (value ""). Rows carry data-<key> with space-separated values. */
+  chips?: [string, string, string, number][];
+  note?: string;
+}
+
+function table<T>(id: string, name: string, cols: Col<T>[], rows: T[], o: TableOpts<T>) {
+  if (!rows.length) return `<p class="gx-empty">${o.empty}</p>`;
+  const headRow = cols.map((c, i) => `<th scope="col"${i === 0 || c.left ? "" : ' class="gx-n"'}><button type="button" class="gx-sort" data-col="${i}">${esc(c.label)}</button></th>`).join("");
+  const body = rows
+    .map((r) => {
+      const cells = cols
+        .map((c, i) => {
+          const v = c.v?.(r);
+          const dv = v == null || v === "" ? "" : ` data-v="${esc(v)}"`;
+          return i === 0 ? `<th scope="row"${dv}>${c.html(r)}</th>` : `<td${c.left ? "" : ' class="gx-n"'}${dv}>${c.html(r)}</td>`;
         })
-        .join("")
-    : `<tr class="gad-none-row"><td colspan="${cols.length}">${esc(opts.empty)}</td></tr>`;
-  return `<div class="gad-tools">
-      <label class="lr-search gad-search">${icon("search")}<span class="lr-sr">Search ${esc(name)}</span><input class="lr-input" type="search" placeholder="Search ${esc(name.toLowerCase())}" data-search="${id}"></label>
-      ${opts.filters ?? ""}
-      <span class="gad-count" data-count="${id}" aria-live="polite">${count1(rows.length, "row")}</span>
-      <button type="button" class="lr-btn-ghost gad-csv" data-csv="${id}" data-name="${esc(name)}">${icon("copy")}CSV</button>
-    </div>
-    <div class="gad-scroll" tabindex="0" role="region" aria-label="${esc(name)} table"><table class="gad-table" id="${id}" data-limit="${PAGE_ROWS}"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
-    <button type="button" class="lr-btn-ghost gad-more" data-more="${id}" hidden>Show more</button>`;
-}
-
-/* ---------- Header and freshness ---------- */
-
-function header(q: URLSearchParams, updated: string, fresh: Fresh) {
-  const when = updated ? `Updated ${updated.slice(11, 16) || updated} Dubai` : "Update time not in the Sheet";
-  const text: Record<Fresh, string> = {
-    good: `${when}${nextRun(updated) ? ` · next ${nextRun(updated)}` : ""}`,
-    warn: `${when} · late (9+ hours)`,
-    bad: `Report is not updating · last update ${updated ? `${dayMonth(updated.slice(0, 10))} ${updated.slice(11, 16)}` : "unknown"}`,
-    unknown: when,
-  };
-  return `<header class="gad-head">
-      <div class="gad-head__title"><h1 class="gad-title">Google Ads</h1><p class="gad-muted">Best Solution Management Services</p></div>
-      <div class="gad-head__right">
-        <span class="gad-fresh" data-tone="${fresh}" role="status"><span class="gad-dot" aria-hidden="true"></span>${esc(text[fresh])}</span>
-        <a class="lr-btn-ghost gad-refresh" href="${esc(href(q, { refresh: "1", note: null }))}" data-nav title="Read the Sheet again (once every 2 minutes)">${icon("refresh")}<span class="gad-refresh__label">Refresh</span></a>
-      </div>
-    </header>`;
-}
-
-/* ---------- 1. Needs attention ---------- */
-
-const LEVEL_WORD: Record<Attention["level"], string> = { red: "Urgent", orange: "Check", yellow: "Review", info: "Note" };
-
-function needsAttention(items: Attention[], q: URLSearchParams, checkedAt: string) {
-  if (!items.length)
-    return `<section class="lr-card gad-attn gad-attn--clear" aria-labelledby="gad-attn-t"><h2 class="gad-h2" id="gad-attn-t">${icon("tick")}Nothing needs attention</h2><p class="gad-muted">No check found a problem in this period${checkedAt ? `, and the ${checkedAt.slice(11, 16)} check of the Sheet found none` : ""}.</p></section>`;
-  const sheetLabel = checkedAt ? `From the ${checkedAt.slice(11, 16)} check` : "From the Sheet's check";
-  const li = items
-    .map((a, i) => {
-      const link = href(q, { section: null, sub: null, flag: null, hist: null, campaign: null, refresh: null, note: null, ...a.link });
-      return `<li class="gad-attn__item" data-level="${a.level}"${i >= THRESHOLDS.visibleItems ? " hidden data-extra" : ""}>
-          <span class="gad-attn__level">${LEVEL_WORD[a.level]}</span>
-          <p class="gad-attn__text">${esc(a.text)}${a.source === "sheet" ? ` <span class="gad-attn__src">${esc(sheetLabel)}</span>` : ""}</p>
-          ${a.aed != null ? `<span class="gad-attn__aed">${esc(fmtAed(a.aed, 0))}<small>spent</small></span>` : `<span class="gad-attn__aed"></span>`}
-          <a class="gad-attn__go" href="${esc(link)}#why" data-nav>See details<span class="lr-sr">: ${esc(a.text)}</span></a>
-        </li>`;
+        .join("");
+      return `<tr${o.rowAttr?.(r) ?? ""}>${cells}</tr>`;
     })
     .join("");
-  const extra = items.length - THRESHOLDS.visibleItems;
-  return `<section class="lr-card gad-attn" aria-labelledby="gad-attn-t">
-      <div class="gad-attn__head"><h2 class="gad-h2" id="gad-attn-t">Needs attention <span class="gad-badge">${items.length}</span>${info("Needs attention", "Checks on the selected period (cost without leads, accidental clicks, tracking gaps, budget limits, status changes, keywords and search terms), plus the alerts the Google Ads script writes to the Sheet. Most urgent first, then by money involved.")}</h2></div>
-      <ol class="gad-attn__list">${li}</ol>
-      ${extra > 0 ? `<button type="button" class="lr-btn-ghost gad-attn__all" aria-expanded="false">Show all (${extra} more)</button>` : ""}
-    </section>`;
-}
-
-/* ---------- 2. How are we doing? ---------- */
-
-function controls(q: URLSearchParams, period: Period, today: string, channel: Channel | "all", campaign: string, compare: boolean) {
-  const chip = (k: string, l: string) =>
-    `<a class="lr-chip lr-glass gad-chip${k === "7d" || k === "30d" ? " gad-chip--2" : ""}" href="${esc(href(q, { range: k, from: null, to: null, refresh: null, note: null }))}"${period.key === k ? ' aria-current="page"' : ""} data-nav>${l}${k === "7d" || k === "30d" ? '<small>to yesterday</small>' : ""}</a>`;
-  const custom = period.key === "custom";
-  const keep = ["campaign", "compare", "channel", "section", "sub"].map((k) => (q.get(k) ? `<input type="hidden" name="${k}" value="${esc(q.get(k))}">` : "")).join("");
-  const channels = (["all", "search", "demandgen"] as const)
-    .map((c) => `<a class="gad-seg__opt" href="${esc(href(q, { channel: c, refresh: null, note: null }))}"${channel === c ? ' aria-current="true"' : ""} data-nav>${CHANNEL_LABEL[c]}</a>`)
-    .join("");
-  const prevWords = span(period.prevFrom, period.prevTo);
-  return `<div class="lr-controls">
-      ${viewSwitch(q, "", "google-ads")}
-      <nav class="lr-range" aria-label="Period">
-        <div class="lr-range__chips">${PERIODS.map(([k, l]) => chip(k, l)).join("")}
-          <button type="button" class="lr-chip lr-glass gad-chip" aria-expanded="${period.error ? "true" : "false"}" aria-controls="alx-custom"${custom ? ' aria-current="page"' : ""}>${custom ? `${esc(span(period.from, period.to))}` : "Custom"}${icon("chevron")}</button>
-        </div>
-        <form class="lr-custom lr-glass alx-custom" id="alx-custom" method="get" action=""${period.error ? "" : " hidden"} aria-label="Custom range">
-          <input type="hidden" name="view" value="google-ads">${keep}
-          <label class="lr-field"><span class="lr-field__label">From</span><input class="lr-input" type="date" name="from" value="${esc(period.from)}" max="${esc(today)}" required></label>
-          <label class="lr-field"><span class="lr-field__label">To</span><input class="lr-input" type="date" name="to" value="${esc(period.to)}" max="${esc(today)}" required></label>
-          <p class="lr-custom__err" role="alert">${esc(period.error)}</p>
-          <div class="lr-custom__actions"><button type="button" class="lr-btn-ghost" data-action="custom-cancel">Cancel</button><button type="submit" class="lr-btn">Apply</button></div>
-        </form>
-      </nav>
+  const chips = o.chips?.length
+    ? `<div class="gx-chips2" role="group" aria-label="Filter ${esc(name.toLowerCase())}">${o.chips
+        .map(([l, k, v, n], i) => `<button type="button" class="gx-fchip" data-chip="${id}" data-key="${k}" data-val="${v}" aria-pressed="${i === 0}">${l} <span class="gx-fchip__n">${n}</span></button>`)
+        .join("")}</div>`
+    : "";
+  return `<div class="gx-tools">
+      <label class="gx-search">${svg(I.search, 15)}<span class="sr">Search ${esc(name)}</span><input type="search" placeholder="Search ${esc(name.toLowerCase())}" data-search="${id}"></label>
+      ${chips}
+      <span class="gx-grow"></span>
+      ${o.note ? `<span class="cap">${esc(o.note)}</span>` : ""}
+      <span class="cap gx-count" data-count="${id}" aria-live="polite">${plural(rows.length, "row")}</span>
+      <button type="button" class="gx-btn gx-csv" data-csv="${id}" data-name="${esc(name)}">${svg(I.download, 14)}CSV</button>
     </div>
-    <div class="gad-bar">
-      ${campaign
-        ? `<p class="gad-filter">Campaign: <b>${trunc(campaign)}</b> <a class="gad-filter__x" href="${esc(href(q, { campaign: null, hist: null, refresh: null, note: null }))}" data-nav aria-label="Clear the campaign filter">${icon("x")}</a></p>`
-        : `<nav class="gad-seg" aria-label="Channel">${channels}</nav>${info("the channel switch", "Search and Demand Gen are shown apart because Demand Gen brings many cheap clicks that make the totals look better than they are. All adds them up.")}`}
-      <a class="lr-chip lr-glass alx-toggle gad-compare" href="${esc(href(q, { compare: compare ? "off" : null, refresh: null, note: null }))}" role="switch" aria-checked="${compare}" data-nav><span class="alx-toggle__track" aria-hidden="true"></span>Compare with ${esc(prevWords)}</a>
-    </div>`;
+    <div class="gx-scroll" tabindex="0" role="region" aria-label="${esc(name)} table"><table class="gx-table" id="${id}" data-limit="${PAGE_ROWS}"><thead><tr>${headRow}</tr></thead><tbody>${body}</tbody></table></div>
+    <button type="button" class="gx-more" data-more="${id}" hidden>Show more</button>`;
 }
 
-function delta(ch: number | null, goodWhenDown: boolean, prevWords: string) {
-  if (ch == null) return `<span class="alx-nodelta">No fair comparison</span>`;
-  const p = Math.round(ch * 100);
-  const dir = p > 0 ? "up" : p < 0 ? "down" : "flat";
-  const tone = dir === "flat" ? "neutral" : (dir === "down") === goodWhenDown ? "good" : "bad";
-  const glyph = dir === "up" ? "▲" : dir === "down" ? "▼" : "→";
-  const words = dir === "flat" ? `no change on ${prevWords}` : `${dir} ${Math.abs(p)}% on ${prevWords}`;
-  return `<span class="lr-delta" data-tone="${tone}" role="img" aria-label="${esc(words)}"><span class="lr-delta__glyph" aria-hidden="true">${glyph}</span>${Math.abs(p)}%</span><span class="alx-vs">vs ${esc(prevWords)}</span>`;
-}
-
-interface Kpi {
-  t: Totals;
-  /** ERP leads and qualified leads, or null when the ERP isn't connected. */
-  leads: number | null;
-  qualified: number | null;
-}
-
-/** `nc`: what an ERP tile says when it has no number (the ERP isn't connected, or the period is before ERP leads were counted). */
-function kpis(cur: Kpi, prev: Kpi | null, prevWords: string, channelWord: string, nc: string) {
-  const NC = nc;
-  const tile = (key: string, label: string, value: string | null, c: number | null, p: number | null, goodDown: boolean, help: string) => `<section class="lr-card lr-kpi is-kpi gad-kpi" data-kpi="${key}" aria-label="${esc(label)}">
-      <h3 class="lr-kpi__label gad-kpi__label">${esc(label)}${info(label, help)}</h3>
-      ${value == null ? `<div class="gad-kpi__nc">${NC}</div>` : `<div class="lr-kpi__value gad-kpi__value">${esc(value)}</div>`}
-      ${prev && value != null ? `<div class="lr-kpi__meta">${delta(change(c, p), goodDown, prevWords)}</div>` : ""}
-    </section>`;
-  const erp = (v: number | null) => (cur.leads == null ? null : v);
-  const cpl = div(cur.t.cost, cur.leads), pcpl = prev ? div(prev.t.cost, prev.leads) : null;
-  return [
-    tile("cost", "Cost", fmtAed(cur.t.cost, 0), cur.t.cost, prev?.t.cost ?? null, true, `What Google Ads charged for ${channelWord} in this period, in AED.`),
-    tile("clicks", "Clicks", fmtNum(cur.t.clicks), cur.t.clicks, prev?.t.clicks ?? null, false, "How many times people clicked the ads."),
-    tile("cpc", "Avg CPC", fmtAed(cpc(cur.t)), cpc(cur.t), prev ? cpc(prev.t) : null, true, "Average cost of one click: cost ÷ clicks."),
-    tile("leads", "ERP leads", erp(cur.leads) == null ? null : fmtNum(cur.leads), cur.leads, prev?.leads ?? null, false, "Leads in the ERP whose campaign is one of these Google Ads campaigns, created in this period (Dubai time). These are real enquiries, not Google's count."),
-    tile("cpl", "Cost per ERP lead", erp(cpl) == null && cur.leads == null ? null : fmtAed(cpl), cpl, pcpl, true, "Cost ÷ ERP leads: what one real lead cost."),
-    tile("qualified", "Qualified leads (ERP)", erp(cur.qualified) == null ? null : fmtNum(cur.qualified), cur.qualified, prev?.qualified ?? null, false, "ERP leads that are not Junk, Duplicate or Lost: won or still in progress."),
-    tile("conv", "Google conversions", fmtNum(cur.t.conv), cur.t.conv, prev?.t.conv ?? null, false, "What Google Ads counted as conversions. It can differ from ERP leads (tracking, consent, duplicates) and Google may update it for several days."),
-    tile("ctr", "CTR", fmtShare(ctr(cur.t)), ctr(cur.t), prev ? ctr(prev.t) : null, false, "Share of ad views that got a click: clicks ÷ impressions."),
-  ].join("");
-}
-
-function trend(rows: Row[], leads: ErpLead[] | null, period: Period, today: string) {
-  const by = groupBy(rows, (r) => dateOf(r.Date));
-  const days = datesBetween(period.from, period.to).map((d) => ({ d, t: totals(by.get(d) ?? []), l: leads ? leads.filter((x) => x.created.slice(0, 10) === d).length : null }));
-  const n = days.length;
-  const conv = days.map((x) => x.t.conv ?? 0);
-  const lead = days.map((x) => x.l ?? 0);
-  const cost = days.map((x) => x.t.cost ?? 0);
-  const ticks = yTicks(Math.max(0, ...cost)), max = ticks[ticks.length - 1];
-  const rTicks = yTicks(Math.max(3, Math.ceil(Math.max(0, ...conv, ...lead) * 1.25))), rMax = rTicks[rTicks.length - 1];
-  const x = (i: number) => ((i + 0.5) / n) * 100;
-  // About six labels, so they never overlap on a phone.
-  const every = n <= 7 ? 1 : Math.ceil(n / 6);
-  const grid = (t: number[], m: number, side: "l" | "r", fmt: (v: number) => string) =>
-    t.map((v) => `<div class="alx-grid gad-grid${v ? "" : " alx-grid--zero"}" data-side="${side}" style="--t:${(100 - (v / m) * 100).toFixed(2)}%" aria-hidden="true"><span>${esc(fmt(v))}</span></div>`).join("");
-  const cols = days
-    .map(({ d, t, l }) => {
-      const tip = `${dayMonth(d)} ${d.slice(0, 4)}${d === today ? " (partial)" : ""}|Cost ${fmtAed(t.cost)}|ERP leads ${l == null ? "not connected" : l}|Google conversions ${fmtNum(t.conv ?? 0)}`;
-      return `<button type="button" class="alx-col" data-tip="${esc(tip)}" aria-label="${esc(tip.split("|").join(", "))}"><span class="alx-stack"><span class="alx-seg gad-cost" style="--h:${(((t.cost ?? 0) / max) * 100).toFixed(2)}%"></span></span></button>`;
-    })
-    .join("");
-  const path = (v: number[]) => v.map((y, i) => `${i ? "L" : "M"}${x(i).toFixed(2)},${(100 - (y / rMax) * 100).toFixed(2)}`).join(" ");
-  const xs = days.map(({ d }, i) => `<span>${i % every === 0 || (i === n - 1 && i % every >= every / 2) ? esc(dayMonth(d)) : ""}</span>`).join("");
-  return `<section class="lr-card gad-card gad-chart" aria-labelledby="gad-chart-t">
-    <div class="lr-card__head"><h2 class="lr-card__title" id="gad-chart-t">Daily cost and leads${info("the daily chart", "Bars: cost per Dubai day (left axis, AED). Lines: ERP leads (solid) and Google conversions (dashed) per day (right axis). Tap or hover a day for its numbers.")}</h2></div>
-    <div class="alx-legend gad-legend" aria-hidden="true"><span class="alx-key gad-key-bar">Cost (AED)</span>${leads ? '<span class="alx-key gad-key-lead">ERP leads</span>' : ""}<span class="alx-key gad-key-conv">Google conversions</span></div>
-    <div class="alx-plot gad-plot">
-      <div class="alx-area">
-        ${grid(ticks, max, "l", (v) => fmtNum(v))}${grid(rTicks, rMax, "r", (v) => fmtNum(v))}
-        <div class="alx-cols" style="--n:${n}">${cols}</div>
-        ${n > 1 ? `<svg class="alx-line gad-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${leads ? `<path class="gad-line-lead" d="${path(lead)}"/>` : ""}<path class="gad-line-conv" d="${path(conv)}"/></svg>` : ""}
-        ${leads ? lead.map((v, i) => `<span class="alx-pt gad-pt-lead" aria-hidden="true" style="--x:${x(i).toFixed(2)}%;--y:${((v / rMax) * 100).toFixed(2)}%"></span>`).join("") : ""}
-        <div class="lr-chart__tip lr-glass alx-tip" hidden></div>
-      </div>
-      <div class="alx-x" aria-hidden="true" style="--n:${n}">${xs}</div>
-    </div>
-    <p class="alx-caption">${period.to === today ? "Today is partial: the Sheet is updated at 06:00, 13:00 and 20:00 Dubai. " : ""}${leads ? "" : "No ERP leads to show for this period here."}</p>
-  </section>`;
-}
-
-/* ---------- 3. Why? ---------- */
-
-const SECTIONS = [["campaigns", "Campaigns"], ["search", "Search"], ["audience", "Audience"], ["history", "History"]] as const;
-type Section = (typeof SECTIONS)[number][0];
-const SUBS = [["keywords", "Keywords"], ["terms", "Search terms"], ["ads", "Ads"]] as const;
-type Sub = (typeof SUBS)[number][0];
-const FLAGS: Record<string, string> = {
-  noleads: `Keywords that spent AED ${THRESHOLDS.keywordNoLeadsCostAed}+ with no leads`,
-  lowqs: `Keywords with Quality Score ${THRESHOLDS.lowQualityScore} or less`,
-  negative: `Search terms that spent AED ${THRESHOLDS.searchTermCostAed}+ with no conversions (negative-keyword candidates)`,
+const TABS = [["campaigns", "Campaigns"], ["adgroups", "Ad groups"], ["keywords", "Keywords"], ["terms", "Search terms"], ["ads", "Ads"], ["conversions", "Conversions"], ["sitelinks", "Sitelinks"], ["history", "History"]] as const;
+type TabKey = (typeof TABS)[number][0];
+const QS_PARTS = [["expCtr", "Expected CTR", "CTR"], ["adRelevance", "Ad relevance", "Ad"], ["landingPage", "Landing page experience", "Page"]] as const;
+const FIX: Record<(typeof QS_PARTS)[number][0], string> = {
+  expCtr: "Put the keyword in the headlines and give a reason to click (price, speed, a free consultation), so more searchers pick this ad.",
+  adRelevance: "Move the keyword into an ad group whose ads mention it, or write an ad for it in that ad group.",
+  landingPage: "Send it to a page about that exact search (its own section or a dedicated page), fast on phones, with the form in view.",
 };
 
-const where = (campaign: string, adGroup: string) => `<small class="gad-sub">${esc([campaign, adGroup].filter(Boolean).join(" · "))}</small>`;
-const flagPill = (label: string) => `<span class="gad-pill gad-flag" data-tone="bad">${esc(label)}</span>`;
-const url = (u: string) => (/^https?:\/\//i.test(u) ? `<a class="gad-url" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(u.replace(/^https?:\/\/(www\.)?/, ""))}</a>` : esc(u || DASH));
-
-interface WhyInput {
-  d: SheetData;
-  q: URLSearchParams;
-  period: Period;
-  campaign: string;
-  camps: CampaignRow[];
-  /** ERP leads in the period (null: not connected). */
-  erp: ErpLead[] | null;
-  keywords: KeywordRow[];
-  terms: TermRow[];
-}
-
-function campaignsSection(w: WhyInput) {
-  const { q, campaign, camps, erp, d } = w;
+function details(b: Blocks, d: SheetData, q: URLSearchParams, erp: ErpLead[] | null) {
+  const { period, inScope } = b;
+  const tab = (TABS.find(([k]) => k === q.get("details"))?.[0] ?? "campaigns") as TabKey;
+  const open = q.has("details") || q.has("hist");
+  const cut = (name: keyof SheetData["tabs"]) => inPeriod(rowsOf(d.tabs[name]), period.from, period.to).filter((r) => inScope(str(r, "Campaign")));
+  const inCh = (rows: Row[]) => rows.filter((r) => inScope(str(r, "Campaign")));
+  const erpP = erp ? erp.filter((l) => l.created.slice(0, 10) >= period.from && l.created.slice(0, 10) <= period.to) : null;
   const history = rowsOf(d.tabs.Setup_History), log = rowsOf(d.tabs.Change_Log_30d);
-  const leads = (r: CampaignRow) => (erp ? erpFor(erp, r.name).length : null);
-  const cols: Col<CampaignRow>[] = [
-    { label: "Campaign", html: (r) => `<a class="gad-camp" href="${esc(href(q, { campaign: campaign === r.name ? null : r.name, refresh: null, note: null }))}#why" data-nav>${trunc(r.name || r.id)}</a>`, v: (r) => r.name, left: true },
-    {
-      label: "Status now",
-      html: (r) => {
-        const since = /paused/i.test(r.status) ? pausedSince(r, history, log) : "";
-        return `${pill(r.status)}${since ? `<small class="gad-sub gad-nowrap">since ${esc(dayMonth(since))}</small>` : ""}`;
-      },
-      v: (r) => r.status,
-      left: true,
-    },
-    text("Type", (r) => pretty(r.type)),
-    money("Daily budget", (r) => r.budget, 0),
-    { label: "Bidding", html: (r) => `${esc(r.bidding ? pretty(r.bidding) : DASH)}${r.maxCpc ? `<small class="gad-sub">Max CPC ${esc(fmtAed(r.maxCpc))}</small>` : ""}`, v: (r) => r.bidding, left: true },
-    money("Cost", (r) => r.t.cost),
-    count("Clicks", (r) => r.t.clicks),
-    money("Avg CPC", (r) => cpc(r.t)),
-    count("ERP leads", leads),
-    money("Cost / ERP lead", (r) => div(r.t.cost, leads(r))),
-    count("Google conv.", (r) => r.t.conv),
-    share("Lost IS (budget)", (r) => lostBudget(r.t)),
-  ];
-  const select = (key: string, label: string, opts: [string, string][]) =>
-    `<label class="gad-select"><span>${label}</span><select class="lr-select" data-filter="gad-campaigns" data-key="${key}">${opts.map(([v, l]) => `<option value="${v}">${l}</option>`).join("")}</select></label>`;
-  const filters = campaign
-    ? ""
-    : select("status", "Status", [["all", "All"], ["enabled", "Enabled"], ["paused", "Paused"], ["removed", "Removed"]]) +
-      select("channel", "Channel", [["all", "All"], ["search", "Search"], ["demandgen", "Demand Gen"]]);
-  return `<p class="gad-note">${erp ? "" : "ERP not connected here: ERP lead columns show –. "}Status, budget and bidding are today's settings; the numbers are for the period. Click a campaign to filter the whole page to it.</p>
-    ${table("gad-campaigns", "Campaigns", cols, camps, {
-      empty: "No campaigns in the Sheet.",
-      filters,
-      rowAttr: (r) => ` data-status="${esc(r.status.toLowerCase())}" data-channel="${r.channel}"${r.inactive ? ' class="gad-inactive"' : ""}${r.name === campaign ? ' aria-current="true"' : ""}`,
-    })}`;
-}
+  const when = span(period.from, period.to);
+  const note = "Spend: selected period · settings: today";
 
-function searchSection(w: WhyInput, sub: Sub) {
-  const { q, d, period, campaign, erp } = w;
-  const flag = q.get("flag") ?? "";
-  const subNav = `<nav class="gad-subtabs" aria-label="Search details">${SUBS.map(([k, l]) => `<a class="lr-bd__tab" href="${esc(href(q, { section: "search", sub: k, flag: null, refresh: null, note: null }))}#why"${k === sub ? ' aria-current="true"' : ""} data-nav>${l}</a>`).join("")}</nav>`;
-  const flagChip = FLAGS[flag] ? `<p class="gad-filter">Showing only: <b>${esc(FLAGS[flag])}</b> <a class="gad-filter__x" href="${esc(href(q, { flag: null, refresh: null, note: null }))}#why" data-nav aria-label="Show all rows">${icon("x")}</a></p>` : "";
-  const keep90 = `<p class="gad-note">Keywords and search terms are kept for the last 90 days.</p>`;
-  if (sub === "keywords") {
-    let rows = w.keywords;
-    if (flag === "noleads") rows = rows.filter((k) => noLeadKeyword(k, erp));
-    if (flag === "lowqs") rows = rows.filter(lowQualityScore);
-    const kwLeads = (k: KeywordRow) => (erp ? erpFor(erp, k.campaign).filter((l) => l.keyword.trim().toLowerCase() === k.keyword.replace(/[[\]"+]/g, "").trim().toLowerCase()).length : null);
-    return `${subNav}${flagChip}${keep90}${table<KeywordRow>(
-      "gad-keywords",
+  // Every tab's rows (counts on the tabs); only the open tab is drawn.
+  const camps = campaignRows(inPeriod(rowsOf(d.tabs.Perf_Campaigns_Daily), period.from, period.to), rowsOf(d.tabs.Setup_Campaigns)).filter((c) => inScope(c.name));
+  const keywords = keywordRows(cut("Perf_Keywords_Daily"), rowsOf(d.tabs.Setup_Keywords));
+  const terms = searchTermRows(cut("Perf_SearchTerms_Daily"));
+  const ads = adRows(inCh(rowsOf(d.tabs.Setup_Ads)), cut("Perf_Ads_Daily"));
+  const adGroups = adGroupRows(cut("Perf_AdGroups_Daily"));
+  const convs = conversionRows(cut("Perf_Conversions_Daily"));
+  const assets = inCh(rowsOf(d.tabs.Perf_CampaignAssets_30d));
+  const changes = inCh(log).sort((a, z) => stampOf(z["Changed at"]).localeCompare(stampOf(a["Changed at"])));
+  const counts: Record<TabKey, number> = { campaigns: camps.length, adgroups: adGroups.length, keywords: keywords.length, terms: terms.length, ads: ads.length, conversions: convs.length, sitelinks: assets.length, history: changes.length };
+  const erpKw = new Set((erp ?? []).map((l) => kwKey(l.keyword)).filter(Boolean));
+  const wastedTerm = (t: TermRow) => (t.t.cost ?? 0) >= THRESHOLDS.searchTermCostAed && (t.t.conv ?? 0) === 0 && !/excluded|added/i.test(t.added) && !erpKw.has(kwKey(t.term));
+
+  let body = "";
+  if (tab === "campaigns") {
+    const leads = (r: CampaignRow) => (erpP ? erpFor(erpP, r.name).length : null);
+    const total = camps.reduce((s, c) => s + (c.t.cost ?? 0), 0);
+    const st = (re: RegExp) => camps.filter((c) => re.test(c.status)).length;
+    body = table<CampaignRow>(
+      "t-campaigns",
+      "Campaigns",
+      [
+        { label: "Campaign", html: (r) => `<span class="gx-cn">${chTag(r.channel)}${named2(friendly(r.name || r.id), r.name)}</span>`, v: (r) => friendly(r.name), left: true },
+        { label: "Status", html: (r) => { const since = /paused/i.test(r.status) ? pausedSince(r, history, log) : ""; return status(r.status, since ? muted(`since ${dayMonth(since)}`) : ""); }, v: (r) => r.status, left: true },
+        money("Budget / day", (r) => r.budget, 0),
+        { label: "Bidding", html: (r) => `${esc(r.bidding ? biddingLabel(r.bidding) : DASH)}${r.maxCpc ? muted(`cap ${fmtAed(r.maxCpc)}`) : ""}`, v: (r) => r.bidding, left: true },
+        { label: "Spend", html: (r) => `${esc(fmtAed(r.t.cost))}${r.t.cost && total ? `<span class="gx-share" aria-hidden="true"><span style="width:${(((r.t.cost ?? 0) / total) * 100).toFixed(1)}%;background:${channelInfo(r.channel).color}"></span></span>` : ""}`, v: (r) => r.t.cost },
+        count("Clicks", (r) => r.t.clicks),
+        { label: "Avg CPC", html: (r) => { const v = cpc(r.t); const junk = v != null && r.channel !== "SEARCH" && v < THRESHOLDS.junkClickCpcAed; return junk ? `<span class="gx-bad" title="Under AED ${THRESHOLDS.junkClickCpcAed.toFixed(2)} a click: looks accidental">${esc(fmtAed(v))}</span>` : esc(fmtAed(v)); }, v: (r) => cpc(r.t) },
+        count("Leads", leads),
+        money("Cost / lead", (r) => div(r.t.cost, leads(r)), 0),
+        count("Google conv.", (r) => r.t.conv),
+      ],
+      camps,
+      {
+        empty: "No campaigns in the Sheet.",
+        chips: [["All", "status", "", camps.length], ["Enabled", "status", "enabled", st(/enabled/i)], ["Paused", "status", "paused", st(/paused/i)], ["Removed", "status", "removed", st(/removed/i)]],
+        note,
+        rowAttr: (r) => ` data-status="${esc(r.status.toLowerCase())}"${r.inactive ? ' class="gx-off"' : ""}`,
+      },
+    );
+    if (camps.length) {
+      const clicks = camps.reduce((s, c) => s + (c.t.clicks ?? 0), 0), all = erpP ? camps.reduce((s, c) => s + erpFor(erpP, c.name).length, 0) : null;
+      body += `<div class="gx-total"><span>Total <b>${esc(fmtAed(total))}</b> · ${esc(plural(clicks, "click"))} · ${all == null ? `${DASH} leads` : esc(plural(all, "lead"))}</span><a href="https://ads.google.com/aw/campaigns" target="_blank" rel="noopener noreferrer">Open in Google Ads →</a></div>`;
+    }
+  } else if (tab === "keywords") {
+    const kwLeads = (k: KeywordRow) => (erpP ? erpFor(erpP, k.campaign).filter((l) => kwKey(l.keyword) === kwKey(k.keyword)).length : null);
+    const flags = (k: KeywordRow) => [lowQualityScore(k) ? "lowqs" : "", noLeadKeyword(k, erpP) ? "noleads" : ""].filter(Boolean).join(" ");
+    const dotOf = (s: string) => `<span class="gx-qd" data-tone="${/above/i.test(s) ? "good" : /below/i.test(s) ? "bad" : /average/i.test(s) ? "warn" : "neu"}"></span>`;
+    const qsBar = (v: number) => `<span class="gx-qs" data-tone="${v >= 7 ? "good" : v >= 5 ? "warn" : "bad"}"><b>${v}</b><span class="gx-qs__bar" aria-hidden="true">${Array.from({ length: 10 }, (_, i) => `<i${i < v ? ' class="on"' : ""}></i>`).join("")}</span><span class="sr"> of 10</span></span>`;
+    const path = (u: string) => {
+      if (!/^https?:\/\//i.test(u)) return DASH;
+      const p = u.replace(/^https?:\/\/[^/]+/i, "") || "/";
+      return `<a class="gx-url" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${esc(u)}">${esc(p.length > 24 ? `${p.slice(0, 23)}…` : p)}</a>`;
+    };
+    body = table<KeywordRow>(
+      "t-keywords",
       "Keywords",
       [
-        { label: "Keyword", html: (r) => `<span class="gad-name">${esc(r.keyword)} <span class="gad-match">${esc(pretty(r.match))}</span>${where(r.campaign, r.adGroup)}${noLeadKeyword(r, erp) ? flagPill("Spend, no leads") : ""}${lowQualityScore(r) ? flagPill("Low QS") : ""}</span>`, v: (r) => r.keyword, left: true },
+        { label: "Keyword", html: (r) => `<span class="gx-name"><b>${esc(r.keyword)} <span class="gx-match">${esc(pretty(r.match))}</span></b>${muted(`${friendly(r.campaign)} · ${r.adGroup}`)}</span>`, v: (r) => r.keyword, left: true },
         ...metricCols<KeywordRow>((r) => r.t),
         count("ERP leads", kwLeads),
         share("Impr. share", (r) => imprShare(r.t)),
-        { label: "QS", html: (r) => (r.qs == null ? DASH : `<b class="gad-qs" data-tone="${r.qs >= 7 ? "good" : r.qs >= 5 ? "warn" : "bad"}">${r.qs}</b><span class="lr-sr"> of 10</span>`), v: (r) => r.qs },
-        { label: "Exp. CTR", html: (r) => pill(r.expCtr), v: (r) => r.expCtr, left: true },
-        { label: "Ad relevance", html: (r) => pill(r.adRelevance), v: (r) => r.adRelevance, left: true },
-        { label: "Landing page", html: (r) => pill(r.landingPage), v: (r) => r.landingPage, left: true },
-        { label: "Final URL", html: (r) => url(r.finalUrl), v: (r) => r.finalUrl, left: true },
+        { label: "Quality Score", html: (r) => (r.qs == null ? DASH : qsBar(r.qs)), v: (r) => r.qs, left: true },
+        { label: "CTR · Ad · Page", html: (r) => `<span class="gx-qds">${QS_PARTS.map(([k, full]) => `<span title="${esc(`${full}: ${pretty(r[k]) || "not known"}`)}">${dotOf(r[k])}<span class="sr">${esc(`${full}: ${pretty(r[k]) || "not known"}. `)}</span></span>`).join("")}</span>`, left: true },
+        { label: "Landing page", html: (r) => path(r.finalUrl), v: (r) => r.finalUrl, left: true },
       ],
-      rows,
-      { empty: flag ? "No keywords match this filter in this period." : "No keyword data for this period.", rowAttr: (r) => (noLeadKeyword(r, erp) || lowQualityScore(r) ? ' class="gad-flagged"' : "") },
-    )}`;
-  }
-  if (sub === "terms") {
-    let rows = w.terms;
-    if (flag === "negative") rows = rows.filter(negativeCandidate);
-    return `${subNav}${flagChip}${keep90}${table<TermRow>(
-      "gad-terms",
+      keywords,
+      {
+        empty: `No keyword data for ${esc(when)}. <a href="${esc(detailsHref(new URLSearchParams({ ...Object.fromEntries(q), range: "30d" }), "keywords"))}">Try 30D</a>.`,
+        chips: [["All", "flags", "", keywords.length], ["Low Quality Score", "flags", "lowqs", keywords.filter(lowQualityScore).length], ["Spend, no leads", "flags", "noleads", keywords.filter((k) => noLeadKeyword(k, erpP)).length]],
+        note,
+        rowAttr: (r) => ` data-flags="${flags(r)}"`,
+      },
+    );
+    if (keywords.length) {
+      body += `<p class="gx-qlegend cap"><b>CTR · Ad · Page</b>: expected click rate, ad relevance and landing page experience, Google's three parts of the Quality Score. <span class="gx-qd" data-tone="good"></span> above average <span class="gx-qd" data-tone="warn"></span> average <span class="gx-qd" data-tone="bad"></span> below average</p>`;
+      // The tip: the keyword with spend and the lowest Quality Score, its weakest part and what to do.
+      const weak = keywords.filter((k) => k.qs != null && (k.t.cost ?? 0) > 0).sort((a, z) => a.qs! - z.qs! || (z.t.cost ?? 0) - (a.t.cost ?? 0))[0];
+      if (weak) {
+        const part = QS_PARTS.find(([k]) => /below/i.test(weak[k])) ?? QS_PARTS.find(([k]) => /^average/i.test(weak[k]));
+        if (part)
+          body += `<div class="gx-tipcard"><p class="gx-tipcard__k">Tip</p><p><b>${esc(weak.keyword)}</b> has Quality Score ${weak.qs} and cost ${esc(fmtAed(weak.t.cost))}. Its weakest part is <b>${esc(part[1].toLowerCase())}</b> (${esc(pretty(weak[part[0]]).toLowerCase())}). ${esc(FIX[part[0]])}</p></div>`;
+      }
+    }
+  } else if (tab === "terms") {
+    body = table<TermRow>(
+      "t-terms",
       "Search terms",
       [
-        { label: "Search term", html: (r) => `<span class="gad-name">${esc(r.term)}${where(r.campaign, r.adGroup)}${negativeCandidate(r) ? flagPill("Negative candidate") : ""}</span>`, v: (r) => r.term, left: true },
+        { label: "Search term", html: (r) => `<span class="gx-name"><b>${esc(r.term)}</b>${muted(`${friendly(r.campaign)} · ${r.adGroup}`)}</span>`, v: (r) => r.term, left: true },
         text("Matched keyword", (r) => r.matched),
-        { label: "Added / excluded", html: (r) => (r.added && !/^none$/i.test(r.added) ? pill(r.added) : DASH), v: (r) => r.added, left: true },
+        { label: "Added / excluded", html: (r) => (r.added && !/^none$/i.test(r.added) ? status(r.added) : DASH), v: (r) => r.added, left: true },
         ...metricCols<TermRow>((r) => r.t),
       ],
-      rows,
-      { empty: flag ? "No search terms match this filter in this period." : "No search terms for this period.", rowAttr: (r) => (negativeCandidate(r) ? ' class="gad-flagged"' : "") },
-    )}`;
+      terms,
+      {
+        empty: `No search terms in this period. <a href="${esc(detailsHref(new URLSearchParams({ ...Object.fromEntries(q), range: "30d" }), "terms"))}">Try 30D</a>.`,
+        chips: [["All", "flags", "", terms.length], ["Wasted", "flags", "wasted", terms.filter(wastedTerm).length], ["Converting", "flags", "converting", terms.filter((t) => (t.t.conv ?? 0) > 0).length]],
+        note: "Selected period",
+        rowAttr: (r) => ` data-flags="${[wastedTerm(r) ? "wasted" : "", (r.t.conv ?? 0) > 0 ? "converting" : ""].filter(Boolean).join(" ")}"`,
+      },
+    );
+  } else if (tab === "ads") {
+    body = table<AdRow>(
+      "t-ads",
+      "Ads",
+      [
+        { label: "Ad", html: (r) => `<span class="gx-name"><b>${esc(pretty(str(r.setup, "Ad type")))} <span class="gx-match">#${esc(str(r.setup, "Ad ID"))}</span></b>${muted(`${friendly(str(r.setup, "Campaign"))} · ${str(r.setup, "Ad group")}`)}</span>`, v: (r) => str(r.setup, "Ad group"), left: true },
+        { label: "Status", html: (r) => status(str(r.setup, "Ad status")), v: (r) => str(r.setup, "Ad status"), left: true },
+        { label: "Ad strength", html: (r) => status(str(r.setup, "Ad strength")), v: (r) => str(r.setup, "Ad strength"), left: true },
+        { label: "Approval", html: (r) => status(str(r.setup, "Ad approval")), v: (r) => str(r.setup, "Ad approval"), left: true },
+        ...metricCols<AdRow>((r) => r.t),
+      ],
+      ads,
+      { empty: "No ads in the Sheet.", note },
+    );
+  } else if (tab === "adgroups") {
+    body = table<NamedRow>("t-adgroups", "Ad groups", [{ label: "Ad group", html: (r) => `<span class="gx-name"><b>${esc(r.label)}</b>${muted(friendly(r.sub))}</span>`, v: (r) => r.label, left: true }, { label: "Status", html: (r) => status(r.status), v: (r) => r.status, left: true }, ...metricCols<NamedRow>((r) => r.t)], adGroups, { empty: "No ad group data in this period.", note: "Selected period" });
+  } else if (tab === "conversions") {
+    body = table<NamedRow>("t-conv", "Conversions", [{ label: "Conversion action", html: (r) => `<span class="gx-name"><b>${esc(r.label)}</b>${muted(friendly(r.sub))}</span>`, v: (r) => r.label, left: true }, text("Category", (r) => pretty(r.status)), count("Conversions", (r) => r.t.conv), count("All conv.", (r) => r.t.allConv)], convs, { empty: "No conversions in this period.", note: "Selected period · Google may update conversions for several days" });
+  } else if (tab === "sitelinks") {
+    const n = (r: Row, h: string) => (r[h] === "" || r[h] == null ? null : Number(r[h]) || 0);
+    body = table<Row>(
+      "t-assets",
+      "Sitelinks and callouts",
+      [
+        { label: "Sitelink or callout", html: (r) => `<span class="gx-name"><b>${esc(str(r, "Sitelink text") || str(r, "Callout") || DASH)}</b>${muted(friendly(str(r, "Campaign")))}</span>`, v: (r) => str(r, "Sitelink text") || str(r, "Callout"), left: true },
+        text("Slot", (r) => pretty(str(r, "Asset slot"))),
+        count("Impr.", (r) => n(r, "Impr.")),
+        count("Clicks", (r) => n(r, "Clicks")),
+      ],
+      assets,
+      { empty: "No sitelinks or callouts in the Sheet.", note: "Last 30 days" },
+    );
+  } else {
+    const ents = historyEntities(history.filter((r) => inScope(str(r, "Campaign")) || inScope(str(r, "Name"))));
+    const pick = ents.find((e) => e.id === q.get("hist")) ?? ents[0];
+    const steps = pick ? historySteps(history, pick.id) : [];
+    const keep = ["view", "range", "from", "to", "channel"].map((k) => (q.get(k) ? `<input type="hidden" name="${k}" value="${esc(q.get(k))}">` : "")).join("");
+    const timeline = steps.length
+      ? `<ol class="gx-tl">${steps.map((s) => `<li><p class="gx-tl__at">${esc(s.at || DASH)}</p><dl>${s.lines.map(([k, v, ch]) => `<div${ch ? ' class="is-ch"' : ""}><dt>${esc(k)}</dt><dd>${esc(v)}${ch ? '<span class="chip" data-tone="warn">changed</span>' : ""}</dd></div>`).join("")}${s.removed.map((k) => `<div class="is-ch"><dt>${esc(k)}</dt><dd>(removed)<span class="chip" data-tone="warn">changed</span></dd></div>`).join("")}</dl></li>`).join("")}</ol>`
+      : `<p class="gx-empty">No settings history${d.tabs.Setup_History ? "" : " (the Setup_History tab isn't in the Sheet yet)"}.</p>`;
+    body = `<h3 class="gx-h3">Changes <span class="cap">· last 30 days, newest first</span></h3>${table<Row>(
+      "t-changes",
+      "Change history",
+      [
+        { label: "Changed at", html: (r) => `<span class="gx-name"><b>${esc(stampOf(r["Changed at"]))}</b>${muted(str(r, "Changed from"))}</span>`, v: (r) => stampOf(r["Changed at"]), left: true },
+        text("Who", (r) => str(r, "Changed by")),
+        text("What changed", (r) => pretty(str(r, "What changed"))),
+        text("Action", (r) => pretty(str(r, "Action"))),
+        text("Fields changed", (r) => str(r, "Fields changed")),
+        { label: "Where", html: (r) => `${named2(friendly(str(r, "Campaign")), str(r, "Campaign"))}${str(r, "Ad group") ? muted(str(r, "Ad group")) : ""}`, v: (r) => str(r, "Campaign"), left: true },
+      ],
+      changes,
+      { empty: "No changes in the last 30 days." },
+    )}
+    <h3 class="gx-h3">Settings history <span class="cap">· newest first; lines marked “changed” differ from the record before</span></h3>
+    ${ents.length ? `<form method="get" action="#details" class="gx-hist"><input type="hidden" name="details" value="history">${keep}<label><span class="cap">Campaign or ad</span><select name="hist" data-autosubmit>${ents.map((e) => `<option value="${esc(e.id)}"${e.id === pick?.id ? " selected" : ""}>${esc(e.label)}</option>`).join("")}</select></label><noscript><button class="gx-btn" type="submit">Show</button></noscript></form>` : ""}${timeline}`;
   }
-  const perfNote = d.tabs.Perf_Ads_Daily ? "" : `<p class="gad-note">Period numbers need the Perf_Ads_Daily tab; it isn't in the Sheet yet.</p>`;
-  return `${subNav}${perfNote}${table<AdRow>(
-    "gad-ads",
-    "Ads",
-    [
-      { label: "Ad", html: (r) => `<span class="gad-name">${esc(pretty(str(r.setup, "Ad type")))} <small class="gad-muted">#${esc(str(r.setup, "Ad ID"))}</small>${where(str(r.setup, "Campaign"), str(r.setup, "Ad group"))}</span>`, v: (r) => str(r.setup, "Ad group"), left: true },
-      { label: "Status", html: (r) => pill(str(r.setup, "Ad status")), v: (r) => str(r.setup, "Ad status"), left: true },
-      { label: "Ad strength", html: (r) => pill(str(r.setup, "Ad strength")), v: (r) => str(r.setup, "Ad strength"), left: true },
-      { label: "Approval", html: (r) => pill(str(r.setup, "Ad approval")), v: (r) => str(r.setup, "Ad approval"), left: true },
-      { label: "Final URL", html: (r) => `${url(str(r.setup, "Final URL"))}${str(r.setup, "Path 1") || str(r.setup, "Path 2") ? `<small class="gad-sub">/${esc([str(r.setup, "Path 1"), str(r.setup, "Path 2")].filter(Boolean).join("/"))}</small>` : ""}`, v: (r) => str(r.setup, "Final URL"), left: true },
-      ...metricCols<AdRow>((r) => r.t),
-    ],
-    adRows(rowsOf(d.tabs.Setup_Ads), inPeriod(rowsOf(d.tabs.Perf_Ads_Daily), period.from, period.to, campaign), campaign),
-    { empty: "No ads in the Sheet." },
-  )}`;
-}
 
-/** Small bars (share of cost, or of clicks when there's no cost) and a table, for one audience breakdown. */
-function segment(id: string, title: string, column: string, rows: Row[], when: string, impr = true) {
-  const list = segmentRows(rows, column);
-  const by: "cost" | "clicks" = list.some((r) => r.t.cost) ? "cost" : "clicks";
-  const sum = list.reduce((s, r) => s + (r.t[by] ?? 0), 0);
-  const bars = sum
-    ? `<ol class="gad-bars">${list
-        .slice(0, 6)
-        .map((r) => {
-          const sh = (r.t[by] ?? 0) / sum;
-          return `<li><div class="gad-bars__top"><span>${esc(r.label)}</span><span>${esc(by === "cost" ? fmtAed(r.t.cost, 0) : fmtNum(r.t.clicks))} <small>${(sh * 100).toFixed(0)}%</small></span></div><div class="gad-bars__track"><span style="--w:${(sh * 100).toFixed(1)}%"></span></div></li>`;
-        })
-        .join("")}</ol>`
-    : "";
-  const cols: Col<NamedRow>[] = [{ label: title, html: (r) => esc(r.label), v: (r) => r.label, left: true }, ...metricCols<NamedRow>((r) => r.t, impr), money<NamedRow>("Cost / conv.", (r) => div(r.t.cost, r.t.conv))];
-  return `<section class="gad-aud" aria-labelledby="${id}-t"><h3 class="gad-h3" id="${id}-t">${esc(title)}s <span class="gad-muted">· ${esc(when)}</span></h3>${bars}${table(id, `${title}s`, cols, list, { empty: "No data for this period." })}</section>`;
+  const tabs = TABS.map(([k, l]) => `<a class="gx-tab" href="${esc(detailsHref(q, k))}"${k === tab ? ' aria-current="page"' : ""}>${l} <span class="gx-tab__n">${counts[k]}</span></a>`).join("");
+  return `<details class="lr-card gx-card gx-details" id="details"${open ? " open" : ""}>
+      <summary><span class="gx-details__t">All details</span><span class="cap">Everything in the account, as Google names it · ${esc(when)}</span>${svg(I.chevron, 18)}</summary>
+      <nav class="gx-tabs" aria-label="Detail tables">${tabs}</nav>
+      <section class="gx-panel" id="d-${tab}" aria-label="${esc(TABS.find(([k]) => k === tab)![1])}">${body}</section>
+    </details>`;
 }
-
-function audienceSection(w: WhyInput) {
-  const { d, period, campaign } = w;
-  const cut = (name: keyof SheetData["tabs"]) => inPeriod(rowsOf(d.tabs[name]), period.from, period.to, campaign);
-  const camp = (name: keyof SheetData["tabs"]) => rowsOf(d.tabs[name]).filter((r) => !campaign || str(r, "Campaign") === campaign);
-  const when = `${span(period.from, period.to)}`;
-  return [
-    segment("gad-devices", "Device", "Device", cut("Perf_Devices_Daily"), when),
-    segment("gad-networks", "Network", "Network", cut("Perf_Channels_Daily"), when),
-    segment("gad-locations", "Location", "City", camp("Perf_Locations_30d"), "last 30 days"),
-    segment("gad-ages", "Age range", "Age range", camp("Perf_Ages_30d"), "last 30 days", false),
-    segment("gad-audiences", "Audience", "Name", camp("Perf_Audiences_30d"), "last 30 days", false),
-  ].join("");
-}
-
-function historySection(w: WhyInput) {
-  const { d, q, campaign } = w;
-  const log = rowsOf(d.tabs.Change_Log_30d)
-    .filter((r) => !campaign || str(r, "Campaign") === campaign)
-    .sort((a, b) => stampOf(b["Changed at"]).localeCompare(stampOf(a["Changed at"])));
-  const list = table<Row>(
-    "gad-changes",
-    "Changes",
-    [
-      { label: "Changed at", html: (r) => `<span class="gad-name">${esc(stampOf(r["Changed at"]))}<small class="gad-sub">${esc(str(r, "Changed from"))}</small></span>`, v: (r) => stampOf(r["Changed at"]), left: true },
-      text("Who", (r) => str(r, "Changed by")),
-      text("What changed", (r) => pretty(str(r, "What changed"))),
-      text("Action", (r) => pretty(str(r, "Action"))),
-      text("Fields changed", (r) => str(r, "Fields changed")),
-      { label: "Where", html: (r) => trunc([str(r, "Campaign"), str(r, "Ad group")].filter(Boolean).join(" · ")), v: (r) => str(r, "Campaign"), left: true },
-    ],
-    log,
-    { empty: "No changes in the last 30 days." },
-  );
-  const hist = rowsOf(d.tabs.Setup_History);
-  const ents = historyEntities(campaign ? hist.filter((r) => str(r, "Campaign") === campaign || str(r, "Name") === campaign) : hist);
-  const pick = ents.find((e) => e.id === q.get("hist")) ?? ents[0];
-  const steps = pick ? historySteps(hist, pick.id) : [];
-  const keep = ["view", "range", "from", "to", "compare", "channel", "campaign", "section"].map((k) => (q.get(k) ? `<input type="hidden" name="${k}" value="${esc(q.get(k))}">` : "")).join("");
-  const timeline = steps.length
-    ? `<ol class="gad-timeline">${steps
-        .map(
-          (s) => `<li><p class="gad-timeline__at">${esc(s.at || DASH)}</p><dl>${s.lines.map(([k, v, ch]) => `<div${ch ? ' class="is-changed"' : ""}><dt>${esc(k)}</dt><dd>${esc(v)}${ch ? '<span class="gad-chg">changed</span>' : ""}</dd></div>`).join("")}${s.removed.map((k) => `<div class="is-changed"><dt>${esc(k)}</dt><dd>(removed)<span class="gad-chg">changed</span></dd></div>`).join("")}</dl></li>`,
-        )
-        .join("")}</ol>`
-    : `<p class="gad-note">No settings history${d.tabs.Setup_History ? "" : " (the Setup_History tab isn't in the Sheet yet)"}.</p>`;
-  return `<h3 class="gad-h3">Changes <span class="gad-muted">· last 30 days, newest first</span></h3>${list}
-    <div class="gad-hist">
-      <h3 class="gad-h3">Settings history</h3>
-      ${ents.length ? `<form method="get" action="" class="gad-hist__pick">${keep}<label class="lr-field"><span class="lr-field__label">Campaign or ad</span>
-        <select class="lr-select" name="hist" data-autosubmit>${ents.map((e) => `<option value="${esc(e.id)}"${e.id === pick?.id ? " selected" : ""}>${esc(e.label)}</option>`).join("")}</select></label>
-        <noscript><button class="lr-btn" type="submit">Show</button></noscript></form>` : ""}
-      <p class="gad-muted">Newest first. Lines marked "changed" differ from the record before.</p>
-      ${timeline}
-    </div>`;
-}
-
-function why(w: WhyInput, section: Section, sub: Sub) {
-  const nav = `<nav class="gad-seg gad-seg--why" aria-label="Why: details">${SECTIONS.map(([k, l]) => `<a class="gad-seg__opt" href="${esc(href(q0(w.q), { section: k, sub: null, flag: null, hist: null }))}#why"${k === section ? ' aria-current="true"' : ""} data-nav>${l}</a>`).join("")}</nav>`;
-  const body = section === "campaigns" ? campaignsSection(w) : section === "search" ? searchSection(w, sub) : section === "audience" ? audienceSection(w) : historySection(w);
-  return `<section class="lr-card gad-card gad-why" id="why" aria-labelledby="gad-why-t">
-      <div class="gad-why__head"><h2 class="gad-h2" id="gad-why-t">Why?</h2>${nav}</div>
-      ${body}
-    </section>`;
-}
-const q0 = (q: URLSearchParams) => {
-  const n = new URLSearchParams(q);
-  n.delete("refresh");
-  n.delete("note");
-  return n;
-};
 
 /* ---------- Status card (bridge not working) ---------- */
 
-/** Which variables are set (names only) and how far the bridge call got: reachable, password accepted, tabs received. */
 function diagnosisHtml(d: Diagnosis) {
-  const mark = (ok: boolean | null) => `<span class="gad-diag__mark" data-tone="${ok == null ? "neutral" : ok ? "good" : "bad"}" aria-hidden="true">${ok == null ? "–" : ok ? "✓" : "✗"}</span>`;
-  const env = d.env.map((e) => `<li>${mark(e.set)}<code>${esc(e.name)}</code><span class="gad-muted">${e.set ? "set" : "missing"}</span></li>`).join("");
-  const list = d.checks
-    .map((c) => `<li>${mark(c.ok)}<span><b>${esc(c.label)}</b><small class="${c.ok === false ? "gad-diag__err" : "gad-muted"}">${esc(c.detail)}</small></span></li>`)
-    .join("");
-  return `<div class="gad-diag">
-      <h3 class="gad-h3">Status</h3>
-      <div class="gad-diag__cols">
-        <div><p class="gad-muted">Environment variables (names only)</p><ul>${env}</ul></div>
-        <div><p class="gad-muted">Sheet bridge</p><ol>${list}</ol></div>
-      </div>
+  const mark = (ok: boolean | null) => `<span class="gx-diag__m" data-tone="${ok == null ? "neu" : ok ? "good" : "bad"}" aria-hidden="true">${ok == null ? "–" : ok ? "✓" : "✗"}</span>`;
+  return `<div class="gx-diag">
+      <div><p class="cap">Environment variables (names only)</p><ul>${d.env.map((e) => `<li>${mark(e.set)}<code>${esc(e.name)}</code><span class="cap">${e.set ? "set" : "missing"}</span></li>`).join("")}</ul></div>
+      <div><p class="cap">Sheet bridge</p><ol>${d.checks.map((c) => `<li>${mark(c.ok)}<span><b>${esc(c.label)}</b> <span class="cap">${esc(c.detail)}</span></span></li>`).join("")}</ol></div>
     </div>`;
 }
 
@@ -545,14 +825,9 @@ function diagnosisHtml(d: Diagnosis) {
 
 export type GoogleAdsState =
   | { kind: "off" | "error"; query: URLSearchParams; today: string; diagnosis: Diagnosis }
-  | { kind: "ok"; query: URLSearchParams; today: string; data: SheetData; stale: boolean; note: string; erp: ErpLead[] | null };
+  | { kind: "ok"; query: URLSearchParams; today: string; data: SheetData; stale: boolean; note: string; erp: ErpLead[] | null; joinReady: boolean; landings: Entry[] | null };
 
-const NOTES: Record<string, string> = {
-  done: "Refreshed from the Sheet just now.",
-  wait: "Refresh can be used once every 2 minutes. Showing the latest copy.",
-};
-
-const PERIOD_NAME: Record<string, string> = { today: "Today", yesterday: "Yesterday", "7d": "Last 7 days, to yesterday", "30d": "Last 30 days, to yesterday", month: "This month", lastmonth: "Last month", since: "Since start", custom: "Custom range" };
+const NOTES: Record<string, string> = { done: "Refreshed from the Sheet just now.", wait: "Refresh can be used once every 2 minutes. Showing the latest copy." };
 const minutesAgo = (ms: number) => {
   const m = Math.round((Date.now() - ms) / 60_000);
   return m < 1 ? "just now" : m < 60 ? `${m} min ago` : `${Math.round(m / 60)} h ago`;
@@ -561,97 +836,56 @@ const minutesAgo = (ms: number) => {
 export function googleAdsHtml(state: GoogleAdsState): string {
   const q = state.query;
   let body: string;
+  let fresh: Freshness = { text: "Google Ads data not connected", tone: "bad" };
   if (state.kind !== "ok") {
     const off = state.kind === "off";
-    body = `<header class="gad-head"><div class="gad-head__title"><h1 class="gad-title">Google Ads</h1><p class="gad-muted">Best Solution Management Services</p></div></header>
-      <div class="lr-controls">${viewSwitch(q, "", "google-ads")}</div>
-      <section class="lr-card alx-error gad-card" role="${off ? "status" : "alert"}">
-        <h2 class="lr-empty__title">${icon(off ? "link" : "alert")}${off ? "Google Ads data not connected" : "Couldn't read the Google Ads Sheet"}</h2>
-        <p class="lr-empty__lead">${off ? "Needs ADS_SHEET_BRIDGE_URL and ADS_SHEET_BRIDGE_TOKEN in this deployment's environment variables, then a redeploy." : "Reading the Sheet through the bridge failed, and there's no earlier copy to show. The status below says where."}</p>
-        ${off ? "" : `<a class="lr-btn-ghost" href="${esc(href(q, { refresh: null, note: null }))}" data-nav>${icon("refresh")}Try again</a>`}
+    body = `<div class="gx-head"><div class="gx-head__t"><p class="gx-kicker">Best Solution Management Services</p><h1>Google Ads</h1></div></div>
+      <section class="lr-card gx-card" role="${off ? "status" : "alert"}">
+        <div class="ct"><h2 class="lr-card__title">${off ? "Google Ads data not connected" : "Couldn't read the Google Ads Sheet"}</h2></div>
+        <p>${off ? "Needs ADS_SHEET_BRIDGE_URL and ADS_SHEET_BRIDGE_TOKEN in this deployment's environment variables, then a redeploy." : "Reading the Sheet through the bridge failed, and there's no earlier copy to show. The status below says where."}</p>
+        ${off ? "" : `<p><a class="gx-btn" href="${esc(href(q, { refresh: null, note: null }))}">${svg(I.refresh, 14)}Try again</a></p>`}
         ${diagnosisHtml(state.diagnosis)}
       </section>`;
   } else {
     const d = state.data;
-    const status = statusOf(d.tabs._Status);
-    const updated = stampOf(status.get("updated"));
-    const fresh = freshness(stampMs(updated), Date.now());
-    const campaign = q.get("campaign") ?? "";
-    const channel = (["all", "search", "demandgen"] as const).find((c) => c === q.get("channel")) ?? "search";
-    const perfAll = rowsOf(d.tabs.Perf_Campaigns_Daily);
-    const setup = rowsOf(d.tabs.Setup_Campaigns);
-    const start = perfAll.reduce((m, r) => { const x = dateOf(r.Date); return x && (!m || x < m) ? x : m; }, "");
-    const period = pickPeriod(q, state.today, start);
-    const compare = q.get("compare") !== "off";
-    const prevWords = span(period.prevFrom, period.prevTo);
-
-    // Channel of each campaign (by name), from Setup_Campaigns, else the daily rows.
-    const chOf = new Map<string, Channel>();
-    for (const r of perfAll) chOf.set(str(r, "Campaign"), channelOf(str(r, "Campaign type")));
-    for (const r of setup) chOf.set(str(r, "Campaign"), channelOf(str(r, "Campaign type")));
-    const inScope = (name: string) => (campaign ? name === campaign : channel === "all" || chOf.get(name) === channel);
-    const scoped = (rows: Row[]) => rows.filter((r) => inScope(str(r, "Campaign")));
-    // ERP leads in scope: "All" counts every Google Ads lead; a channel or campaign counts leads of its campaigns.
-    const names = [...chOf.keys()].filter(inScope).map((n) => n.toLowerCase());
-    const erpScope = (leads: ErpLead[]) => (!campaign && channel === "all" ? leads : leads.filter((l) => names.includes(l.campaign.trim().toLowerCase())));
-    // ERP leads are counted from REPORT_START: a period that ends before it has no ERP numbers ("–"), not 0.
-    const erpCovered = period.to >= REPORT_START;
-    const erpCur = state.erp && erpCovered ? erpScope(erpIn(state.erp, period.from, period.to)) : null;
-    const erpPrevFair = period.prevFrom >= REPORT_START;
-    const erpPrev = state.erp && erpPrevFair ? erpScope(erpIn(state.erp, period.prevFrom, period.prevTo)) : null;
-
-    const cur = scoped(inPeriod(perfAll, period.from, period.to));
-    const kCur: Kpi = { t: totals(cur), leads: erpCur?.length ?? null, qualified: erpCur ? erpCur.filter((l) => l.qualified).length : null };
-    const kPrev: Kpi | null = compare ? { t: totals(scoped(inPeriod(perfAll, period.prevFrom, period.prevTo))), leads: erpPrev?.length ?? null, qualified: erpPrev ? erpPrev.filter((l) => l.qualified).length : null } : null;
-    const channelWord = campaign || (channel === "all" ? "all campaigns" : `${CHANNEL_LABEL[channel]} campaigns`);
-
-    // Everything below "Why?" and the checks use all campaigns of the period (or the one campaign).
-    const allPeriod = inPeriod(perfAll, period.from, period.to, campaign);
-    const camps = campaignRows(allPeriod, setup, campaign);
-    const erpPeriod = state.erp ? erpIn(state.erp, period.from, period.to) : null;
-    const keywords = keywordRows(inPeriod(rowsOf(d.tabs.Perf_Keywords_Daily), period.from, period.to, campaign), rowsOf(d.tabs.Setup_Keywords));
-    const terms = searchTermRows(inPeriod(rowsOf(d.tabs.Perf_SearchTerms_Daily), period.from, period.to, campaign));
-    const alerts = alertsOf(d.tabs.Alerts);
-    const items = attention({
-      campaigns: camps.filter((c) => c.t.cost != null || c.t.clicks != null),
-      erp: erpPeriod,
-      keywords,
-      terms,
-      changes: rowsOf(d.tabs.Change_Log_30d).filter((r) => !campaign || str(r, "Campaign") === campaign),
-      from: period.from,
-      to: period.to,
-      alerts: campaign ? { ...alerts, items: alerts.items.filter((a) => a.where === campaign) } : alerts,
-      approvalData: String(status.get("ad approval data") ?? ""),
-    });
-    const section = (SECTIONS.find(([k]) => k === q.get("section"))?.[0] ?? "campaigns") as Section;
-    const sub = (SUBS.find(([k]) => k === q.get("sub"))?.[0] ?? "keywords") as Sub;
-    const banner =
+    const st = statusOf(d.tabs._Status);
+    const updated = stampOf(st.get("updated"));
+    const fr = freshness(stampMs(updated), Date.now());
+    const hm = updated.slice(11, 16);
+    const at = updated ? (updated.slice(0, 10) === state.today ? hm : `${dayMonth(updated.slice(0, 10))} ${hm}`) : "";
+    // One freshness badge: green on time, amber late, red not updating.
+    fresh =
+      fr === "good"
+        ? { text: `Updated ${at} (UAE)${nextRun(updated) ? ` · next ${nextRun(updated)}` : ""}`, tone: "good" }
+        : fr === "warn"
+          ? { text: `Updated ${at} (UAE) · late (9+ hours)`, tone: "warn" }
+          : fr === "bad"
+            ? { text: `Report is not updating · last update ${at || "unknown"}`, tone: "bad" }
+            : { text: "Update time not in the Sheet", tone: "warn" };
+    const b = blocks({ data: d, erp: state.erp, joinReady: state.joinReady, landings: state.landings, q, today: state.today });
+    const note =
       state.stale || state.note === "failed"
-        ? `<p class="gad-banner" role="alert">${icon("alert")}Data could not be refreshed. Showing the copy read ${esc(minutesAgo(d.fetchedAt))}.</p>`
+        ? `<p class="gx-note" data-tone="bad" role="alert">${svg(I.alert, 16, ' stroke-width="2.6"')}Data could not be refreshed. Showing the copy read ${esc(minutesAgo(d.fetchedAt))}.</p>`
         : NOTES[state.note]
-          ? `<p class="gad-banner" data-tone="info" role="status">${icon("info")}${esc(NOTES[state.note])}</p>`
+          ? `<p class="gx-note" role="status">${svg(I.info, 16)}${esc(NOTES[state.note])}</p>`
           : "";
-    const s = (k: string) => {
-      const v = status.get(k);
+    const sv = (k: string) => {
+      const v = st.get(k);
       return v == null || v === "" ? DASH : stampOf(v);
     };
-    const script = s("script version");
-    const empty = !cur.length;
-    body = `${header(q, updated, fresh)}
-      ${banner}
-      ${needsAttention(items, q, alerts.checkedAt)}
-      <h2 class="gad-h2 gad-how">How are we doing?</h2>
-      ${controls(q, period, state.today, channel, campaign, compare)}
-      <p class="gad-period">${esc(PERIOD_NAME[period.key])} · ${esc(span(period.from, period.to))} · ${esc(channelWord)}${period.to === state.today ? " · today is partial" : ""}${compare && !erpPrevFair && state.erp ? " · ERP leads start 12 Oct, so they have no comparison here" : ""}</p>
-      <main class="lr-view lr-bento alx-view gad-view" id="alx-view">
-        ${empty ? `<p class="gad-empty lr-card">No spend for ${esc(channelWord)} in this period. Try a longer period or another channel.</p>` : ""}
-        ${kpis(kCur, kPrev, prevWords, channelWord, state.erp ? "No ERP leads before 12 Oct" : "ERP not connected here")}
-        ${trend(cur, erpCur, period, state.today)}
-        ${why({ d, q, period, campaign, camps, erp: erpPeriod, keywords, terms }, section, sub)}
-      </main>
-      <footer class="alx-foot gad-foot">
-        <p>Data from ${esc(s("data from"))} · Script ${esc(script === DASH || /^v/i.test(script) ? script : `v${script}`)} · Google may update conversions for several days.</p>
-      </footer>`;
+    const script = sv("script version");
+    const dataFrom = sv("data from");
+    body = `${head(b, q, state.today)}
+      ${note}
+      ${banner(b)}
+      ${kpis(b)}
+      <div class="g84">${chart(b, state.today, q)}${attentionCard(b, q)}</div>
+      <div class="g3">${spendCard(b)}${qualityCard(b)}${funnelCard(b)}</div>
+      <div class="g2">${cplCard(b)}${heatCard(b, state.today)}</div>
+      <div class="g3">${devicesCard(b)}${citiesCard(b)}${pagesCard(b)}</div>
+      <div class="g2">${termsCard(b)}${campaignsCard(b, q)}</div>
+      ${details(b, d, q, state.erp)}
+      <footer class="gx-footer">Data from ${esc(/^\d{4}-\d{2}-\d{2}/.test(dataFrom) ? dayMonth(dataFrom) : dataFrom)} · Script ${esc(script === DASH || /^v/i.test(script) ? script : `v${script}`)} · Google may update conversions for several days</footer>`;
   }
   return `<!doctype html>
 <html lang="en">
@@ -666,223 +900,393 @@ export function googleAdsHtml(state: GoogleAdsState): string {
 <link rel="apple-touch-icon" href="/lead-insights/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600&display=swap">
 <style>${dashCss()}
 ${CSS}
-${GAD_CSS}</style>
+${GX_CSS}</style>
 </head>
 <body>
 <div class="lr-aurora" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 ${sprite()}
-${topbar(false, "", q, "google-ads", false)}
-<div class="lr-page"><div class="lr-main alx gad">
+${topbar(false, "", q, "google-ads", fresh)}
+<div class="lr-page"><main class="gx">
+${viewSwitch(q, "", "google-ads")}
 ${body}
-</div></div>
-<script>${SCRIPT}</script>
-<script>${GAD_SCRIPT}</script>
+</main></div>
+<script>${GX_SCRIPT}</script>
 </body>
 </html>`;
 }
 
-/* ---------- View-only styles (gad-*), from the dashboard's tokens ---------- */
+/* ---------- View-only styles (gx-*), on the dashboard's light tokens (--text, --muted, --line, --copper…) ---------- */
 
-const GAD_CSS = `
-.gad { --attn: #c2410c; --good-c: #0b7a53; --warn-c: #9a5b00; --bad-c: #b42318; --muted-c: #5b6576; }
-.gad > * { grid-column: 1 / -1; }
-.gad-view > .gad-card, .gad-view > .gad-empty { grid-column: 1 / -1; }
-.gad-muted { color: var(--muted-c); font: 500 var(--fs-small)/var(--lh-small) var(--font); }
-.gad-h2 { display: flex; align-items: center; gap: var(--s2); font: 700 18px/1.3 var(--font); letter-spacing: -.01em; }
-.gad-h3 { font: 700 15px/1.3 var(--font); margin: var(--s4) 0 var(--s2); }
-.gad-h3:first-child { margin-top: 0; }
-/* Header: title left, one freshness badge and Refresh right. */
-.gad-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
-.gad-title { font: 800 28px/1.1 var(--font); letter-spacing: -.02em; }
-.gad-head__right { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3); }
-[data-tone="good"] { --c: var(--good-c); } [data-tone="warn"] { --c: var(--warn-c); } [data-tone="bad"] { --c: var(--bad-c); } [data-tone="neutral"], [data-tone="unknown"] { --c: var(--muted-c); } [data-tone="muted"] { --c: #9b4b45; }
-.gad-fresh { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font: 700 13px/1.3 var(--font); color: var(--c); background: color-mix(in srgb, var(--c) 10%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 25%, transparent); }
-.gad-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
-.gad-refresh { text-decoration: none; }
-.gad-banner { display: flex; align-items: center; gap: var(--s2); padding: 12px var(--s3); border-radius: var(--r-control); color: #8a2c20; background: #fdecea; box-shadow: inset 0 0 0 1px #f5c6c0; font: 600 var(--fs-small)/1.4 var(--font); }
-.gad-banner[data-tone="info"] { color: var(--text); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); }
-/* Needs attention: level word + sentence + money + link; the accent colour is reserved for attention. */
-.gad-attn { padding: var(--s4); }
-.gad-attn__head { margin-bottom: var(--s3); }
-.gad-badge { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 999px; background: var(--attn); color: #fff; font: 800 12px/1 var(--font); }
-.gad-attn__list { list-style: none; display: grid; gap: 2px; }
-.gad-attn__item { display: grid; grid-template-columns: 76px 1fr auto auto; align-items: center; gap: var(--s3); padding: 12px 0; border-top: 1px solid var(--line); }
-.gad-attn__item:first-child { border-top: 0; }
-.gad-attn__item[hidden] { display: none; }
-.gad-attn__level { justify-self: start; padding: 3px 9px; border-radius: 999px; font: 800 11px/1.3 var(--font); letter-spacing: .04em; text-transform: uppercase; color: #fff; background: var(--lc); }
-[data-level="red"] { --lc: var(--bad-c); } [data-level="orange"] { --lc: var(--attn); } [data-level="yellow"] { --lc: #8a6a00; } [data-level="info"] { --lc: var(--muted-c); }
-.gad-attn__text { font: 500 15px/1.45 var(--font); color: var(--text); }
-.gad-attn__src { display: inline-block; margin-left: 4px; color: var(--muted-c); font: 600 11.5px/1.3 var(--font); }
-.gad-attn__aed { font: 700 14px/1 var(--font); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text); }
-.gad-attn__go { font: 700 13px/1.2 var(--font); color: var(--copper-lo); text-decoration: none; white-space: nowrap; }
-.gad-attn__go:hover { text-decoration: underline; }
-.gad-attn__all { margin-top: var(--s2); }
-.gad-attn--clear .gad-h2 { color: var(--good-c); }
-.gad-attn--clear .gad-h2 .lr-icon { color: var(--good-c); }
-.gad-attn--clear .gad-muted { margin-top: 4px; }
-@media (max-width: 767px) {
-  .gad-attn { padding: var(--s3); }
-  .gad-attn__item { grid-template-columns: auto 1fr auto; grid-template-areas: "lvl aed go" "txt txt txt"; gap: 6px var(--s2); }
-  .gad-attn__level { grid-area: lvl; } .gad-attn__aed { grid-area: aed; justify-self: end; } .gad-attn__go { grid-area: go; } .gad-attn__text { grid-area: txt; font-size: 14.5px; }
+const GX_CSS = `
+/* Muted text one step darker than the other views' --muted: on the glass over the warm background it keeps 4.5:1 (AA). */
+.gx { --muted: #475569; display: flex; flex-direction: column; gap: 18px; color: var(--text); font-feature-settings: "tnum" 1; }
+.gx h1, .gx h2, .gx h3, .gx p, .gx ul, .gx ol, .gx dl, .gx dd { margin: 0; padding: 0; }
+.gx ul, .gx ol { list-style: none; }
+.gx a { color: var(--copper-lo); text-decoration: none; font-weight: 600; }
+.gx a:hover { text-decoration: underline; }
+.gx :focus-visible { outline: 2px solid var(--copper-lo); outline-offset: 2px; border-radius: 6px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* Big numbers only. */
+.num { font-family: "Space Grotesk", var(--font); font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.cap { font: 500 12.5px/1.4 var(--font); color: var(--muted); }
+.gx-card { padding: 22px 24px; min-width: 0; }
+.ct { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.ct .lr-card__title { margin: 0; }
+.ct__x { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; }
+/* Chips: light tints with dark text (AA). */
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font: 700 12px/1.4 var(--font); white-space: nowrap; }
+.chip[data-tone="good"] { background: rgba(18,161,107,.14); color: #0B6B47; }
+.chip[data-tone="bad"] { background: rgba(214,69,69,.13); color: #A12D2D; }
+.chip[data-tone="warn"] { background: rgba(224,154,30,.18); color: #7A4F00; }
+.chip[data-tone="neu"] { background: #EFE9E2; color: #43495A; }
+.gx-bad { color: #A12D2D; font-weight: 700; }
+.leg { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/1.3 var(--font); color: var(--muted); }
+.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+.sw--dot { border-radius: 50%; background: #12A16B; }
+.track { height: 8px; border-radius: 4px; background: #EFE9E2; overflow: hidden; }
+.track > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2F5BD3, #7B5CE0); min-width: 2px; }
+.track--thin { height: 6px; margin-top: 4px; }
+.g84 { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 18px; }
+.g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.g2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.gx-none, .gx-empty { color: var(--muted); font: 500 14px/1.5 var(--font); padding: 8px 0; }
+.gx-empty { padding: 28px 0; text-align: center; }
+.gx-grow { flex: 1; }
+.gx-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: rgba(255,255,255,.75); box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text); font: 600 13px/1 var(--font); cursor: pointer; }
+.gx-btn:hover { background: #fff; text-decoration: none; }
+.gx-more { margin-top: 10px; min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text); font: 600 13px/1 var(--font); cursor: pointer; }
+.gx-more[hidden] { display: none; }
+.gx-tip { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; color: var(--muted); cursor: help; border-radius: 50%; }
+.gx-tip::after { content: attr(data-tip); position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 5; width: max-content; max-width: min(280px, 80vw); padding: 8px 10px; border-radius: 12px; background: var(--text); color: #fff; font: 500 12px/1.4 var(--font); opacity: 0; pointer-events: none; transition: opacity .15s; }
+.gx-tip:hover::after, .gx-tip:focus::after { opacity: 1; }
+/* 1. Header and filters */
+.gx-head { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.gx-head__t { flex: 1 1 260px; }
+.gx-kicker { color: #7A4530; font: 700 12px/1.4 var(--font); letter-spacing: .08em; text-transform: uppercase; }
+.gx-head h1 { margin-top: 4px; font: 800 30px/1.1 var(--font); letter-spacing: -.03em; }
+.seg { display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.8), 0 6px 20px -12px rgba(20,37,62,.3); }
+.seg a, .seg button, .gx-more-ch summary { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 13.5px/1 var(--font); cursor: pointer; white-space: nowrap; text-decoration: none; }
+.seg a:hover, .seg button:hover { color: var(--text); text-decoration: none; }
+.seg [aria-current="page"] { background: var(--text); color: #fff; }
+.gx-more-ch { position: relative; }
+.gx-more-ch summary { list-style: none; }
+.gx-more-ch summary::-webkit-details-marker { display: none; }
+.gx-more-ch summary::after { content: " ▾"; font-size: 10px; margin-left: 4px; }
+.gx-more-ch__m { position: absolute; right: 0; top: calc(100% + 6px); z-index: 10; display: grid; min-width: 180px; padding: 6px; border-radius: 16px; background: var(--glass-bg-dense); box-shadow: var(--shadow-pop); }
+.gx-more-ch__m a { padding: 10px 12px; border-radius: 10px; color: var(--text); }
+.gx-more-ch__m a[aria-current="page"] { background: var(--text); color: #fff; }
+.gx-refresh { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.65); box-shadow: inset 0 0 0 1px rgba(255,255,255,.85), 0 6px 20px -12px rgba(20,37,62,.3); color: var(--text) !important; }
+.gx-customf { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; padding: 14px 16px; border-radius: 18px; background: rgba(255,255,255,.65); box-shadow: inset 0 0 0 1px rgba(255,255,255,.85); }
+.gx-customf[hidden] { display: none; }
+.gx-customf label { display: grid; gap: 4px; font: 600 12px/1.3 var(--font); color: var(--muted); }
+.gx-customf input { min-height: 40px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 12px; background: #fff; color: var(--text); }
+.gx-customf button { min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--text); color: #fff; font-weight: 700; cursor: pointer; }
+.gx-err { flex-basis: 100%; color: #A12D2D; font-size: 13px; }
+.gx-note { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,.65); color: var(--text); font: 600 13px/1.4 var(--font); }
+.gx-note[data-tone="bad"] { background: #FDECEC; color: #8A2323; }
+/* Header freshness badge (Google Ads): green on time, amber late, red not updating. */
+.lr-fresh__tone[data-tone], .lr-brand__live[data-tone], .lr-menu__state[data-tone] { font-weight: 600; }
+.lr-fresh__tone[data-tone="good"], .lr-brand__live[data-tone="good"], .lr-menu__state[data-tone="good"] { color: #0B6B47; }
+.lr-fresh__tone[data-tone="warn"], .lr-brand__live[data-tone="warn"], .lr-menu__state[data-tone="warn"] { color: #7A4F00; }
+.lr-fresh__tone[data-tone="bad"], .lr-brand__live[data-tone="bad"], .lr-menu__state[data-tone="bad"] { color: #A12D2D; }
+[data-tone="good"] > .lr-dot { background: #12A16B; } [data-tone="warn"] > .lr-dot { background: #E09A1E; } [data-tone="bad"] > .lr-dot { background: #D64545; }
+/* 2. Tracking banner: light amber, dark button */
+.gx-banner { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 10px 10px 16px; border-radius: 18px; border: 1px solid #EBCB86; background: #FFF4DE; }
+.gx-banner__i { width: 28px; height: 28px; border-radius: 9px; background: #E09A1E; color: #fff; display: inline-grid; place-items: center; flex: none; }
+.gx-banner p { flex: 1 1 400px; font: 500 14px/1.45 var(--font); color: #5C3D00; }
+.gx-banner b { color: #3D2800; }
+.gx-banner__b { min-height: 44px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--text); color: #fff; font: 700 13px/1 var(--font); cursor: pointer; }
+.gx-test[hidden] { display: none; }
+.gx-test ol { list-style: decimal; padding-left: 20px; display: grid; gap: 8px; margin-bottom: 10px; font-size: 14px; }
+/* 3. KPIs */
+.gx-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
+.gx-kpi { padding: 18px 20px 14px; display: flex; flex-direction: column; gap: 6px; }
+.gx-kpi__top { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 24px; }
+.gx-kpi__top .lr-card__title { margin: 0; white-space: nowrap; }
+.gx-kpi__v { font-size: 30px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gx-kpi__v.is-na { color: var(--muted); }
+.gx-kpi__why { min-height: 40px; display: flex; align-items: center; }
+.gx-spark { display: block; width: 100%; height: 40px; }
+.gx-gauge { display: grid; gap: 4px; min-height: 40px; }
+.gx-gauge__top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.gx-gauge__top b { font: 700 13.5px/1.2 var(--font); font-variant-numeric: tabular-nums; }
+.gx-gauge__top b[data-tone="bad"] { color: #A12D2D; } .gx-gauge__top b[data-tone="good"] { color: #0B6B47; }
+.gx-gauge__tr { position: relative; height: 8px; border-radius: 4px; background: #EFE9E2; }
+.gx-gauge__tr span { display: block; height: 100%; border-radius: inherit; }
+.gx-gauge__tr span[data-kind="over"] { background: linear-gradient(90deg, #E0702F, #D64545); } .gx-gauge__tr span[data-kind="under"] { background: linear-gradient(90deg, #0E8A5C, #12A16B); }
+.gx-gauge__tr i { position: absolute; left: 50%; top: -4px; height: 16px; border-left: 2px dashed var(--text); }
+.gx-gauge__t { text-align: center; }
+/* 4. Chart */
+.gx-legend { display: inline-flex; flex-wrap: wrap; gap: 12px; }
+.gx-chartcard { display: flex; flex-direction: column; }
+.gx-chart { position: relative; flex: 1; display: flex; flex-direction: column; border-radius: 14px; }
+.gx-plot { position: relative; flex: 1; min-height: 300px; }
+.gx-plot__in { position: absolute; left: 40px; right: 10px; top: 36px; bottom: 26px; }
+.gx-plot__in svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gx-ay { position: absolute; right: calc(100% + 8px); transform: translateY(-50%); font: 600 11px/1 var(--font); color: var(--muted); }
+.gx-axis { position: absolute; left: 40px; right: 10px; bottom: 0; height: 18px; }
+.gx-ax { position: absolute; transform: translateX(-50%); font: 600 11px/1 var(--font); color: var(--muted); white-space: nowrap; }
+.gx-ax:first-child { transform: none; }
+.gx-ax:last-child { transform: translateX(-100%); }
+.gx-ld { position: absolute; width: calc(var(--r) * 2); height: calc(var(--r) * 2); border-radius: 50%; background: #12A16B; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(20,37,62,.2); transform: translate(-50%, calc(-100% - 8px)); }
+.gx-pill { position: absolute; top: -34px; height: 26px; padding: 0 12px; border-radius: 13px; background: var(--text); color: #fff; font: 600 12px/26px var(--font); white-space: nowrap; box-shadow: 0 6px 16px -6px rgba(20,37,62,.4); }
+.gx-on { position: absolute; top: 5%; margin-left: 7px; font: 700 12px/1.2 var(--font); white-space: nowrap; }
+.gx-pill[data-side="mid"] { transform: translateX(-50%); }
+.gx-pill[data-side="end"] { transform: translateX(calc(-100% + 12px)); }
+.gx-pill[data-side="start"] { transform: translateX(-12px); }
+.gx-on[data-side="end"] { transform: translateX(-100%); margin-left: -7px; }
+.gx-guide { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid rgba(20,37,62,.35); pointer-events: none; }
+.gx-guide[hidden] { display: none; }
+.gx-chlink { align-self: flex-start; display: inline-flex; align-items: center; min-height: 32px; margin-top: 8px; font-size: 13px; }
+.gx-ctip { position: absolute; top: 40px; transform: translateX(-50%); z-index: 4; display: grid; gap: 2px; min-width: 160px; padding: 9px 11px; border-radius: 14px; background: var(--glass-bg-dense); box-shadow: var(--shadow-pop); color: var(--text); font: 500 12px/1.45 var(--font); pointer-events: none; }
+.gx-ctip[hidden] { display: none; }
+.gx-ctip b { font-weight: 700; }
+.gx-ctip span { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); }
+.gx-ctip span b { color: var(--text); }
+.gx-foot4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; border-top: 1px solid var(--line); padding-top: 14px; margin-top: 6px; }
+.gx-foot4 .num { font-size: 21px; }
+.num[data-tone="bad"] { color: #A12D2D; }
+/* 5. Needs attention */
+.gx-attn { display: flex; flex-direction: column; }
+.gx-attn__i { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.gx-attn__i[hidden] { display: none; }
+.gx-attn__ic { width: 34px; height: 34px; border-radius: 11px; flex: none; display: inline-grid; place-items: center; font: 800 15px/1 var(--font); background: rgba(214,69,69,.13); color: #A12D2D; }
+[data-level="amber"] .gx-attn__ic { background: rgba(224,154,30,.18); color: #7A4F00; }
+.gx-attn__b { flex: 1; min-width: 0; }
+.gx-attn__t { font: 700 14px/1.35 var(--font); overflow-wrap: anywhere; }
+.gx-attn__b .cap { margin-top: 2px; }
+.gx-attn__b a { display: inline-flex; align-items: center; min-height: 32px; margin-top: 2px; font-size: 13px; }
+.gx-attn__a { font: 700 14px/1.35 var(--font); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gx-clear { display: flex; align-items: center; gap: 8px; color: #0B6B47; font-weight: 700; }
+/* The one strong element: blue gradient, white text (the end colour kept dark enough for small white text, AA). */
+.gx-redirect { margin-top: 10px; padding: 16px 18px; border-radius: 20px; color: #fff; background: linear-gradient(135deg, #2F5BD3, #4169E1); box-shadow: 0 16px 34px -14px rgba(47,91,211,.55); }
+.gx-redirect__k { font: 600 12.5px/1.4 var(--font); }
+.gx-redirect__v { font-size: 26px; margin-top: 2px; }
+.gx-redirect__s { font: 500 12.5px/1.4 var(--font); margin-top: 2px; overflow-wrap: anywhere; }
+/* Donuts */
+.gx-dn { display: flex; align-items: center; gap: 18px; }
+.gx-donut { position: relative; flex: none; }
+.gx-donut svg { display: block; }
+.gx-donut__c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); }
+.gx-dn__v { font-size: 20px; color: var(--text); }
+.gx-dn__v--big { font-size: 26px; }
+.gx-dn__l { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.gx-dn__n { font: 700 16px/1.3 var(--font); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.gx-dn__l--rows { gap: 10px; font-size: 14px; }
+.gx-dn__l--rows li:not(.gx-dn__note) { display: flex; justify-content: space-between; }
+.gx-dn__note { border-top: 1px solid var(--line); padding-top: 8px; overflow-wrap: anywhere; }
+/* Funnel */
+.gx-fn { display: flex; flex-direction: column; gap: 9px; }
+.gx-fn li { display: flex; align-items: center; gap: 10px; }
+.gx-fn__l { width: 56px; flex: none; }
+.gx-fn__t { flex: 1; display: flex; justify-content: center; }
+.gx-fn__t span { display: block; height: 26px; border-radius: 8px; min-width: 6px; }
+.gx-fn b { width: 56px; text-align: right; font: 700 15px/1 var(--font); font-variant-numeric: tabular-nums; }
+.gx-chips { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+/* Cost per qualified lead */
+.gx-cpl { display: flex; flex-direction: column; gap: 16px; padding-top: 4px; }
+.gx-cpl__top { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; margin-bottom: 6px; }
+.gx-cpl__n { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.gx-cpl__v { font-weight: 700; white-space: nowrap; }
+.gx-cpl__v[data-tone="good"] { color: #0B6B47; } .gx-cpl__v[data-tone="bad"] { color: #A12D2D; }
+.gx-cpl__tr { position: relative; height: 14px; border-radius: 7px; background: #EFE9E2; }
+.gx-cpl__b { display: block; height: 14px; border-radius: 7px; }
+.gx-cpl__b[data-kind="under"] { background: linear-gradient(90deg, #0E8A5C, #12A16B); }
+.gx-cpl__b[data-kind="over"] { background: linear-gradient(90deg, #E0702F, #D64545); }
+.gx-cpl__b[data-kind="none"] { background: repeating-linear-gradient(45deg, rgba(214,69,69,.5) 0 6px, rgba(214,69,69,.18) 6px 12px); }
+.gx-cpl__tg, .gx-target { position: absolute; left: 50%; top: -5px; height: 24px; border-left: 2px dashed var(--text); }
+.gx-target { position: static; display: inline-block; height: 12px; }
+.gx-cpl .cap { margin-top: 4px; }
+.gx-take { margin-top: 16px; font: 500 13.5px/1.45 var(--font); border-radius: 14px; padding: 10px 12px; background: rgba(255,255,255,.6); color: var(--text); }
+.gx-take[data-tone="good"] { background: rgba(18,161,107,.1); color: #0A5C3D; }
+.gx-take[data-tone="bad"] { background: rgba(214,69,69,.09); color: #8A2323; }
+.gx-take[data-tone="info"] { background: rgba(47,91,211,.08); color: #1E3F99; }
+/* Heatmap */
+.gx-heat { display: grid; grid-template-columns: 48px repeat(7, minmax(0, 1fr)); gap: 6px; align-items: center; }
+.gx-heat__d { text-align: center; }
+.gx-heat__w { white-space: nowrap; }
+.gx-heat__c { height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font: 700 11px/1 var(--font); }
+.gx-heat__c.is-off { background: repeating-linear-gradient(45deg, rgba(20,37,62,.05) 0 4px, transparent 4px 8px); }
+.gx-heat__lg { display: inline-flex; align-items: center; gap: 4px; }
+.gx-heat__lg .sw { width: 12px; height: 12px; }
+/* Bars (cities, terms) */
+.gx-bars { display: flex; flex-direction: column; gap: 12px; }
+.gx-bars__top { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; margin-bottom: 5px; }
+.gx-bars__top > span:first-child { overflow-wrap: anywhere; }
+.gx-bars b { font-variant-numeric: tabular-nums; }
+/* Landing pages */
+.gx-pg { display: flex; flex-direction: column; gap: 11px; }
+.gx-pg li { display: flex; align-items: center; gap: 10px; }
+.gx-pg__p { width: 128px; flex: none; font: 500 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gx-pg__t { flex: 1; height: 8px; border-radius: 4px; background: #EFE9E2; overflow: hidden; }
+.gx-pg__t span { display: block; height: 100%; border-radius: inherit; background: #8FA8E8; min-width: 3px; }
+.gx-pg .chip { min-width: 48px; justify-content: center; }
+.gx-pg__note { margin-top: 12px; }
+/* Search terms */
+.gx-terms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.gx-terms__h { display: flex; align-items: center; gap: 6px; font: 700 12.5px/1.3 var(--font); margin-bottom: 8px; }
+.gx-terms__h[data-tone="good"] { color: #0B6B47; }
+.gx-terms__h[data-tone="bad"] { color: #A12D2D; }
+.gx-kw { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+.gx-kw b { color: var(--text); }
+.gx-terms__r { margin-top: 12px; }
+.gx-copied { font-size: 12.5px; color: #0B6B47; font-weight: 600; }
+/* Campaigns card */
+.gx-tag { display: inline-grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 9px; background: color-mix(in srgb, var(--c) 14%, #fff); color: color-mix(in srgb, var(--c) 72%, #000); font: 800 10.5px/1 var(--font); }
+.gx-tag--lg { width: 38px; height: 38px; border-radius: 12px; font-size: 12px; }
+.gx-camp { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+.gx-camp__b { flex: 1; min-width: 0; }
+.gx-camp__n { font: 700 14px/1.35 var(--font); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gx-camp__r { text-align: right; }
+.gx-camp__c { font: 700 15px/1.3 var(--font); font-variant-numeric: tabular-nums; }
+.gx-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.gx-mini { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
+.gx-mini > div { background: rgba(255,255,255,.55); border-radius: 16px; padding: 10px 12px; min-width: 0; }
+.gx-mini .num { font-size: 18px; }
+.gx-mini .cap { overflow-wrap: anywhere; }
+/* 17. All details: one tabbed panel */
+.gx-details > summary { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; min-height: 44px; cursor: pointer; list-style: none; }
+.gx-details > summary::-webkit-details-marker { display: none; }
+.gx-details > summary svg { margin-left: auto; transition: transform .2s; color: var(--muted); }
+.gx-details[open] > summary svg { transform: rotate(180deg); }
+.gx-details__t { font: 800 18px/1.2 var(--font); letter-spacing: -.01em; }
+.gx-tabs { display: flex; gap: 2px; margin-top: 14px; border-bottom: 1px solid var(--line-strong); overflow-x: auto; scrollbar-width: none; }
+.gx-tabs::-webkit-scrollbar { display: none; }
+.gx .gx-tab { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; color: var(--muted); font: 600 14px/1 var(--font); white-space: nowrap; }
+.gx .gx-tab:hover { color: var(--text); text-decoration: none; }
+.gx .gx-tab[aria-current="page"] { color: var(--text); box-shadow: inset 0 -2px 0 var(--copper); }
+.gx-tab__n { padding: 2px 8px; border-radius: 999px; background: #EFE9E2; color: #43495A; font: 700 11px/1.3 var(--font); }
+.gx-tab[aria-current="page"] .gx-tab__n { background: rgba(204,134,103,.2); color: #6E3E29; }
+.gx-panel { padding-top: 16px; }
+.gx-h3 { font: 700 15px/1.3 var(--font); margin: 4px 0 10px !important; }
+.gx-h3 ~ .gx-h3 { margin-top: 26px !important; }
+.gx-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+.gx-search { display: flex; align-items: center; gap: 8px; width: 240px; max-width: 100%; height: 36px; padding: 0 12px; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--muted); }
+.gx-search input { flex: 1; min-width: 0; height: 34px; border: 0; background: transparent; color: var(--text); font: 500 13.5px/1 var(--font); outline: none; }
+.gx-search:focus-within { outline: 2px solid var(--copper-lo); outline-offset: 2px; }
+.gx-chips2 { display: flex; flex-wrap: wrap; gap: 6px; }
+.gx-fchip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 13px; border: 0; border-radius: 999px; background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--text); font: 600 13px/1 var(--font); cursor: pointer; }
+.gx-fchip[aria-pressed="true"] { background: var(--text); color: #fff; box-shadow: none; }
+.gx-fchip__n { opacity: .72; font-weight: 700; }
+.gx-count { white-space: nowrap; }
+.gx-scroll { max-height: 620px; overflow: auto; border-radius: 16px; background: rgba(255,255,255,.72); box-shadow: inset 0 0 0 1px var(--line); }
+.gx-table { width: 100%; border-collapse: separate; border-spacing: 0; font: 500 14px/1.4 var(--font); font-variant-numeric: tabular-nums; }
+.gx-table th, .gx-table td { padding: 13px 14px; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.gx-table .gx-n { text-align: right; }
+.gx-table thead th { position: sticky; top: 0; z-index: 2; padding-top: 12px; padding-bottom: 10px; background: #FBF9F6; color: var(--muted); font: 600 12.5px/1.3 var(--font); }
+.gx-table tbody th { position: sticky; left: 0; z-index: 1; background: #FFFFFF; font-weight: 500; min-width: 200px; max-width: 300px; white-space: normal; }
+.gx-table thead th:first-child { left: 0; z-index: 3; }
+.gx-table tbody tr:hover > * { background: #FBF6F2; }
+.gx-table tbody tr[hidden] { display: none; }
+.gx-table tr.gx-off > * { color: var(--muted); }
+.gx-table tr.gx-off .gx-name b { color: #43495A; font-weight: 600; }
+.gx-sort { all: unset; cursor: pointer; border-radius: 4px; }
+.gx-sort:focus-visible { outline: 2px solid var(--copper-lo); outline-offset: 2px; }
+th[aria-sort="descending"] .gx-sort::after { content: " ▼"; font-size: 9px; color: var(--copper-lo); }
+th[aria-sort="ascending"] .gx-sort::after { content: " ▲"; font-size: 9px; color: var(--copper-lo); }
+.gx-cn { display: flex; align-items: center; gap: 10px; }
+.gx-name { display: grid; gap: 2px; min-width: 0; }
+.gx-name b { font-weight: 700; }
+.gx-raw { font: 500 11.5px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); overflow-wrap: anywhere; }
+.gx-sub { display: block; color: var(--muted); font: 500 12.5px/1.35 var(--font); white-space: normal; }
+.gx-match { margin-left: 4px; padding: 1px 6px; border-radius: 6px; background: #EFE9E2; color: #43495A; font: 700 10.5px/1.4 var(--font); letter-spacing: .03em; text-transform: uppercase; vertical-align: 1px; }
+.gx-st { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; }
+.gx-st__d { width: 8px; height: 8px; border-radius: 50%; background: #7A7F8C; flex: none; }
+.gx-st[data-tone="good"] .gx-st__d { background: #12A16B; } .gx-st[data-tone="warn"] .gx-st__d { background: #E09A1E; } .gx-st[data-tone="bad"] .gx-st__d { background: #D64545; }
+.gx-share { display: block; width: 90px; height: 4px; margin: 6px 0 0 auto; border-radius: 2px; background: #EFE9E2; overflow: hidden; }
+.gx-share span { display: block; height: 100%; border-radius: inherit; }
+.gx-total { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 14px 2px 0; font: 500 13.5px/1.4 var(--font); color: var(--muted); }
+.gx-total b { color: var(--text); font-weight: 700; }
+.gx-qs { display: inline-flex; align-items: center; gap: 8px; }
+.gx-qs b { min-width: 14px; text-align: right; font-weight: 800; }
+.gx-qs[data-tone="good"] b { color: #0B6B47; } .gx-qs[data-tone="warn"] b { color: #7A4F00; } .gx-qs[data-tone="bad"] b { color: #A12D2D; }
+.gx-qs__bar { display: inline-flex; gap: 2px; }
+.gx-qs__bar i { width: 5px; height: 12px; border-radius: 1.5px; background: #E7E0D8; }
+.gx-qs[data-tone="good"] i.on { background: #12A16B; } .gx-qs[data-tone="warn"] i.on { background: #E09A1E; } .gx-qs[data-tone="bad"] i.on { background: #D64545; }
+.gx-qds { display: inline-flex; gap: 8px; }
+.gx-qd { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: #B9B3AB; vertical-align: -1px; }
+.gx-qd[data-tone="good"] { background: #12A16B; } .gx-qd[data-tone="warn"] { background: #E09A1E; } .gx-qd[data-tone="bad"] { background: #D64545; }
+.gx-qlegend { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.gx-qlegend b { color: var(--text); }
+.gx-tipcard { margin-top: 14px; padding: 14px 16px; border-radius: 16px; background: rgba(204,134,103,.1); box-shadow: inset 0 0 0 1px rgba(204,134,103,.28); font: 500 14px/1.5 var(--font); }
+.gx-tipcard__k { color: #6E3E29; font: 800 11.5px/1.3 var(--font); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px !important; }
+.gx-url { font-weight: 600; }
+.gx-hist { margin: 4px 0 14px; max-width: 520px; }
+.gx-hist label { display: grid; gap: 4px; }
+.gx-hist select { min-height: 40px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 12px; background: #fff; color: var(--text); font: 500 14px/1 var(--font); }
+.gx-tl { display: grid; gap: 14px; border-left: 2px solid var(--line-strong); padding-left: 16px !important; }
+.gx-tl li { position: relative; }
+.gx-tl li::before { content: ""; position: absolute; left: -23px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--copper); }
+.gx-tl__at { font: 700 13px/1.3 var(--font); margin-bottom: 6px !important; }
+.gx-tl dl { display: grid; gap: 2px; font-size: 13px; }
+.gx-tl dl > div { display: grid; grid-template-columns: minmax(120px, 34%) 1fr; gap: 10px; padding: 3px 8px; border-radius: 8px; }
+.gx-tl dt { color: var(--muted); overflow-wrap: anywhere; }
+.gx-tl dd { overflow-wrap: anywhere; }
+.gx-tl dd .chip { margin-left: 8px; }
+.gx-tl .is-ch { background: rgba(224,154,30,.12); }
+.gx-footer { text-align: center; padding-top: 4px; font: 500 12.5px/1.4 var(--font); color: var(--muted); }
+.gx-diag { display: grid; gap: 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+@media (min-width: 768px) { .gx-diag { grid-template-columns: 1fr 1.4fr; } }
+.gx-diag ul, .gx-diag ol { display: grid; gap: 6px; margin-top: 6px; }
+.gx-diag li { display: flex; gap: 8px; font-size: 13px; }
+.gx-diag code { font: 600 12px/1.4 ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+.gx-diag__m[data-tone="good"] { color: #0B6B47; } .gx-diag__m[data-tone="bad"] { color: #A12D2D; }
+/* Tablet and phone */
+@media (max-width: 1100px) {
+  .gx-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g84, .g3, .g2 { grid-template-columns: minmax(0, 1fr); }
 }
-/* How are we doing? */
-.gad-how { margin-top: var(--s3); }
-.gad-chip--2 { flex-direction: column; gap: 0; line-height: 1.1; }
-.gad-chip small { display: block; font: 600 10px/1.1 var(--font); opacity: .75; }
-.gad-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s2) var(--s3); }
-.gad-seg { display: inline-flex; gap: 2px; padding: 4px; max-width: 100%; overflow-x: auto; scrollbar-width: none; border-radius: 999px; background: rgba(20,37,62,.06); box-shadow: inset 0 1px 2px rgba(20,37,62,.08); }
-.gad-seg::-webkit-scrollbar { display: none; }
-.gad-seg__opt { flex: none; display: inline-flex; align-items: center; min-height: 38px; padding: 0 16px; border-radius: 999px; color: var(--muted-c); font: 700 13.5px/1 var(--font); text-decoration: none; white-space: nowrap; }
-.gad-seg__opt:hover { color: var(--text); background: rgba(255,255,255,.55); }
-.gad-seg__opt[aria-current="true"] { color: #fff; background: #14253e; }
-.gad-bar > .lr-info { margin-left: -8px; margin-right: auto; }
-.gad-compare { text-decoration: none; }
-.gad-filter { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 6px 6px 14px; border-radius: 999px; background: #14253e; color: #fff; font: 500 var(--fs-small)/1.3 var(--font); }
-.gad-filter b { font-weight: 700; }
-.gad-filter .gad-trunc { max-width: 240px; vertical-align: bottom; }
-.gad-filter__x { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; color: #fff; background: rgba(255,255,255,.15); }
-.gad-filter__x:hover { background: rgba(255,255,255,.3); }
-.gad-why .gad-filter { margin-bottom: var(--s3); }
-.gad-period { color: var(--muted-c); font: 600 var(--fs-small)/1.4 var(--font); }
-.gad-empty { padding: var(--s3) var(--s4); color: var(--muted-c); font: 600 var(--fs-body)/1.4 var(--font); }
-.gad-kpi__label { display: flex; align-items: center; gap: var(--s1); letter-spacing: .05em; }
-.gad-kpi__value { font-size: clamp(22px, 2.2vw, 30px); white-space: nowrap; }
-.gad-kpi__nc { margin: 6px 0 2px; color: var(--muted-c); font: 600 13.5px/1.35 var(--font); }
-@media (min-width: 1200px) { .gad-view > .is-kpi { grid-column: span 3; } }
-@media (max-width: 767px) { .gad-kpi__value { font-size: clamp(20px, 6vw, 26px); } .gad-kpi { padding: 14px; } .gad-kpi__label { font-size: 10.5px; } }
-/* Chart: cost bars, ERP leads line (solid), Google conversions line (dashed). */
-.gad-plot { padding-right: 30px; }
-.alx-seg.gad-cost { --c: #e2b49c; border-radius: 4px 4px 0 0; }
-.gad-grid[data-side="r"] { border-top: 0; }
-.gad-grid[data-side="r"] span { right: auto; left: calc(100% + 6px); }
-.gad-lines path { fill: none; stroke-width: 2.25; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
-.gad-line-lead { stroke: #14253e; }
-.gad-line-conv { stroke: var(--attn); stroke-dasharray: 5 4; }
-.gad-key-bar::before { background: #e2b49c; }
-.gad-key-lead::before { height: 3px; border-radius: 2px; background: #14253e; }
-.gad-key-conv::before { height: 0; border-top: 3px dashed var(--attn); background: none; }
-/* Why? */
-.gad-why { scroll-margin-top: 90px; }
-.gad-why__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s2) var(--s3); margin-bottom: var(--s4); }
-.gad-subtabs { display: flex; gap: 2px; margin-bottom: var(--s3); overflow-x: auto; scrollbar-width: none; }
-.gad-subtabs .lr-bd__tab { text-decoration: none; }
-.lr-bd__tab[aria-current="true"] { color: var(--text); background: linear-gradient(180deg, #fff, #f8f4f0); box-shadow: inset 0 1px 0 #fff, 0 6px 16px -8px rgba(20,37,62,.35); }
-.gad-note { margin-bottom: var(--s3); color: var(--muted-c); font: 500 var(--fs-small)/var(--lh-small) var(--font); }
-.gad-tools { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s2) var(--s3); margin-bottom: var(--s2); }
-.gad-search { flex: 1 1 220px; max-width: 340px; }
-.gad-search .lr-input { width: 100%; min-height: 40px; }
-.gad-select { display: grid; gap: 2px; color: var(--muted-c); font: 700 10.5px/1.2 var(--font); letter-spacing: .06em; text-transform: uppercase; }
-.gad-select .lr-select { min-height: 40px; font-size: 14px; padding: 0 10px; }
-.gad-count { color: var(--muted-c); font: 600 12px/40px var(--font); }
-.gad-csv { margin-left: auto; }
-/* Tables: scroll inside their card (sticky header and first column), numbers right-aligned in tabular figures. */
-.gad-scroll { max-height: 620px; overflow: auto; border-radius: var(--r-small); background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
-.gad-scroll:focus-visible { outline: 2px solid var(--copper-lo); outline-offset: 2px; }
-.gad-table { width: 100%; border-collapse: separate; border-spacing: 0; font: 500 13.5px/1.4 var(--font); font-variant-numeric: tabular-nums; }
-.gad-table th, .gad-table td { padding: 9px 8px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); white-space: nowrap; }
-.gad-table .gad-num { text-align: right; }
-.gad-table thead th { position: sticky; top: 0; z-index: 2; background: #fbfaf8; color: var(--muted-c); font: 700 11px/1.3 var(--font); letter-spacing: .05em; text-transform: uppercase; white-space: normal; vertical-align: bottom; }
-.gad-table tbody th { position: sticky; left: 0; z-index: 1; background: #fff; font-weight: 600; max-width: 200px; white-space: normal; }
-.gad-table thead th:first-child { left: 0; z-index: 3; }
-.gad-table tbody tr:hover > * { background: #fbf6f2; }
-.gad-table tbody tr[hidden] { display: none; }
-.gad-table tbody tr.gad-inactive > * { color: var(--muted-c); }
-.gad-table tbody tr[aria-current="true"] > th { box-shadow: inset 3px 0 0 var(--copper-hi); }
-.gad-table tbody tr.gad-flagged > th { box-shadow: inset 3px 0 0 var(--bad-c); }
-.gad-none-row td { text-align: center !important; color: var(--muted-c); white-space: normal; padding: var(--s4) !important; }
-.gad-sort { all: unset; cursor: pointer; border-radius: 4px; }
-.gad-sort:focus-visible { outline: 2px solid var(--copper-lo); outline-offset: 2px; }
-th[aria-sort="descending"] .gad-sort::after { content: " ▼"; font-size: 9px; color: var(--copper-lo); }
-th[aria-sort="ascending"] .gad-sort::after { content: " ▲"; font-size: 9px; color: var(--copper-lo); }
-.gad-name { display: grid; gap: 2px; }
-.gad-sub { display: block; color: var(--muted-c); font: 500 12px/1.3 var(--font); white-space: normal; }
-.gad-trunc { display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
-.gad-camp { color: var(--text); font-weight: 700; text-decoration: none; }
-.gad-camp .gad-trunc { border-bottom: 1px dashed var(--line-strong); }
-.gad-camp:hover { color: var(--copper-lo); }
-.gad-url { color: var(--copper-lo); }
-.gad-table td:has(.gad-url) { white-space: normal; min-width: 180px; overflow-wrap: anywhere; }
-.gad-pill { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px; font: 700 12px/1.5 var(--font); white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 11%, #fff); }
-.gad-flag { margin-top: 4px; width: fit-content; }
-.gad-match { color: var(--muted-c); font: 700 10.5px/1 var(--font); text-transform: uppercase; letter-spacing: .04em; }
-.gad-qs { color: var(--c); }
-.gad-more { margin-top: var(--s2); }
-.gad-more[hidden], .gad-attn__all[hidden] { display: none; }
-/* Critique fixes: "since" on one line, wrapping sub-lines, the amount says "spent", dots on the ERP leads line. */
-.gad-nowrap { white-space: nowrap; }
-.gad-table td:has(.gad-sub) { white-space: normal; min-width: 120px; }
-.gad-attn__aed small { display: block; margin-top: 2px; color: var(--muted-c); font: 600 10.5px/1.2 var(--font); text-align: right; }
-.alx-pt.gad-pt-lead { width: 7px; height: 7px; background: #fff; box-shadow: 0 0 0 2px #14253e; }
-/* Audience: one scrolling page of small bars + tables. */
-.gad-aud + .gad-aud { margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--line); }
-.gad-bars { list-style: none; display: grid; gap: 10px; max-width: 560px; margin-bottom: var(--s3); }
-.gad-bars__top { display: flex; justify-content: space-between; gap: var(--s2); font: 600 13.5px/1.3 var(--font); }
-.gad-bars__top small { color: var(--muted-c); font-weight: 600; }
-.gad-bars__track { height: 8px; margin-top: 4px; border-radius: 999px; background: rgba(20,37,62,.07); overflow: hidden; }
-.gad-bars__track span { display: block; width: var(--w); min-width: 2px; height: 100%; border-radius: inherit; background: #14253e; }
-/* History */
-.gad-hist { margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--line); display: grid; gap: var(--s3); }
-.gad-hist .gad-h3 { margin: 0; }
-.gad-hist__pick { max-width: 520px; }
-.gad-hist__pick .lr-select { width: 100%; }
-.gad-timeline { list-style: none; display: grid; gap: var(--s3); border-left: 2px solid var(--line-strong); padding-left: var(--s3); }
-.gad-timeline li { position: relative; }
-.gad-timeline li::before { content: ""; position: absolute; left: calc(-1 * var(--s3) - 6px); top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--copper-hi); }
-.gad-timeline__at { font: 700 var(--fs-small)/1.3 var(--font); margin-bottom: 6px; }
-.gad-timeline dl { display: grid; gap: 2px; font: 500 var(--fs-small)/1.4 var(--font); }
-.gad-timeline dl > div { display: grid; grid-template-columns: minmax(120px, 34%) 1fr; gap: var(--s2); padding: 3px 8px; border-radius: 6px; }
-.gad-timeline dt { color: var(--muted-c); overflow-wrap: anywhere; }
-.gad-timeline dd { overflow-wrap: anywhere; }
-.gad-timeline .is-changed { background: #fff3e6; }
-.gad-timeline .is-changed dd { font-weight: 700; }
-.gad-chg { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: var(--attn); color: #fff; font: 800 10px/1.5 var(--font); text-transform: uppercase; letter-spacing: .04em; }
-/* Footer, status card */
-.gad-foot { grid-column: 1 / -1; }
-.gad-diag { width: 100%; margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); display: grid; gap: var(--s2); }
-.gad-diag__cols { display: grid; gap: var(--s3); }
-@media (min-width: 768px) { .gad-diag__cols { grid-template-columns: 1fr 1.4fr; } }
-.gad-diag ul, .gad-diag ol { list-style: none; display: grid; gap: 6px; margin-top: 6px; }
-.gad-diag li { display: flex; align-items: flex-start; gap: 8px; font: 500 var(--fs-small)/1.4 var(--font); }
-.gad-diag li > span { display: grid; gap: 2px; min-width: 0; }
-.gad-diag code { font: 600 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
-.gad-diag__mark { flex: none; width: 18px; text-align: center; font-weight: 800; color: var(--c); }
-.gad-diag__err { color: #8a2c20; overflow-wrap: anywhere; }
-/* Visible focus everywhere in this view. */
-.gad a:focus-visible, .gad button:focus-visible, .gad select:focus-visible, .gad input:focus-visible { outline: 2px solid var(--copper-lo); outline-offset: 2px; }
 @media (max-width: 767px) {
-  .gad-title { font-size: 24px; }
-  /* One row for the badge and an icon-only Refresh, so "Needs attention" starts higher. */
-  .gad-head__right { width: 100%; flex-wrap: nowrap; justify-content: space-between; }
-  .gad-fresh { font-size: 12.5px; padding: 6px 10px; }
-  .gad-refresh { flex: none; min-height: 40px; padding: 0 12px; }
-  .gad-refresh__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .gad .lr-range__chips { flex-wrap: wrap; }
-  .gad .lr-range__chips .lr-chip { flex: 1 1 auto; padding: 4px 8px; }
-  .gad-scroll { max-height: 520px; }
-  .gad-table tbody th { max-width: 150px; }
-  .gad-trunc { max-width: 130px; }
-  .gad-timeline dl > div { grid-template-columns: 1fr; gap: 0; }
-  .gad-csv { margin-left: 0; }
+  .gx { gap: 14px; }
+  .gx-head h1 { font-size: 26px; }
+  .gx-head .seg { flex: 1 0 100%; flex-wrap: wrap; border-radius: 22px; }
+  .gx-head .seg > * { flex: 1 1 0; padding: 0 6px; min-height: 44px; }
+  .gx-refresh { position: absolute; top: 0; right: 0; }
+  .gx-head { position: relative; }
+  .gx-head__t { padding-right: 56px; }
+  .gx-card { padding: 18px; }
+  .gx-kpis { gap: 12px; }
+  .gx-kpi { padding: 14px 14px 10px; }
+  .gx-kpi__v { font-size: 22px; }
+  .gx-kpi__top { flex-wrap: wrap; }
+  .gx-foot4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gx-dn { gap: 14px; }
+  .gx-terms { grid-template-columns: minmax(0, 1fr); }
+  .gx-mini { grid-template-columns: minmax(0, 1fr); }
+  .gx-camp { gap: 10px; flex-wrap: wrap; }
+  .gx-camp__b { flex-basis: calc(100% - 52px); }
+  .gx-camp__r { text-align: left; margin-left: 48px; }
+  .gx-heat { grid-template-columns: 40px repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .gx-heat__c { height: 24px; }
+  .gx-pg__p { width: 104px; }
+  .gx-plot { min-height: 220px; }
+  .gx-ax--wide, .gx-pill__n { display: none; }
+  .gx-search { width: 100%; }
+  .gx-table tbody th { min-width: 160px; }
+  .gx-tl dl > div { grid-template-columns: 1fr; gap: 0; }
+  .gx-btn, .gx-banner__b, .gx-more, .gx-fchip, .gx-search { min-height: 44px; }
+  .gx-search input { height: 42px; }
+  .gx-attn__b a, .ct__x > a, .gx-chlink, .gx-total a { display: inline-flex; align-items: center; min-height: 44px; }
 }
 `;
 
-/* ---------- View-only script: tables (sort, search, filters, show more, CSV), chart lines, attention, history ---------- */
+/* ---------- Script: details tables (sort, search, chips, show more, CSV), attention, form test, copy, chart tooltip ---------- */
 
-const GAD_SCRIPT = `(() => {
+const GX_SCRIPT = `(() => {
   "use strict";
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const rowsOf = (t) => $$("tr", t.tBodies[0]).filter((r) => !r.classList.contains("gad-none-row"));
-  // A row shows when it matches the search box and every filter; then only the first 25 until "Show more".
+  const rowsOf = (t) => $$("tr", t.tBodies[0]);
+  // A row shows when it matches the search box and the pressed chip; then only the first 25 until "Show more".
   const apply = (t) => {
     const q = (($('[data-search="' + t.id + '"]') || {}).value || "").trim().toLowerCase();
-    const filters = $$('[data-filter="' + t.id + '"]').map((s) => [s.dataset.key, s.value]);
+    const chip = $('[data-chip="' + t.id + '"][aria-pressed="true"]'), key = chip && chip.dataset.key, val = chip ? chip.dataset.val : "";
     const more = $('[data-more="' + t.id + '"]'), open = more && more.dataset.open === "1", limit = +t.dataset.limit || 25;
     let n = 0, shown = 0;
     rowsOf(t).forEach((r) => {
-      const ok = (!q || r.textContent.toLowerCase().includes(q)) && filters.every(([k, v]) => v === "all" || r.dataset[k] === v);
+      const ok = (!q || r.textContent.toLowerCase().includes(q)) && (!val || (" " + (r.dataset[key] || "") + " ").includes(" " + val + " "));
       r.dataset.match = ok ? "1" : "0";
       if (ok) n++;
       r.hidden = !ok || (!open && !q && shown >= limit);
@@ -891,9 +1295,9 @@ const GAD_SCRIPT = `(() => {
     const c = $('[data-count="' + t.id + '"]'); if (c) c.textContent = n + (n === 1 ? " row" : " rows");
     if (more) { more.hidden = open || q || n <= limit; more.textContent = "Show more (" + (n - limit) + ")"; }
   };
-  $$(".gad-table").forEach((t) => {
+  $$(".gx-table").forEach((t) => {
     apply(t);
-    $$(".gad-sort", t).forEach((b) => b.addEventListener("click", () => {
+    $$(".gx-sort", t).forEach((b) => b.addEventListener("click", () => {
       const th = b.closest("th"), col = +b.dataset.col, desc = th.getAttribute("aria-sort") !== "descending";
       $$("th", t.tHead).forEach((h) => h.removeAttribute("aria-sort")); th.setAttribute("aria-sort", desc ? "descending" : "ascending");
       const key = (tr) => { const c = tr.cells[col], v = c && c.dataset.v; if (v == null) return null; const n = Number(v); return v !== "" && !isNaN(n) ? n : v.toLowerCase(); };
@@ -904,9 +1308,12 @@ const GAD_SCRIPT = `(() => {
     }));
   });
   $$("[data-search]").forEach((i) => i.addEventListener("input", () => apply(document.getElementById(i.dataset.search))));
-  $$("[data-filter]").forEach((s) => s.addEventListener("change", () => apply(document.getElementById(s.dataset.filter))));
+  $$("[data-chip]").forEach((b) => b.addEventListener("click", () => {
+    $$('[data-chip="' + b.dataset.chip + '"]').forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    apply(document.getElementById(b.dataset.chip));
+  }));
   $$("[data-more]").forEach((b) => b.addEventListener("click", () => { b.dataset.open = "1"; apply(document.getElementById(b.dataset.more)); }));
-  // CSV: every row that matches the search and filters (not only the first 25 on screen).
+  // CSV: every row that matches the search and the chip (not only the first 25 on screen).
   const cell = (s) => { s = s.replace(/\\s+/g, " ").trim(); return /[",\\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   $$("[data-csv]").forEach((b) => b.addEventListener("click", () => {
     const t = document.getElementById(b.dataset.csv);
@@ -917,7 +1324,52 @@ const GAD_SCRIPT = `(() => {
     a.download = "google-ads-" + b.dataset.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".csv"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }));
   // Needs attention: "Show all".
-  const all = $(".gad-attn__all");
-  all && all.addEventListener("click", () => { $$(".gad-attn__item[data-extra]").forEach((li) => (li.hidden = false)); all.remove(); });
-  $$("[data-autosubmit]").forEach((s) => s.addEventListener("change", () => { document.querySelector(".alx").classList.add("is-loading"); s.form.submit(); }));
+  const all = $(".gx-attn__all");
+  all && all.addEventListener("click", () => { $$(".gx-attn__i[data-extra]").forEach((li) => (li.hidden = false)); all.remove(); });
+  // The form test panel.
+  const testBtn = $(".gx-banner__b"), test = $("#form-test");
+  const showTest = (open) => { if (!test) return; test.hidden = !open; testBtn && testBtn.setAttribute("aria-expanded", String(open)); };
+  testBtn && testBtn.addEventListener("click", () => { showTest(test.hidden); if (!test.hidden) test.scrollIntoView({ block: "nearest", behavior: "smooth" }); });
+  // In-page links (form test, budget move): open first, then go there.
+  const go = (id) => {
+    const el = document.getElementById(id); if (!el) return false;
+    if (id === "form-test") showTest(true);
+    el.scrollIntoView({ block: "start", behavior: "smooth" }); el.focus({ preventScroll: true });
+    return true;
+  };
+  $$("[data-open]").forEach((a) => a.addEventListener("click", (e) => { if (go(a.dataset.open)) { e.preventDefault(); history.replaceState(null, "", "#" + a.dataset.open); } }));
+  if (location.hash === "#form-test") go("form-test");
+  // Copy negatives: one per line, phrase match.
+  $$("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
+    const src = document.getElementById(b.dataset.copy), out = b.parentElement.querySelector(".gx-copied"), text = src.value;
+    try { await navigator.clipboard.writeText(text); }
+    catch { src.hidden = false; src.select(); document.execCommand("copy"); src.hidden = true; }
+    const n = text ? text.split("\\n").length : 0;
+    if (out) out.textContent = "Copied " + n + (n === 1 ? " negative" : " negatives");
+  }));
+  // Chart: each day's numbers on hover, or focus the chart and use the arrow keys.
+  $$(".gx-chart[data-days]").forEach((box) => {
+    const days = JSON.parse(box.dataset.days), tip = $(".gx-ctip", box), area = $(".gx-plot__in", box), guide = $(".gx-guide", box), n = days.length;
+    let i = -1;
+    const show = (k) => {
+      i = Math.max(0, Math.min(n - 1, k)); const d = days[i], x = (i / Math.max(1, n - 1)) * 100;
+      tip.replaceChildren(Object.assign(document.createElement("b"), { textContent: d.t }), ...d.r.map(([l, v]) => { const sp = document.createElement("span"); sp.append(l, Object.assign(document.createElement("b"), { textContent: v })); return sp; }));
+      const bw = box.getBoundingClientRect().width, aw = area.getBoundingClientRect().width;
+      tip.hidden = false; tip.style.left = Math.min(Math.max(40 + (x / 100) * aw, 90), bw - 90) + "px";
+      guide.hidden = false; guide.style.left = x + "%";
+    };
+    const hide = () => { tip.hidden = true; guide.hidden = true; };
+    box.addEventListener("mousemove", (e) => { const r = area.getBoundingClientRect(); if (e.clientY > r.bottom + 30) return; show(Math.round(((e.clientX - r.left) / r.width) * (n - 1))); });
+    box.addEventListener("mouseleave", () => { if (document.activeElement !== box) hide(); });
+    box.addEventListener("focus", () => show(i < 0 ? n - 1 : i));
+    box.addEventListener("blur", hide);
+    box.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); show(i + (e.key === "ArrowLeft" ? -1 : 1)); }
+      else if (e.key === "Escape") hide();
+    });
+  });
+  // Custom period.
+  const cb = $(".gx-custom-btn"), cf = $("#gx-custom");
+  cb && cb.addEventListener("click", () => { cf.hidden = !cf.hidden; cb.setAttribute("aria-expanded", String(!cf.hidden)); if (!cf.hidden) cf.querySelector("input").focus(); });
+  $$("[data-autosubmit]").forEach((s) => s.addEventListener("change", () => s.form.submit()));
 })();`;

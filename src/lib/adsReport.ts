@@ -78,6 +78,8 @@ export function googleAdsLeads(all: ReportLead[] | null, sheet: SheetLead[] | nu
 
 /** Qualified, as the ERP status view counts it: every lead except Junk, Duplicate and Lost (won or in progress). */
 export const isQualifiedStatus = (status: string) => ["won", "progress"].includes(groupOf(status));
+/** Won, as the ERP status view counts it: Deal Won or Converted. */
+export const isWonStatus = (status: string) => groupOf(status) === "won";
 
 /**
  * The page's data object. `all` is the ERP's leads (null when it did not answer); `sheet` is the Google Ads lead log,

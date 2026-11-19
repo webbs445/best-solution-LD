@@ -18,34 +18,57 @@ import {
 /* ---------- Thresholds: change them here ---------- */
 
 export const THRESHOLDS = {
-  /** Red: a campaign spent at least this (AED) with 0 ERP leads and 0 Google conversions. */
+  /** Red: a campaign spent at least this (AED) in the period with 0 ERP leads (0 Google conversions without the ERP). */
   noLeadsCostAed: 50,
-  /** Red: a Demand Gen campaign whose clicks cost less than this (AED) each … */
+  /** Red: a non-Search campaign (Demand Gen, Performance Max, Display, …) whose clicks cost less than this (AED) each … */
   junkClickCpcAed: 0.2,
   /** … with at least this many clicks and 0 leads: the clicks look accidental. */
   junkClickMinClicks: 500,
-  /** Orange: ERP leads above Google conversions by at least this many: a tracking gap. */
-  trackingGapLeads: 2,
-  /** Orange: lost impression share because of budget at least this (0.5 = 50%) on a campaign that brings ERP leads. */
+  /** Amber: lost impression share because of budget at least this (0.5 = 50%) on a campaign with ERP leads since start. */
   lostIsBudget: 0.5,
-  /** Yellow: keywords that spent at least this (AED) with 0 conversions and 0 ERP leads. */
+  /** Budget to redirect: the target campaign loses at least this share to budget (0.3 = 30%). */
+  redirectLostIs: 0.3,
+  /** Cost per qualified lead the campaigns are measured against (AED). */
+  targetCplAed: 80,
+  /** Keywords table flag: spent at least this (AED) with 0 conversions and 0 ERP leads. */
   keywordNoLeadsCostAed: 50,
-  /** Yellow: search terms that spent at least this (AED) with 0 conversions: negative keyword candidates. */
+  /** Wasted search terms: spent at least this (AED) with 0 conversions and no ERP lead on that keyword. */
   searchTermCostAed: 20,
-  /** Yellow: keywords with impressions and a Quality Score at or below this. */
+  /** Keywords table flag: impressions and a Quality Score at or below this. */
   lowQualityScore: 4,
-  /** How many items show before "Show all". */
-  visibleItems: 6,
+  /** Tracking banner: Search landings at least this with 0 ERP leads in the period … */
+  bannerLandings: 20,
+  /** … or the last ERP lead older than this many days while Search got at least `bannerClicks` clicks. */
+  bannerLeadDays: 7,
+  bannerClicks: 30,
+  /** How many attention items show before "Show all". */
+  visibleItems: 3,
 };
+
+/**
+ * Friendly campaign names for the cards and the chart (the detail tables keep Google's names, so search and CSV match
+ * the account). A campaign that isn't listed shows its own name. Add new campaigns here.
+ */
+export const CAMPAIGN_LABELS: Record<string, string> = {
+  fz_search_061026: "Free Zone Search",
+  BS_DemandGen_Competitor_061126: "Demand Gen Competitor",
+  bs_accounting_081026: "Accounting Search",
+};
+export const friendly = (name: string) => CAMPAIGN_LABELS[name.trim()] ?? name;
 
 /* ---------- ERP leads ---------- */
 
-/** A Google Ads lead from the ERP: created (Dubai, "YYYY-MM-DD HH:MM"), its campaign and keyword as tracked, qualified or not. */
+/**
+ * A Google Ads lead from the ERP: created (Dubai, "YYYY-MM-DD HH:MM"), its campaign and keyword as tracked, qualified
+ * and won, and its click's device, city and keyword when the click join found it (never the click id itself).
+ */
 export interface ErpLead {
   created: string;
   campaign: string;
   keyword: string;
   qualified: boolean;
+  won?: boolean;
+  click?: { device: string; city: string; keyword: string } | null;
 }
 
 const norm = (s: string) => s.trim().toLowerCase();
@@ -54,38 +77,48 @@ export const erpIn = (leads: ErpLead[], from: string, to: string) => leads.filte
 /** ERP leads whose campaign is this Google Ads campaign (names compared without case). */
 export const erpFor = (leads: ErpLead[], campaign: string) => leads.filter((l) => norm(l.campaign) === norm(campaign));
 const erpForKeyword = (leads: ErpLead[], campaign: string, keyword: string) => erpFor(leads, campaign).filter((l) => kwNorm(l.keyword) === kwNorm(keyword));
+/** Keyword text without match-type marks, lower case: how a search term or keyword is compared with an ERP lead's. */
+export const kwKey = kwNorm;
 
 /* ---------- Needs attention ---------- */
 
-export type Level = "red" | "orange" | "yellow" | "info";
-const LEVEL_ORDER: Record<Level, number> = { red: 0, orange: 1, yellow: 2, info: 3 };
+export type Level = "red" | "amber";
+const LEVEL_ORDER: Record<Level, number> = { red: 0, amber: 1 };
 
 export interface Attention {
   level: Level;
-  /** One plain sentence. */
-  text: string;
-  /** The money involved, for ranking and the badge (null: none). */
+  title: string;
+  /** One line: why it matters. */
+  why: string;
+  /** What to do: the label and where the link goes (an id on the page). */
+  action: { label: string; target: string };
+  /** The money involved (AED), or a share (0.66) when that's the point; null: none. */
   aed: number | null;
-  /** Query keys for "See details" (section, sub, campaign, flag). */
-  link: Record<string, string>;
+  share?: number;
   /** "check" (computed on the period) or the Sheet's own alert. */
   source: "check" | "sheet";
 }
 
 export interface AttentionInput {
-  /** Every campaign with its totals for the period. */
+  /** Campaigns in scope with their totals for the period. */
   campaigns: CampaignRow[];
   /** ERP Google Ads leads in the period, or null when the ERP isn't connected. */
   erp: ErpLead[] | null;
-  keywords: KeywordRow[];
-  terms: TermRow[];
+  /** ERP Google Ads leads since counting started (for "a campaign with leads"), or null. */
+  erpAll: ErpLead[] | null;
   /** Change_Log_30d rows. */
   changes: Row[];
   from: string;
   to: string;
   alerts: Alerts;
-  /** _Status "Ad approval data". */
-  approvalData: string;
+  /** Words for the period, e.g. "12–18 Nov". */
+  periodWords: string;
+  /** The tracking banner is up: "0 leads" on Search points to the form test first. */
+  trackingSuspect: boolean;
+  /** A budget-to-redirect card is shown (its id is "redirect"). */
+  redirect: boolean;
+  /** Campaign names outside the channel switch: their Sheet alerts are left out. */
+  hidden: Set<string>;
 }
 
 const aed = (v: number) => `AED ${Math.round(v).toLocaleString("en-US")}`;
@@ -104,76 +137,62 @@ export function statusChanges(changes: Row[], from: string, to: string): Map<str
   return out;
 }
 
-/** Ranked: red, orange, yellow, info; then by money involved. */
+/** Cheap clicks in bulk on any non-Search type (Demand Gen, Performance Max, Display, …): they look accidental. */
+export const junkClicks = (c: CampaignRow) =>
+  c.channel !== "SEARCH" && (cpc(c.t) ?? Infinity) < THRESHOLDS.junkClickCpcAed && (c.t.clicks ?? 0) >= THRESHOLDS.junkClickMinClicks;
+
+/** Ranked: red, then amber; then by money involved. */
 export function attention(i: AttentionInput): Attention[] {
   const T = THRESHOLDS;
   const items: Attention[] = [];
   const flagged = new Set<string>();
+  const see = { label: "See campaign", target: "d-campaigns" };
   for (const c of i.campaigns) {
-    const cost = c.t.cost ?? 0, clicks = c.t.clicks ?? 0, conv = c.t.conv ?? 0;
+    const cost = c.t.cost ?? 0, clicks = c.t.clicks ?? 0;
     const leads = i.erp ? erpFor(i.erp, c.name).length : null;
-    const link = { section: "campaigns", campaign: c.name };
-    const noLeads = (leads ?? 0) === 0 && conv === 0;
-    if (cost >= T.noLeadsCostAed && noLeads) {
-      const junk = c.channel === "demandgen" && (cpc(c.t) ?? Infinity) < T.junkClickCpcAed && clicks >= T.junkClickMinClicks;
-      const each = `AED ${(cpc(c.t) ?? 0).toFixed(2)} each`;
+    // Without the ERP, Google's own conversions stand in.
+    const noLeads = leads == null ? (c.t.conv ?? 0) === 0 : leads === 0;
+    const leadWord = leads == null ? "0 Google conversions" : "0 leads";
+    if (noLeads && junkClicks(c)) {
+      items.push({ level: "red", title: `${friendly(c.name)}: ${count(clicks, "click")}, ${leadWord}`, why: `AED ${(cpc(c.t) ?? 0).toFixed(2)} a click looks like accidental taps`, action: { label: "Check placements or pause", target: "d-campaigns" }, aed: cost, source: "check" });
+      flagged.add(c.name);
+    } else if (noLeads && cost >= T.noLeadsCostAed) {
+      const test = i.trackingSuspect && c.channel === "SEARCH";
       items.push({
         level: "red",
-        text: `${c.name} spent ${aed(cost)} for ${count(clicks, "click")} and 0 leads${leads == null ? " (Google conversions; the ERP isn't connected here)" : ""}.${junk ? ` Clicks look accidental (${each}): check placements or pause.` : ""}`,
+        title: `${friendly(c.name)}: ${leadWord} in ${i.periodWords}`,
+        why: test ? `${aed(cost)} for ${count(clicks, "click")}. Run the form test before changing ads` : `${aed(cost)} for ${count(clicks, "click")}`,
+        action: test ? { label: "Run form test", target: "form-test" } : see,
         aed: cost,
-        link,
         source: "check",
       });
       flagged.add(c.name);
-    } else if (c.channel === "demandgen" && (cpc(c.t) ?? Infinity) < T.junkClickCpcAed && clicks >= T.junkClickMinClicks && noLeads) {
-      items.push({ level: "red", text: `${c.name}: clicks look accidental (AED ${(cpc(c.t) ?? 0).toFixed(2)} each, ${count(clicks, "click")}, 0 leads). Check placements or pause.`, aed: cost, link, source: "check" });
-      flagged.add(c.name);
-    }
-    if (leads != null && leads - conv >= T.trackingGapLeads) {
-      items.push({ level: "orange", text: `ERP got ${count(leads, "lead")} from ${c.name}, Google Ads counted ${conv.toLocaleString("en-US")}: tracking gap.`, aed: cost, link, source: "check" });
-      flagged.add(c.name);
     }
     const lost = lostBudget(c.t);
-    if (leads && lost != null && lost >= T.lostIsBudget) {
-      items.push({ level: "orange", text: `${c.name} misses ${Math.round(lost * 100)}% of possible impressions because of budget.`, aed: cost, link, source: "check" });
+    if (lost != null && lost >= T.lostIsBudget && i.erpAll && erpFor(i.erpAll, c.name).length > 0) {
+      items.push({ level: "amber", title: `${Math.round(lost * 100)}% of impressions lost to budget`, why: `${friendly(c.name)} brings leads but runs out of budget early`, action: i.redirect ? { label: "See budget move", target: "redirect" } : see, aed: null, share: lost, source: "check" });
     }
   }
   for (const [camp, days] of statusChanges(i.changes, i.from, i.to)) {
     const dates = [...new Set(days)].sort().map(DAY_MONTH).join(", ");
     const cost = i.campaigns.find((c) => c.name === camp)?.t.cost ?? null;
-    items.push({ level: "orange", text: `${camp} was turned on/off ${count(days.length, "time")} on ${dates}.`, aed: cost, link: { section: "history", campaign: camp }, source: "check" });
+    items.push({ level: "amber", title: `${friendly(camp)}: status changed ${count(days.length, "time")}`, why: `Turned on or off on ${dates}`, action: { label: "See change history", target: "d-changes" }, aed: cost, source: "check" });
   }
-  const noLeadKw = i.keywords.filter((k) => noLeadKeyword(k, i.erp));
-  if (noLeadKw.length) {
-    const sum = noLeadKw.reduce((s, k) => s + (k.t.cost ?? 0), 0);
-    items.push({ level: "yellow", text: `${count(noLeadKw.length, "keyword")} spent ${aed(sum)} with no leads.`, aed: sum, link: { section: "search", sub: "keywords", flag: "noleads" }, source: "check" });
-  }
-  const negatives = i.terms.filter(negativeCandidate);
-  if (negatives.length) {
-    const sum = negatives.reduce((s, t) => s + (t.t.cost ?? 0), 0);
-    items.push({ level: "yellow", text: `${count(negatives.length, "search term")} ${negatives.length === 1 ? "is a" : "are"} negative-keyword candidate${negatives.length === 1 ? "" : "s"} (${aed(sum)}, no conversions).`, aed: sum, link: { section: "search", sub: "terms", flag: "negative" }, source: "check" });
-  }
-  const lowQs = i.keywords.filter(lowQualityScore);
-  if (lowQs.length) {
-    const sum = lowQs.reduce((s, k) => s + (k.t.cost ?? 0), 0);
-    items.push({ level: "yellow", text: `${count(lowQs.length, "keyword")} ${lowQs.length === 1 ? "has a" : "have a"} low Quality Score (${T.lowQualityScore} or less).`, aed: sum, link: { section: "search", sub: "keywords", flag: "lowqs" }, source: "check" });
-  }
-  // The Sheet's own alerts, unless a check above already covers that campaign (its "No leads" counts Google conversions only).
+  // The Sheet's own alerts, unless a check above already covers that campaign.
   for (const a of i.alerts.items) {
-    const camp = i.campaigns.find((c) => c.name === a.where);
-    if (camp && flagged.has(camp.name) && /no leads/i.test(a.type)) continue;
+    if (flagged.has(a.where) && /no leads/i.test(a.type)) continue;
+    // A campaign the channel switch hides.
+    if (i.hidden.has(a.where)) continue;
     // Money involved: only an amount spent (a CPC is not money at risk).
     const money = /AED\s*([\d,]+(?:\.\d+)?)\s+spent/i.exec(a.detail)?.[1];
     items.push({
-      level: /no leads/i.test(a.type) ? "red" : /cpc|tracking|budget|disapprov/i.test(a.type) ? "orange" : "yellow",
-      text: `${a.type}${a.where ? ` · ${a.where}` : ""}: ${a.detail}`,
+      level: /no leads/i.test(a.type) ? "red" : "amber",
+      title: `${a.type}${a.where ? ` · ${friendly(a.where)}` : ""}`,
+      why: a.detail,
+      action: see,
       aed: money ? Number(money.replace(/,/g, "")) : null,
-      link: camp ? { section: "campaigns", campaign: camp.name } : { section: "campaigns" },
       source: "sheet",
     });
-  }
-  if (/not\s+available/i.test(i.approvalData)) {
-    items.push({ level: "info", text: "Headline approvals can't be read by the script; check the asset report weekly.", aed: null, link: { section: "search", sub: "ads" }, source: "check" });
   }
   return items.sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level] || (b.aed ?? -1) - (a.aed ?? -1));
 }

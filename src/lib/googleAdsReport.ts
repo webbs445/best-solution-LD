@@ -78,10 +78,7 @@ export const addDays = (d: string, n: number) => new Date(Date.parse(`${d}T00:00
 export const daysIn = (from: string, to: string) => Math.round((Date.parse(to) - Date.parse(from)) / DAY) + 1;
 const isDate = (v: string | null): v is string => !!v && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v));
 
-export const PERIODS = [
-  ["today", "Today"], ["yesterday", "Yesterday"], ["7d", "7 days"], ["30d", "30 days"],
-  ["month", "This month"], ["lastmonth", "Last month"], ["since", "Since start"],
-] as const;
+export const PERIODS = [["today", "Today"], ["7d", "7D"], ["30d", "30D"], ["month", "MTD"]] as const;
 export type PeriodKey = (typeof PERIODS)[number][0] | "custom";
 export interface Period {
   key: PeriodKey;
@@ -96,21 +93,16 @@ export interface Period {
 
 /**
  * The period from ?range= (or ?from=&to=), as Google Ads counts them: "Last 7 / 30 days" end yesterday (today is
- * partial); "Since start" begins at `start`, the first day in the Sheet. Default: last 7 days.
+ * partial); MTD is this month to today. Default: last 7 days.
  */
-export function pickPeriod(q: URLSearchParams, today: string, start: string): Period {
+export function pickPeriod(q: URLSearchParams, today: string): Period {
   let key: PeriodKey = PERIODS.find(([k]) => k === q.get("range"))?.[0] ?? "7d";
   const yesterday = addDays(today, -1);
-  const monthStart = `${today.slice(0, 7)}-01`;
-  const lastEnd = addDays(monthStart, -1);
   const preset: Record<Exclude<PeriodKey, "custom">, [string, string]> = {
     today: [today, today],
-    yesterday: [yesterday, yesterday],
     "7d": [addDays(today, -7), yesterday],
     "30d": [addDays(today, -30), yesterday],
-    month: [monthStart, today],
-    lastmonth: [`${lastEnd.slice(0, 7)}-01`, lastEnd],
-    since: [start && start < today ? start : today, today],
+    month: [`${today.slice(0, 7)}-01`, today],
   };
   let [from, to] = preset[key as Exclude<PeriodKey, "custom">];
   let error = "";
@@ -121,13 +113,12 @@ export function pickPeriod(q: URLSearchParams, today: string, start: string): Pe
     else if (qt < qf) error = "The end date must be on or after the start date.";
     else [key, from, to] = ["custom", qf, qt];
   }
-  // This month and last month compare with whole calendar months (this month to date: the same days of last month);
-  // every other period with the same number of days just before it.
-  if (key === "month" || key === "lastmonth") {
+  // MTD compares with the same days of last month (cut at its end); every other period with the same number of days
+  // just before it.
+  if (key === "month") {
     const pFrom = `${addDays(from, -1).slice(0, 7)}-01`;
     const pEnd = addDays(from, -1);
-    const pTo = key === "lastmonth" ? pEnd : [addDays(pFrom, daysIn(from, to) - 1), pEnd].sort()[0];
-    return { key, from, to, prevFrom: pFrom, prevTo: pTo, error };
+    return { key, from, to, prevFrom: pFrom, prevTo: [addDays(pFrom, daysIn(from, to) - 1), pEnd].sort()[0], error };
   }
   const prevTo = addDays(from, -1);
   return { key, from, to, prevFrom: addDays(from, -daysIn(from, to)), prevTo, error };
@@ -227,9 +218,30 @@ export interface CampaignRow {
 export const isEnabled = (status: string) => /^enabled$/i.test(status.trim());
 
 /** Search, Demand Gen, or other (Performance Max, Display, …: only in "All"). */
-export type Channel = "search" | "demandgen" | "other";
-export const channelOf = (type: string): Channel => (/search/i.test(type) ? "search" : /demand/i.test(type) ? "demandgen" : "other");
-export const CHANNEL_LABEL: Record<Channel | "all", string> = { all: "All", search: "Search", demandgen: "Demand Gen", other: "Other" };
+/** A campaign type as Google writes it, normalised ("Demand Gen", "DEMAND_GEN" → "DEMAND_GEN"); "UNKNOWN" when blank. */
+export type Channel = string;
+export const channelOf = (type: string): Channel => type.trim().toUpperCase().replace(/[\s-]+/g, "_") || "UNKNOWN";
+
+/**
+ * Every campaign type the dashboard knows: its label, colour and short tag. The channel filter, the spend donut, the
+ * stacked chart, legends and campaign icons all read from here. A type that isn't listed gets a title-cased label and
+ * grey, so a new campaign type shows up without a code change.
+ */
+export const CHANNELS: Record<string, { label: string; color: string; tag: string }> = {
+  SEARCH: { label: "Search", color: "#2F5BD3", tag: "S" },
+  DEMAND_GEN: { label: "Demand Gen", color: "#E0702F", tag: "DG" },
+  PERFORMANCE_MAX: { label: "Performance Max", color: "#7B5CE0", tag: "PM" },
+  DISPLAY: { label: "Display", color: "#1F9E9E", tag: "D" },
+  VIDEO: { label: "YouTube", color: "#E0457B", tag: "YT" },
+  SHOPPING: { label: "Shopping", color: "#C99A12", tag: "SH" },
+};
+export function channelInfo(ch: Channel): { label: string; color: string; tag: string } {
+  if (CHANNELS[ch]) return CHANNELS[ch];
+  const label = ch.toLowerCase().split("_").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ") || "Other";
+  return { label, color: "#7A7F8C", tag: label.split(" ").map((w) => w[0]).join("").slice(0, 2) };
+}
+/** The channel in a URL (?channel=search, demand_gen; the older "demandgen" still works), or "" for All. */
+export const channelParam = (v: string | null) => (v && v !== "all" ? channelOf(v === "demandgen" ? "DEMAND_GEN" : v) : "");
 
 /**
  * Every campaign in Setup_Campaigns (enabled, paused or removed, with or without spend), plus any campaign that only

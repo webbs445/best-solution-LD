@@ -1463,7 +1463,7 @@ body::after {
   .lr-main { grid-template-columns: 1fr auto; align-items: end; }
   .lr-main > .lr-view { grid-column: 1 / -1; }
   .lr-pagehead { display: grid; gap: 6px; }
-  .lr-pagehead span { color: var(--copper-hi); font: 650 12px/1 var(--font); letter-spacing: .14em; text-transform: uppercase; }
+  .lr-pagehead span { color: #7A4530; font: 650 12px/1 var(--font); letter-spacing: .14em; text-transform: uppercase; }
   .lr-pagehead strong { font: 800 34px/1.05 var(--font); letter-spacing: -.035em; color: var(--text); }
 }
 ::view-transition-group(lr-navpill) { animation-duration: 380ms; animation-timing-function: cubic-bezier(.34, 1.3, .64, 1); }
@@ -1633,7 +1633,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
   .lr-fresh, .lr-signout, .lr-brand__by { display: none !important; }
   .lr-brand__live { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font: 500 12px/1.2 var(--font); white-space: nowrap; }
   .lr-brand__live[data-state="down"] { color: var(--bad); }
-  .lr-menu-btn { display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; margin-left: auto; border: 0; border-radius: 50%; background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px rgba(20,37,62,.08); color: var(--text); cursor: pointer; transition: background var(--t-fast) var(--ease); }
+  .lr-menu-btn { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; margin-left: auto; border: 0; border-radius: 50%; background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px rgba(20,37,62,.08); color: var(--text); cursor: pointer; transition: background var(--t-fast) var(--ease); }
   .lr-menu-btn:hover, .lr-menu-btn:focus-visible { background: rgba(255,255,255,.95); }
   .lr-menu-btn .lr-icon { font-size: 20px; }
   /* Sticky source switch: an iPhone-style segmented control on a blurred band (cards scrolling under it are
@@ -2538,17 +2538,14 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
     const time = d.updated.slice(11, 16);
     const erpState = !d.erp.available ? "down" : ctx.paused ? "paused" : "live";
     const erp = {
-      live: { long: `ERP · <b>live</b> · ${esc(time)}`, short: `ERP <b>live</b> · ${esc(time)}` },
+      live: { long: `<b>Live data</b>`, short: `<b>Live data</b>` },
       down: { long: `ERP · <b>not answering</b>`, short: `ERP <b>not answering</b>` },
       paused: {
         long: `Paused · <button type="button" class="lr-linkbtn" data-action="refresh">Refresh now</button>`,
         short: `Paused · <button type="button" class="lr-linkbtn" data-action="refresh">Refresh</button>`,
       },
     }[erpState];
-    const g = d.google.connected
-      ? { long: `Google Ads · data as of ${esc(d.google.dataAsOf.slice(11, 16))}`, short: `Google data · ${esc(d.google.dataAsOf.slice(11, 16))}` }
-      : { long: "Google Ads · Not connected", short: "Google Ads · Not connected" };
-    // Phone: the live state sits under the name (plain text: the brand is a link); sign out lives in the ⋯ menu.
+   // Phone: the live state sits under the name (plain text: the brand is a link); sign out lives in the ⋯ menu.
     const live = { live: `ERP live · ${esc(time)}`, down: "ERP not answering", paused: "Paused" }[erpState];
     return `<header class="lr-topbar lr-glass">
       <div class="lr-topbar__in">
@@ -2559,8 +2556,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
         <button type="button" class="lr-menu-btn" popovertarget="lr-menu" aria-label="Menu">${icon("more")}</button>
         <div class="lr-menu" id="lr-menu" popover>
           <p class="lr-menu__state"><span class="lr-dot" data-state="${erpState}" aria-hidden="true"></span>${{ live: `ERP live · updated ${esc(time)}`, down: "ERP isn't answering", paused: `Updated ${esc(time)} · refresh paused` }[erpState]}</p>
-          <p class="lr-menu__state">${icon("link")}${esc(g.long)}</p>
-          <button type="button" class="lr-menu__item" data-action="refresh">${icon("refresh")}Refresh now</button>
+         <button type="button" class="lr-menu__item" data-action="refresh">${icon("refresh")}Refresh now</button>
           <form method="post" action="/ads-report"><input type="hidden" name="action" value="signout">
             <button type="submit" class="lr-menu__item" data-tone="out">${icon("signout")}Sign out</button></form>
         </div>
@@ -2575,7 +2571,7 @@ button.lr-pipe__waiting:hover { background: rgba(204,134,103,.22); }
             <span class="lr-dot" data-state="${erpState}" aria-hidden="true"></span>
             <span class="lr-fresh__long">${erp.long}</span><span class="lr-fresh__short">${erp.short}</span>
           </span>
-          <span class="lr-fresh__item"><span class="lr-fresh__long">${g.long}</span><span class="lr-fresh__short">${g.short}</span></span>
+          <span class="lr-fresh__item">Updated ${esc(time)} (UAE)</span>
         </div>
         <form class="lr-signout" method="post" action="/ads-report">
           <input type="hidden" name="action" value="signout">

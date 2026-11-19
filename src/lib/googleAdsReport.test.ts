@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  channelInfo,
+  channelOf,
+  channelParam,
   alertsOf,
   campaignRows,
   change,
@@ -95,27 +98,23 @@ describe("percent columns", () => {
 });
 
 describe("pickPeriod", () => {
-  it("yesterday", () => {
-    expect(pickPeriod(q("range=yesterday"), TODAY, "2026-10-01")).toMatchObject({ from: "2026-11-17", to: "2026-11-17", prevFrom: "2026-11-16", prevTo: "2026-11-16" });
-  });
   it("last 7 days end yesterday; the comparison is the 7 days before", () => {
-    expect(pickPeriod(q("range=7d"), TODAY, "2026-10-01")).toMatchObject({ key: "7d", from: "2026-11-11", to: "2026-11-17", prevFrom: "2026-11-04", prevTo: "2026-11-10" });
-    expect(pickPeriod(q(""), TODAY, "2026-10-01").key).toBe("7d");
+    expect(pickPeriod(q("range=7d"), TODAY)).toMatchObject({ key: "7d", from: "2026-11-11", to: "2026-11-17", prevFrom: "2026-11-04", prevTo: "2026-11-10" });
+    expect(pickPeriod(q(""), TODAY).key).toBe("7d");
+    // Periods that are no longer offered fall back to 7 days.
+    expect(pickPeriod(q("range=lastmonth"), TODAY).key).toBe("7d");
   });
-  it("last 30 days, this month, last month", () => {
-    expect(pickPeriod(q("range=30d"), TODAY, "")).toMatchObject({ from: "2026-10-19", to: "2026-11-17", prevFrom: "2026-09-19", prevTo: "2026-10-18" });
-    expect(pickPeriod(q("range=month"), TODAY, "")).toMatchObject({ from: "2026-11-01", to: "2026-11-18", prevFrom: "2026-10-01", prevTo: "2026-10-18" });
-    expect(pickPeriod(q("range=lastmonth"), TODAY, "")).toMatchObject({ from: "2026-10-01", to: "2026-10-31", prevFrom: "2026-09-01", prevTo: "2026-09-30" });
-    expect(pickPeriod(q("range=lastmonth"), "2026-03-10", "")).toMatchObject({ from: "2026-02-01", to: "2026-02-28" });
-    // This month to date on 31 Mar: 1-28 Feb (February is shorter), never into March.
-    expect(pickPeriod(q("range=month"), "2026-03-31", "")).toMatchObject({ prevFrom: "2026-02-01", prevTo: "2026-02-28" });
+  it("last 30 days and month to date (vs the same days of last month)", () => {
+    expect(pickPeriod(q("range=30d"), TODAY)).toMatchObject({ from: "2026-10-19", to: "2026-11-17", prevFrom: "2026-09-19", prevTo: "2026-10-18" });
+    expect(pickPeriod(q("range=month"), TODAY)).toMatchObject({ from: "2026-11-01", to: "2026-11-18", prevFrom: "2026-10-01", prevTo: "2026-10-18" });
+    // Month to date on 31 Mar: 1-28 Feb (February is shorter), never into March.
+    expect(pickPeriod(q("range=month"), "2026-03-31")).toMatchObject({ prevFrom: "2026-02-01", prevTo: "2026-02-28" });
   });
-  it("today, since start and custom", () => {
-    expect(pickPeriod(q("range=today"), TODAY, "")).toMatchObject({ from: TODAY, to: TODAY, prevFrom: "2026-11-17" });
-    expect(pickPeriod(q("range=since"), TODAY, "2026-11-01")).toMatchObject({ from: "2026-11-01", to: TODAY });
-    expect(pickPeriod(q("from=2026-11-01&to=2026-11-10"), TODAY, "")).toMatchObject({ key: "custom", prevFrom: "2026-10-22", prevTo: "2026-10-31" });
-    expect(pickPeriod(q("from=2026-11-10&to=2026-11-01"), TODAY, "")).toMatchObject({ key: "7d", error: "The end date must be on or after the start date." });
-    expect(pickPeriod(q("from=2026-11-10&to=2026-12-01"), TODAY, "").error).toBe("The end date can't be in the future.");
+  it("today and custom", () => {
+    expect(pickPeriod(q("range=today"), TODAY)).toMatchObject({ from: TODAY, to: TODAY, prevFrom: "2026-11-17" });
+    expect(pickPeriod(q("from=2026-11-01&to=2026-11-10"), TODAY)).toMatchObject({ key: "custom", prevFrom: "2026-10-22", prevTo: "2026-10-31" });
+    expect(pickPeriod(q("from=2026-11-10&to=2026-11-01"), TODAY)).toMatchObject({ key: "7d", error: "The end date must be on or after the start date." });
+    expect(pickPeriod(q("from=2026-11-10&to=2026-12-01"), TODAY).error).toBe("The end date can't be in the future.");
   });
   it("change vs the previous period", () => {
     expect(change(120, 100)).toBeCloseTo(0.2);
@@ -148,11 +147,19 @@ describe("campaign table: status now from Setup_Campaigns", () => {
     const rows = campaignRows([], rowsOf(SETUP_CAMPAIGNS));
     // No spend anywhere: name order.
     expect(rows.map((r) => [r.id, r.status, r.inactive, r.channel, r.t.cost])).toEqual([
-      ["222", "PAUSED", true, "demandgen", null],
-      ["444", "ENABLED", false, "search", null],
-      ["333", "REMOVED", true, "search", null],
-      ["111", "ENABLED", false, "search", null],
+      ["222", "PAUSED", true, "DEMAND_GEN", null],
+      ["444", "ENABLED", false, "SEARCH", null],
+      ["333", "REMOVED", true, "SEARCH", null],
+      ["111", "ENABLED", false, "SEARCH", null],
     ]);
+  });
+  it("campaign types: normalised keys, the CHANNELS config, unknown types title-cased in grey", () => {
+    expect(channelOf("Demand Gen")).toBe("DEMAND_GEN");
+    expect(channelOf(" performance max ")).toBe("PERFORMANCE_MAX");
+    expect(channelOf("")).toBe("UNKNOWN");
+    expect(channelInfo("VIDEO")).toEqual({ label: "YouTube", color: "#E0457B", tag: "YT" });
+    expect(channelInfo("LOCAL_SERVICES")).toEqual({ label: "Local Services", color: "#7A7F8C", tag: "LS" });
+    expect([channelParam("search"), channelParam("demandgen"), channelParam("demand_gen"), channelParam("all"), channelParam(null)]).toEqual(["SEARCH", "DEMAND_GEN", "DEMAND_GEN", "", ""]);
   });
 });
 

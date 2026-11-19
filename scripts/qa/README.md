@@ -43,3 +43,22 @@ Rules every run follows:
 - `strict-scan.mjs` allows the corporate tax threshold "AED 375,000" everywhere, and on `/corporate-tax` any AED amount
   as a tax fact unless fee(s), price, pricing, cost, package, "from AED" or "starting at" is within about 6 words. It reports `/privacy` and `/terms` as
   "pending legal" (not counted) while `LEGAL_V2` is `false` in `src/content/legal.ts`.
+
+## Google Ads view
+
+`google-ads-view.mjs` uses the view the way the team does (phone and desktop tasks, number checks against the
+fixture, keyboard, tap targets, timing, screenshots). The site runs against `google-ads-mock.mjs`, which answers as the
+Sheet bridge, the ERP and the landing counter from `fixtures/googleAdsFixture.mjs`, so nothing reaches the real ones:
+
+```
+npm run build
+# PowerShell: set these, then start (sign-in values are local only)
+$env:ADS_SHEET_BRIDGE_URL="http://127.0.0.1:4799/bridge"; $env:ADS_SHEET_BRIDGE_TOKEN="qa-bridge-token"
+$env:ERPNEXT_URL="http://127.0.0.1:4799"; $env:ERPNEXT_API_KEY="qa"; $env:ERPNEXT_API_SECRET="qa"
+$env:KV_REST_API_URL="http://127.0.0.1:4799/kv"; $env:KV_REST_API_TOKEN="qa"
+$env:ADS_EXPORT_USER="qa"; $env:ADS_EXPORT_PASSWORD="qa-local-only"
+npx next start -p 3010
+node scripts/qa/google-ads-view.mjs http://localhost:3010 qa-out   # starts the mock itself; same ADS_EXPORT_* set
+```
+
+Requests may leave only for the site and Google Fonts; anything else is aborted and listed in the report.
