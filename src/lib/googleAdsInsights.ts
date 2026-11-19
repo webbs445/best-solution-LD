@@ -220,7 +220,7 @@ export function pausedSince(c: { id: string; name: string }, history: Row[], cha
   if (log.length) return log.at(-1)!;
   const own = history
     .filter((r) => str(r, "ID") === c.id || (str(r, "Name") === c.name && /campaign/i.test(str(r, "Type"))))
-    .map((r) => ({ at: stampOf(r["Recorded at"]), status: statusIn(r["Settings (JSON)"]) }))
+    .map((r) => ({ at: stampOf(r["Recorded at"]), status: statusIn(r.Settings) }))
     .filter((r) => r.status)
     .sort((a, b) => a.at.localeCompare(b.at));
   let since = "";

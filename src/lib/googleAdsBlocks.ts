@@ -12,7 +12,7 @@ import {
   cpc,
   dateOf,
   daysIn,
-  historySteps,
+  settingsOfRow,
   div,
   inPeriod,
   isEnabled,
@@ -149,26 +149,26 @@ const aedOf = (v: string) => {
 };
 
 /**
- * The campaign's new settings after a change, from the first Setup_History record at or after it (the script records
- * at 06:00, 13:00 and 20:00, so a later change the same day can show in the same record). "" when there's none.
- * Setting names are matched loosely (status, budget, bidding / strategy, cap / ceiling / max CPC).
+ * The campaign's new settings after a change, from its first Setup_History Campaign row at or after it ("" when
+ * there's none). Keys as the report script (v5.2) writes them: status, budget and maxCpc in AED, bidding.
  */
 export function changeDetail(m: Pick<Marker, "at" | "campaign" | "kind">, history: Row[]): string {
-  const rec = history
-    .filter((r) => (str(r, "Name") === m.campaign || str(r, "Campaign") === m.campaign) && /campaign/i.test(str(r, "Type") || "campaign") && stampOf(r["Recorded at"]) >= m.at)
-    .sort((a, b) => stampOf(a["Recorded at"]).localeCompare(stampOf(b["Recorded at"])))[0];
-  if (!rec) return "";
-  const id = str(rec, "ID");
-  const step = id ? historySteps(history, id).find((s) => s.at === stampOf(rec["Recorded at"])) : null;
-  const lines = step?.lines ?? [];
-  const pick = (re: RegExp) => lines.find(([k]) => re.test(k))?.[1]?.replace(/^"|"$/g, "") ?? "";
-  if (m.kind === "Status") return words(pick(/status/i));
+  // Type "Campaign" rows only, matched on Name: "Campaign targeting" rows carry the campaign in the Campaign column but
+  // have no budget or bidding. A row is written only when the campaign's settings change.
+  const own = history
+    .filter((r) => str(r, "Type") === "Campaign" && str(r, "Name") === m.campaign)
+    .map((r) => ({ at: stampOf(r["Recorded at"]), s: settingsOfRow(r) }))
+    .sort((a, b) => a.at.localeCompare(b.at));
+  const i = own.findIndex((r) => r.at >= m.at);
+  if (i < 0) return "";
+  const s = own[i].s;
+  if (m.kind === "Status") return words(s.status ?? "");
   if (m.kind === "Budget") {
-    // The amount only: a budget's name or resource id also matches /budget/.
-    const b = lines.find(([k, v]) => /budget|amount/i.test(k) && v.trim() !== "" && Number.isFinite(Number(v)))?.[1];
-    return b ? `budget ${aedOf(b)}` : "";
+    // Google logs delivery-method edits as budget changes too: the same amount as before shows no amount.
+    const b = s.budget ?? "";
+    return b !== "" && Number.isFinite(Number(b)) && b !== own[i - 1]?.s.budget ? `budget ${aedOf(b)}` : "";
   }
-  const bid = pick(/bidding|strategy/i), cap = pick(/cap|ceiling|max_?cpc/i);
+  const bid = s.bidding ?? "", cap = s.maxCpc ?? "";
   return [BIDDING[bid] ?? words(bid), cap ? `cap ${aedOf(cap)}` : ""].filter(Boolean).join(", ");
 }
 

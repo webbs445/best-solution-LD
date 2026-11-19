@@ -238,7 +238,7 @@ describe("status, alerts, freshness, history", () => {
   });
   it("settings history: newest first, changed keys marked", () => {
     const rows = rowsOf([
-      ["Recorded at", "Type", "ID", "Name", "Campaign", "Settings (JSON)"],
+      ["Recorded at", "Type", "ID", "Name", "Campaign", "Settings"],
       ["2026-11-10 06:00", "Campaign", "111", "FZ", "FZ", '{"budget":100,"bidding":{"type":"MAX_CLICKS"}}'],
       ["2026-11-12 06:00", "Campaign", "111", "FZ", "FZ", '{"budget":150,"bidding":{"type":"MAX_CLICKS"}}'],
       ["2026-11-12 06:00", "Campaign", "222", "DG", "DG", "not json"],

@@ -124,7 +124,7 @@ describe("Row flags in the detail tables", () => {
 describe("paused since", () => {
   it("from Setup_History when the change log has nothing: the first record of the latest paused run", () => {
     const hist = rowsOf([
-      ["Recorded at", "Type", "ID", "Name", "Campaign", "Settings (JSON)"],
+      ["Recorded at", "Type", "ID", "Name", "Campaign", "Settings"],
       ["2026-10-20 06:00", "Campaign", "3", "bs_accounting_081026", "bs_accounting_081026", '{"status":"ENABLED"}'],
       ["2026-11-02 13:00", "Campaign", "3", "bs_accounting_081026", "bs_accounting_081026", '{"status":"PAUSED"}'],
       ["2026-11-03 13:00", "Campaign", "3", "bs_accounting_081026", "bs_accounting_081026", '{"status":"PAUSED","budget":20}'],

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { TODAY, bridgeAnswer, clidOf, erpLeads, kvDays } from "../../scripts/qa/fixtures/googleAdsFixture.mjs";
 import { parseDay } from "@/lib/adLandingsReport";
 import { googleAdsHtml } from "@/lib/googleAdsPage";
-import { CLICK_TABS, TABS, callBridge, type SheetData } from "@/lib/googleAdsSheet";
+import { CLICK_TABS, TABS, callBridge, type Cell, type SheetData } from "@/lib/googleAdsSheet";
 import { joinClicks, toErpLeads } from "@/lib/googleAdsView";
 
 const leadsRaw = toErpLeads(erpLeads(), null)!;
@@ -120,5 +120,28 @@ describe("All details: tabs", () => {
     expect(c).toContain("<b>Free Zone Search</b><span class=\"gx-raw\"");
     expect(c).toMatch(/gx-st" data-tone="warn"><span class="gx-st__d" aria-hidden="true"><\/span>Paused<\/span><span class="gx-sub">since 2 Nov<\/span>/);
     expect(c).toContain("Open in Google Ads →");
+  });
+});
+
+describe("Chart change pill", () => {
+  // Rows in the report script's (v5.2) layout, no real IDs: a budget change on 18 Nov 10:00, snapshots at 20:00.
+  const TARGETING = ["2026-11-18 20:00", "Campaign targeting", "555", "LOCATION", "bs_accounting_081026", JSON.stringify({ location: "Dubai", negative: false, status: "ENABLED" })];
+  const campaignRow = (budget: number) => ["2026-11-18 20:00", "Campaign", "23102", "bs_accounting_081026", "", JSON.stringify({ status: "PAUSED", type: "SEARCH", budget, bidding: "MANUAL_CPC" })];
+  async function pill(...history: Cell[][]) {
+    const { data } = await load(ids);
+    const tabs = structuredClone(data.tabs);
+    tabs.Change_Log_30d!.push(["2026-11-18 10:00", "owner@example.com", "Google Ads web", "CAMPAIGN_BUDGET", "UPDATE", "amount_micros", "bs_accounting_081026", ""]);
+    tabs.Setup_History!.push(...history);
+    const m = /<span class="gx-pill"[^>]*>(.*?<\/span>[^<]*)<\/span>/.exec(body(page({ ...data, tabs }, "")));
+    return (m?.[1] ?? "").replace(/<[^>]+>/g, "");
+  }
+  it("a targeting row and the Campaign row with the same stamp: the amount from the Campaign row", async () => {
+    expect(await pill(TARGETING, campaignRow(25))).toBe("18 Nov · Accounting Search · budget AED 25");
+  });
+  it("only a targeting row after the change (no budget there): budget changed", async () => {
+    expect(await pill(TARGETING)).toBe("18 Nov · Accounting Search · budget changed");
+  });
+  it("same amount as the campaign's previous row (a delivery-method edit): budget changed", async () => {
+    expect(await pill(TARGETING, campaignRow(20))).toBe("18 Nov · Accounting Search · budget changed");
   });
 });

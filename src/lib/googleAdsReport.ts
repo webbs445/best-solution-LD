@@ -471,13 +471,16 @@ const settingsOf = (v: Cell | undefined): Record<string, string> => {
   }
 };
 
+/** A Setup_History row's settings (its "Settings" column) as flat "a.b" keys. */
+export const settingsOfRow = (r: Row) => settingsOf(r.Settings);
+
 /** One item's settings over time, newest first, each line marked when it differs from the step before. */
 export function historySteps(rows: Row[], id: string): HistStep[] {
   const own = rows.filter((r) => str(r, "ID") === id).sort((a, b) => stampOf(a["Recorded at"]).localeCompare(stampOf(b["Recorded at"])));
   let prev: Record<string, string> | null = null;
   const steps: HistStep[] = [];
   for (const r of own) {
-    const cur = settingsOf(r["Settings (JSON)"]);
+    const cur = settingsOfRow(r);
     const p: Record<string, string> | null = prev;
     steps.push({
       at: stampOf(r["Recorded at"]),

@@ -288,9 +288,10 @@ describe("Change list: new settings from Setup_History", () => {
       "2026-11-16 BS_DemandGen_Competitor_061126 Status: Enabled (2)",
     ]);
   });
-  it("budget: the amount, never the budget's name or id; micros become AED", () => {
-    const h = [{ "Recorded at": "2026-11-18 20:00", Type: "Campaign", ID: "9", Name: "acc", "Settings (JSON)": JSON.stringify({ budget_name: "Accounting", campaign_budget: { resource: "customers/1/campaignBudgets/2", amount_micros: 25_000_000 } }) }];
+  it("reads the Settings column: budget, bidding and maxCpc", () => {
+    const h = [{ "Recorded at": "2026-11-18 20:00", Type: "Campaign", ID: "9", Name: "acc", Campaign: "", Settings: JSON.stringify({ budget: 25, bidding: "MAXIMIZE_CLICKS", maxCpc: 6 }) }];
     expect(changeDetail({ at: "2026-11-18 14:10", campaign: "acc", kind: "Budget" }, h)).toBe("budget AED 25");
+    expect(changeDetail({ at: "2026-11-18 14:10", campaign: "acc", kind: "Bidding" }, h)).toBe("Max clicks, cap AED 6");
   });
   it("no record after the change: no detail (the page says 'budget changed')", () => {
     expect(changeDetail({ at: "2026-11-19 21:00", campaign: "fz_search_061026", kind: "Budget" }, [])).toBe("");
