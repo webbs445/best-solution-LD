@@ -3,8 +3,8 @@
   The website adds one row per Google Ads lead (tracking only: no name, phone or email), and /ads-report reads them
   back, so a lead stays counted even after the ERP hides it from the website's API user.
 
-  Uploaded with Google's clasp CLI as a sheet-bound script, with ADS_SHEET_SECRET filled in below, and deployed as a
-  web app (Execute as: me, Access: anyone); its /exec URL is ADS_SHEET_URL. Requests without a secret are refused,
+  Pasted into the sheet's Apps Script editor (or uploaded with clasp) with the real ADS_SHEET_SECRET filled in below,
+  and deployed as a web app (Execute as: me, Access: anyone); its /exec URL is ADS_SHEET_URL. Requests without a secret are refused,
   so the public URL alone reads or writes nothing.
 
   Two secrets:
@@ -199,5 +199,26 @@ function testReadSecretCannotWrite() {
   Logger.log(`READ_SECRET writes: ${write.error === "forbidden" ? "no (forbidden)" : `UNEXPECTED: ${JSON.stringify(write)}`}`);
   Logger.log(`No secret reads: ${anon.error === "forbidden" ? "no (forbidden)" : "UNEXPECTED"}`);
   Logger.log(`Rows before ${rowsBefore}, after ${rowsAfter}: ${rowsAfter === rowsBefore ? "unchanged" : "CHANGED"}`);
+  Logger.log(pass ? "PASS" : "FAIL");
+}
+
+/**
+ * Run from the editor after a redeploy: proves the Fallback tab can't be read or written with the read-only secret,
+ * a wrong secret or none, and that reads never return its columns. Writes nothing, sends no email.
+ */
+function testFallbackIsPrivate() {
+  const fb = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(FALLBACK_TAB);
+  const before = fb ? fb.getLastRow() : 0;
+  const json = (out) => JSON.parse(out.getContent());
+  const fake = { lead_name: "TEST AUDIT - DELETE", mobile_no: "+971500000000", email_id: "test-audit@xerebo.com" };
+  const writes = [readSecret() || "no-read-secret-set", "wrong", undefined].map((secret) =>
+    json(doPost({ postData: { contents: JSON.stringify({ secret, fallback: fake }) } })).error);
+  const read = readSecret() ? json(doGet({ parameter: { secret: readSecret() } })) : { ok: true, leads: [] };
+  const leaked = (read.leads || []).some((l) => "lead_name" in l || "mobile_no" in l || "email_id" in l);
+  const after = fb ? fb.getLastRow() : 0;
+  const pass = writes.every((e) => e === "forbidden") && read.ok === true && !leaked && after === before && logSheet().getName() !== FALLBACK_TAB;
+  Logger.log(`Fallback writes without SECRET: ${writes.join(", ")}`);
+  Logger.log(`Read returns contact columns: ${leaked ? "YES (FAIL)" : "no"}; tab read: ${logSheet().getName()}`);
+  Logger.log(`Fallback rows before ${before}, after ${after}: ${after === before ? "unchanged" : "CHANGED"}`);
   Logger.log(pass ? "PASS" : "FAIL");
 }
