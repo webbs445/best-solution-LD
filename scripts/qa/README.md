@@ -57,11 +57,18 @@ $env:ADS_SHEET_BRIDGE_URL="http://127.0.0.1:4799/bridge"; $env:ADS_SHEET_BRIDGE_
 $env:ERPNEXT_URL="http://127.0.0.1:4799"; $env:ERPNEXT_API_KEY="qa"; $env:ERPNEXT_API_SECRET="qa"
 $env:KV_REST_API_URL="http://127.0.0.1:4799/kv"; $env:KV_REST_API_TOKEN="qa"
 $env:ADS_EXPORT_USER="qa"; $env:ADS_EXPORT_PASSWORD="qa-local-only"
+# The fixture's dates are written for one day: the server's clock starts there (local QA server only)
+$env:NODE_OPTIONS="--import=./scripts/qa/fixed-clock.mjs"
 npx next start -p 3010
 node scripts/qa/google-ads-view.mjs http://localhost:3010 qa-out   # starts the mock itself; same ADS_EXPORT_* set
 node scripts/qa/google-ads-boxes.mjs http://localhost:3010 qa-out  # nothing outside its card at 375/1024/1280/1440
 node scripts/qa/robots-headers.mjs http://localhost:3010           # report routes noindex, nofollow, noarchive; landing pages noindex only
+node scripts/qa/google-ads-stream.mjs http://localhost:3010 qa-out # loading shell first, then the view (needs a server started after a fresh mock)
+node scripts/qa/google-ads-timing.mjs http://localhost:3010 3      # first byte, whole page and Server-Timing per load (no browser)
 ```
+
+The mock keeps the Sheet cache (`gads:sheet:v1`) in memory for as long as it runs. `MOCK_BRIDGE_MS` and `MOCK_ERP_MS`
+make the bridge and the ERP answer that much later, like the real ones.
 
 Without the `ERPNEXT_*` values the view runs on Google conversions, as on Vercel Preview; run the box check that way too.
 

@@ -6,7 +6,7 @@ import { REPORT_START, googleAdsLeads, isGoogleAdsLead, isQualifiedStatus, isWon
 import { readAdsSheet, type SheetLead } from "@/lib/adsSheet";
 import { listLeads, type ReportLead } from "@/lib/erp";
 import type { ErpLead } from "@/lib/googleAdsInsights";
-import { googleAdsHtml } from "@/lib/googleAdsPage";
+import { googleAdsHtml, googleAdsRest, googleAdsShell, type GoogleAdsState } from "@/lib/googleAdsPage";
 import { pickPeriod, rowsOf, str } from "@/lib/googleAdsReport";
 import { readGoogleAdsSheet, type Cell } from "@/lib/googleAdsSheet";
 import { rateLimit } from "@/lib/rateLimit";
@@ -101,35 +101,106 @@ async function landings(from: string, to: string): Promise<Entry[] | null> {
   }
 }
 
+/** Data that arrives within this sends the whole page at once; slower, the shell goes first and the view streams after it. */
+export const SHELL_AFTER_MS = 150;
+
+/**
+ * Step timings, for the Server-Timing header and one log line: durations in ms and where the Sheet copy came from
+ * (redis / memory / bridge, and "due" when a background read was started). Never data, ids or secrets.
+ */
+export class Timings {
+  readonly start = performance.now();
+  readonly ms: Record<string, number> = {};
+  sheet = "";
+  async step<T>(name: string, p: Promise<T>): Promise<T> {
+    const s = performance.now();
+    try {
+      return await p;
+    } finally {
+      this.ms[name] = Math.round(performance.now() - s);
+    }
+  }
+  stepSync<T>(name: string, f: () => T): T {
+    const s = performance.now();
+    const v = f();
+    this.ms[name] = Math.round(performance.now() - s);
+    return v;
+  }
+  total() {
+    return (this.ms.total = Math.round(performance.now() - this.start));
+  }
+  header() {
+    return Object.entries(this.ms)
+      .map(([k, v]) => `${k};dur=${v}${k === "bridge" && this.sheet ? `;desc="${this.sheet}"` : ""}`)
+      .join(", ");
+  }
+  log(mode: string) {
+    console.log(`Google Ads view timing (${mode}): ${Object.entries(this.ms).map(([k, v]) => `${k}=${v}ms`).join(" ")}${this.sheet ? ` sheet=${this.sheet}` : ""}`);
+  }
+}
+
 export async function googleAdsResponse(query: URLSearchParams): Promise<Response> {
   const schedule: Schedule = (task) => after(task);
   const today = dubaiDate();
-  const erp = await erpLeads(schedule);
-  const ids = erp.leads?.map((l) => l.clid).filter(Boolean) ?? [];
+  const t = new Timings();
   if (query.has("refresh")) {
+    const erp = await t.step("erp", erpLeads(schedule));
     const allowed = rateLimit("google-ads-refresh", 1, REFRESH_EVERY_MS);
-    const read = allowed ? await readGoogleAdsSheet(true, schedule, ids) : null;
+    const read = allowed ? await t.step("bridge", readGoogleAdsSheet(true, schedule, erp.leads?.map((l) => l.clid).filter(Boolean) ?? [])) : null;
     const back = new URLSearchParams(query);
     back.delete("refresh");
     back.set("note", !allowed ? "wait" : read?.kind === "ok" ? "done" : "failed");
-    return new Response(null, { status: 303, headers: { Location: `/ads-report?${back}`, ...PRIVATE } });
+    t.total();
+    t.log("refresh");
+    return new Response(null, { status: 303, headers: { Location: `/ads-report?${back}`, "Server-Timing": t.header(), ...PRIVATE } });
   }
+  const state = loadState(query, today, schedule, t);
+  const quick = await Promise.race([state, new Promise<null>((r) => setTimeout(r, SHELL_AFTER_MS, null))]);
+  const headers = { "Content-Type": "text/html; charset=utf-8", ...PRIVATE };
+  if (quick) {
+    const body = t.stepSync("render", () => googleAdsHtml(quick));
+    t.total();
+    t.log("whole page");
+    return new Response(body, { status: quick.kind === "error" ? 502 : 200, headers: { ...headers, "Server-Timing": t.header() } });
+  }
+  // Slow data (a cold ERP or Sheet read): the shell now, the view when it's in. The status is already sent as 200,
+  // and the header can only time the shell: the full timings are in the log line.
+  const enc = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    async start(c) {
+      c.enqueue(enc.encode(googleAdsShell(query, today)));
+      try {
+        const s = await state;
+        c.enqueue(enc.encode(t.stepSync("render", () => googleAdsRest(s))));
+        t.total();
+        t.log("streamed");
+        c.close();
+      } catch (err) {
+        c.error(err);
+      }
+    },
+  });
+  return new Response(stream, { headers: { ...headers, "Server-Timing": `shell;dur=${Math.round(performance.now() - t.start)};desc="data streamed after the shell"` } });
+}
+
+/** ERP leads, then the Sheet and the landing counter together, each timed; the page state. Never throws. */
+async function loadState(query: URLSearchParams, today: string, schedule: Schedule, t: Timings): Promise<GoogleAdsState> {
+  const erp = await t.step("erp", erpLeads(schedule));
+  const ids = erp.leads?.map((l) => l.clid).filter(Boolean) ?? [];
   const period = pickPeriod(query, today);
-  const [read, land] = await Promise.all([readGoogleAdsSheet(false, schedule, ids), landings(period.from, period.to)]);
+  const [read, land] = await Promise.all([t.step("bridge", readGoogleAdsSheet(false, schedule, ids)), t.step("counter", landings(period.from, period.to))]);
   const base = { query, today };
-  const body =
-    "data" in read
-      ? googleAdsHtml({
-          kind: "ok",
-          ...base,
-          data: read.data,
-          stale: read.kind === "stale",
-          note: query.get("note") ?? "",
-          erp: erp.leads ? joinClicks(erp.leads, read.data.clicks) : null,
-          leadSource: erp.source,
-          joinReady: read.data.clicks != null,
-          landings: land,
-        })
-      : googleAdsHtml({ kind: read.kind, ...base, diagnosis: read.diagnosis });
-  return new Response(body, { status: read.kind === "error" ? 502 : 200, headers: { "Content-Type": "text/html; charset=utf-8", ...PRIVATE } });
+  if (!("data" in read)) return { kind: read.kind, ...base, diagnosis: read.diagnosis };
+  t.sheet = `${read.via}${read.due ? " due" : ""}`;
+  return {
+    kind: "ok",
+    ...base,
+    data: read.data,
+    stale: read.kind === "stale",
+    note: query.get("note") ?? "",
+    erp: erp.leads ? joinClicks(erp.leads, read.data.clicks) : null,
+    leadSource: erp.source,
+    joinReady: read.data.clicks != null,
+    landings: land,
+  };
 }
