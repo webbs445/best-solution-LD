@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { CT_TRUST } from "@/content/corporateTax";
-import { CT_FORM_ID, LEAD_RULES } from "@/lib/lead";
+import { CT_FORM_ID, LEAD_RULES, TRAP_FIELD } from "@/lib/lead";
 import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry } from "@/lib/phone";
 import { attributionFields } from "@/lib/attribution";
 import { computeTax, nextDueYear, yearEnd } from "@/lib/corporateTax";
@@ -429,7 +429,7 @@ function init(root: HTMLElement, on: On, observe: Observe, signal: AbortSignal) 
         body: JSON.stringify({
           lead_name: name, email_id: email, mobile_no: phoneRaw, country, ...c.fields,
           ...attributionFields(), event_id: eventId, landing_page: location.href.split("#")[0],
-          form_id: c.formId, website: (c.form.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "",
+          form_id: c.formId, [TRAP_FIELD]: (c.form.elements.namedItem(TRAP_FIELD) as HTMLInputElement | null)?.value ?? "",
         }),
       });
       responseBody = (await res.json().catch(() => null)) as { created?: unknown; fields?: string[] } | null;

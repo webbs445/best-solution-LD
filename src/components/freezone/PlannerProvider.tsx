@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useMemo, useReducer, useRef, ty
 import { ZONE_BY_ID, type ActKey, type Priority } from "@/content/freezone";
 import { topMatches, type Match } from "@/lib/zoneSearch";
 import { FZ_FORM_ID } from "@/lib/lead";
-import { trackCalculatorStart, trackCalculatorStep } from "@/lib/analytics";
+import { trackCalculatorStart, trackCalculatorStep, trackPlannerStart } from "@/lib/analytics";
 import { prefersReducedMotion } from "@/lib/useReducedMotion";
 
 /*
@@ -83,6 +83,7 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
     if (!started.current) {
       started.current = true;
       trackCalculatorStart(FZ_FORM_ID);
+      trackPlannerStart(FZ_FORM_ID);
     }
     trackCalculatorStep(FZ_FORM_ID, step, value);
   }, []);

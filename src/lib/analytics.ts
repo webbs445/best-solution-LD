@@ -227,6 +227,9 @@ export function pushFormSubmit({
       form_name: formName ?? formId,
       form_type: formType || undefined,
       service_interest: serviceInterest || undefined,
+      // Every confirmed lead says so, whatever its form, so GTM's Ads lead tag can trigger on this one flag instead
+      // of a list of form ids that misses new forms (the callback pop-up on /freezone, for example).
+      lead_conversion_eligible: true,
       lead_type: "sales",
       value: value ?? 1,
       currency: "AED",
@@ -304,6 +307,28 @@ export function trackCalculatorResultView(calculatorId: string, args: { jurisdic
       estimated_cost: args.estimatedCost ?? undefined,
       currency: LEAD_CURRENCY,
     },
+    ...pageData(),
+  });
+}
+
+/* ─── Planner (the /freezone free zone planner) ─── */
+
+const plannersStarted = new Set<string>();
+const plannersCompleted = new Set<string>();
+
+/** The visitor's first choice in the planner: once per planner per page view. */
+export function trackPlannerStart(plannerId: string): void {
+  if (plannersStarted.has(plannerId)) return;
+  plannersStarted.add(plannerId);
+  pushEvent("planner_start", { planner_data: { planner_id: plannerId }, ...pageData() });
+}
+
+/** The shortlist is shown ("See my shortlist"): once per planner per page view. Choices only, never contact details. */
+export function trackPlannerComplete(plannerId: string, args: { zone?: string; activities?: string; priority?: string; team?: number }): void {
+  if (plannersCompleted.has(plannerId)) return;
+  plannersCompleted.add(plannerId);
+  pushEvent("planner_complete", {
+    planner_data: { planner_id: plannerId, zone: args.zone || undefined, activities: args.activities || undefined, priority: args.priority || undefined, team: args.team },
     ...pageData(),
   });
 }

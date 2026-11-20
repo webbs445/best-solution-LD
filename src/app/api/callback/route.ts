@@ -1,7 +1,8 @@
-import { CALLBACK_FORM_ID, CALLBACK_SOURCES, LEAD_RULES, clickIdRows, leadConsent, withUaeCode } from "@/lib/lead";
+import { CALLBACK_FORM_ID, CALLBACK_SOURCES, LEAD_RULES, clickIdRows, leadConsent, trapped } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
-import { createErpLead } from "@/lib/erp";
+import { bodyPhone } from "@/lib/phoneServer";
+import { createErpLead, leadReply } from "@/lib/erp";
 import { isPreviewDeployment, previewLeadId } from "@/lib/preview";
 import type { JurisdictionChoice } from "@/lib/pricing";
 
@@ -29,15 +30,15 @@ export const POST = withLeadLog("callback", async (request, log) => {
   }
 
   // Honeypot: real visitors never fill this in. Pretend success so bots move on.
-  if (str(body.website)) return Response.json({ ok: true, created: false });
+  if (trapped(body)) return Response.json({ ok: true, created: false });
 
   const lead_name = str(body.lead_name, 120);
   // A local UAE number ("050 123 4567") is stored as +971.
-  const mobile_no = withUaeCode(str(body.mobile_no, 40));
+  const mobile_no = bodyPhone(body);
   const email_id = str(body.email_id, 200);
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
-    ...(LEAD_RULES.mobile_no(mobile_no) ? [] : ["mobile_no"]),
+    ...(mobile_no ? [] : ["mobile_no"]),
     // A preview checks the email format only: the real check looks up the domain's mail servers (DNS).
     ...((isPreviewDeployment() ? LEAD_RULES.email_id(email_id) : await emailIsReal(email_id)) ? [] : ["email_id"]),
   ];
@@ -73,8 +74,5 @@ export const POST = withLeadLog("callback", async (request, log) => {
     details: clickIdRows(body),
   });
 
-  if (result.ok) log.erp_id = result.name;
-  else log.erp_status = result.status;
-  if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
-  return Response.json({ ok: true, created: !!result.name?.trim() });
+  return leadReply(result, log);
 });

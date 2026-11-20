@@ -2,7 +2,14 @@
   One JSON line per lead request in the Vercel logs, so a missing lead can be traced: which form, what
   happened (created / duplicate / invalid / rate_limited / honeypot / erp_failed ...), the ERP lead id,
   the campaign and whether a Google click id came with it. Never a name, phone, email or message.
+  Spam-trap hits and fallback leads are also counted per day in the KV store (key lead-guard:<Dubai date>, fields
+  "honeypot|<route>" and "fallback|<route>"), which keeps them after the Vercel logs expire. Counts only, no form data.
 */
+
+import { after } from "next/server";
+import { KEEP_DAYS, dubaiDate, kvConfigured, pipeline } from "@/lib/adLandings";
+import { trapped } from "@/lib/lead";
+import { isPreviewDeployment } from "@/lib/preview";
 
 /** Filled in by the route as it goes; anything left out is worked out from the response. */
 export interface LeadLog {
@@ -14,7 +21,7 @@ type Body = Record<string, unknown> | null;
 const s = (v: unknown, max = 120) => (typeof v === "string" ? v.slice(0, max) : undefined);
 
 export function leadResult(status: number, req: Body, res: Body): string {
-  if (status === 200) return s(req?.website) ? "honeypot" : res?.created === false ? "duplicate" : "created";
+  if (status === 200) return trapped(req) ? "honeypot" : res?.fallback === true ? "fallback" : res?.created === false ? "duplicate" : "created";
   if (status === 422) return "invalid";
   if (status === 429) return "rate_limited";
   if (status === 400) return "invalid_json";
@@ -63,7 +70,28 @@ export function withLeadLog(route: string, handler: (request: Request, log: Lead
         .catch(() => null)) as Body;
       return response;
     } finally {
-      console.info(JSON.stringify(leadLogLine(route, status, req, res, log, Date.now() - t0)));
+      const line = leadLogLine(route, status, req, res, log, Date.now() - t0);
+      console.info(JSON.stringify(line));
+      if (line.result === "honeypot" || line.result === "fallback") countGuard(line.result, route);
     }
   };
+}
+
+/** Adds one to today's honeypot or fallback count for the route, after the response. Live site only; never throws. */
+export function countGuard(kind: "honeypot" | "fallback", route: string, ms = Date.now()): void {
+  if (isPreviewDeployment() || !kvConfigured()) return;
+  const key = `lead-guard:${dubaiDate(ms)}`;
+  const run = () =>
+    pipeline([
+      ["HINCRBY", key, `${kind}|${route}`, 1],
+      ["EXPIRE", key, KEEP_DAYS * 86_400],
+    ]).then(
+      () => undefined,
+      (err) => console.error("lead-guard count failed", err),
+    );
+  try {
+    after(run);
+  } catch {
+    void run(); // outside a request (tests, scripts)
+  }
 }

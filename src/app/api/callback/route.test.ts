@@ -107,3 +107,65 @@ describe("POST /api/callback", () => {
     expect(sent).toHaveLength(0);
   });
 });
+
+describe("POST /api/callback from the /freezone 'Book a consultation' pop-up", () => {
+  const freezone = {
+    lead_name: "Test",
+    mobile_no: "050 000 0000",
+    country: "AE",
+    email_id: "test.lead@example.com",
+    interest: "freezone",
+    landing_page: "https://business.best-solution.ae/freezone?utm_source=google&utm_campaign=fz_search_061026&gclid=TESTCLID",
+    utm_source: "google",
+    utm_medium: "cpc",
+    utm_campaign: "fz_search_061026",
+    utm_term: "free zone setup",
+    utm_content: "free_zone_1",
+    gclid: "TESTCLID",
+    click_id: "TESTCLID",
+    event_id: "evt_1_abc",
+  };
+
+  it("sends the page path, campaign, UTMs and click ID path to the ERP, keeping the form name", async () => {
+    await post(freezone);
+    const lead = sent[0];
+    expect(lead).toMatchObject({
+      custom_form_name: "Callback Request",
+      custom_platform: "google",
+      custom_campaign: "fz_search_061026",
+      custom_ad_set_name: "free zone setup",
+      custom_ad_name: "free_zone_1",
+      custom_clid: "TESTCLID",
+    });
+    expect(String(lead.custom_remarks)).toBe("Callback Request (/freezone): callback requested");
+    const notes = String(lead.custom_client_profile_and_requirement);
+    for (const text of ["Source page: /freezone", "Landing page: https://business.best-solution.ae/freezone?", "UTM medium: cpc", "gclid: TESTCLID", "Event ID: evt_1_abc"])
+      expect(notes).toContain(text);
+  });
+
+  it("checks the number against the country picker and stores it in E.164", async () => {
+    for (const [mobile_no, country] of [["50 000 0000", "AE"], ["971500000000", "AE"], ["00971 50 000 0000", "AE"], ["90000 00000", "IN"]]) {
+      expect((await post({ ...freezone, mobile_no, country })).status).toBe(200);
+    }
+    expect(sent.map((l) => l.mobile_no)).toEqual(["+971500000000", "+971500000000", "+971500000000", "+919000000000"]);
+    const bad = await post({ ...freezone, mobile_no: "90000 00000", country: "AE" });
+    expect(bad.status).toBe(422);
+    expect(await bad.json()).toMatchObject({ fields: ["mobile_no"] });
+  });
+
+  it("saves the lead to the fallback and answers success when the ERP is down", async () => {
+    vi.stubEnv("ADS_SHEET_URL", "https://script.example.com/exec");
+    vi.stubEnv("ADS_SHEET_SECRET", "s3cret");
+    const fallback: Record<string, unknown>[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init: RequestInit) => {
+      if (url.startsWith("https://erp")) throw new Error("ECONNREFUSED");
+      fallback.push(JSON.parse(String(init.body)).fallback);
+      return Response.json({ ok: true, alerted: true });
+    }));
+    const res = await post(freezone);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true, created: true, fallback: true });
+    expect(fallback[0]).toMatchObject({ form_name: "Callback Request", source_page: "/freezone", mobile_no: "+971500000000", utm_campaign: "fz_search_061026" });
+    vi.unstubAllEnvs();
+  });
+});

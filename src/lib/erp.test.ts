@@ -109,12 +109,80 @@ describe("createErpLead", () => {
 
   it("reports upstream_failed when the ERP rejects the Lead", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 417 })));
-    expect(await createErpLead(input)).toEqual({ ok: false, reason: "upstream_failed" });
+    expect(await createErpLead(input)).toEqual({ ok: false, reason: "upstream_failed", status: 417 });
   });
 
   it("reports upstream_unreachable on network errors", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("ECONNREFUSED")));
     expect(await createErpLead(input)).toEqual({ ok: false, reason: "upstream_unreachable" });
+  });
+
+  describe("fallback when the ERP fails", () => {
+    const sheetEnv = () => {
+      vi.stubEnv("ADS_SHEET_URL", "https://script.example.com/exec");
+      vi.stubEnv("ADS_SHEET_SECRET", "s3cret");
+    };
+    const posted = (fetchMock: ReturnType<typeof vi.fn>) =>
+      fetchMock.mock.calls.filter(([url]) => String(url).startsWith("https://script.example.com")).map(([, init]) => JSON.parse(init.body));
+
+    it("saves the whole lead to the Fallback tab and answers ok with fallback: true when the ERP refuses it", async () => {
+      sheetEnv();
+      const fetchMock = vi.fn((url: string) =>
+        Promise.resolve(url.startsWith("https://erp") ? new Response("{}", { status: 417 }) : Response.json({ ok: true, alerted: true })),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+      const landing = { ...input, landing_page: "https://business.best-solution.ae/freezone?utm_campaign=fz", utm_campaign: "fz", click_id: "TESTCLID" };
+      expect(await createErpLead(landing)).toEqual({ ok: true, fallback: true });
+      const [body] = posted(fetchMock);
+      expect(body.secret).toBe("s3cret");
+      expect(body.lead).toBeUndefined(); // not the tracking-only lead log row
+      expect(body.fallback).toMatchObject({
+        lead_name: input.lead_name,
+        mobile_no: input.mobile_no,
+        email_id: input.email_id,
+        source_page: "/freezone",
+        utm_campaign: "fz",
+        click_id: "TESTCLID",
+        erp_error: "upstream_failed 417",
+        erp_check: "no (ERP refused or down)",
+      });
+    });
+
+    it("falls back when the ERP times out or is not configured, and flags only the timeout for an ERP check", async () => {
+      sheetEnv();
+      const timeout = vi.fn((url: string) => (url.startsWith("https://erp") ? Promise.reject(new DOMException("timeout", "TimeoutError")) : Promise.resolve(Response.json({ ok: true }))));
+      vi.stubGlobal("fetch", timeout);
+      expect(await createErpLead(input)).toEqual({ ok: true, fallback: true });
+      expect(posted(timeout)[0].fallback).toMatchObject({ erp_error: "upstream_unreachable", erp_check: "yes (timeout, may already exist)" });
+
+      const refused = vi.fn((url: string) => (url.startsWith("https://erp") ? Promise.reject(new TypeError("fetch failed")) : Promise.resolve(Response.json({ ok: true }))));
+      vi.stubGlobal("fetch", refused);
+      expect(await createErpLead(input)).toEqual({ ok: true, fallback: true });
+      expect(posted(refused)[0].fallback.erp_check).toBe("no (ERP refused or down)");
+
+      vi.stubEnv("ERPNEXT_URL", "");
+      const off = vi.fn(() => Promise.resolve(Response.json({ ok: true })));
+      vi.stubGlobal("fetch", off);
+      expect(await createErpLead(input)).toEqual({ ok: true, fallback: true });
+      expect(posted(off)[0].fallback).toMatchObject({ erp_error: "not_configured", erp_check: "no (ERP refused or down)" });
+    });
+
+    it("reports the ERP failure when the fallback is not saved either, so the visitor is never told it was sent", async () => {
+      sheetEnv();
+      vi.stubGlobal("fetch", vi.fn((url: string) => Promise.resolve(url.startsWith("https://erp") ? new Response("{}", { status: 500 }) : Response.json({ ok: false, error: "no contact" }))));
+      expect(await createErpLead(input)).toEqual({ ok: false, reason: "upstream_failed", status: 500 });
+      vi.stubGlobal("fetch", vi.fn((url: string) => (url.startsWith("https://erp") ? Promise.resolve(new Response("{}", { status: 500 })) : Promise.reject(new Error("down")))));
+      expect(await createErpLead(input)).toEqual({ ok: false, reason: "upstream_failed", status: 500 });
+    });
+
+    it("writes nothing to the fallback on a preview deployment", async () => {
+      sheetEnv();
+      vi.stubEnv("VERCEL_ENV", "preview");
+      const fetchMock = vi.fn();
+      vi.stubGlobal("fetch", fetchMock);
+      expect(await createErpLead(input)).toMatchObject({ ok: true });
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
   });
 
   it("adds Google Ads leads to the lead log sheet with tracking only, and skips other leads", async () => {

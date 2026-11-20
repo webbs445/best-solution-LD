@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
-import { ADVICE_FORM_ID, LEAD_RULES } from "@/lib/lead";
+import { ADVICE_FORM_ID, LEAD_RULES, TRAP_FIELD } from "@/lib/lead";
+import { DEFAULT_PHONE_COUNTRY, phoneErrorText, phonePlaceholder, toE164Phone, type PhoneCountry } from "@/lib/phone";
+import { PhoneCountrySelect } from "@/components/ui/PhoneCountrySelect";
 import { SITE } from "@/content/site";
 import { CONSULT_ERRORS, CONSULT_TOPICS } from "@/content/consult";
 import "./consult-form.css";
@@ -32,6 +34,7 @@ type Props = {
 export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation", idPrefix = "ad", message: startMessage = "", topic: startTopic = "" }: Props = {}) {
   const [errors, setErrors] = useState<Partial<Record<Field, boolean>>>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const [country, setCountry] = useState<PhoneCountry>(DEFAULT_PHONE_COUNTRY);
   const success = useRef<HTMLDivElement>(null);
   const honeypot = useRef<HTMLInputElement>(null);
 
@@ -40,9 +43,11 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
     const f = new FormData(e.currentTarget);
     const v = (k: string) => String(f.get(k) || "").trim();
     const name = v("lead_name"), phone = v("mobile_no"), email = v("email_id"), topic = v("topic"), message = v("message");
+    // Checked and normalised for the chosen country (spaces, a leading 0, 00971 or 971 all work).
+    const e164 = toE164Phone(phone, country);
     const next: Partial<Record<Field, boolean>> = {
       name: !LEAD_RULES.lead_name(name),
-      phone: !LEAD_RULES.mobile_no(phone),
+      phone: !e164,
       email: !LEAD_RULES.email_id(email),
       topic: !(CONSULT_TOPICS as readonly string[]).includes(topic),
     };
@@ -60,7 +65,8 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lead_name: name,
-          mobile_no: phone,
+          mobile_no: e164,
+          country,
           email_id: email,
           topic,
           message,
@@ -68,7 +74,7 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
           event_id: eventId,
           landing_page: window.location.href.split("#")[0],
           form_id: formId,
-          website: honeypot.current?.value || "",
+          [TRAP_FIELD]: honeypot.current?.value || "",
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
@@ -77,8 +83,8 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
       // The thank-you replaces the form; bring it into view on phones.
       requestAnimationFrame(() => success.current?.scrollIntoView({ block: "center" }));
       if (!isConfirmedLeadResponse(responseBody)) return;
-      pushFormSubmit({ formId, formType, serviceInterest: topic, email, phone, firstName, lastName: rest.join(" "), eventId });
-      pushGenerateLead({ formId, service: topic, email, phone });
+      pushFormSubmit({ formId, formType, serviceInterest: topic, email, phone: e164 ?? phone, firstName, lastName: rest.join(" "), eventId });
+      pushGenerateLead({ formId, service: topic, email, phone: e164 ?? phone });
     } catch {
       setStatus({ kind: "error" });
     }
@@ -93,7 +99,12 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
     );
   }
 
-  const err = (k: Field) => (errors[k] ? <p className="ad-err" id={`${idPrefix}-${k}-err`}>{CONSULT_ERRORS[k]}</p> : null);
+  const err = (k: Field) =>
+    errors[k] ? (
+      <p className="ad-err" id={`${idPrefix}-${k}-err`}>
+        {k === "phone" ? phoneErrorText(country) : CONSULT_ERRORS[k]}
+      </p>
+    ) : null;
   const aria = (k: Field) => ({ "aria-invalid": errors[k] || undefined, "aria-describedby": errors[k] ? `${idPrefix}-${k}-err` : undefined });
 
   return (
@@ -104,8 +115,17 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
         {err("name")}
       </div>
       <div className="ad-field">
-        <label htmlFor={`${idPrefix}-phone`}>Phone with country code</label>
-        <input id={`${idPrefix}-phone`} name="mobile_no" type="tel" inputMode="tel" autoComplete="tel" placeholder="050 123 4567" required {...aria("phone")} />
+        <label htmlFor={`${idPrefix}-phone`}>WhatsApp number</label>
+        <div className="ad-tel">
+          <PhoneCountrySelect
+            value={country}
+            onChange={(e) => {
+              setCountry(e.target.value as PhoneCountry);
+              setErrors((x) => ({ ...x, phone: false }));
+            }}
+          />
+          <input id={`${idPrefix}-phone`} name="mobile_no" type="tel" inputMode="tel" autoComplete="tel" placeholder={phonePlaceholder(country)} required {...aria("phone")} />
+        </div>
         {err("phone")}
       </div>
       <div className="ad-field">
@@ -135,8 +155,8 @@ export function ConsultForm({ formId = ADVICE_FORM_ID, formType = "consultation"
       </div>
       {/* Spam trap: invisible to people, tempting to bots. */}
       <div className="sr-only" aria-hidden="true">
-        <label htmlFor={`${idPrefix}-website`}>Website</label>
-        <input ref={honeypot} id={`${idPrefix}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <label htmlFor={`${idPrefix}-hp`}>Leave this field empty</label>
+        <input ref={honeypot} id={`${idPrefix}-hp`} name={TRAP_FIELD} type="text" tabIndex={-1} autoComplete="off" />
       </div>
       {status.kind === "error" && (
         <p className="ad-err" role="alert">

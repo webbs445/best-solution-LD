@@ -363,6 +363,10 @@
 .ac-page .fl .err {display:none;font-size:12.5px;color:var(--error);margin-top:5px}
 .ac-page .fl input.bad ~ .err {display:block}
 .ac-page .two {display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ac-page .ph {display:flex;gap:8px;align-items:flex-start}
+.ac-page .ph .cc {flex:none;width:104px;height:60px;border:0;border-radius:16px;padding:0 6px 0 12px;background:var(--ground);box-shadow:inset 0 0 0 1.5px var(--rule);font:inherit;font-size:14.5px;color:var(--ink);outline:none}
+.ac-page .ph .cc:focus {box-shadow:inset 0 0 0 2px var(--copper)}
+.ac-page .ph .fl {flex:1;min-width:0}
 .ac-page .qnav {display:flex;gap:10px;margin-top:8px}
 .ac-page .qnav .btn {flex:1;height:56px}
 .ac-page .qnav .back {flex:0 0 56px;padding:0;background:var(--ground);color:var(--navy)}

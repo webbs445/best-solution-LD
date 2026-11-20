@@ -5,7 +5,9 @@ import { AC_WHATSAPP, BOOK_STATES, SERVICE_NAMES, SERVICE_OPTIONS, SOFTWARE, VOL
 import { ASK_FEES, CLAIMS, MAPS_URL, SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead, trackEvent } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
-import { AC_FORM_ID, LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
+import { AC_FORM_ID, LEAD_ERRORS, LEAD_RULES, TRAP_FIELD } from "@/lib/lead";
+import { DEFAULT_PHONE_COUNTRY, phoneErrorText, toE164Phone, type PhoneCountry } from "@/lib/phone";
+import { PhoneCountrySelect } from "@/components/ui/PhoneCountrySelect";
 import { LeadSuccess } from "@/components/ui/LeadSuccess";
 import f from "@/components/ui/LeadForm.module.css";
 import { AC_HEALTH_EVENT, type HealthResult } from "./AcHealthCheck";
@@ -61,6 +63,7 @@ export function AcQuote() {
   const [software, setSoftware] = useState("");
   const [state, setState] = useState("");
   const [values, setValues] = useState<Record<Field, string>>({ name: "", phone: "", email: "" });
+  const [country, setCountry] = useState<PhoneCountry>(DEFAULT_PHONE_COUNTRY);
   const [bad, setBad] = useState<Partial<Record<Field, boolean>>>({});
   const [phase, setPhase] = useState<Phase>({ kind: "ready" });
   const health = useRef<HealthResult | null>(null);
@@ -107,10 +110,11 @@ export function AcQuote() {
 
   const rules: Record<Field, (v: string) => boolean> = {
     name: LEAD_RULES.lead_name,
-    phone: LEAD_RULES.mobile_no,
+    // Checked for the chosen country (spaces, a leading 0, 00971 or 971 all work), then sent in E.164.
+    phone: (v) => !!toE164Phone(v, country),
     email: LEAD_RULES.email_id,
   };
-  const errors: Record<Field, string> = { name: LEAD_ERRORS.lead_name, phone: LEAD_ERRORS.mobile_no, email: LEAD_ERRORS.email_id };
+  const errors: Record<Field, string> = { name: LEAD_ERRORS.lead_name, phone: phoneErrorText(country), email: LEAD_ERRORS.email_id };
 
   const submit = async () => {
     const fails = (Object.keys(rules) as Field[]).filter((k) => !rules[k](values[k]));
@@ -130,7 +134,8 @@ export function AcQuote() {
           body: JSON.stringify({
             lead_name: values.name.trim(),
             email_id: values.email.trim(),
-            mobile_no: values.phone.trim(),
+            mobile_no: toE164Phone(values.phone, country),
+            country,
             service,
             volume,
             software,
@@ -140,7 +145,7 @@ export function AcQuote() {
             ...attributionFields(),
             event_id: eventId,
             landing_page: window.location.href.split("#")[0],
-            website: honeypot.current?.value || "",
+            [TRAP_FIELD]: honeypot.current?.value || "",
           }),
         }),
         new Promise((r) => setTimeout(r, MIN_SENDING_MS)),
@@ -158,12 +163,12 @@ export function AcQuote() {
           formType: "quote",
           serviceInterest: "accounting",
           email: values.email,
-          phone: values.phone,
+          phone: toE164Phone(values.phone, country) ?? values.phone,
           firstName,
           lastName: rest.join(" "),
           eventId,
         });
-        pushGenerateLead({ formId: AC_FORM_ID, service, email: values.email, phone: values.phone });
+        pushGenerateLead({ formId: AC_FORM_ID, service, email: values.email, phone: toE164Phone(values.phone, country) ?? values.phone });
       }
       if (THANK_YOU_URL) {
         window.location.assign(THANK_YOU_URL);
@@ -301,7 +306,18 @@ export function AcQuote() {
                   <div className={`pane${step === 3 ? " on" : ""}`}>
                     {field("name", "f-name", "Full name", "text", "name")}
                     <div className="two">
-                      {field("phone", "f-phone", "WhatsApp number", "tel", "tel", "tel")}
+                      <div className="ph">
+                        <PhoneCountrySelect
+                          className="cc"
+                          value={country}
+                          disabled={sending}
+                          onChange={(e) => {
+                            setCountry(e.target.value as PhoneCountry);
+                            setBad((b) => ({ ...b, phone: false }));
+                          }}
+                        />
+                        {field("phone", "f-phone", "WhatsApp number", "tel", "tel", "tel")}
+                      </div>
                       {field("email", "f-email", "Email", "email", "email", "email")}
                     </div>
                     <div className="safe" style={{ marginTop: 4 }}>
@@ -314,8 +330,8 @@ export function AcQuote() {
                   </div>
                 </div>
                 <div className="hp" aria-hidden="true">
-                  <label htmlFor="f-website">Website</label>
-                  <input ref={honeypot} id="f-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+                  <label htmlFor="f-hp">Leave this field empty</label>
+                  <input ref={honeypot} id="f-hp" name={TRAP_FIELD} type="text" tabIndex={-1} autoComplete="off" />
                 </div>
                 <div className="qnav">
                   {step > 1 && (

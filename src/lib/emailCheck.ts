@@ -1,5 +1,6 @@
 import { resolve4, resolveMx } from "node:dns/promises";
 import { LEAD_RULES } from "@/lib/lead";
+import { isPreviewDeployment } from "@/lib/preview";
 
 /*
   Server-only: does the email's domain receive mail at all? Catches made-up domains (name@asdfgh.com) that pass
@@ -32,6 +33,8 @@ async function lookup(domain: string): Promise<boolean> {
 export async function emailDomainAcceptsMail(email: string): Promise<boolean> {
   const domain = email.trim().toLowerCase().split("@")[1];
   if (!domain) return false;
+  if (isPreviewDeployment()) return true; // previews make no outside calls, DNS included
+
   const known = cache.get(domain);
   if (known !== undefined) return known;
   let timer: ReturnType<typeof setTimeout> | undefined;

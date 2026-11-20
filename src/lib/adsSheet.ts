@@ -47,6 +47,54 @@ export async function recordAdsLead(lead: SheetLead): Promise<void> {
   }
 }
 
+/** A lead the ERP did not take, with its contact details so sales can call back. Kept in the sheet's "Fallback" tab. */
+export interface FallbackLead {
+  received: string;
+  lead_name: string;
+  mobile_no: string;
+  email_id: string;
+  form_name: string;
+  source_page: string;
+  landing_page: string;
+  utm_source: string;
+  utm_medium: string;
+  utm_campaign: string;
+  utm_term: string;
+  utm_content: string;
+  click_id: string;
+  consent: string;
+  event_id: string;
+  erp_error: string;
+  erp_check: string;
+  details: string;
+}
+
+/*
+  Saves a lead the ERP refused or never answered for, and has the Apps Script email the alert ("1 lead saved to the
+  fallback", no contact details). The Fallback tab is never returned by the script's read endpoint, so Preview and
+  /ads-report can't see it. Awaited, unlike recordAdsLead: true only when the script confirms the row was written, so
+  the visitor is told "sent" only when the lead is safe somewhere.
+*/
+export async function saveFallbackLead(lead: FallbackLead): Promise<boolean> {
+  if (isPreviewDeployment()) return false;
+  const c = config();
+  if (!c) return false;
+  try {
+    const res = await fetch(c.url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ secret: c.secret, fallback: lead }),
+      signal: AbortSignal.timeout(15_000),
+    });
+    const out = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (out?.ok) return true;
+    console.error("Fallback lead refused by the sheet", res.status, out?.error);
+  } catch (err) {
+    console.error("Fallback lead sheet unreachable", err);
+  }
+  return false;
+}
+
 // The Apps Script takes 2 to 6 seconds to answer, so the report keeps a copy for 5 minutes and Next serves the old
 // copy while it fetches a new one. The ERP stays live; only leads the ERP already hides come from here. A failure throws, so it is never cached.
 const cachedSheet = unstable_cache(

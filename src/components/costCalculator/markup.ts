@@ -1,4 +1,5 @@
 import { CLAIMS, DISCLAIMER } from "@/content/site";
+import { TRAP_FIELD } from "@/lib/lead";
 import { servicesMenuHtml } from "@/components/ui/servicesMenuHtml";
 
 /*
@@ -145,7 +146,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
         <h3 data-t="Where can your advisor reach you?">Where can your advisor reach you?</h3>
         <p data-t="Your plan above is attached to your request.">Your plan above is attached to your request.</p>
         <form id="form" novalidate data-track="LP Cost Calculator Quote">
-          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <input class="hp" type="text" name="${TRAP_FIELD}" tabindex="-1" autocomplete="off" aria-hidden="true">
           <div class="fl"><input id="fName" name="name" placeholder=" " autocomplete="name"><label for="fName" data-t="Full name">Full name</label><span class="err" data-t="Please enter your name">Please enter your name</span></div>
           <div class="fl"><div class="tel"><select id="fCC" data-ta="Country code" aria-label="Country code"></select><div class="fl-in" style="position:relative"><input id="fPhone" name="phone" type="tel" inputmode="tel" placeholder=" " autocomplete="tel-national"><label for="fPhone" data-t="Phone or WhatsApp">Phone or WhatsApp</label></div></div><span class="err" data-t="Please enter a valid phone number">Please enter a valid phone number</span></div>
           <div class="fl"><input id="fEmail" name="email" type="email" inputmode="email" placeholder=" " autocomplete="email"><label for="fEmail" data-t="Email">Email</label><span class="err" data-t="Please enter a valid email">Please enter a valid email</span></div>
@@ -170,7 +171,7 @@ export const CC_MARKUP = String.raw`<header class="hd" id="hd">
     <h3 id="gH" data-t="Send your plan to an advisor">Send your plan to an advisor</h3>
     <p class="gp" data-t="An advisor reviews your plan and contacts you to arrange a consultation.">An advisor reviews your plan and contacts you to arrange a consultation.</p>
     <div class="gsum" id="gSum"></div>
-    <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <input class="hp" type="text" name="${TRAP_FIELD}" tabindex="-1" autocomplete="off" aria-hidden="true">
     <div class="fl"><input id="gName" name="name" placeholder=" " autocomplete="name"><label for="gName" data-t="Full name">Full name</label><span class="err" data-t="Please enter your name">Please enter your name</span></div>
     <div class="fl"><div class="tel"><select id="gCC" data-ta="Country code" aria-label="Country code"></select><div class="fl-in" style="position:relative"><input id="gPhone" name="phone" type="tel" inputmode="tel" placeholder=" " autocomplete="tel-national"><label for="gPhone" data-t="Phone or WhatsApp">Phone or WhatsApp</label></div></div><span class="err" data-t="Please enter a valid phone number">Please enter a valid phone number</span></div>
     <div class="fl"><input id="gEmail" name="email" type="email" inputmode="email" placeholder=" " autocomplete="email"><label for="gEmail" data-t="Email">Email</label><span class="err" data-t="Please enter a valid email">Please enter a valid email</span></div>

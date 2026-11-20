@@ -8,6 +8,7 @@ import { QuickCapture } from "@/components/ui/QuickCapture";
 import { UNLOCK_THANKS_MS, UnlockDialog } from "@/components/ui/UnlockDialog";
 import { WhatsAppIcon } from "@/components/ui/Icons";
 import { FZ_FORM_ID } from "@/lib/lead";
+import { trackPlannerComplete } from "@/lib/analytics";
 import { FZ_GO_PLANNER, MAX_ACTIVITIES, MAX_SHAREHOLDERS, MAX_TEAM, plannerPayload, usePlanner } from "./PlannerProvider";
 import { ZoneLogo } from "./ZoneLogo";
 import s from "./FzPlanner.module.css";
@@ -146,6 +147,7 @@ export function FzPlanner() {
   };
 
   const showShortlist = () => {
+    trackPlannerComplete(FZ_FORM_ID, { zone: zone?.name, activities: state.acts.join(","), priority: state.pri, team: state.team });
     setDir(1);
     setView("shortlist");
     toTop();

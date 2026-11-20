@@ -4,8 +4,9 @@ import { useId, useRef, useState, type FormEvent, type KeyboardEvent } from "rea
 import { SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
-import { LEAD_ERRORS, LEAD_RULES } from "@/lib/lead";
-import { DEFAULT_PHONE_COUNTRY, PHONE_COUNTRIES, toE164Phone, type PhoneCountry } from "@/lib/phone";
+import { LEAD_ERRORS, LEAD_RULES, TRAP_FIELD } from "@/lib/lead";
+import { DEFAULT_PHONE_COUNTRY, phoneErrorText, phonePlaceholder, toE164Phone, type PhoneCountry } from "@/lib/phone";
+import { PhoneCountrySelect } from "@/components/ui/PhoneCountrySelect";
 import { WhatsAppIcon } from "@/components/ui/Icons";
 import { markLeadSent } from "@/components/ui/LockedFigure";
 import styles from "./QuickCapture.module.css";
@@ -34,10 +35,6 @@ const saveRef = (ref: string) => {
     // Storage blocked: the server's own short memory still catches the same number again.
   }
 };
-
-const PLACEHOLDER: Partial<Record<PhoneCountry, string>> = { AE: "50 123 4567", OTHER: "+44 20 7946 0000" };
-const shortName = (c: (typeof PHONE_COUNTRIES)[number]) =>
-  c.code === "OTHER" ? "Other" : `${c.dial} ${c.code === "AE" ? "UAE" : c.code === "GB" ? "UK" : c.code === "US" ? "US" : c.name}`;
 
 type Field = "name" | "phone" | "email";
 
@@ -71,12 +68,8 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
   const honeypot = useRef<HTMLInputElement>(null);
   const counted = useRef(false);
 
-  const countryName = PHONE_COUNTRIES.find((c) => c.code === country)?.name ?? "";
   const waHref = `${SITE.whatsapp}?text=${encodeURIComponent(`Hi, I would like advice on: ${summary}. Please call me back.`)}`;
-  const phoneMsg =
-    country === "OTHER"
-      ? "Please type the full number with its country code, for example +44 20 7946 0000."
-      : `Please check the number. It does not look like a ${countryName} mobile number.`;
+  const phoneMsg = phoneErrorText(country);
 
   const check = (f: Field, v: string) =>
     f === "name" ? LEAD_RULES.lead_name(v.trim()) : f === "email" ? LEAD_RULES.email_id(v.trim()) : !!toE164Phone(v, country);
@@ -127,7 +120,7 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
             form_id: formId,
             landing_page: window.location.href.split("#")[0],
             submission_timestamp: new Date().toISOString(),
-            website: honeypot.current?.value || "",
+            [TRAP_FIELD]: honeypot.current?.value || "",
           }),
         }),
         new Promise((r) => setTimeout(r, 600)),
@@ -225,22 +218,15 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
       <div className={styles.field}>
         <label htmlFor={`${id}-phone`}>WhatsApp number</label>
         <div className={styles.row}>
-          <select
+          <PhoneCountrySelect
             className={styles.cc}
-            aria-label="Country code"
             value={country}
             disabled={sending}
             onChange={(e) => {
               setCountry(e.target.value as PhoneCountry);
               setBad((b) => ({ ...b, phone: false }));
             }}
-          >
-            {PHONE_COUNTRIES.map((c) => (
-              <option key={c.code} value={c.code}>
-                {shortName(c)}
-              </option>
-            ))}
-          </select>
+          />
           <input
             id={`${id}-phone`}
             name="mobile_no"
@@ -252,7 +238,7 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
             // Flag a wrong number on leaving the field, not only after pressing send.
             onBlur={() => values.phone.trim() && !check("phone", values.phone) && setBad((b) => ({ ...b, phone: true }))}
             required
-            placeholder={PLACEHOLDER[country] ?? "Mobile number"}
+            placeholder={phonePlaceholder(country)}
             value={values.phone}
             aria-invalid={!!bad.phone}
             aria-describedby={bad.phone ? `${id}-phoneerr` : undefined}
@@ -308,8 +294,8 @@ export function QuickCapture({ formId, service, payload, summary, tone = "dark",
 
       {/* Spam trap: invisible to people, tempting to bots. */}
       <div className="sr-only" aria-hidden="true">
-        <label htmlFor={`${id}-website`}>Website</label>
-        <input ref={honeypot} id={`${id}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <label htmlFor={`${id}-hp`}>Leave this field empty</label>
+        <input ref={honeypot} id={`${id}-hp`} name={TRAP_FIELD} type="text" tabIndex={-1} autoComplete="off" />
       </div>
     </form>
   );

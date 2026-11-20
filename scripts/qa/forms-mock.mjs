@@ -1,4 +1,5 @@
-// Form mocks: /services callback popup, /accounting quote builder, /consult form, /freezone budget popup. Lead APIs are
+// Form mocks: /services callback popup, /accounting quote builder, /consult form, /freezone budget popup, /freezone callback
+// popup and /freezone planner (with planner_start / planner_complete). Lead APIs are
 // answered inside the test browser (nothing reaches the ERP or the lead sheet); tag hosts are blocked. Each form must
 // send nothing on an empty submit, then exactly one API call and one form_submit with an evt_ id that matches the API
 // body, with gclid TEST123 kept from the landing URL. Test data only (TEST AUDIT - DELETE). Exit 1 on any failure.
@@ -10,12 +11,14 @@ const NAME = "TEST AUDIT - DELETE", PHONE = "+971500000000", EMAIL = "test-audit
 const b = await launch();
 let failed = 0;
 
-async function run(name, path, { open, toContact, submit, fill }) {
+async function run(name, path, { open, toContact, submit, fill, check }) {
   const ctx = await b.createBrowserContext();
   const p = await ctx.newPage();
   await p.setViewport({ width: 1280, height: 900 });
   const api = [];
   await blockTags(p, (r) => {
+    // Every outside host is blocked, not only the tag hosts: only the site under test and inline data load.
+    if (!r.url().startsWith(BASE) && !/^(data|blob):/.test(r.url())) return r.abort(), true;
     // The ad landing counter beacon is not a lead: answered, not counted.
     if (r.url().includes("/api/ad-landing")) return r.respond({ status: 204 }), true;
     if (r.method() === "POST" && /\/api\//.test(r.url())) {
@@ -39,9 +42,13 @@ async function run(name, path, { open, toContact, submit, fill }) {
   await wait(2800);
   const s = await subs();
   const body = api[0]?.body || {};
-  const ok = emptySubs === 0 && emptyApi === 0 && s.length === 1 && /^evt_\d+_[a-z0-9]+$/.test(s[0].id) && api.length === 1 && body.gclid === "TEST123" && body.event_id === s[0].id && stored === "TEST123";
+  // Every form: the number in E.164 with its country picker value, and the renamed spam trap sent empty (never "website").
+  const fields = body.mobile_no === "+971500000000" && body.country === "AE" && body.bs_hp === "" && !("website" in body);
+  const extra = check ? await check(p, body) : true;
+  const ok =
+    emptySubs === 0 && emptyApi === 0 && s.length === 1 && /^evt_\d+_[a-z0-9]+$/.test(s[0].id) && api.length === 1 && body.gclid === "TEST123" && body.event_id === s[0].id && stored === "TEST123" && fields && extra;
   if (!ok) failed++;
-  console.log(`${ok ? "PASS" : "FAIL"} ${name} (${path}): empty -> ${emptySubs} form_submit / ${emptyApi} API; valid -> ${s.length} form_submit "${s[0]?.form}" ${s[0]?.id}; API ${api[0]?.url} gclid=${body.gclid}`);
+  console.log(`${ok ? "PASS" : "FAIL"} ${name} (${path}): empty -> ${emptySubs} form_submit / ${emptyApi} API; valid -> ${s.length} form_submit "${s[0]?.form}" ${s[0]?.id}; API ${api[0]?.url} gclid=${body.gclid} mobile_no=${body.mobile_no} country=${body.country} trap=${JSON.stringify(body.bs_hp)}${check ? ` extra=${extra}` : ""}`);
   await ctx.close();
 }
 
@@ -50,9 +57,9 @@ const type = async (p, sel, v) => {
   await p.click(sel, { clickCount: 3 });
   await p.type(sel, v);
 };
-const fillIds = (n, ph, em) => async (p) => {
+const fillIds = (n, ph, em, phone = PHONE) => async (p) => {
   await type(p, n, NAME);
-  await type(p, ph, PHONE);
+  await type(p, ph, phone);
   await type(p, em, EMAIL);
 };
 const submitIn = (formSel) => (p) => p.evaluate((sel) => document.querySelector(sel).querySelector("button[type=submit]").click(), formSel);
@@ -100,6 +107,38 @@ await run("Free zone budget popup", "/freezone/budget", {
   },
   submit: submitIn("dialog[open] form"),
   fill: fillIds("#fzb-name", "#fzb-phone", "#fzb-email"),
+});
+
+// The /freezone "Book a consultation" buttons open the callback pop-up. The number is typed the local way and must reach the
+// API in E.164 with the source page path on the landing URL.
+await run("Free zone callback popup", "/freezone", {
+  open: async (p) => {
+    await p.evaluate(() => [...document.querySelectorAll("[aria-controls=cbModal]")].find((x) => x.offsetParent)?.click());
+    await wait(800);
+  },
+  submit: submitIn("#cbModal form"),
+  fill: fillIds("#cb-name", "#cb-phone", "#cb-email", "050 000 0000"),
+  check: async (_p, body) => new URL(body.landing_page).pathname === "/freezone" && body.utm_campaign === "TEST-AUDIT-DELETE",
+});
+
+// The planner: planner_start on the first choice, planner_complete on "See my shortlist", then its advisor form (QuickCapture)
+// with a UAE number typed without the 0.
+await run("Free zone planner", "/freezone", {
+  open: async (p) => {
+    await p.evaluate(() => document.getElementById("planner").scrollIntoView());
+    await p.click("#planner button[aria-pressed]");
+    await wait(600);
+    await p.evaluate(() => document.querySelector('[data-cta-location="FZ Planner - See my shortlist"]').click());
+    await wait(900);
+    await p.evaluate(() => document.querySelector('[data-cta-location="FZ Planner - Send to an advisor"]').click());
+    await wait(800);
+  },
+  submit: submitIn("dialog[open] form"),
+  fill: fillIds("dialog[open] input[name=lead_name]", "dialog[open] input[name=mobile_no]", "dialog[open] input[name=email_id]", "50 000 0000"),
+  check: async (p, body) => {
+    const events = await p.evaluate(() => (window.dataLayer || []).map((d) => d && d.event).filter((e) => e === "planner_start" || e === "planner_complete"));
+    return JSON.stringify(events) === '["planner_start","planner_complete"]' && !!body.planner;
+  },
 });
 
 await b.close();

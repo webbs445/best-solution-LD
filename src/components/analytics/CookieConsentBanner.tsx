@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { SITE } from "@/content/site";
 import { setVisitorGeo, type VisitorGeo } from "@/lib/analytics";
 import { ALL_DENIED, ALL_GRANTED, readConsent, setConsent, type ConsentChoices } from "@/lib/consent";
@@ -28,13 +28,18 @@ export function CookieSettingsButton({ className }: { className?: string }) {
   );
 }
 
+const noSubscribe = () => () => {};
+
 export function CookieConsentBanner() {
-  const [visible, setVisible] = useState(false);
+  // null until the visitor acts: the banner then shows only while no choice is saved. Reopen sets true, a choice false.
+  const [open, setOpen] = useState<boolean | null>(null);
   const [showPrefs, setShowPrefs] = useState(false);
   const [choices, setChoices] = useState<ConsentChoices>(ALL_DENIED);
+  // The cookie is only readable in the browser: "chosen" while server-rendering, so the banner appears after hydration.
+  const chosen = useSyncExternalStore(noSubscribe, () => readConsent() !== null, () => true);
+  const visible = open ?? !chosen;
 
   useEffect(() => {
-    if (!readConsent()) setVisible(true);
     // The visitor's country goes to analytics (setVisitorGeo); the banner itself no longer depends on it.
     fetch("/api/geo", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject(r)))
@@ -44,7 +49,7 @@ export function CookieConsentBanner() {
     const reopen = () => {
       setChoices(readConsent() ?? ALL_DENIED);
       setShowPrefs(true);
-      setVisible(true);
+      setOpen(true);
     };
     window.addEventListener(OPEN_COOKIE_PREFERENCES, reopen);
     return () => window.removeEventListener(OPEN_COOKIE_PREFERENCES, reopen);
@@ -52,7 +57,7 @@ export function CookieConsentBanner() {
 
   const commit = (next: ConsentChoices) => {
     setConsent(next);
-    setVisible(false);
+    setOpen(false);
     setShowPrefs(false);
   };
 

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
-import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES, SERVICES_FORM_ID, MAINLAND_FORM_ID, OFFSHORE_FORM_ID, callbackSource } from "@/lib/lead";
+import { CALLBACK_FORM_ID, LEAD_ERRORS, LEAD_RULES, SERVICES_FORM_ID, MAINLAND_FORM_ID, OFFSHORE_FORM_ID, TRAP_FIELD, callbackSource } from "@/lib/lead";
+import { DEFAULT_PHONE_COUNTRY, phoneErrorText, phonePlaceholder, toE164Phone, type PhoneCountry } from "@/lib/phone";
+import { PhoneCountrySelect } from "@/components/ui/PhoneCountrySelect";
 import { SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, jurisdictionLabel, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
@@ -42,6 +44,7 @@ export function CallbackButton({
   const phoneRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const honeypot = useRef<HTMLInputElement>(null);
+  const [country, setCountry] = useState<PhoneCountry>(DEFAULT_PHONE_COUNTRY);
   const [errors, setErrors] = useState<{ name?: boolean; phone?: boolean; email?: boolean }>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 
@@ -77,9 +80,11 @@ export function CallbackButton({
     const name = nameRef.current?.value.trim() ?? "";
     const phone = phoneRef.current?.value.trim() ?? "";
     const email = emailRef.current?.value.trim() ?? "";
+    // The number is checked and normalised for the chosen country (spaces, a leading 0, 00971 or 971 all work).
+    const e164 = toE164Phone(phone, country);
     const next = {
       name: !LEAD_RULES.lead_name(name),
-      phone: !LEAD_RULES.mobile_no(phone),
+      phone: !e164,
       email: !LEAD_RULES.email_id(email),
     };
     setErrors(next);
@@ -98,7 +103,8 @@ export function CallbackButton({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lead_name: name,
-          mobile_no: phone,
+          mobile_no: e164,
+          country,
           email_id: email,
           interest,
           form: callbackSource(formId),
@@ -106,7 +112,7 @@ export function CallbackButton({
           ...attributionFields(),
           event_id: eventId,
           landing_page: window.location.href.split("#")[0],
-          website: honeypot.current?.value || "",
+          [TRAP_FIELD]: honeypot.current?.value || "",
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
@@ -118,7 +124,7 @@ export function CallbackButton({
         formType: "callback",
         serviceInterest: interest === "not_sure" ? undefined : jurisdictionLabel(interest),
         email,
-        phone,
+        phone: e164 ?? phone,
         firstName,
         lastName: rest.join(" "),
         eventId,
@@ -127,7 +133,7 @@ export function CallbackButton({
         formId,
         service: interest === "not_sure" ? "not_sure" : jurisdictionLabel(interest),
         email,
-        phone,
+        phone: e164 ?? phone,
       });
     } catch {
       setStatus({
@@ -185,20 +191,29 @@ export function CallbackButton({
               </div>
               <div>
                 <label htmlFor="cb-phone">WhatsApp number</label>
-                <input
-                  ref={phoneRef}
-                  id="cb-phone"
-                  type="tel"
-                  autoComplete="tel"
-                  inputMode="tel"
-                  placeholder="+971 50 000 0000"
-                  required
-                  aria-invalid={errors.phone || undefined}
-                  aria-describedby={errors.phone ? "cb-phone-err" : undefined}
-                />
+                <div className={styles.tel}>
+                  <PhoneCountrySelect
+                    value={country}
+                    onChange={(e) => {
+                      setCountry(e.target.value as PhoneCountry);
+                      setErrors((x) => ({ ...x, phone: false }));
+                    }}
+                  />
+                  <input
+                    ref={phoneRef}
+                    id="cb-phone"
+                    type="tel"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    placeholder={phonePlaceholder(country)}
+                    required
+                    aria-invalid={errors.phone || undefined}
+                    aria-describedby={errors.phone ? "cb-phone-err" : undefined}
+                  />
+                </div>
                 {errors.phone && (
                   <p className={styles.err} id="cb-phone-err">
-                    {LEAD_ERRORS.mobile_no}
+                    {phoneErrorText(country)}
                   </p>
                 )}
               </div>
@@ -235,8 +250,8 @@ export function CallbackButton({
 
             {/* Spam trap: invisible to people, tempting to bots. */}
             <div className="sr-only" aria-hidden="true">
-              <label htmlFor="cb-website">Website</label>
-              <input ref={honeypot} id="cb-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+              <label htmlFor="cb-hp">Leave this field empty</label>
+              <input ref={honeypot} id="cb-hp" name={TRAP_FIELD} type="text" tabIndex={-1} autoComplete="off" />
             </div>
 
             {status.kind !== "sent" && (

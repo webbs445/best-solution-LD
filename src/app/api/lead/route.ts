@@ -1,7 +1,7 @@
-import { LEAD_RULES, type LeadField } from "@/lib/lead";
+import { LEAD_RULES, type LeadField, trapped } from "@/lib/lead";
 import { emailDomainAcceptsMail } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
-import { createErpLead, leadEstimateFields, updateErpLead } from "@/lib/erp";
+import { createErpLead, leadEstimateFields, leadReply, updateErpLead } from "@/lib/erp";
 import { calculatorLeadContext, str, trackingFields } from "@/lib/calculatorLead";
 import { LEAD_REF_TTL_MS, phoneHash, signLeadRef, verifyLeadRef } from "@/lib/leadRef";
 import { isPhoneCountry } from "@/lib/phone";
@@ -33,7 +33,7 @@ export const POST = withLeadLog("lead", async (request, log) => {
   }
 
   // Honeypot: real visitors never fill this in. Pretend success so bots move on.
-  if (str(body.website)) return Response.json({ ok: true, created: false });
+  if (trapped(body)) return Response.json({ ok: true, created: false });
 
   const country = str(body.country, 8);
   const mobile = validatePhoneServer(str(body.mobile_no, 40), isPhoneCountry(country) ? country : "OTHER");
@@ -83,14 +83,8 @@ export const POST = withLeadLog("lead", async (request, log) => {
   }
 
   const result = await createErpLead(input);
-  if (result.ok) log.erp_id = result.name;
-  else log.erp_status = result.status;
-  if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
-  const name = result.name?.trim();
+  // A fallback lead has no ERP id: no reference and no memory, so the same number again tries the ERP again.
+  const name = result.ok ? result.name?.trim() : undefined;
   if (name) recent.set(ph, { lead: name, exp: Date.now() + LEAD_REF_TTL_MS });
-  return Response.json({
-    ok: true,
-    created: !!name,
-    ref: name ? signLeadRef(name, fields.mobile_no) : null,
-  });
+  return leadReply(result, log, { ref: name ? signLeadRef(name, fields.mobile_no) : null });
 });
