@@ -144,15 +144,27 @@ describe("createErpLead", () => {
         utm_campaign: "fz",
         click_id: "TESTCLID",
         erp_error: "upstream_failed 417",
+        erp_check: "no (ERP refused or down)",
       });
     });
 
-    it("falls back when the ERP times out or is not configured", async () => {
+    it("falls back when the ERP times out or is not configured, and flags only the timeout for an ERP check", async () => {
       sheetEnv();
-      vi.stubGlobal("fetch", vi.fn((url: string) => (url.startsWith("https://erp") ? Promise.reject(new DOMException("timeout", "TimeoutError")) : Promise.resolve(Response.json({ ok: true })))));
+      const timeout = vi.fn((url: string) => (url.startsWith("https://erp") ? Promise.reject(new DOMException("timeout", "TimeoutError")) : Promise.resolve(Response.json({ ok: true }))));
+      vi.stubGlobal("fetch", timeout);
       expect(await createErpLead(input)).toEqual({ ok: true, fallback: true });
+      expect(posted(timeout)[0].fallback).toMatchObject({ erp_error: "upstream_unreachable", erp_check: "yes (timeout, may already exist)" });
+
+      const refused = vi.fn((url: string) => (url.startsWith("https://erp") ? Promise.reject(new TypeError("fetch failed")) : Promise.resolve(Response.json({ ok: true }))));
+      vi.stubGlobal("fetch", refused);
+      expect(await createErpLead(input)).toEqual({ ok: true, fallback: true });
+      expect(posted(refused)[0].fallback.erp_check).toBe("no (ERP refused or down)");
+
       vi.stubEnv("ERPNEXT_URL", "");
+      const off = vi.fn(() => Promise.resolve(Response.json({ ok: true })));
+      vi.stubGlobal("fetch", off);
       expect(await createErpLead(input)).toEqual({ ok: true, fallback: true });
+      expect(posted(off)[0].fallback).toMatchObject({ erp_error: "not_configured", erp_check: "no (ERP refused or down)" });
     });
 
     it("reports the ERP failure when the fallback is not saved either, so the visitor is never told it was sent", async () => {

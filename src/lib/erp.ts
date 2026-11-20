@@ -47,7 +47,8 @@ export interface LeadInput {
 export type LeadResult =
   /** fallback: the ERP failed, but the lead is saved in the lead log's Fallback tab and the team was alerted. */
   | { ok: true; name?: string; fallback?: true }
-  | { ok: false; reason: "not_configured" | "upstream_failed" | "upstream_unreachable"; status?: number };
+  /** timeout: the create was sent but not answered in time, so the ERP may have saved it anyway. */
+  | { ok: false; reason: "not_configured" | "upstream_failed" | "upstream_unreachable"; status?: number; timeout?: true };
 
 /* Values that must match the ERP's Select options and Link records exactly. */
 const SERVICE_ENQUIRED = "Business Setup";
@@ -323,6 +324,8 @@ function fallbackRow(input: LeadInput, failure: Extract<LeadResult, { ok: false 
     consent: input.consent ?? "",
     event_id: input.event_id ?? "",
     erp_error: `${failure.reason}${failure.status ? ` ${failure.status}` : ""}`,
+    // A timed-out create may have reached the ERP: check there before adding it by hand, so it is not entered twice.
+    erp_check: failure.timeout ? "yes (timeout, may already exist)" : "no (ERP refused or down)",
     details: [...answerRows(input.answers), ...(input.details ?? [])].map(([k, v]) => `${k}: ${v}`).join("; "),
   };
 }
@@ -382,6 +385,6 @@ async function postErpLead(input: LeadInput): Promise<LeadResult> {
     return { ok: true, name };
   } catch (err) {
     console.error("ERPNext unreachable", err);
-    return { ok: false, reason: "upstream_unreachable" };
+    return { ok: false, reason: "upstream_unreachable", ...((err as Error)?.name === "TimeoutError" ? { timeout: true as const } : null) };
   }
 }

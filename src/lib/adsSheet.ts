@@ -65,6 +65,7 @@ export interface FallbackLead {
   consent: string;
   event_id: string;
   erp_error: string;
+  erp_check: string;
   details: string;
 }
 

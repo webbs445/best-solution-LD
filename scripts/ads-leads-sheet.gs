@@ -57,6 +57,7 @@ const FALLBACK_COLUMNS = [
   ["consent", "Cookie consent"],
   ["event_id", "Event ID"],
   ["erp_error", "ERP error"],
+  ["erp_check", "ERP check needed"],
   ["details", "Details"],
 ];
 
