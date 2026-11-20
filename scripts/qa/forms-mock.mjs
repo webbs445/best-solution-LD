@@ -1,4 +1,5 @@
-// Form mocks: /services callback popup, /accounting quote builder, /consult form, /freezone budget popup, /freezone callback
+// Form mocks: /services callback popup, /accounting quote builder, /consult form, /xservicesx hero form and card pop-up,
+// /freezone budget popup, /freezone callback
 // popup and /freezone planner (with planner_start / planner_complete). Lead APIs are
 // answered inside the test browser (nothing reaches the ERP or the lead sheet); tag hosts are blocked. Each form must
 // send nothing on an empty submit, then exactly one API call and one form_submit with an evt_ id that matches the API
@@ -96,6 +97,44 @@ await run("/consult form", "/consult", {
   fill: async (p) => {
     await fillIds("#ad-name", "#ad-phone", "#ad-email")(p);
     await p.select("#ad-topic", "Office options");
+  },
+});
+
+
+// /xservicesx: the hero form (desktop), with every field and the need chosen by hand.
+await run("Services plan hero form", "/xservicesx", {
+  submit: submitIn("#hero form"),
+  fill: async (p) => {
+    await fillIds("#xs-hero-name", "#xs-hero-phone", "#xs-hero-email", "050 000 0000")(p);
+    await p.select("#xs-hero-need", "Starting a new company");
+  },
+  check: async (p, body) =>
+    body.need === "Starting a new company" && body.email_id === EMAIL && new URL(body.landing_page).pathname === "/xservicesx" &&
+    (await p.evaluate(() => /Thanks, TEST\. Your request is in\./.test(document.querySelector("#hero [role=status]")?.textContent || ""))),
+});
+
+// A card opens the pop-up with "Need" already chosen; email left empty (optional). form_open carries the card's location,
+// service_card_click the need, and the pop-up's form is the one sent.
+await run("Services plan card pop-up", "/xservicesx", {
+  open: async (p) => {
+    await p.evaluate(() => document.querySelector('[data-cta-location="XS Card - Corporate Tax"]').click());
+    await wait(800);
+    // Remembered for the check: the thank-you replaces the form.
+    await p.evaluate(() => (window.__xsNeed = document.querySelector("dialog[open] #xs-pop-need")?.value));
+  },
+  submit: submitIn("#cbModal form"),
+  fill: async (p) => {
+    await type(p, "#xs-pop-name", NAME);
+    await type(p, "#xs-pop-phone", PHONE);
+  },
+  check: async (p, body) => {
+    // [event, cta_location for form_open, else the service / need]
+    const ev = await p.evaluate(() => (window.dataLayer || []).filter((d) => d && /^(form_open|service_card_click|generate_lead)$/.test(d.event)).map((d) => [d.event, d.cta_location || d.service]));
+    const prefilled = await p.evaluate(() => window.__xsNeed);
+    return (
+      body.need === "Corporate Tax" && body.email_id === "" && prefilled === "Corporate Tax" &&
+      JSON.stringify(ev) === JSON.stringify([["service_card_click", "Corporate Tax"], ["form_open", "XS Card - Corporate Tax"], ["generate_lead", "Corporate Tax"]])
+    );
   },
 });
 

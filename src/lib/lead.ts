@@ -141,3 +141,6 @@ export function clickIdRows(body: Record<string, unknown>): [string, string][] {
   return ids ? [["Google click IDs", ids]] : [];
 }
 
+
+/** The /xservicesx "Get my free plan" form (hero, pop-up and closing form; /api/services-plan, ERP form "Services Plan"). */
+export const SERVICES_PLAN_FORM_ID = "LP Services Plan";

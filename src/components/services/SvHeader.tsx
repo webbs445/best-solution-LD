@@ -14,8 +14,11 @@ const LINKS = [
   { href: "#faq", label: "FAQ" },
 ];
 
-/* The /services header: the /freezone header's bar with a Services dropdown. On phones the menu lists the services first. */
-export function SvHeader() {
+/*
+  The /services header (also /xservicesx, with its own button text): the /freezone header's bar with a Services dropdown.
+  On phones the menu lists the services first.
+*/
+export function SvHeader({ cta = "Book a Consultation", prefix = "SV" }: { cta?: string; prefix?: string } = {}) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [dd, setDd] = useState(false);
@@ -61,9 +64,9 @@ export function SvHeader() {
               <PhoneIcon />
               <span>{SITE.phone.display}</span>
             </a>
-            <CallbackTrigger className="bs-cta" location="SV Header - Book a Consultation">
+            <CallbackTrigger className="bs-cta" location={`${prefix} Header - ${cta}`}>
               <PhoneIcon />
-              <span>Book a Consultation</span>
+              <span>{cta}</span>
             </CallbackTrigger>
             <button
               className="bs-burger"
@@ -93,9 +96,9 @@ export function SvHeader() {
               {n.label}
             </a>
           ))}
-          <CallbackTrigger className="bs-cta" location="SV Menu - Book a Consultation">
+          <CallbackTrigger className="bs-cta" location={`${prefix} Menu - ${cta}`}>
             <PhoneIcon />
-            <span>Book a Consultation</span>
+            <span>{cta}</span>
           </CallbackTrigger>
         </div>
       </div>

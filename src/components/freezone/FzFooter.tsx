@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { DISCLAIMER, FOOTER_TAIL, MAPS_URL, SITE, SOCIAL, ZONE_NAMES_NOTE } from "@/content/site";
 import { FZ_NAV } from "@/content/freezone";
 import { ALL_SERVICES } from "@/content/services";
@@ -37,6 +38,8 @@ export function FzFooter({
   defaultInterest = "freezone",
   ctaLocation = "FZ Footer - Book a Callback",
   formId,
+  cta,
+  legal,
 }: {
   blurb?: string;
   nav?: { href: string; label: string }[];
@@ -44,6 +47,10 @@ export function FzFooter({
   defaultInterest?: Parameters<typeof CallbackButton>[0]["defaultInterest"];
   ctaLocation?: string;
   formId?: Parameters<typeof CallbackButton>[0]["formId"];
+  /** Replaces the "Book a consultation" block (and so its callback pop-up), e.g. /xservicesx's own form button. */
+  cta?: ReactNode;
+  /** Replaces the "Important information" text with the page's own disclaimer. */
+  legal?: string;
 } = {}) {
   const year = new Date().getFullYear();
   return (
@@ -81,14 +88,16 @@ export function FzFooter({
               ))}
             </div>
           </div>
-          <div className="f5-cta">
-            <h4>Book a consultation</h4>
-            <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
-            <CallbackButton className="btn btn-primary" defaultInterest={defaultInterest} ctaLocation={ctaLocation} formId={formId}>
-              Book a Callback <ArrowIcon />
-            </CallbackButton>
-            <small>No obligation</small>
-          </div>
+          {cta ?? (
+            <div className="f5-cta">
+              <h4>Book a consultation</h4>
+              <p>Tell us your plans. We reply by phone, WhatsApp or email.</p>
+              <CallbackButton className="btn btn-primary" defaultInterest={defaultInterest} ctaLocation={ctaLocation} formId={formId}>
+                Book a Callback <ArrowIcon />
+              </CallbackButton>
+              <small>No obligation</small>
+            </div>
+          )}
         </div>
         <nav className="f5-nav" aria-label={navLabel}>
           {[...nav, ALL_SERVICES].map((n) => (
@@ -104,11 +113,17 @@ export function FzFooter({
           </svg>
           <div>
             <b>Important information</b>
-            <p data-legal>{DISCLAIMER}</p>
-            <p>
-              {ZONE_NAMES_NOTE && `${ZONE_NAMES_NOTE} `}0% corporate tax applies only to qualifying income under Qualifying
-              Free Zone Person (QFZP) conditions.
-            </p>
+            {legal ? (
+              <p data-legal>{legal}</p>
+            ) : (
+              <>
+                <p data-legal>{DISCLAIMER}</p>
+                <p>
+                  {ZONE_NAMES_NOTE && `${ZONE_NAMES_NOTE} `}0% corporate tax applies only to qualifying income under Qualifying
+                  Free Zone Person (QFZP) conditions.
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>
