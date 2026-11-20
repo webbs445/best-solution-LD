@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { ZONE_BY_ID } from "@/content/freezone";
 import { partnerLogo } from "@/content/site";
-import { CC_CALCULATOR_ID, CC_PRICE_FORM_ID, CC_QUOTE_FORM_ID, LEAD_RULES } from "@/lib/lead";
+import { CC_CALCULATOR_ID, CC_PRICE_FORM_ID, CC_QUOTE_FORM_ID, LEAD_RULES, TRAP_FIELD } from "@/lib/lead";
 import { PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY, toE164Phone, type PhoneCountry } from "@/lib/phone";
 import { attributionFields } from "@/lib/attribution";
 import { MAX_TEAM, PLAN_OPTIONS, type Jurisdiction, type PlanOption, type WorkspaceKey } from "@/lib/setupPlan";
@@ -449,7 +449,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
     const phone = toE164Phone(phoneRaw, country);
     const ok = [mark(nameId, LEAD_RULES.lead_name(name)), mark(phoneId, !!phone), mark(emailId, LEAD_RULES.email_id(email))].every(Boolean);
     if (!ok) { $<HTMLInputElement>(".fl.bad input", c.form)?.focus(); return null; }
-    const website = (c.form.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "";
+    const trap = (c.form.elements.namedItem(TRAP_FIELD) as HTMLInputElement | null)?.value ?? "";
     complete();
     const eventId = genEventId();
     c.btn.disabled = true; c.btn.textContent = t("Sending"); c.err.hidden = true;
@@ -465,7 +465,7 @@ function init(root: HTMLElement, signal: AbortSignal, observers: IntersectionObs
         body: JSON.stringify({
           lead_name: name, email_id: email, mobile_no: phoneRaw, country, answers, source: c.source, language: "en",
           whatsapp_optin: c.source === "price" && $<HTMLInputElement>("#gWa").checked,
-          ...attributionFields(), event_id: eventId, landing_page: location.href.split("#")[0], form_id: c.formId, website,
+          ...attributionFields(), event_id: eventId, landing_page: location.href.split("#")[0], form_id: c.formId, [TRAP_FIELD]: trap,
         }),
       });
       responseBody = (await res.json().catch(() => null)) as { created?: unknown; fields?: string[] } | null;

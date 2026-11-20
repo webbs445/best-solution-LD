@@ -38,7 +38,7 @@ describe("POST /api/cost-calculator", () => {
       custom_service_enquired: "Business Setup",
       custom_form_name: "Cost Calculator Price",
       custom_button_name: "Show my price",
-      custom_remarks: "Cost Calculator Price: IFZA (Dubai), first year AED 24,210",
+      custom_remarks: "Cost Calculator Price (/cost-calculator): IFZA (Dubai), first year AED 24,210",
     });
     const notes = String(erp.custom_client_profile_and_requirement);
     for (const s of ["Jurisdiction: Free zone", "Setup: IFZA (Dubai)", "People needing residency: 2", "Business activity: Technology and IT", "Page language: Arabic", "WhatsApp: Send the breakdown on WhatsApp", "gclid: Cj0KCQ-test", "First-year estimate: <strong>AED 24,210</strong>", "Event ID: ev-1"]) {
@@ -49,12 +49,12 @@ describe("POST /api/cost-calculator", () => {
   it("creates the quote lead even before a setup is chosen", async () => {
     const res = await post({ ...lead, source: "quote" }, "203.0.113.2");
     expect(res.status).toBe(200);
-    expect(sent[0]).toMatchObject({ custom_form_name: "Cost Calculator Quote", custom_button_name: "Send me my written quote", custom_remarks: "Cost Calculator Quote: callback requested" });
+    expect(sent[0]).toMatchObject({ custom_form_name: "Cost Calculator Quote", custom_button_name: "Send me my written quote", custom_remarks: "Cost Calculator Quote (/cost-calculator): callback requested" });
   });
 
   it("re-checks the setup against the rate card", async () => {
     await post({ ...lead, source: "price", answers: { jurisdiction: "mainland", option: "f0", residency: 99, workspace: "flexi", bank: true } }, "203.0.113.3");
-    expect(String(sent[0].custom_remarks)).toBe("Cost Calculator Price: To be recommended by your consultant, first year from AED 59,500");
+    expect(String(sent[0].custom_remarks)).toBe("Cost Calculator Price (/cost-calculator): To be recommended by your consultant, first year from AED 59,500");
   });
 
   it("refuses bad details and never reaches the ERP", async () => {
@@ -65,7 +65,7 @@ describe("POST /api/cost-calculator", () => {
   });
 
   it("drops a filled spam trap without a lead", async () => {
-    const res = await post({ ...lead, website: "https://spam.example" }, "203.0.113.5");
+    const res = await post({ ...lead, bs_hp: "https://spam.example" }, "203.0.113.5");
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true, created: false });
     expect(sent).toHaveLength(0);

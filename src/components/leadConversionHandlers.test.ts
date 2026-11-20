@@ -134,10 +134,11 @@ describe("lead conversion handlers", () => {
       name: string,
     ) => void;
 
-    for (const created of [false, true]) {
+    // A lead saved to the fallback (ERP down) is a real lead: it counts like a new ERP lead.
+    for (const response of [{ created: false }, { created: true }, { created: true, fallback: true }]) {
       const events: string[] = [];
-      run(isConfirmedLeadResponse, { created }, { created }, { current: false }, events, "Test Person");
-      expect(events).toEqual(created ? ["pushFormSubmit", "pushGenerateLead"] : []);
+      run(isConfirmedLeadResponse, response, response, { current: false }, events, "Test Person");
+      expect(events).toEqual(response.created ? ["pushFormSubmit", "pushGenerateLead"] : []);
     }
   });
 

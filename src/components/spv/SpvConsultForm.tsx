@@ -5,7 +5,7 @@ import { CLAIMS, SITE } from "@/content/site";
 import { SPV_ASSETS, SPV_CONTACT, SPV_GOALS, SPV_PREFILL_EVENT, type SpvAssets, type SpvGoal, type SpvPrefill } from "@/content/spv";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
-import { LEAD_RULES, SPV_FORM_ID } from "@/lib/lead";
+import { LEAD_RULES, SPV_FORM_ID, TRAP_FIELD } from "@/lib/lead";
 import { DEFAULT_PHONE_COUNTRY, PHONE_COUNTRIES, toE164Phone, type PhoneCountry } from "@/lib/phone";
 
 /*
@@ -73,7 +73,7 @@ export function SpvConsultForm() {
           ...attributionFields(),
           event_id: eventId,
           landing_page: window.location.href.split("#")[0],
-          website: f.website.value,
+          [TRAP_FIELD]: f[TRAP_FIELD]?.value ?? "",
         }),
       });
       const json = (await res.json().catch(() => ({}))) as { ok?: boolean; created?: unknown; error?: string; fields?: string[] };
@@ -181,7 +181,7 @@ export function SpvConsultForm() {
             <label htmlFor="fMsg">Anything we should know? (optional)</label>
           </div>
         </div>
-        <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+        <input className="hp" name={TRAP_FIELD} tabIndex={-1} autoComplete="off" aria-hidden="true" />
         {error ? (
           <p className="err-all" role="alert">
             {error}

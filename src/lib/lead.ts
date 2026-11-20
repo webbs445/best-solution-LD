@@ -28,6 +28,26 @@ export function withUaeCode(v: string): string {
   return v.trim();
 }
 
+/*
+  The spam trap: a hidden text input that people never see and bots fill in. Its name, id and label mean nothing to
+  browser autofill or password managers (the old name "website" matched their identity "Website" field).
+*/
+export const TRAP_FIELD = "bs_hp";
+/** True when the request's spam trap holds anything: the route answers like a success and saves nothing. */
+export const trapped = (body: Record<string, unknown> | null | undefined): boolean => {
+  const v = body?.[TRAP_FIELD];
+  return typeof v === "string" && v.trim() !== "";
+};
+
+/** The page a lead was sent from ("/freezone/budget"), from its landing_page URL; "" when it isn't a URL. */
+export function sourcePath(landingPage: string): string {
+  try {
+    return new URL(landingPage).pathname;
+  } catch {
+    return "";
+  }
+}
+
 /** The visitor's cookie choice when they sent the lead ("Cookie choice" in the ERP notes, "Cookie consent" in the lead log). */
 export const LEAD_CONSENT = ["Accepted all", "Rejected all", "Analytics only", "Marketing only", "No choice yet"] as const;
 /** Only these leads may go in the Google Ads conversion upload: the privacy policy makes Marketing opt-in. */

@@ -1,7 +1,7 @@
-import { LEAD_RULES, CT_ESTIMATE_FORM_ID, CT_FORM_ID, CT_SERVICE_ENQUIRED, clickIdRows } from "@/lib/lead";
+import { LEAD_RULES, CT_ESTIMATE_FORM_ID, CT_FORM_ID, CT_SERVICE_ENQUIRED, clickIdRows, trapped } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
-import { createErpLead } from "@/lib/erp";
+import { createErpLead, leadReply } from "@/lib/erp";
 import { str, trackingFields } from "@/lib/calculatorLead";
 import { isPhoneCountry } from "@/lib/phone";
 import { validatePhoneServer } from "@/lib/phoneServer";
@@ -33,7 +33,7 @@ export const POST = withLeadLog("corporate-tax", async (request, log) => {
   }
 
   // Honeypot: real visitors never fill this in. Pretend success so bots move on.
-  if (str(body.website)) return Response.json({ ok: true, created: false });
+  if (trapped(body)) return Response.json({ ok: true, created: false });
 
   const country = str(body.country, 8);
   const mobile = validatePhoneServer(str(body.mobile_no, 40), isPhoneCountry(country) ? country : "OTHER");
@@ -75,8 +75,5 @@ export const POST = withLeadLog("corporate-tax", async (request, log) => {
     details,
   });
 
-  if (result.ok) log.erp_id = result.name;
-  else log.erp_status = result.status;
-  if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
-  return Response.json({ ok: true, created: !!result.name?.trim() });
+  return leadReply(result, log);
 });

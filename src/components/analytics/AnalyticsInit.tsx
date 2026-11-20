@@ -21,6 +21,7 @@ import {
   trackScrollDepth,
   trackWhatsappClick,
 } from "@/lib/analytics";
+import { TRAP_FIELD } from "@/lib/lead";
 
 /*
   Page-wide dataLayer wiring, ported from best-solution.ae AnalyticsInit (minus interest scoring and
@@ -125,7 +126,7 @@ export function AnalyticsInit() {
     let counter = 0;
     const formId = (form: HTMLFormElement) => form.dataset.track || form.getAttribute("name") || form.id || `form_${++counter}`;
     const fieldName = (el: Element) => el.getAttribute("name") || el.id || (el as HTMLInputElement).type || el.tagName.toLowerCase();
-    const isSpamTrap = (el: Element) => el.getAttribute("name") === "website";
+    const isSpamTrap = (el: Element) => el.getAttribute("name") === TRAP_FIELD;
     const filled = (form: HTMLFormElement) =>
       Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea"))
         .filter((el) => !isSpamTrap(el) && !/^(hidden|radio|checkbox|submit|button)$/.test(el.type) && el.value.trim())

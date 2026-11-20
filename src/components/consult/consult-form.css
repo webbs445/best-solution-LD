@@ -15,3 +15,6 @@
 .ad-cf.ad-success {display:flex;align-items:center;gap:14px;padding:24px;border-radius:18px;background:#ecf7f1;border:1px solid #bfe3cf;font-size:18px;font-weight:700;scroll-margin:120px}
 .ad-cf.ad-success span {display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:#1f8a5b;color:#fff;font-size:22px}
 .ad-cf .ad-success p,.ad-cf.ad-success p {margin:0}
+.ad-cf .ad-tel {display:flex;gap:8px}
+.ad-cf .ad-tel select {flex:none;width:112px;padding:12px 6px 12px 10px}
+.ad-cf .ad-tel input {flex:1;min-width:0}

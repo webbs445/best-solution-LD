@@ -29,6 +29,19 @@ export function isPhoneCountry(v: unknown): v is PhoneCountry {
   return typeof v === "string" && PHONE_COUNTRIES.some((c) => c.code === v);
 }
 
+/** The picker's short option text: "+971 UAE", "+91 India", "Other". */
+export const phoneCountryLabel = (c: (typeof PHONE_COUNTRIES)[number]): string =>
+  c.code === "OTHER" ? "Other" : `${c.dial} ${c.code === "AE" ? "UAE" : c.code === "GB" ? "UK" : c.code === "US" ? "US" : c.name}`;
+
+/** The number field's placeholder for the chosen country. */
+export const phonePlaceholder = (c: PhoneCountry): string => (c === "AE" ? "50 123 4567" : c === "OTHER" ? "+44 20 7946 0000" : "Mobile number");
+
+/** The message under a number that is not valid for the chosen country. */
+export function phoneErrorText(c: PhoneCountry): string {
+  if (c === "OTHER") return "Please type the full number with its country code, for example +44 20 7946 0000.";
+  return `Please check the number. It does not look like a ${PHONE_COUNTRIES.find((x) => x.code === c)?.name ?? ""} mobile number.`;
+}
+
 /**
  * The number in E.164 (+971501234567), or null if it is not a valid number for the chosen country.
  * A number typed with its own "+" code is read as international whatever the picker says; "Other"

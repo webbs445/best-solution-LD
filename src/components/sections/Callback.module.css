@@ -143,7 +143,8 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-.row input {
+.row input,
+.row select {
   width: 100%;
   min-height: 50px;
   padding: 0 14px;
@@ -159,7 +160,8 @@
   color: rgba(255, 255, 255, 0.35);
 }
 
-.row input:focus {
+.row input:focus,
+.row select:focus {
   outline: none;
   border-color: var(--copper);
   box-shadow: 0 0 0 4px rgba(204, 134, 103, 0.18);
@@ -277,4 +279,25 @@
   .live i {
     animation: none;
   }
+}
+
+/* WhatsApp number: the country picker beside the number (same look as the other fields). */
+.tel {
+  display: flex;
+  gap: 8px;
+}
+
+.tel select {
+  flex: none;
+  width: 118px;
+  padding: 0 6px 0 10px;
+}
+
+.tel select option {
+  color: var(--ink);
+}
+
+.tel input {
+  flex: 1;
+  min-width: 0;
 }

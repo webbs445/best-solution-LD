@@ -3,7 +3,9 @@ import { DATA, formatAED, type Answers, type Estimate, type Jurisdiction } from 
 import { after } from "next/server";
 import { uaeNow } from "@/lib/adsExport";
 import { isGoogleAdsLead } from "@/lib/adsReport";
-import { recordAdsLead, type SheetLead } from "@/lib/adsSheet";
+import { recordAdsLead, saveFallbackLead, type SheetLead } from "@/lib/adsSheet";
+import { sourcePath } from "@/lib/lead";
+import type { LeadLog } from "@/lib/leadLog";
 import { isPreviewDeployment, previewLeadId } from "@/lib/preview";
 
 /*
@@ -27,6 +29,8 @@ export interface LeadInput {
   /** The dataLayer form_submit event_id, kept on the lead to match offline conversion uploads. */
   event_id?: string;
   landing_page: string;
+  /** The page the lead came from, when the route knows it (/consult maps each form to its page); else the landing_page path. */
+  source_page?: string;
   form_id: string;
   submission_timestamp: string;
   answers: Answers;
@@ -41,7 +45,8 @@ export interface LeadInput {
 }
 
 export type LeadResult =
-  | { ok: true; name?: string }
+  /** fallback: the ERP failed, but the lead is saved in the lead log's Fallback tab and the team was alerted. */
+  | { ok: true; name?: string; fallback?: true }
   | { ok: false; reason: "not_configured" | "upstream_failed" | "upstream_unreachable"; status?: number };
 
 /* Values that must match the ERP's Select options and Link records exactly. */
@@ -77,6 +82,9 @@ function answerRows(a: Answers): [string, string][] {
   return rows.filter((r): r is [string, string | number] => r[1] !== undefined && r[1] !== "").map(([k, v]) => [k, String(v)]);
 }
 
+/** Where the lead was sent from: the route's own value, else the landing page's path. */
+const pageOf = (input: LeadInput) => input.source_page || sourcePath(input.landing_page);
+
 /** Full calculator run for "Client Profile and Requirement" (a Text Editor field, so HTML). */
 function requirementHtml(input: LeadInput): string {
   const { answers, estimate: est } = input;
@@ -98,6 +106,7 @@ function requirementHtml(input: LeadInput): string {
     );
   }
   const tracking = [
+    ["Source page", pageOf(input)],
     ["Landing page", input.landing_page],
     ["UTM medium", input.utm_medium],
     ["Event ID", input.event_id],
@@ -110,7 +119,9 @@ function requirementHtml(input: LeadInput): string {
 
 /** One-line summary for "Remarks", visible at a glance in list views. */
 function remarks(input: LeadInput): string {
-  const form = input.form_name ?? FORM_NAME;
+  // The page in brackets, so a lead from /freezone is identifiable in list views whatever form it came through.
+  const page = pageOf(input);
+  const form = `${input.form_name ?? FORM_NAME}${page ? ` (${page})` : ""}`;
   const est = input.estimate;
   if (input.form_name && !est) return `${form}: callback requested`;
   if (!est) return `${form}: estimate not available`;
@@ -261,7 +272,8 @@ export async function updateErpLead(name: string, fields: Record<string, unknown
     });
     if (!res.ok) {
       console.error(`ERPNext lead update failed: ${res.status}`, (await res.text()).slice(0, 1000));
-      return { ok: false, reason: "upstream_failed" };
+      // The status lets /api/lead tell a deleted lead (404, create it again) from any other refusal.
+      return { ok: false, reason: "upstream_failed", status: res.status };
     }
     return { ok: true, name };
   } catch (err) {
@@ -292,9 +304,57 @@ function logGoogleAdsLead(name: string, l: ReturnType<typeof toLead>, consent = 
   }
 }
 
+/** The lead, readable, for the Fallback tab: contact details, where it came from and why the ERP did not take it. */
+function fallbackRow(input: LeadInput, failure: Extract<LeadResult, { ok: false }>) {
+  return {
+    received: uaeNow(),
+    lead_name: input.lead_name,
+    mobile_no: input.mobile_no,
+    email_id: input.email_id,
+    form_name: input.form_name ?? FORM_NAME,
+    source_page: pageOf(input),
+    landing_page: input.landing_page,
+    utm_source: input.utm_source,
+    utm_medium: input.utm_medium,
+    utm_campaign: input.utm_campaign,
+    utm_term: input.utm_term,
+    utm_content: input.utm_content,
+    click_id: input.click_id,
+    consent: input.consent ?? "",
+    event_id: input.event_id ?? "",
+    erp_error: `${failure.reason}${failure.status ? ` ${failure.status}` : ""}`,
+    details: [...answerRows(input.answers), ...(input.details ?? [])].map(([k, v]) => `${k}: ${v}`).join("; "),
+  };
+}
+
+/**
+ * Creates the ERP lead. If the ERP refuses it, times out or is not configured, the lead goes to the lead log's
+ * Fallback tab instead (which alerts the team) and the result is ok with `fallback: true`. Only when both fail is
+ * the result a failure, so a visitor is never told "sent" for a lead that was saved nowhere.
+ */
 export async function createErpLead(input: LeadInput): Promise<LeadResult> {
   // Second line of defence for every lead route: a preview deployment never writes to the ERP.
   if (isPreviewDeployment()) return { ok: true, name: previewLeadId() };
+  const result = await postErpLead(input);
+  if (result.ok) return result;
+  return (await saveFallbackLead(fallbackRow(input, result))) ? { ok: true, fallback: true } : result;
+}
+
+/**
+ * A lead route's answer for a create result: ERP id or ERP status into the log line, 502/503 when the lead was
+ * saved nowhere, else ok. created is true for a new ERP lead or a fallback lead (a real lead either way, so the
+ * page counts the conversion); fallback: true lets the log line say where it went.
+ */
+export function leadReply(result: LeadResult, log: LeadLog, extra: Record<string, unknown> = {}): Response {
+  if (!result.ok) {
+    log.erp_status = result.status;
+    return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
+  }
+  log.erp_id = result.name;
+  return Response.json({ ok: true, created: !!result.name?.trim() || !!result.fallback, ...(result.fallback ? { fallback: true } : null), ...extra });
+}
+
+async function postErpLead(input: LeadInput): Promise<LeadResult> {
   const base = process.env.ERPNEXT_URL?.replace(/\/+$/, "");
   const key = process.env.ERPNEXT_API_KEY;
   const secret = process.env.ERPNEXT_API_SECRET;
@@ -314,7 +374,7 @@ export async function createErpLead(input: LeadInput): Promise<LeadResult> {
     if (!res.ok) {
       // ERPNext explains the failure (missing permission, duplicate email, bad option) in the body.
       console.error(`ERPNext lead create failed: ${res.status}`, (await res.text()).slice(0, 1000));
-      return { ok: false, reason: "upstream_failed" };
+      return { ok: false, reason: "upstream_failed", status: res.status };
     }
     const json = (await res.json().catch(() => null)) as { data?: { name?: string } } | null;
     const name = json?.data?.name;

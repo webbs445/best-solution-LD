@@ -6,7 +6,8 @@ const erp = vi.hoisted(() => ({
   leadEstimateFields: vi.fn(() => ({})),
 }));
 
-vi.mock("@/lib/erp", () => erp);
+// The real leadReply (how a route answers a create result), the ERP calls mocked.
+vi.mock("@/lib/erp", async (actual) => ({ ...(await actual<typeof import("@/lib/erp")>()), ...erp }));
 vi.mock("@/lib/emailCheck", () => ({
   emailDomainAcceptsMail: async () => true,
   emailIsReal: async () => true,
@@ -16,6 +17,7 @@ vi.mock("@/lib/rateLimit", () => ({
   rateLimit: () => true,
 }));
 
+import { TRAP_FIELD } from "@/lib/lead";
 import { POST as leadPost } from "./lead/route";
 import { POST as costCalculatorPost } from "./cost-calculator/route";
 import { POST as callbackPost } from "./callback/route";
@@ -67,7 +69,7 @@ afterEach(() => {
 describe("lead API conversion response contract", () => {
   it("returns generic honeypot success without creating or confirming a lead on every route", async () => {
     for (const [path, post] of routes) {
-      const response = await post(request(path, { ...validLead(), website: "filled-trap" }));
+      const response = await post(request(path, { ...validLead(), [TRAP_FIELD]: "filled-trap" }));
       expect(response.status, path).toBe(200);
       expect(await response.json(), path).toEqual({ ok: true, created: false });
     }
@@ -112,6 +114,25 @@ describe("lead API conversion response contract", () => {
       expect(response.status, path).toBe(502);
       expect(await response.json(), path).toMatchObject({ error: "upstream_failed" });
     }
+  });
+
+  it("confirms a lead saved to the fallback on every route, so the visitor sees success and the conversion counts", async () => {
+    for (const [path, post] of routes) {
+      erp.createErpLead.mockResolvedValueOnce({ ok: true, fallback: true });
+      const response = await post(request(path, validLead()));
+      expect(response.status, path).toBe(200);
+      expect(await response.json(), path).toMatchObject({ ok: true, created: true, fallback: true });
+    }
+  });
+
+  it("gives a fallback lead on /api/lead no reference, so the same number again tries the ERP again", async () => {
+    const body = validLead();
+    erp.createErpLead.mockResolvedValueOnce({ ok: true, fallback: true });
+    expect(await (await leadPost(request("lead", body))).json()).toEqual({ ok: true, created: true, fallback: true, ref: null });
+    erp.createErpLead.mockResolvedValueOnce({ ok: true, name: "ERP-LEAD-3" });
+    expect(await (await leadPost(request("lead", body))).json()).toMatchObject({ ok: true, created: true });
+    expect(erp.createErpLead).toHaveBeenCalledTimes(2);
+    expect(erp.updateErpLead).not.toHaveBeenCalled();
   });
 
   it("keeps /api/lead update-only submissions uncounted", async () => {

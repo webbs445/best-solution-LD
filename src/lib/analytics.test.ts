@@ -109,6 +109,13 @@ describe("pushFormSubmit", () => {
     });
   });
 
+  it("marks every confirmed lead eligible for the Ads lead tag, whatever its form (the /freezone callback pop-up too)", async () => {
+    const { pushFormSubmit } = (await load()).analytics;
+    pushFormSubmit({ formId: "LP Callback Request", formType: "callback" });
+    pushFormSubmit({ formId: "LP Future Landing Page Lead" });
+    expect(dataLayer.filter((e) => e.event === "form_submit").map((e) => (e.form_data as Record<string, unknown>).lead_conversion_eligible)).toEqual([true, true]);
+  });
+
   it("clears user_data and form_data before the next event", async () => {
     const { pushFormSubmit, trackScrollDepth } = (await load()).analytics;
     pushFormSubmit({ formId: "LP Callback Request", email: "a@b.co" });
@@ -246,5 +253,20 @@ describe("form drop-off events", () => {
     const { analytics } = await load();
     analytics.pushFormSubmit({ formId: "LP Structuring Consultation", email: "test@example.com", phone: "+971500000000" });
     expect(seen).toContain("bs:form-success:LP Structuring Consultation");
+  });
+});
+
+describe("planner events", () => {
+  it("sends planner_start and planner_complete once per page view, with choices only", async () => {
+    const { trackPlannerStart, trackPlannerComplete } = (await load()).analytics;
+    trackPlannerStart("LP Free Zone Planner");
+    trackPlannerStart("LP Free Zone Planner");
+    trackPlannerComplete("LP Free Zone Planner", { zone: "IFZA (Dubai)", activities: "trading,services", priority: "range", team: 2 });
+    trackPlannerComplete("LP Free Zone Planner", { zone: "Meydan" });
+    expect(dataLayer.map((e) => e.event)).toEqual(["planner_start", "planner_complete"]);
+    expect(dataLayer[0]).toMatchObject({ planner_data: { planner_id: "LP Free Zone Planner" }, page_data: { page_location: "/" } });
+    expect(dataLayer[1]).toMatchObject({
+      planner_data: { planner_id: "LP Free Zone Planner", zone: "IFZA (Dubai)", activities: "trading,services", priority: "range", team: 2 },
+    });
   });
 });

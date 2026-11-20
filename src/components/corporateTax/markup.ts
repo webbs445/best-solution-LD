@@ -1,3 +1,4 @@
+import { TRAP_FIELD } from "@/lib/lead";
 /*
   The /corporate-tax page body, from BestSolution_CorporateTax_LandingPage.html, served as static HTML (CtScript wires it up).
   Changes from the design file: logos from /brand, the GTM noscript left to the layout, contact links tagged with
@@ -186,7 +187,7 @@ export const CT_MARKUP = String.raw`<div class="prog" id="prog"></div><div class
     <div class="fm" id="fm" data-area="Tax Review Form"><canvas class="confetti" id="conf"></canvas>
       <div class="fm-top"><div class="fm-bar" aria-hidden="true"></div><span class="fm-step-n" id="fmN">Step 1 of 5</span></div>
       <form id="form" novalidate data-track="LP Corporate Tax Review">
-        <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <input class="hp" type="text" name="${TRAP_FIELD}" tabindex="-1" autocomplete="off" aria-hidden="true">
         <div class="fm-sum" id="fmSum"></div>
         <div class="steps">
           <fieldset class="step cur" data-s="1">

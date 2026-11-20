@@ -1,7 +1,8 @@
-import { ADVICE_FORM_ID, AC_SERVICE_ENQUIRED, CONSULT_FORMS, LEAD_RULES, clickIdRows, leadConsent, withUaeCode } from "@/lib/lead";
+import { ADVICE_FORM_ID, AC_SERVICE_ENQUIRED, CONSULT_FORMS, LEAD_RULES, clickIdRows, leadConsent, trapped } from "@/lib/lead";
 import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
-import { createErpLead } from "@/lib/erp";
+import { bodyPhone } from "@/lib/phoneServer";
+import { createErpLead, leadReply } from "@/lib/erp";
 import { isPreviewDeployment, previewLeadId } from "@/lib/preview";
 import { CONSULT_TOPICS, type ConsultTopic } from "@/content/consult";
 
@@ -22,11 +23,11 @@ export const POST = withLeadLog("consult", async (request, log) => {
   }
 
   // Honeypot: real visitors never fill this in. Pretend success so bots move on.
-  if (str(body.website)) return Response.json({ ok: true, created: false });
+  if (trapped(body)) return Response.json({ ok: true, created: false });
 
   const lead_name = str(body.lead_name, 120);
   // A local UAE number ("050 123 4567") is stored as +971.
-  const mobile_no = withUaeCode(str(body.mobile_no, 40));
+  const mobile_no = bodyPhone(body);
   const email_id = str(body.email_id, 200);
   const topic = str(body.topic, 60) as ConsultTopic;
   const message = str(body.message, 1000);
@@ -34,7 +35,7 @@ export const POST = withLeadLog("consult", async (request, log) => {
   const form = Object.hasOwn(CONSULT_FORMS, formId) ? CONSULT_FORMS[formId] : undefined;
   const invalid = [
     ...(LEAD_RULES.lead_name(lead_name) ? [] : ["lead_name"]),
-    ...(LEAD_RULES.mobile_no(mobile_no) ? [] : ["mobile_no"]),
+    ...(mobile_no ? [] : ["mobile_no"]),
     // A preview checks the email format only: the real check looks up the domain's mail servers (DNS).
     ...((isPreviewDeployment() ? LEAD_RULES.email_id(email_id) : await emailIsReal(email_id)) ? [] : ["email_id"]),
     ...(CONSULT_TOPICS.includes(topic) ? [] : ["topic"]),
@@ -61,6 +62,7 @@ export const POST = withLeadLog("consult", async (request, log) => {
     consent: leadConsent(body.consent),
     event_id: str(body.event_id, 60),
     landing_page: str(body.landing_page, 1000),
+    source_page: form.page,
     form_id: formId,
     form_name: form.form_name,
     button_name: "Book a Consultation",
@@ -72,13 +74,9 @@ export const POST = withLeadLog("consult", async (request, log) => {
     details: [
       ["Advice on", topic],
       ...(message ? ([["Message", message]] as [string, string][]) : []),
-      ["Source page", form.page],
       ...clickIdRows(body),
     ],
   });
 
-  if (result.ok) log.erp_id = result.name;
-  else log.erp_status = result.status;
-  if (!result.ok) return Response.json({ error: result.reason }, { status: result.reason === "not_configured" ? 503 : 502 });
-  return Response.json({ ok: true, created: !!result.name?.trim() });
+  return leadReply(result, log);
 });

@@ -72,7 +72,7 @@ describe("POST /api/consult", () => {
   });
 
   it("pretends success to bots that fill the honeypot", async () => {
-    expect(await (await post({ ...valid, website: "x" })).json()).toEqual({ ok: true, created: false });
+    expect(await (await post({ ...valid, bs_hp: "x" })).json()).toEqual({ ok: true, created: false });
     expect(sent).toHaveLength(0);
   });
 });
