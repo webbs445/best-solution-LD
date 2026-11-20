@@ -1,0 +1,222 @@
+/* /xservicesx: the /services look (light champagne hero, navy text, copper buttons) on the brief's eight sections.
+   Phones (640 px and under) fold card details, long reviews and FAQ answers; tap targets 44 px or more. */
+.xs-page {--xs-pad:80px}
+.xs-page .xs-block {padding:var(--xs-pad) 0}
+.xs-page .xs-block h2 {font-size:clamp(28px,3.4vw,40px);color:var(--navy)}
+.xs-page .xs-head p {margin-top:10px;color:var(--ink-soft);font-size:18px}
+.xs-page .xs-card {background:#fff;border:1px solid var(--card-border,rgba(204,134,103,.16));border-radius:20px;box-shadow:0 1px 2px rgba(20,37,62,.04),0 14px 36px rgba(20,37,62,.07);padding:24px}
+.xs-page .xs-ico {display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:12px;background:var(--tint);color:var(--copper-ink)}
+.xs-page .xs-ico svg {width:22px;height:22px}
+.xs-page .xs-cta {display:inline-flex;flex-direction:column;align-items:flex-start;gap:6px}
+.xs-page .xs-cta small {font-size:14px;color:var(--ink-soft)}
+.xs-page .xs-wa {text-decoration:none;border-color:rgba(20,37,62,.22);color:var(--navy);background:rgba(255,255,255,.6);min-height:54px;height:auto}
+.xs-page .xs-wa svg {color:#1f8a5b}
+.xs-page .xs-lede {margin-top:16px;font-size:19px;line-height:1.55;color:var(--navy);max-width:34em}
+.xs-page .xs-form-line {margin:6px 0 18px;color:var(--ink-soft);font-size:16px}
+
+/* 1 · First screen */
+.xs-page .xs-hero {position:relative;padding:128px 0 72px;background:
+  radial-gradient(55% 65% at 90% 10%,rgba(212,149,111,.28),transparent 70%),
+  radial-gradient(50% 60% at 2% 100%,rgba(240,196,172,.5),transparent 70%),
+  linear-gradient(165deg,#fffaf5 0%,#f9eee5 50%,#f3e1d3 100%);color:var(--navy)}
+.xs-page .xs-hero-grid {display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:48px;align-items:start}
+.xs-page .xs-hero .fz-tag {color:var(--copper-ink);margin-bottom:16px}
+.xs-page .xs-hero .fz-tag span {background:var(--copper-ink)}
+.xs-page .xs-hero h1 {font-size:clamp(34px,4.4vw,54px);line-height:1.06;color:var(--navy)}
+.xs-page .xs-btns {display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px;margin-top:26px}
+.xs-page .xs-facts {list-style:none;display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:18px;font-size:16px;font-weight:600}
+.xs-page .xs-facts li {display:inline-flex;align-items:center;gap:6px}
+.xs-page .xs-facts svg {width:18px;height:18px;color:#1f8a5b}
+.xs-page .xs-proof {margin-top:18px;font-size:16px}
+.xs-page .xs-stars {display:inline-flex;gap:2px;color:#e3a008}
+.xs-page .xs-stars svg {width:16px;height:16px}
+.xs-page .xs-proof blockquote {display:inline;margin-left:8px;font-style:italic}
+.xs-page .xs-proof figcaption {display:inline;margin-left:6px;color:var(--ink-soft)}
+.xs-page .xs-disclaimer {font-size:14.5px}
+.xs-page .xs-hero-form h2 {font-size:26px}
+
+/* 2 · Sound familiar? */
+.xs-page .xs-worries {background:#fff}
+.xs-page .xs-worry-list {list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:14px 32px;margin-top:28px}
+.xs-page .xs-worry-list li {display:flex;gap:12px;font-size:18px;line-height:1.5}
+.xs-page .xs-worry-list svg {flex:none;width:22px;height:22px;margin-top:3px;padding:3px;border-radius:50%;background:#fbe9e7;stroke:#b3261e;stroke-width:2.4;fill:none;stroke-linecap:round}
+.xs-page .xs-promise {display:flex;align-items:center;gap:14px;margin-top:28px;font-size:20px;color:var(--navy)}
+.xs-page .xs-down {display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:var(--tint);color:var(--copper-ink)}
+.xs-page .xs-down svg {width:20px;height:20px;transform:rotate(90deg)}
+
+/* 3 · Where are you right now? */
+.xs-page .xs-sit {background:var(--ground)}
+.xs-page .xs-cards {list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}
+.xs-page .xs-sit-card {display:flex;flex-direction:column;background:#fff;border:1px solid rgba(204,134,103,.16);border-radius:20px;padding:24px;box-shadow:0 14px 36px rgba(20,37,62,.06)}
+.xs-page .xs-sit-card h3 {display:flex;align-items:center;gap:12px;font-size:19px;color:var(--navy)}
+.xs-page .xs-sit-card .xs-phone {display:none}
+.xs-page .xs-fold-body {display:flex;flex-direction:column;flex:1}
+.xs-page .xs-sit-card dl {margin:16px 0 20px;flex:1}
+.xs-page .xs-sit-card dt {font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--copper-ink)}
+.xs-page .xs-sit-card dd {margin:2px 0 12px;font-size:16px;line-height:1.5;color:var(--ink)}
+.xs-page .xs-sit-card .btn {width:100%}
+.xs-page .xs-sit-card .xs-cta {display:flex;align-items:stretch}
+.xs-page .xs-more {display:flex;flex-wrap:wrap;gap:0 16px;margin-top:6px}
+.xs-page .xs-more a {display:inline-flex;align-items:center;min-height:44px;font-weight:600;font-size:15px;color:var(--copper-ink)}
+
+/* 4 · You'll know */
+.xs-page .xs-know {background:#fff}
+.xs-page .xs-outcomes {list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:20px;margin-top:32px}
+.xs-page .xs-outcomes li {display:flex;flex-direction:column;gap:12px;font-size:16px;line-height:1.45}
+.xs-page .xs-outcomes b {color:var(--navy)}
+.xs-page .xs-reassure {margin:28px 0 16px;font-size:18px;color:var(--navy)}
+
+/* 5 · Three steps */
+.xs-page .xs-how {background:var(--ground)}
+.xs-page .xs-steps {list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:32px;position:relative}
+.xs-page .xs-steps::before {content:"";position:absolute;top:22px;left:16%;right:16%;height:2px;background:var(--copper-soft,#e6c3b3)}
+.xs-page .xs-steps li {position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.xs-page .xs-num {display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--copper-grad);color:#fff;font-weight:800;font-size:18px}
+.xs-page .xs-steps p {font-size:17px;line-height:1.5;max-width:20em}
+.xs-page .xs-steps b {color:var(--navy)}
+
+/* 6 · Meet the people */
+.xs-page .xs-people {background:#fff}
+.xs-page .xs-people-grid {display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:28px;align-items:start}
+.xs-page .xs-people-grid.no-adv {grid-template-columns:1fr}
+.xs-page .xs-people h3 {font-size:20px;color:var(--navy)}
+.xs-page .xs-adv {display:flex;gap:18px}
+.xs-page .xs-adv img {border-radius:50%;object-fit:cover;flex:none}
+.xs-page .xs-adv figcaption {display:grid;gap:6px}
+.xs-page .xs-adv a {display:inline-flex;align-items:center;gap:8px;min-height:44px;font-weight:700;color:var(--copper-ink)}
+.xs-page .xs-adv a svg {width:18px;height:18px}
+.xs-page .xs-trust {list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+.xs-page .xs-people-grid:not(.no-adv) .xs-trust {grid-template-columns:1fr}
+.xs-page .xs-trust li {display:flex;gap:10px;font-size:16.5px;line-height:1.5}
+.xs-page .xs-trust svg {flex:none;width:20px;height:20px;margin-top:3px;color:#1f8a5b}
+.xs-page .xs-trust b {color:var(--navy)}
+
+/* 7 · What clients say */
+.xs-page .xs-reviews {background:var(--ground)}
+.xs-page .xs-rev-row {list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+.xs-page .xs-rev {display:flex;flex-direction:column;gap:12px}
+.xs-page .xs-rev blockquote {font-size:17.5px;line-height:1.55;color:var(--navy)}
+.xs-page .xs-rev-by {display:flex;align-items:center;gap:12px;margin-top:auto}
+.xs-page .xs-rev-by figcaption {display:flex;flex-direction:column;font-size:14.5px;color:var(--ink-soft)}
+.xs-page .xs-rev-by b {color:var(--navy);font-size:16px}
+.xs-page .xs-rev-by em {font-style:normal;font-size:13px}
+.xs-page .xs-read {display:none;align-self:flex-start;min-height:44px;padding:0;border:0;background:none;font:700 15px var(--font);color:var(--copper-ink);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.xs-page .xs-story {margin-top:20px;display:grid;gap:10px}
+.xs-page .xs-story .xs-read {display:inline-flex}
+.xs-page .xs-story:not(.is-open) .xs-fold-body {display:none}
+.xs-page .xs-rev-foot {display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-top:28px}
+.xs-page .xs-rev-foot > p {font-size:18px;font-weight:700;color:var(--navy)}
+.xs-page .xs-rev-foot .t-all {grid-column:auto;margin:0;min-height:44px}
+
+/* 8 · Questions, then the last step */
+.xs-page .xs-end {background:#fff}
+.xs-page .xs-end-grid {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+.xs-page .xs-faq {margin-top:24px;border-top:1px solid var(--rule)}
+.xs-page .xs-faq details {border-bottom:1px solid var(--rule)}
+.xs-page .xs-faq summary {display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:56px;padding:12px 0;font-weight:700;font-size:17px;color:var(--navy);cursor:pointer;list-style:none}
+.xs-page .xs-faq summary::-webkit-details-marker {display:none}
+.xs-page .xs-faq summary::after {content:"+";flex:none;font-size:24px;font-weight:400;color:var(--copper-ink)}
+.xs-page .xs-faq details[open] summary::after {content:"\2212"}
+.xs-page .xs-faq details p {padding:0 0 16px;font-size:16.5px;line-height:1.55}
+.xs-page .xs-final h2 {font-size:clamp(26px,3vw,36px)}
+.xs-page .xs-final .xs-lede {margin:12px 0 20px;font-size:18px}
+.xs-page .xs-final h3 {font-size:22px;color:var(--navy)}
+.xs-page .xs-contact {list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;margin-top:20px;font-size:16px;color:var(--ink-soft)}
+.xs-page .xs-contact a:not(.xs-wa) {display:inline-flex;align-items:center;gap:8px;min-height:44px;font-weight:700;color:var(--navy)}
+.xs-page .xs-contact svg {width:18px;height:18px}
+
+/* The form's thank-you, with the WhatsApp link. */
+.xs-page .xs-success {display:flex;gap:14px;padding:22px;border-radius:18px;background:#ecf7f1;border:1px solid #bfe3cf;font-size:17px;line-height:1.55}
+.xs-page .xs-success > span {display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;background:#1f8a5b;color:#fff;font-size:20px}
+.xs-page .xs-success a {font-weight:700;color:#14653f;display:inline-flex;align-items:center;min-height:44px}
+.xs-page .xs-success:focus {outline:none}
+
+/* The pop-up form: a centred dialog, a bottom sheet on phones. */
+.xs-sheet {width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:0;border:0;border-radius:22px;background:#fff;color:var(--navy);box-shadow:0 30px 80px rgba(15,31,61,.35)}
+.xs-sheet::backdrop {background:rgba(15,31,61,.55)}
+.xs-sheet-in {padding:24px}
+.xs-sheet-head {display:flex;justify-content:space-between;gap:12px}
+.xs-sheet-head h2 {font-size:24px;font-weight:800;letter-spacing:-.02em}
+.xs-sheet-head p {margin:4px 0 16px;color:var(--ink-soft);font-size:16px}
+.xs-close {display:grid;place-items:center;flex:none;width:44px;height:44px;border:0;border-radius:50%;background:var(--tint);cursor:pointer}
+.xs-close svg {width:20px;height:20px;stroke:var(--navy);stroke-width:2;fill:none;stroke-linecap:round}
+
+/* The sticky phone bar sits above the cookie banner while it shows (PlanSheet sets --xs-consent-h). */
+.xs-page [data-area="Mobile Bar"] {bottom:var(--xs-consent-h,0px)}
+
+@media (max-width:1020px) {
+  .xs-page .xs-hero-grid,.xs-page .xs-end-grid,.xs-page .xs-people-grid {grid-template-columns:1fr}
+  .xs-page .xs-cards {grid-template-columns:1fr 1fr}
+  .xs-page .xs-outcomes {grid-template-columns:repeat(3,minmax(0,1fr))}
+  .xs-page .xs-trust {grid-template-columns:1fr}
+}
+
+@media (max-width:640px) {
+  .xs-page {--xs-pad:44px}
+  .xs-page .wrap {padding-inline:16px}
+  .xs-page .xs-block h2 {font-size:27px}
+  .xs-page .xs-head p {font-size:16.5px}
+  .xs-page .xs-hero {padding:96px 0 36px}
+  .xs-page .xs-hero h1 {font-size:31px}
+  .xs-page .xs-hero .fz-tag {font-size:12px;margin-bottom:12px}
+  .xs-page .xs-lede {font-size:17px;margin-top:12px}
+  .xs-page .xs-btns {margin-top:20px}
+  .xs-page .xs-btns > *,.xs-page .xs-btns .btn {width:100%}
+  .xs-page .xs-btns .xs-cta {align-items:center}
+  .xs-page .xs-wa {justify-content:center}
+  .xs-page .xs-facts {gap:6px 14px;font-size:14.5px;margin-top:14px}
+  /* The form opens as a bottom sheet from the hero button instead. */
+  .xs-page .xs-hero-form {display:none}
+  .xs-page .xs-disclaimer {font-size:13.5px}
+
+  .xs-page .xs-worry-list {grid-template-columns:1fr;gap:10px;margin-top:18px}
+  .xs-page .xs-worry-list li {font-size:16px}
+  .xs-page .xs-promise {font-size:17px;margin-top:18px}
+
+  .xs-page .xs-cards {gap:10px;margin-top:20px}
+  .xs-page .xs-sit-card {padding:0;border-radius:16px;box-shadow:none}
+  .xs-page .xs-sit-card .xs-desk {display:none}
+  .xs-page .xs-sit-card .xs-phone {display:block}
+  .xs-page .xs-tog {display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:100%;min-height:112px;padding:14px;border:0;background:none;text-align:left;font:700 15.5px/1.3 var(--font);color:var(--navy);cursor:pointer}
+  .xs-page .xs-sit-card:not(.is-open) .xs-fold-body {display:none}
+  .xs-page .xs-sit-card.is-open {grid-column:1/-1}
+  .xs-page .xs-sit-card.is-open .xs-tog {flex-direction:row;align-items:center;min-height:72px}
+  .xs-page .xs-fold-body {padding:0 14px 14px}
+  .xs-page .xs-sit-card dl {margin:0 0 14px}
+
+  .xs-page .xs-outcomes {grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+  .xs-page .xs-outcomes li {font-size:15px;gap:8px}
+  .xs-page .xs-reassure {margin:18px 0 12px;font-size:16px}
+  .xs-page .xs-know .xs-cta,.xs-page .xs-know .btn {width:100%;align-items:center}
+
+  .xs-page .xs-steps {grid-template-columns:1fr;gap:14px;margin-top:20px}
+  .xs-page .xs-steps::before {top:23px;bottom:23px;left:22px;right:auto;width:2px;height:auto}
+  .xs-page .xs-steps li {flex-direction:row;align-items:flex-start;text-align:left}
+  .xs-page .xs-num {flex:none}
+  .xs-page .xs-steps p {font-size:16px;padding-top:10px}
+
+  .xs-page .xs-trust li {font-size:16px}
+
+  /* Reviews swipe sideways inside their own row; the page itself never scrolls sideways. */
+  .xs-page .xs-rev-row {display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:20px -16px 0;padding:0 16px 6px}
+  .xs-page .xs-rev {flex:0 0 86%;scroll-snap-align:center;padding:18px}
+  .xs-page .xs-rev.can-fold:not(.is-open) .xs-fold-clamp {display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .xs-page .xs-rev.can-fold .xs-read {display:inline-flex}
+  .xs-page .xs-rev.is-open .xs-read {display:none}
+  .xs-page .xs-rev blockquote {font-size:16px}
+  .xs-page .xs-rev-foot {margin-top:18px}
+  .xs-page .xs-rev-foot .xs-cta,.xs-page .xs-rev-foot .btn {width:100%;align-items:center}
+
+  .xs-page .xs-faq summary {font-size:16px}
+  .xs-page .xs-end-grid {gap:36px}
+  .xs-page .xs-final .xs-card {padding:18px}
+  .xs-page .xs-final .xs-lede {font-size:16.5px}
+
+  .xs-sheet {width:100vw;max-width:100vw;max-height:92dvh;margin:auto 0 0;border-radius:22px 22px 0 0}
+  .xs-sheet-in {padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+}
+
+/* The shared footer's small links, raised to 44 px taps on this page only. */
+.xs-page .bs-footer .bs-social a {width:44px;height:44px}
+.xs-page .bs-footer .bs-fci {min-height:44px}
+.xs-page .bs-footer .f5-nav a,.xs-page .bs-footer .bs-fbottom nav a,.xs-page .bs-footer .bs-fbottom nav button {display:inline-flex;align-items:center;min-height:44px}

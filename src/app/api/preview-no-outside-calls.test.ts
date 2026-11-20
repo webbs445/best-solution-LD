@@ -18,6 +18,7 @@ import { POST as consultPost } from "./consult/route";
 import { POST as accountingPost } from "./accounting/route";
 import { POST as corporateTaxPost } from "./corporate-tax/route";
 import { POST as spvPost } from "./spv/route";
+import { POST as servicesPlanPost } from "./services-plan/route";
 
 const routes = [
   ["lead", leadPost],
@@ -27,6 +28,7 @@ const routes = [
   ["accounting", accountingPost],
   ["corporate-tax", corporateTaxPost],
   ["spv", spvPost],
+  ["services-plan", servicesPlanPost],
 ] as const;
 
 // A Google Ads lead (gclid, google / cpc): on the live site this is also the one that goes to the lead log sheet.
@@ -36,6 +38,7 @@ const lead = (n: number) => ({
   mobile_no: `050 000 000${n}`,
   country: "AE",
   topic: "Office options",
+  need: "Not sure yet",
   gclid: "TEST123",
   utm_source: "google",
   utm_medium: "cpc",

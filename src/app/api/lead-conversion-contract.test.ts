@@ -24,6 +24,7 @@ import { POST as callbackPost } from "./callback/route";
 import { POST as accountingPost } from "./accounting/route";
 import { POST as corporateTaxPost } from "./corporate-tax/route";
 import { POST as spvPost } from "./spv/route";
+import { POST as servicesPlanPost } from "./services-plan/route";
 
 const routes = [
   ["lead", leadPost],
@@ -32,6 +33,7 @@ const routes = [
   ["accounting", accountingPost],
   ["corporate-tax", corporateTaxPost],
   ["spv", spvPost],
+  ["services-plan", servicesPlanPost],
 ] as const;
 
 let serial = 0;
@@ -42,6 +44,7 @@ function validLead() {
     email_id: "qa.person@example.org",
     mobile_no: `+971501234${String(serial).padStart(3, "0")}`,
     country: "AE",
+    need: "Not sure yet",
   };
 }
 
