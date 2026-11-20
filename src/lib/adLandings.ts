@@ -69,7 +69,8 @@ function kv() {
 /** True when the KV store is connected (env vars set). */
 export const kvConfigured = () => !!kv();
 
-async function pipeline(cmds: (string | number)[][]): Promise<{ result: unknown }[]> {
+/** Commands sent to the KV store in one request (Upstash REST pipeline); throws when it isn't set or answers non-2xx. */
+export async function pipeline(cmds: (string | number)[][]): Promise<{ result: unknown }[]> {
   const c = kv();
   if (!c) throw new Error("KV not configured");
   const res = await fetch(`${c.url}/pipeline`, {

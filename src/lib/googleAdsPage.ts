@@ -24,6 +24,7 @@ import {
   inPeriod,
   keywordRows,
   nextRun,
+  pickPeriod,
   rowsOf,
   searchTermRows,
   stampMs,
@@ -122,10 +123,15 @@ const none = (text: string) => `<p class="gx-none">${esc(text)}</p>`;
 
 /* ---------- 1. Header ---------- */
 
+/** The period links; `custom`: with the Custom button (it needs the page script, so not in the loading shell). */
+const periodNav = (p: Blocks["period"], q: URLSearchParams, custom = true) =>
+  `<nav class="seg" aria-label="Period">${PERIODS.map(([k, l]) => `<a href="${esc(href(q, { range: k, from: null, to: null, note: null }))}"${p.key === k ? ' aria-current="page"' : ""}>${esc(l)}</a>`).join("")}${
+    custom ? `<button type="button" class="gx-custom-btn" aria-expanded="${p.error ? "true" : "false"}" aria-controls="gx-custom"${p.key === "custom" ? ' aria-current="page"' : ""}>${p.key === "custom" ? esc(span(p.from, p.to)) : "Custom"}</button>` : ""
+  }</nav>`;
+const kicker = (p: Blocks["period"]) => `<p class="gx-kicker">Best Solution Management Services · ${esc(span(p.from, p.to))} vs ${esc(span(p.prevFrom, p.prevTo))}</p>`;
+
 function head(b: Blocks, q: URLSearchParams, today: string) {
   const p = b.period;
-  const seg = (items: [string, string][], key: string, cur: string, label: string) =>
-    `<nav class="seg" aria-label="${label}">${items.map(([k, l]) => `<a href="${esc(href(q, { [key]: k, from: null, to: null, note: null }))}"${cur === k ? ' aria-current="page"' : ""}>${esc(l)}</a>`).join("")}<button type="button" class="gx-custom-btn" aria-expanded="${p.error ? "true" : "false"}" aria-controls="gx-custom"${p.key === "custom" ? ' aria-current="page"' : ""}>${p.key === "custom" ? esc(span(p.from, p.to)) : "Custom"}</button></nav>`;
   const keep = q.get("channel") ? `<input type="hidden" name="channel" value="${esc(q.get("channel"))}">` : "";
   // Channel: All + each campaign type with spend in the period (highest first); more than 4 → the top 3 + "More".
   const chHref = (k: string) => esc(href(q, { channel: k === "all" ? null : k.toLowerCase(), note: null }));
@@ -139,8 +145,8 @@ function head(b: Blocks, q: URLSearchParams, today: string) {
       : ""
   }</nav>`;
   return `<div class="gx-head">
-      <div class="gx-head__t"><p class="gx-kicker">Best Solution Management Services · ${esc(span(p.from, p.to))} vs ${esc(span(p.prevFrom, p.prevTo))}</p><h1>Google Ads</h1></div>
-      ${seg(PERIODS.map(([k, l]) => [k, l]), "range", p.key, "Period")}
+      <div class="gx-head__t">${kicker(p)}<h1>Google Ads</h1></div>
+      ${periodNav(p, q)}
       ${channelNav}
       <a class="gx-refresh" href="${esc(href(q, { refresh: "1", note: null }))}" aria-label="Refresh (once every 2 minutes)" title="Refresh (once every 2 minutes)">${svg(I.refresh, 17)}</a>
     </div>
@@ -846,6 +852,67 @@ const minutesAgo = (ms: number) => {
 };
 
 export function googleAdsHtml(state: GoogleAdsState): string {
+  const { body, fresh } = bodyOf(state);
+  return `${pageTop(state.query, fresh)}
+${body}
+${pageEnd()}`;
+}
+
+/** The page's first part, sent at once when the data takes a while: header, view switch, period links, card placeholders. */
+export function googleAdsShell(q: URLSearchParams, today: string): string {
+  const p = pickPeriod(q, today);
+  const box = (h: number) => `<div class="lr-card gx-card gx-skel__c" style="min-height:${h}px"></div>`;
+  return `${pageTop(q, { text: "Loading Google Ads data", tone: "wait" })}
+<div class="gx-skel" id="gx-skel" role="status"><span class="sr">Loading Google Ads data</span>
+  <div class="gx-head"><div class="gx-head__t">${kicker(p)}<h1>Google Ads</h1></div>${periodNav(p, q, false)}</div>
+  <div class="gx-kpis" aria-hidden="true">${box(118).repeat(5)}</div>
+  <div class="g84" aria-hidden="true">${box(380)}${box(380)}</div>
+  <div class="g3" aria-hidden="true">${box(280).repeat(3)}</div>
+</div>`;
+}
+
+/** The rest, once the data is in: the view (the placeholders hide by CSS), then the real header badge swapped in. */
+export function googleAdsRest(state: GoogleAdsState): string {
+  const { body, fresh } = bodyOf(state);
+  return `${body}
+<template id="gx-top">${topbar(false, "", state.query, "google-ads", fresh)}</template>
+<script>(function(){var t=document.getElementById("gx-top"),h=document.querySelector("header.lr-topbar");if(t&&h)h.replaceWith(t.content);var s=document.getElementById("gx-skel");if(s)s.remove();})();</script>
+${pageEnd()}`;
+}
+
+const pageEnd = () => `</main></div>
+<script>${GX_SCRIPT}</script>
+</body>
+</html>`;
+
+function pageTop(q: URLSearchParams, fresh: Freshness) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<title>Google Ads · Lead Insights</title>
+<meta name="theme-color" content="#f1ede8">
+<link rel="icon" href="/lead-insights/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/lead-insights/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600&display=swap">
+<style>${dashCss()}
+${CSS}
+${GX_CSS}</style>
+</head>
+<body>
+<div class="lr-aurora" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+${sprite()}
+${topbar(false, "", q, "google-ads", fresh)}
+<div class="lr-page"><main class="gx">
+${viewSwitch(q, "", "google-ads")}`;
+}
+
+function bodyOf(state: GoogleAdsState): { body: string; fresh: Freshness } {
   const q = state.query;
   let body: string;
   let fresh: Freshness = { text: "Google Ads data not connected", tone: "bad" };
@@ -911,35 +978,7 @@ export function googleAdsHtml(state: GoogleAdsState): string {
       ${details(b, d, q, state.erp)}
       <footer class="gx-footer">Data from ${esc(/^\d{4}-\d{2}-\d{2}/.test(dataFrom) ? dayMonth(dataFrom) : dataFrom)} · Script ${esc(script === DASH || /^v/i.test(script) ? script : `v${script}`)} · Google may update conversions for several days</footer>`;
   }
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<meta name="color-scheme" content="light">
-<title>Google Ads · Lead Insights</title>
-<meta name="theme-color" content="#f1ede8">
-<link rel="icon" href="/lead-insights/favicon-32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="/lead-insights/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600&display=swap">
-<style>${dashCss()}
-${CSS}
-${GX_CSS}</style>
-</head>
-<body>
-<div class="lr-aurora" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-${sprite()}
-${topbar(false, "", q, "google-ads", fresh)}
-<div class="lr-page"><main class="gx">
-${viewSwitch(q, "", "google-ads")}
-${body}
-</main></div>
-<script>${GX_SCRIPT}</script>
-</body>
-</html>`;
+  return { body, fresh };
 }
 
 /* ---------- View-only styles (gx-*), on the dashboard's light tokens (--text, --muted, --line, --copper…) ---------- */
@@ -1017,6 +1056,14 @@ const GX_CSS = `
 .lr-fresh__tone[data-tone="good"], .lr-brand__live[data-tone="good"], .lr-menu__state[data-tone="good"] { color: #0B6B47; }
 .lr-fresh__tone[data-tone="warn"], .lr-brand__live[data-tone="warn"], .lr-menu__state[data-tone="warn"] { color: #7A4F00; }
 .lr-fresh__tone[data-tone="bad"], .lr-brand__live[data-tone="bad"], .lr-menu__state[data-tone="bad"] { color: #A12D2D; }
+[data-tone="wait"] > .lr-dot { background: #94A3B8; }
+/* Loading shell: placeholders until the view (it starts with .gx-head) arrives after them; then hidden, also without script.
+   Not :last-child: Chrome doesn't match it while the page is still loading. */
+.gx-skel { display: flex; flex-direction: column; gap: 18px; }
+.gx-skel:has(~ .gx-head) { display: none; }
+.gx-skel__c { background: linear-gradient(90deg, rgba(255,255,255,.35) 25%, rgba(255,255,255,.75) 50%, rgba(255,255,255,.35) 75%); background-size: 200% 100%; animation: gx-sh 1.4s linear infinite; }
+@keyframes gx-sh { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce) { .gx-skel__c { animation: none; } }
 [data-tone="good"] > .lr-dot { background: #12A16B; } [data-tone="warn"] > .lr-dot { background: #E09A1E; } [data-tone="bad"] > .lr-dot { background: #D64545; }
 /* 2. Tracking banner: light amber, dark button */
 .gx-banner { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 10px 10px 16px; border-radius: 18px; border: 1px solid #EBCB86; background: #FFF4DE; }

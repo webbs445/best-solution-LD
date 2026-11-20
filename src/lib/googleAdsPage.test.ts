@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error plain JS test data, shared with the browser QA run
 import { TODAY, bridgeAnswer, clidOf, erpLeads, kvDays } from "../../scripts/qa/fixtures/googleAdsFixture.mjs";
 import { parseDay } from "@/lib/adLandingsReport";
-import { googleAdsHtml } from "@/lib/googleAdsPage";
+import { googleAdsHtml, googleAdsRest, googleAdsShell } from "@/lib/googleAdsPage";
 import { CLICK_TABS, TABS, callBridge, type Cell, type SheetData } from "@/lib/googleAdsSheet";
-import { joinClicks, toErpLeads } from "@/lib/googleAdsView";
+import { Timings, joinClicks, toErpLeads } from "@/lib/googleAdsView";
 
 const leadsRaw = toErpLeads(erpLeads(), null)!;
 const ids = leadsRaw.map((l) => l.clid).filter(Boolean);
@@ -189,5 +189,39 @@ describe("Preview fixes", () => {
     const n = Number(/(\d+) changes in 30 days/.exec(h)?.[1]);
     expect(n).toBe(new Set(tabs.Change_Log_30d!.slice(1).filter((r) => String(r[0]) >= "2026-10-20").map((r) => `${r[6]}|${r[0]}`)).size);
     expect(h).toMatch(new RegExp(`History[^<]*<span[^>]*>${n}<`));
+  });
+});
+
+describe("Loading shell (streamed when the data is slow)", () => {
+  it("shell: header, view switch, period links and placeholders, no data; with the rest it's the same view as the whole page", async () => {
+    const { data } = await load(ids);
+    const q = new URLSearchParams("view=google-ads&range=30d");
+    const shell = googleAdsShell(q, TODAY);
+    expect(shell).toContain('class="lr-topbar');
+    expect(shell).toContain("Loading Google Ads data");
+    expect(shell).toMatch(/<nav class="seg" aria-label="Period">.*range=30d[^>]*aria-current="page"/s);
+    expect(shell).not.toContain("gx-custom-btn");
+    expect(shell).not.toContain("</html>");
+    const state = { kind: "ok" as const, query: q, today: TODAY, data, stale: false, note: "", erp: joinClicks(leadsRaw, data.clicks), joinReady: true, landings: null };
+    const whole = googleAdsHtml(state);
+    const streamed = shell + googleAdsRest(state);
+    // The view after the placeholders (which CSS hides once anything follows them), then the real header badge.
+    expect(streamed.indexOf('id="gx-skel"')).toBeLessThan(streamed.indexOf('class="gx-kpis"'));
+    expect(streamed).toContain('<template id="gx-top"><header class="lr-topbar');
+    expect(streamed.endsWith("</html>")).toBe(true);
+    const rest = googleAdsRest(state);
+    expect(whole).toContain(rest.slice(0, rest.indexOf('\n<template id="gx-top">')));
+  });
+});
+
+describe("Step timings", () => {
+  it("Server-Timing: names and durations only, the copy's source as desc", async () => {
+    const t = new Timings();
+    await t.step("erp", Promise.resolve(1));
+    t.stepSync("render", () => "x");
+    t.sheet = "redis due";
+    await t.step("bridge", Promise.resolve(2));
+    t.total();
+    expect(t.header()).toMatch(/^erp;dur=\d+, render;dur=\d+, bridge;dur=\d+;desc="redis due", total;dur=\d+$/);
   });
 });

@@ -134,7 +134,8 @@ type View = (typeof NAV)[number][0];
 /** A freshness badge in its own words and colour (the Google Ads view: "Updated 13:20 (UAE) · next 20:00", late, not updating). */
 export interface Freshness {
   text: string;
-  tone: "good" | "warn" | "bad";
+  /** "wait": still loading (grey dot). */
+  tone: "good" | "warn" | "bad" | "wait";
 }
 
 /** `fresh`: the data-freshness badges; a Freshness replaces the plain "Updated <time> (UAE)" with its own words and colour. */

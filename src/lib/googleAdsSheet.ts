@@ -8,6 +8,9 @@
   never rendered, logged or sent on. A click tab with any other row means the bridge didn't filter it: dropped.
 */
 
+import { gunzipSync, gzipSync } from "node:zlib";
+import { kvConfigured, pipeline as kvPipeline, previewData } from "@/lib/adLandings";
+
 export const TABS = [
   "_Status", "Alerts",
   "Perf_Campaigns_Daily", "Perf_AdGroups_Daily", "Perf_Ads_Daily", "Perf_Conversions_Daily", "Perf_Devices_Daily",
@@ -130,21 +133,81 @@ function config() {
   return url && token ? { url, token } : null;
 }
 
-export const CACHE_MS = 15 * 60_000;
 const RETRY_MS = 60_000;
 
-// ponytail: per-instance memory cache (the keyword and search-term tabs can pass Next's 2 MB data-cache limit).
-// Each server instance reads the Sheet at most once per 15 minutes; move to a shared store if instances multiply.
+/*
+  The last good bridge read is kept in the KV store (the landing counter's Upstash Redis), shared by every server
+  instance: one string, the TABS (never the click tabs) and the read time as gzipped JSON, base64. Preview
+  deployments keep their own key, as the counter does. A memory copy stands in when the store is off or fails.
+*/
+export const cacheKey = () => `${previewData() ? "gads-preview" : "gads"}:sheet:v1`;
+const CACHE_TTL_S = 7 * 86_400;
+/** Upstash takes up to 10 MB per request (Free and Pay as you go); a bigger copy isn't stored (the memory copy still is). */
+export const MAX_STORED = 9_000_000;
+
+export const packCopy = (d: Pick<SheetData, "tabs" | "fetchedAt">) => gzipSync(JSON.stringify({ tabs: d.tabs, fetchedAt: d.fetchedAt })).toString("base64");
+/** The stored copy back, known tabs only (never click rows, whatever the string holds); null if it isn't one. */
+export function unpackCopy(s: string): SheetData | null {
+  const v = JSON.parse(gunzipSync(Buffer.from(s, "base64")).toString("utf8")) as { tabs?: Record<string, unknown>; fetchedAt?: unknown };
+  if (typeof v?.fetchedAt !== "number" || !v.tabs || typeof v.tabs !== "object") return null;
+  const tabs: SheetData["tabs"] = {};
+  for (const t of TABS) if (Array.isArray(v.tabs[t])) tabs[t] = v.tabs[t] as Cell[][];
+  return { tabs, clicks: null, fetchedAt: v.fetchedAt };
+}
+
+/** The script fills the Sheet at 06:00, 13:00 and 20:00 Dubai; a copy read before the latest of these + 15 min is due. */
+const RUNS_MIN = [6 * 60 + 15, 13 * 60 + 15, 20 * 60 + 15];
+const DUBAI_MS = 4 * 3_600_000;
+export function lastScheduledRun(now = Date.now()): number {
+  const local = now + DUBAI_MS;
+  const day = local - (local % 86_400_000);
+  const mins = (local - day) / 60_000;
+  const m = RUNS_MIN.findLast((r) => r <= mins);
+  return (m != null ? day + m * 60_000 : day - 86_400_000 + RUNS_MIN[RUNS_MIN.length - 1] * 60_000) - DUBAI_MS;
+}
+
+const why = (err: unknown) => (err instanceof Error ? err.message : "unexpected error").slice(0, 80);
+
+async function loadCopy(): Promise<SheetData | null> {
+  if (!kvConfigured()) return null;
+  const [r] = await kvPipeline([["GET", cacheKey()]]);
+  return typeof r?.result === "string" ? unpackCopy(r.result) : null;
+}
+
+/** Store the copy (sizes logged, never content); a failure is logged and the read still counts. */
+async function storeCopy(d: SheetData) {
+  if (!kvConfigured()) return;
+  try {
+    const packed = packCopy(d);
+    if (packed.length > MAX_STORED) return console.warn(`Google Ads cache not stored: ${packed.length} bytes is over ${MAX_STORED}`);
+    await kvPipeline([["SET", cacheKey(), packed, "EX", CACHE_TTL_S]]);
+    console.log(`Google Ads cache stored: ${packed.length} bytes (gzip + base64 of ${Buffer.byteLength(JSON.stringify(d.tabs))} bytes of tabs)`);
+  } catch (err) {
+    console.error(`Google Ads cache write failed: ${why(err)}`);
+  }
+}
+
+// Memory: the tabs copy (used when the store is off, fails or is older) and the click rows, which never leave this
+// instance. A copy from the store has no click rows: one background bridge call per instance fetches them.
 let last: SheetData | null = null;
+let clicks: Cell[][] | null = null;
+let clicksAsked = false;
 let lastFail = 0;
 let inflight: Promise<SheetData> | null = null;
 /** The latest click ids the page passed: the next bridge call asks for their click rows. */
 let ids: string[] = [];
 
-/** One bridge call at a time; a success replaces the copy, a failure is logged (check and detail only) and rethrown. */
+/** One bridge call at a time; a success replaces the copy (memory and store), a failure is logged (check and detail only) and rethrown. */
 function refresh(url: string, token: string): Promise<SheetData> {
+  const asked = ids.length > 0;
   inflight ??= callBridge(url, token, fetch, ids)
-    .then((r) => (last = r.data))
+    .then(async (r) => {
+      last = { ...r.data, clicks: null };
+      clicks = r.data.clicks;
+      clicksAsked = asked;
+      await storeCopy(r.data);
+      return r.data;
+    })
     .catch((err: unknown) => {
       lastFail = Date.now();
       const failed = (err instanceof BridgeError ? err.checks : []).find((x) => x.ok === false);
@@ -156,30 +219,44 @@ function refresh(url: string, token: string): Promise<SheetData> {
   return inflight;
 }
 
-export type SheetRead = { kind: "off" | "error"; diagnosis: Diagnosis } | { kind: "ok" | "stale"; data: SheetData };
+/** Where the copy came from: the store, this instance's memory, or the bridge just now (the load waited for it). */
+export type Via = "redis" | "memory" | "bridge";
+export type SheetRead = { kind: "off" | "error"; diagnosis: Diagnosis } | { kind: "ok" | "stale"; data: SheetData; via: Via; due?: boolean };
 
 /**
- * The Sheet, stale-while-revalidate: once a copy exists, every load gets it at once; when it is over 15 minutes old a
- * new read starts in the background (`schedule`: Next's after(), so it outlives the response). Only the first read on
- * a server instance and the Refresh button (`force`) wait for the bridge. "stale" when the latest read failed (the
- * page says "Data could not be refreshed"); "error" with the checks when there is no copy; "off" without the env vars.
- * `clickIds`: the ERP leads' click ids for the next bridge call's click rows (the current copy keeps its own).
- * Never throws.
+ * The Sheet: the stored copy (or the memory copy when newer, or when the store is off or fails) at once. When it was
+ * read before the latest scheduled script run (+15 min, `due`), or this instance has no click rows yet, a bridge read
+ * starts in the background (`schedule`: Next's after(), so it outlives the response). Only a load with no copy anywhere
+ * and the Refresh button (`force`) wait for the bridge. "stale" when the latest read failed (the page says "Data could
+ * not be refreshed"); "error" with the checks when there is no copy; "off" without the env vars.
+ * `clickIds`: the ERP leads' click ids for the next bridge call's click rows. Never throws.
  */
 export async function readGoogleAdsSheet(force = false, schedule: (task: () => Promise<unknown>) => void = (t) => void t(), clickIds?: string[]): Promise<SheetRead> {
   const c = config();
   if (!c) return { kind: "off", diagnosis: diagnose(checks([])) };
   if (clickIds) ids = [...new Set(clickIds.map((s) => s.trim()).filter(Boolean))].sort();
-  if (last && !force) {
-    const now = Date.now();
-    // Over 15 minutes old, and not right after a failure: read again in the background.
-    if (now - last.fetchedAt >= CACHE_MS && now - lastFail >= RETRY_MS) schedule(() => refresh(c.url, c.token).catch(() => undefined));
-    return { kind: lastFail > last.fetchedAt ? "stale" : "ok", data: last };
+  if (!force) {
+    let copy: SheetData | null = null;
+    let via: Via = "redis";
+    try {
+      copy = await loadCopy();
+    } catch (err) {
+      console.error(`Google Ads cache read failed: ${why(err)}`);
+    }
+    if (last && (!copy || last.fetchedAt > copy.fetchedAt)) [copy, via] = [last, "memory"];
+    if (copy) {
+      last = copy;
+      const now = Date.now();
+      const due = copy.fetchedAt < lastScheduledRun(now);
+      const needClicks = !clicks && !clicksAsked && ids.length > 0;
+      if ((due || needClicks) && now - lastFail >= RETRY_MS) schedule(() => refresh(c.url, c.token).catch(() => undefined));
+      return { kind: lastFail > copy.fetchedAt ? "stale" : "ok", data: { ...copy, clicks }, via, due };
+    }
   }
   try {
-    return { kind: "ok", data: await refresh(c.url, c.token) };
+    return { kind: "ok", data: await refresh(c.url, c.token), via: "bridge" };
   } catch (err) {
     const list = err instanceof BridgeError ? err.checks : checks([[false, "Unexpected error"]]);
-    return last ? { kind: "stale", data: last } : { kind: "error", diagnosis: diagnose(list) };
+    return last ? { kind: "stale", data: { ...last, clicks }, via: "memory" } : { kind: "error", diagnosis: diagnose(list) };
   }
 }

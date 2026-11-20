@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import * as zlib from "node:zlib";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { BridgeError, TABS, callBridge, type FetchLike } from "./googleAdsSheet";
 import { rowsOf } from "./googleAdsReport";
 
@@ -88,4 +89,113 @@ describe("callBridge with a mock bridge", () => {
 it("unit tests can't reach the real bridge", async () => {
   await expect(fetch("https://script.google.com/macros/s/x/exec")).rejects.toThrow("Blocked in tests: script.google.com");
   await expect(fetch("https://script.googleusercontent.com/macros/echo")).rejects.toThrow("Blocked in tests");
+});
+
+describe("Redis copy of the bridge read (fake store and bridge)", () => {
+  // 2026-11-18 in Dubai (UTC+4): 06:15 Dubai = 02:15 UTC.
+  const dubai = (hhmm: string, day = "2026-11-18") => Date.parse(`${day}T${hhmm}:00+04:00`);
+
+  it("lastScheduledRun: the latest of 06:15, 13:15, 20:15 Dubai at or before now", async () => {
+    const { lastScheduledRun } = await import("./googleAdsSheet");
+    expect(lastScheduledRun(dubai("06:14"))).toBe(dubai("20:15", "2026-11-17"));
+    expect(lastScheduledRun(dubai("06:15"))).toBe(dubai("06:15"));
+    expect(lastScheduledRun(dubai("13:14"))).toBe(dubai("06:15"));
+    expect(lastScheduledRun(dubai("19:00"))).toBe(dubai("13:15"));
+    expect(lastScheduledRun(dubai("23:59"))).toBe(dubai("20:15"));
+    expect(lastScheduledRun(dubai("00:30"))).toBe(dubai("20:15", "2026-11-17"));
+  });
+
+  it("the stored copy holds the tabs and the read time only, never click rows", async () => {
+    const { packCopy, unpackCopy } = await import("./googleAdsSheet");
+    const tabs = { Alerts: [["h"], ["r"]], Clicks_History: [["GCLID"], ["abc"]] } as never;
+    const back = unpackCopy(packCopy({ tabs, fetchedAt: 5 }))!;
+    expect(back).toEqual({ tabs: { Alerts: [["h"], ["r"]] }, clicks: null, fetchedAt: 5 });
+  });
+
+  /** A fresh module with a fake KV store and bridge; returns the counters and the read function. */
+  async function setup(opts: { stored?: number; kvDown?: boolean } = {}) {
+    vi.resetModules();
+    vi.stubEnv("ADS_SHEET_BRIDGE_URL", URL_);
+    vi.stubEnv("ADS_SHEET_BRIDGE_TOKEN", TOKEN);
+    vi.stubEnv("KV_REST_API_URL", "https://kv.test");
+    vi.stubEnv("KV_REST_API_TOKEN", "kv-token");
+    const mod = await import("./googleAdsSheet");
+    const store = new Map<string, string>();
+    if (opts.stored != null) store.set(mod.cacheKey(), mod.packCopy({ tabs: { Alerts: [["Alert"], ["old"]] }, fetchedAt: opts.stored }));
+    const n = { bridge: 0, sets: 0, setValues: [] as string[] };
+    vi.stubGlobal("fetch", async (url: string, init: RequestInit) => {
+      if (url.startsWith("https://kv.test")) {
+        if (opts.kvDown) return new Response("down", { status: 500 });
+        const cmds = JSON.parse(String(init.body)) as string[][];
+        return json(cmds.map(([cmd, key, value]) => (cmd === "GET" ? { result: store.get(key) ?? null } : (n.sets++, n.setValues.push(value), store.set(key, value), { result: "OK" }))));
+      }
+      n.bridge++;
+      return json({ ...good(), tabs: { ...allTabs(), Clicks_History: { headers: ["GCLID", "Device"], rows: [["id-1", "Mobile"]] } } });
+    });
+    const tasks: (() => Promise<unknown>)[] = [];
+    const read = (force = false) => mod.readGoogleAdsSheet(force, (t) => tasks.push(t), ["id-1"]);
+    return { mod, n, tasks, read, store };
+  }
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("fresh copy (read after the latest run): served from the store, no bridge call now; one background read for the click rows", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(dubai("10:00"));
+    const { n, tasks, read } = await setup({ stored: dubai("06:20") });
+    const r = await read();
+    expect(r).toMatchObject({ kind: "ok", via: "redis", due: false });
+    expect("data" in r && r.data.tabs.Alerts).toEqual([["Alert"], ["old"]]);
+    expect(n.bridge).toBe(0);
+    // No click rows on this instance yet: one background read, after which the copy is fresh and complete.
+    expect(tasks).toHaveLength(1);
+    await tasks[0]();
+    const again = await read();
+    expect("data" in again && again.data.clicks).toEqual([["GCLID", "Device"], ["id-1", "Mobile"]]);
+    expect(tasks).toHaveLength(1);
+  });
+
+  it("due copy (read before the latest run + 15 min): served at once, refreshed in the background, stored without click rows", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(dubai("13:30"));
+    const { n, tasks, read, mod } = await setup({ stored: dubai("06:20") });
+    const r = await read();
+    expect(r).toMatchObject({ kind: "ok", via: "redis", due: true });
+    expect(n.bridge).toBe(0);
+    await tasks[0]();
+    expect(n.bridge).toBe(1);
+    expect(n.sets).toBe(1);
+    const stored = mod.unpackCopy(n.setValues[0])!;
+    expect(stored.fetchedAt).toBe(dubai("13:30"));
+    expect(Object.keys(stored.tabs)).toEqual([...TABS]);
+    expect(zlib.gunzipSync(Buffer.from(n.setValues[0], "base64")).toString()).not.toMatch(/Clicks_History|Perf_Clicks|GCLID|id-1/);
+  });
+
+  it("missing copy: waits for the bridge and stores the read", async () => {
+    const { n, tasks, read } = await setup();
+    expect(await read()).toMatchObject({ kind: "ok", via: "bridge" });
+    expect([n.bridge, n.sets, tasks.length]).toEqual([1, 1, 0]);
+  });
+
+  it("store down: falls back to the bridge as before, then to this instance's memory copy", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { n, read } = await setup({ kvDown: true });
+    expect(await read()).toMatchObject({ kind: "ok", via: "bridge" });
+    expect(await read()).toMatchObject({ kind: "ok", via: "memory" });
+    expect(n.bridge).toBe(1);
+    // Logged without the store's address or token.
+    expect(err.mock.calls.flat().join(" ")).not.toMatch(/kv\.test|kv-token|secret-token/);
+    err.mockRestore();
+  });
+
+  it("Refresh (force) reads the bridge even with a fresh copy, and replaces the stored one", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(dubai("10:00"));
+    const { n, read } = await setup({ stored: dubai("06:20") });
+    expect(await read(true)).toMatchObject({ kind: "ok", via: "bridge" });
+    expect([n.bridge, n.sets]).toEqual([1, 1]);
+  });
 });
