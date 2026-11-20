@@ -9,12 +9,15 @@
 
   Two secrets:
   - SECRET (below; the app's ADS_SHEET_SECRET): reads and writes. Production only.
-  - READ_SECRET (Project Settings → Script Properties; the app's ADS_SHEET_READ_SECRET): reads only. doPost never
-    accepts it, and reads change nothing in the sheet. For deployments that must only read (Vercel Preview).
+  - READ_SECRET (Project Settings → Script Properties, 32+ characters; the app's ADS_SHEET_READ_SECRET): reads only.
+    doPost never accepts it, and reads change nothing in the sheet. For deployments that must only read (Vercel Preview).
 
-  Fallback tab: when the ERP refuses a website lead or doesn't answer, the website sends the whole lead here (with
-  its name, phone and email, so sales can call back) and it goes to a separate tab named "Fallback". doGet never
-  reads that tab, so the read-only secret, Vercel Preview and /ads-report can't see contact details. Each fallback
+  Two tabs, both found by their exact name, never by position:
+  - "Lead log" (LOG_TAB): the Google Ads lead log. The only tab doGet reads and the only one the lead write uses.
+    Without a tab of that name, reads and lead writes answer an error and nothing is created.
+  - "Fallback" (FALLBACK_TAB): when the ERP refuses a website lead or doesn't answer, the website sends the whole lead
+    here (with its name, phone and email, so sales can call back). doGet never reads it, so the read-only secret,
+    Vercel Preview and /ads-report can't see contact details. Created by the script the first time. Each fallback
   lead emails ALERT_EMAIL (Script Properties; one address, or several separated by commas) with only
   "1 lead saved to the fallback". Without ALERT_EMAIL the lead is still saved. The first deploy after this change
   asks the owner to allow sending email (run authorize() once from the editor).
@@ -38,7 +41,10 @@ const COLUMNS = [
   ["consent", "Cookie consent"],
 ];
 
+const LOG_TAB = "Lead log";
 const FALLBACK_TAB = "Fallback";
+const ALERT_SUBJECT = "Website lead saved to the fallback";
+const ALERT_BODY = "1 lead saved to the fallback.";
 // [field the website sends, column title] for the Fallback tab. Add new columns at the end only.
 const FALLBACK_COLUMNS = [
   ["received", "Received (UAE)"],
@@ -63,10 +69,10 @@ const FALLBACK_COLUMNS = [
 
 const reply = (obj) => ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 
-/** The read-only secret from Script Properties; "" when unset. Shorter than 16 characters counts as unset. */
+/** The read-only secret from Script Properties; "" when unset. Shorter than 32 characters counts as unset. */
 function readSecret() {
   const v = PropertiesService.getScriptProperties().getProperty("READ_SECRET") || "";
-  return v.length >= 16 ? v : "";
+  return v.length >= 32 ? v : "";
 }
 /** Writing (and reading): the write secret only. */
 const canWrite = (secret) => !SECRET.startsWith("__") && secret === SECRET;
@@ -75,19 +81,20 @@ const canRead = (secret) => canWrite(secret) || (readSecret() !== "" && secret =
 
 /** Run once from the editor (or by the setup script's first visit) so Google asks the owner for access to the sheet. */
 function authorize() {
-  sheetForWriting();
+  if (!sheetForWriting()) throw new Error(`No tab named "${LOG_TAB}": rename the lead log tab to exactly that first.`);
   fallbackSheet();
   MailApp.getRemainingDailyQuota(); // asks for the "send email" permission the fallback alert needs
 }
 
-/** The lead log tab: the first tab that isn't the Fallback tab, so moving tabs around can never expose the fallback. */
+/** The lead log tab, by its exact name only (never by position, so moving tabs can't expose the Fallback tab). Null if missing. */
 function logSheet() {
-  return SpreadsheetApp.getActiveSpreadsheet().getSheets().find((t) => t.getName() !== FALLBACK_TAB);
+  return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LOG_TAB);
 }
 
-/** The sheet, its header row added or fixed first. Only for writing: reads never change the sheet. */
+/** The lead log tab, its header row added or fixed first. Only for writing: reads never change the sheet. Null if missing. */
 function sheetForWriting() {
   const s = logSheet();
+  if (!s) return null;
   if (s.getLastRow() === 0) {
     s.appendRow(COLUMNS.map((c) => c[1]));
     s.setFrozenRows(1);
@@ -115,6 +122,7 @@ function doPost(e) {
   lock.waitLock(10000);
   try {
     const s = sheetForWriting();
+    if (!s) return reply({ ok: false, error: "no lead log tab" });
     const last = s.getLastRow();
     const names = last > 1 ? s.getRange(2, 1, last - 1, 1).getDisplayValues().map((r) => r[0]) : [];
     if (names.includes(lead.name)) return reply({ ok: true, duplicate: true });
@@ -131,7 +139,8 @@ function doPost(e) {
 /** Every lead in the sheet: GET ?secret=... (the write or the read-only secret). Strictly read-only. */
 function doGet(e) {
   if (!canRead(e.parameter.secret)) return reply({ ok: false, error: "forbidden" });
-  const s = logSheet(); // never the Fallback tab
+  const s = logSheet(); // the "Lead log" tab by name: never the Fallback tab, wherever the tabs are
+  if (!s) return reply({ ok: false, error: "no lead log tab" });
   const rows = s.getLastRow() > 1 ? s.getRange(2, 1, s.getLastRow() - 1, COLUMNS.length).getDisplayValues() : [];
   const leads = rows.filter((r) => r[0]).map((r) => Object.fromEntries(COLUMNS.map((c, i) => [c[0], (r[i] || "").trim()])));
   return reply({ ok: true, leads });
@@ -167,16 +176,26 @@ function addFallback(lead) {
     lock.releaseLock();
   }
   let alerted = false;
-  const to = PropertiesService.getScriptProperties().getProperty("ALERT_EMAIL") || "";
+  const to = alertTo();
   if (to) {
     try {
-      MailApp.sendEmail(to, "Website lead saved to the fallback", "1 lead saved to the fallback.");
+      MailApp.sendEmail(to, ALERT_SUBJECT, ALERT_BODY);
       alerted = true;
     } catch (err) {
       console.error("Fallback alert email failed", err);
     }
   }
   return reply({ ok: true, alerted });
+}
+
+const alertTo = () => PropertiesService.getScriptProperties().getProperty("ALERT_EMAIL") || "";
+
+/** Run once from the editor: sends the same alert email a fallback lead sends, to ALERT_EMAIL. Writes no row. */
+function testAlertEmail() {
+  const to = alertTo();
+  if (!to) throw new Error("ALERT_EMAIL is not set in Script Properties.");
+  MailApp.sendEmail(to, ALERT_SUBJECT, ALERT_BODY);
+  Logger.log(`Alert email sent to ${to.split(",").length} address(es). No row was written.`);
 }
 
 /**
@@ -186,8 +205,9 @@ function addFallback(lead) {
  */
 function testReadSecretCannotWrite() {
   const rs = readSecret();
-  if (!rs) throw new Error("READ_SECRET is not set (or shorter than 16 characters) in Script Properties.");
+  if (!rs) throw new Error("READ_SECRET is not set (or shorter than 32 characters) in Script Properties.");
   const s = logSheet();
+  if (!s) throw new Error(`No tab named "${LOG_TAB}".`);
   const rowsBefore = s.getLastRow();
   const json = (out) => JSON.parse(out.getContent());
   const read = json(doGet({ parameter: { secret: rs } }));
@@ -203,22 +223,40 @@ function testReadSecretCannotWrite() {
 }
 
 /**
- * Run from the editor after a redeploy: proves the Fallback tab can't be read or written with the read-only secret,
- * a wrong secret or none, and that reads never return its columns. Writes nothing, sends no email.
+ * Run from the editor after a redeploy (READ_SECRET set): proves the Fallback tab can't be written with the read-only
+ * secret, a wrong secret or none, and that with the Fallback tab moved to the front, a read still returns exactly the
+ * "Lead log" rows. The tab order is put back afterwards; no row is written and no email is sent.
  */
 function testFallbackIsPrivate() {
-  const fb = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(FALLBACK_TAB);
-  const before = fb ? fb.getLastRow() : 0;
+  const rs = readSecret();
+  if (!rs) throw new Error("READ_SECRET is not set (or shorter than 32 characters) in Script Properties.");
+  const log = logSheet();
+  if (!log) throw new Error(`No tab named "${LOG_TAB}".`);
+  const book = SpreadsheetApp.getActiveSpreadsheet();
+  const fb = fallbackSheet();
+  const fbRows = fb.getLastRow(), logRows = log.getLastRow();
   const json = (out) => JSON.parse(out.getContent());
   const fake = { lead_name: "TEST AUDIT - DELETE", mobile_no: "+971500000000", email_id: "test-audit@xerebo.com" };
-  const writes = [readSecret() || "no-read-secret-set", "wrong", undefined].map((secret) =>
+  const writes = [rs, "wrong", undefined].map((secret) =>
     json(doPost({ postData: { contents: JSON.stringify({ secret, fallback: fake }) } })).error);
-  const read = readSecret() ? json(doGet({ parameter: { secret: readSecret() } })) : { ok: true, leads: [] };
-  const leaked = (read.leads || []).some((l) => "lead_name" in l || "mobile_no" in l || "email_id" in l);
-  const after = fb ? fb.getLastRow() : 0;
-  const pass = writes.every((e) => e === "forbidden") && read.ok === true && !leaked && after === before && logSheet().getName() !== FALLBACK_TAB;
+
+  const position = fb.getIndex();
+  let read;
+  book.setActiveSheet(fb);
+  book.moveActiveSheet(1); // Fallback first
+  try {
+    read = json(doGet({ parameter: { secret: rs } }));
+  } finally {
+    book.setActiveSheet(fb);
+    book.moveActiveSheet(position);
+  }
+  const expected = logRows > 1 ? log.getRange(2, 1, logRows - 1, 1).getDisplayValues().filter((r) => r[0]).length : 0;
+  const keys = COLUMNS.map((c) => c[0]).join();
+  const onlyLog = read.ok === true && read.leads.length === expected && read.leads.every((l) => Object.keys(l).join() === keys);
+  const unchanged = fb.getLastRow() === fbRows && log.getLastRow() === logRows && fb.getIndex() === position;
+  const pass = writes.every((e) => e === "forbidden") && onlyLog && unchanged;
   Logger.log(`Fallback writes without SECRET: ${writes.join(", ")}`);
-  Logger.log(`Read returns contact columns: ${leaked ? "YES (FAIL)" : "no"}; tab read: ${logSheet().getName()}`);
-  Logger.log(`Fallback rows before ${before}, after ${after}: ${after === before ? "unchanged" : "CHANGED"}`);
+  Logger.log(`Fallback moved to the front, read returned ${read.leads ? read.leads.length : read.error} rows; "${LOG_TAB}" has ${expected}: ${onlyLog ? "lead log only" : "WRONG"}`);
+  Logger.log(`Rows and tab order unchanged: ${unchanged ? "yes" : "NO"}`);
   Logger.log(pass ? "PASS" : "FAIL");
 }
