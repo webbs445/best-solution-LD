@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section 8 · Questions founders ask · phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.rail{display:flex;gap:8px;overflow-x:auto;margin:0 -20px;padding:0 20px;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.qchip{flex:none;max-width:230px;min-height:40px;padding:8px 14px;border-radius:14px;font-family:Inter,system-ui,sans-serif;font-size:13px;font-weight:600;text-align:left;cursor:pointer}
+.dot{width:6px;height:6px;border-radius:50%;background:#B9A595;animation:bounce .9s infinite}
+.dot:nth-child(2){animation-delay:.12s}.dot:nth-child(3){animation-delay:.24s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+@keyframes inA{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes inB{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes outA{0%,75%{opacity:1}100%{opacity:0;visibility:hidden}}
+@keyframes outB{0%,75%{opacity:1}100%{opacity:0;visibility:hidden}}
+</style>
+</helmet>
+<div style="width: 390px; height: 900px; box-sizing: border-box; background: #FBF6F1; font-family: Inter, system-ui, sans-serif; color: #14213D; padding: 48px 20px; display: flex; flex-direction: column; gap: 16px; overflow: hidden">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #9A5A36">QUESTIONS FOUNDERS ASK</span>
+<h2 style="margin: -6px 0 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 30px; line-height: 1.1">Ask us anything.</h2>
+<span style="margin-top: -4px; font-size: 14px; line-height: 1.5; color: #3C4659">Tap a question to see the answer.</span>
+<div class="rail">
+<sc-for list="{{qs}}" as="q" hint-placeholder-count="6">
+<button type="button" class="qchip" aria-pressed="{{q.pressed}}" onClick="{{q.go}}" style="{{q.style}}">{{q.q}}</button>
+</sc-for>
+</div>
+<div style="height: 540px; border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; background: #F4EDE5; box-shadow: 0 30px 50px -36px rgba(20,33,61,0.6)">
+<div style="flex: none; display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #14213D; color: #FFFFFF">
+<span style="position: relative; width: 38px; height: 38px; border-radius: 50%; background: #2A3A5E; border: 2px solid #E3A47E"><span style="position: absolute; right: -2px; bottom: -2px; width: 10px; height: 10px; border-radius: 50%; background: #3BC46B; border: 2px solid #14213D"></span></span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">[Advisor name] · Best Solution</span><span style="font-size: 12px; color: #C3CAD8">Usually replies within [1 hour]</span></span>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: 14px; overflow: hidden">
+<sc-for list="{{thread}}" as="m" hint-placeholder-count="2">
+<div style="{{m.qStyle}}">{{m.q}}</div>
+<div style="position: relative; align-self: flex-start; max-width: 88%">
+<sc-if value="{{m.last}}" hint-placeholder-val="false"><div style="{{m.typing}}"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></sc-if>
+<div style="{{m.aStyle}}">{{m.a}}</div>
+</div>
+</sc-for>
+</div>
+<a href="#" style="flex: none; display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #FFFFFF; border-top: 1px solid #EADFD4; text-decoration: none">
+<span style="flex: 1; height: 44px; border-radius: 999px; background: #F4EDE5; display: flex; align-items: center; padding: 0 14px; font-size: 14px; color: #6B7280">Ask your own on WhatsApp…</span>
+<span style="flex: none; width: 44px; height: 44px; border-radius: 50%; background: #B9714B; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></span>
+</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { thread: [0, 1], n: 0 }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var data = [
+      { q: "Is the consultation really free?", a: "Yes. The call and your written plan are both free. Any fees after that are confirmed in writing first." },
+      { q: "Which free zone is the cheapest?", a: "The cheapest on paper isn't always the cheapest by year two. Your plan compares the options for your case." },
+      { q: "How long does it all take?", a: "It depends on your activity and the authority. Your plan shows a realistic timeline, step by step." },
+      { q: "I already have a company. Can you help?", a: "Yes. Monthly books, Corporate Tax and holding structures. Same free first call." },
+      { q: "Are you a government office?", a: "No. We're a private consultancy in Business Bay. The authorities make the final decisions." },
+      { q: "What happens to my details?", a: "We use them only to reply to you. We never sell or share them." }
+    ];
+    var active = st.thread[st.thread.length - 1];
+    var qs = data.map(function (d, i) {
+      var on = i === active;
+      return { q: d.q, pressed: on ? "true" : "false",
+        go: function () {
+          if (self.state.thread[self.state.thread.length - 1] === i) return;
+          var t = self.state.thread.filter(function (x) { return x !== i; }); t.push(i);
+          self.setState({ thread: t.slice(-2), n: self.state.n + 1 });
+        },
+        style: on ? "background: #14213D; color: #FFFFFF; border: 1.5px solid #14213D;" : "background: #FFFFFF; color: #14213D; border: 1.5px solid #E2D3C6;" };
+    });
+    var p = st.n % 2 ? "A" : "B", L = st.thread.length;
+    var thread = st.thread.map(function (idx, j) {
+      var last = j === L - 1 && st.n > 0, d = data[idx];
+      return { q: d.q, a: d.a, last: last,
+        qStyle: "align-self: flex-end; max-width: 80%; background: #F3E4D8; border-radius: 14px 4px 14px 14px; padding: 10px 12px; font-size: 14px; font-weight: 600; line-height: 1.45; " + (last ? "animation: in" + p + " .3s ease both;" : ""),
+        typing: "position: absolute; left: 0; top: 0; display: flex; gap: 4px; background: #FFFFFF; border-radius: 4px 14px 14px 14px; padding: 12px 14px; animation: out" + p + " .55s ease both",
+        aStyle: "background: #FFFFFF; border-radius: 4px 14px 14px 14px; padding: 10px 12px; font-size: 14px; line-height: 1.55; " + (last ? "animation: in" + p + " .35s ease .45s both;" : "") };
+    });
+    return { qs: qs, thread: thread };
+  }
+}
+</script>
+</body>
+</html>

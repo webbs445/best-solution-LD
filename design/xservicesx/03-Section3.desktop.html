@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section 3 · Where are you right now?</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9A5A36}a:hover{color:#7A4428}
+.bs-primary,.bs-dark,.bs-ghost{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:0 10px 0 24px;border-radius:14px;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s,border-color .2s;box-sizing:border-box}
+.bs-primary{background:#B9714B;color:#FFFFFF;border:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.bs-primary:hover,.bs-primary.is-hover{background:#A8623E;color:#FFFFFF;transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 14px 26px -14px rgba(168,98,62,.8)}
+.bs-dark{background:#14213D;color:#FFFFFF;border:0}
+.bs-dark:hover,.bs-dark.is-hover{background:#0C1630;color:#FFFFFF;transform:translateY(-1px);box-shadow:0 14px 26px -14px rgba(20,33,61,.7)}
+.bs-ghost{background:#FFFFFF;color:#14213D;border:1.5px solid #E2D3C6;padding:0 22px}
+.bs-ghost:hover,.bs-ghost.is-hover{border-color:#B9714B;background:#FBF1EA;color:#14213D}
+.bs-arrow{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;transition:transform .2s}
+.bs-primary:hover .bs-arrow,.bs-primary.is-hover .bs-arrow,.bs-dark:hover .bs-arrow,.bs-dark.is-hover .bs-arrow{transform:translateX(3px)}
+.bs-primary:focus-visible,.bs-dark:focus-visible,.bs-ghost:focus-visible,.bs-link:focus-visible,.bs-chip:focus-visible,.is-focus{outline:3px solid #14213D;outline-offset:3px}
+.bs-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:#14213D;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;text-decoration:none;background:linear-gradient(#B9714B,#B9714B) 0 calc(100% - 10px)/32% 2px no-repeat;transition:background-size .25s}
+.bs-link:hover,.bs-link.is-hover{color:#14213D;background-size:100% 2px}
+.bs-link span{transition:transform .2s}
+.bs-link:hover span,.bs-link.is-hover span{transform:translateX(3px)}
+.bs-chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;background:#FBF1EA;color:#7A4428;font-family:Inter,system-ui,sans-serif;font-size:14px;font-weight:700;text-decoration:none;transition:background .2s,color .2s}
+.bs-chip:hover,.bs-chip.is-hover{background:#B9714B;color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1440px; height: 980px; box-sizing: border-box; background: #FBF6F1; font-family: Inter, system-ui, sans-serif; color: #14213D; padding: 80px 120px; display: flex; flex-direction: column; gap: 36px">
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #B9714B">WHERE ARE YOU RIGHT NOW?</span>
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 44px; line-height: 1.08; letter-spacing: -0.02em">Pick your situation. We'll take it from there.</h2>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.35fr 1fr 1fr; grid-template-rows: 300px 300px; gap: 16px">
+
+<div onMouseEnter="{{h0}}" onMouseLeave="{{hOff}}" style="{{c0}}">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<span style="align-self: flex-start; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #7A4428; background: #F3E4D8; padding: 6px 12px; border-radius: 999px">MOST COMMON</span>
+<h3 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 34px; line-height: 1.1">I'm starting a new company</h3>
+<p style="margin: 0; font-size: 17px; line-height: 1.5; color: #3C4659">For founders in the UAE or abroad with a business idea and a budget.</p>
+</div>
+<div style="background: #FBF6F1; border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #B9714B">YOU'LL GET</span>
+<span style="display: flex; gap: 10px; font-size: 16px"><span style="color: #B9714B; font-weight: 700">✓</span>Where to base it: free zone or mainland</span>
+<span style="display: flex; gap: 10px; font-size: 16px"><span style="color: #B9714B; font-weight: 700">✓</span>Year one and renewal costs, in writing</span>
+<span style="display: flex; gap: 10px; font-size: 16px"><span style="color: #B9714B; font-weight: 700">✓</span>What to prepare, as a simple checklist</span>
+</div>
+<div style="display: flex; align-items: center; gap: 22px">
+<a href="#" class="bs-primary">Get my free plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a>
+<a href="#" class="bs-link">Plan your budget <span>→</span></a>
+</div>
+</div>
+
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="4">
+<div onMouseEnter="{{c.hover}}" onMouseLeave="{{c.leave}}" style="{{c.style}}">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<span style="{{c.iconStyle}}">{{c.icon}}</span>
+<span style="font-size: 13px; font-weight: 700; color: #B9714B">{{c.num}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h3 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 22px; line-height: 1.2">{{c.title}}</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #3C4659">{{c.what}}</p>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 14px; border-top: 1px solid #F0E8E0">
+<a href="#" class="bs-link" style="font-size: 15px">{{c.page}} <span>→</span></a>
+<a href="#" class="{{c.chipClass}}">{{c.cta}}</a>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; background: #FFFFFF; border: 1.5px dashed #D8B79F; border-radius: 20px; padding: 22px 28px">
+<div style="display: flex; align-items: center; gap: 16px"><span style="width: 44px; height: 44px; border-radius: 12px; background: #F3E4D8; color: #B9714B; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800">?</span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 18px; font-weight: 700">Not sure which one fits?</span><span style="font-size: 15px; color: #5B6375">Tell us your plan in a few lines. An advisor tells you where to start.</span></div></div>
+<a href="#" class="bs-dark">Tell us your plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { hov: -1 }; }
+  renderVals() {
+    var self = this, hov = this.state.hov;
+    var base = "background: #FFFFFF; border-radius: 22px; display: flex; flex-direction: column; transition: transform .25s ease, box-shadow .25s ease, border-color .25s; ";
+    var lift = function (on) { return on ? "transform: translateY(-6px); box-shadow: 0 28px 50px -28px rgba(20,33,61,0.35); border: 1.5px solid #D8B79F;" : "box-shadow: 0 1px 0 rgba(20,33,61,0.04); border: 1.5px solid #EDE3D9;"; };
+    var data = [
+      { icon: "⇄", title: "Free zone or mainland?", what: "What each one allows, what each costs, and which fits your activity.", page: "Free zone advice", cta: "Compare my options" },
+      { icon: "◈", title: "Holding assets or several companies", what: "Whether a holding or offshore structure fits, and what it keeps separate.", page: "Holding structures", cta: "Get my free plan" },
+      { icon: "▤", title: "Monthly books", what: "Clean monthly books, matched bank statements, reports you can read.", page: "Bookkeeping", cta: "Get my free quote" },
+      { icon: "%", title: "Corporate Tax questions", what: "Whether it applies to you, your deadlines, and help with your return.", page: "Corporate Tax", cta: "Check my position" }
+    ];
+    var cards = data.map(function (d, i) {
+      var on = hov === i + 1;
+      return {
+        icon: d.icon, title: d.title, what: d.what, page: d.page, cta: d.cta, num: "0" + (i + 2),
+        hover: function () { self.setState({ hov: i + 1 }); },
+        leave: function () { self.setState({ hov: -1 }); },
+        style: base + "padding: 24px 26px; gap: 18px; " + lift(on),
+        iconStyle: "width: 44px; height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; transition: background .25s, color .25s; " + (on ? "background: #B9714B; color: #FFFFFF;" : "background: #F3E4D8; color: #B9714B;"),
+        chipClass: on ? "bs-chip is-hover" : "bs-chip"
+      };
+    });
+    return {
+      cards: cards,
+      c0: base + "grid-row: span 2; padding: 34px 36px; justify-content: space-between; " + lift(hov === 0),
+      h0: function () { self.setState({ hov: 0 }); },
+      hOff: function () { self.setState({ hov: -1 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

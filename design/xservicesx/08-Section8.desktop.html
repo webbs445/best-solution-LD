@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section 8 · Questions founders ask</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.qbtn{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:13px 16px 13px 18px;border-radius:14px;font-family:Inter,system-ui,sans-serif;color:#14213D;text-align:left;cursor:pointer;transition:background .2s,border-color .2s,box-shadow .2s,transform .2s}
+.qbtn:hover{border-color:#D8B79F;transform:translateX(3px)}
+.qbtn:focus-visible,.askbar:focus-visible{outline:3px solid #14213D;outline-offset:3px}
+.askbar{display:flex;align-items:center;gap:10px;text-decoration:none}
+.askbar:hover .send{transform:scale(1.08);background:#A8623E}
+.send{transition:transform .2s,background .2s}
+.dot{width:7px;height:7px;border-radius:50%;background:#B9A595;animation:bounce .9s infinite}
+.dot:nth-child(2){animation-delay:.12s}.dot:nth-child(3){animation-delay:.24s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+@keyframes inA{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes inB{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes outA{0%,75%{opacity:1}100%{opacity:0;visibility:hidden}}
+@keyframes outB{0%,75%{opacity:1}100%{opacity:0;visibility:hidden}}
+</style>
+</helmet>
+<div style="width: 1440px; height: 940px; box-sizing: border-box; background: #FBF6F1; font-family: Inter, system-ui, sans-serif; color: #14213D; padding: 88px 120px; display: grid; grid-template-columns: 1fr 560px; gap: 80px; align-items: center">
+
+<div style="display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #9A5A36">QUESTIONS FOUNDERS ASK</span>
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 44px; line-height: 1.08; letter-spacing: -0.02em">Ask us anything.<br>Here's what most people ask first.</h2>
+<span style="font-size: 17px; color: #3C4659">Tap a question. You get the same straight answer our advisors give every day.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 18px">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #5B6375">{{g.label}}</span>
+<sc-for list="{{g.qs}}" as="q" hint-placeholder-count="2">
+<button type="button" class="qbtn" aria-pressed="{{q.pressed}}" onClick="{{q.go}}" style="{{q.style}}">
+<span style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 16px; font-weight: 700">{{q.q}}</span><span style="font-size: 14px; color: #5B6375">{{q.preview}}</span></span>
+<span style="{{q.icon}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
+</button>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="height: 680px; border-radius: 28px; overflow: hidden; display: flex; flex-direction: column; background: #F4EDE5; box-shadow: 0 50px 80px -50px rgba(20,33,61,0.55), 0 0 0 1px rgba(20,33,61,0.06)">
+<div style="flex: none; display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: #14213D; color: #FFFFFF">
+<span style="position: relative; width: 46px; height: 46px; border-radius: 50%; background: #2A3A5E; border: 2px solid #E3A47E; display: inline-flex; align-items: center; justify-content: center; color: #E3A47E"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span style="position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border-radius: 50%; background: #3BC46B; border: 2px solid #14213D"></span></span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">[Advisor name] · Best Solution</span><span style="font-size: 13px; color: #C3CAD8">Usually replies within [1 hour]</span></span>
+</div>
+
+<div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px; padding: 20px 22px 18px; overflow: hidden">
+<div style="align-self: flex-start; max-width: 80%; background: #FFFFFF; border-radius: 4px 16px 16px 16px; padding: 12px 14px; font-size: 15px; line-height: 1.5; box-shadow: 0 1px 2px rgba(20,33,61,0.06)">Hi, I'm [Advisor name]. Ask me anything about your company plan.</div>
+<sc-for list="{{thread}}" as="m" hint-placeholder-count="2">
+<div style="{{m.qStyle}}">{{m.q}}</div>
+<div style="position: relative; align-self: flex-start; max-width: 84%">
+<sc-if value="{{m.last}}" hint-placeholder-val="false"><div style="{{m.typing}}"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></sc-if>
+<div style="{{m.aStyle}}">{{m.a}}</div>
+</div>
+</sc-for>
+</div>
+
+<a href="#" class="askbar" style="flex: none; padding: 12px 14px; background: #FFFFFF; border-top: 1px solid #EADFD4">
+<span style="flex: 1; height: 48px; border-radius: 999px; background: #F4EDE5; display: flex; align-items: center; padding: 0 18px; font-size: 15px; color: #6B7280">Ask your own question on WhatsApp…</span>
+<span class="send" style="flex: none; width: 48px; height: 48px; border-radius: 50%; background: #B9714B; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></span>
+</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":940}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { thread: [0, 1], n: 0 }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var groups = [
+      { label: "COSTS", qs: [
+        { q: "Is the consultation really free?", preview: "Yes, the call and the written plan.", a: "Yes. The call and your written plan are both free. If you want our help after that, we confirm our fees in writing before any work starts." },
+        { q: "Which free zone is the cheapest?", preview: "Cheapest on paper isn't cheapest by year two.", a: "The cheapest on paper isn't always the cheapest by year two. It depends on your activity and your team. Your written plan compares the options for your case, side by side." } ] },
+      { label: "PROCESS", qs: [
+        { q: "How long does it all take?", preview: "It depends. Your plan shows every step.", a: "It depends on your activity and the authority. Your written plan gives you a realistic timeline, step by step, so you can plan around it." },
+        { q: "I already have a company. Can you still help?", preview: "Yes. Books, Corporate Tax and holding structures.", a: "Yes. We advise existing companies on monthly books, Corporate Tax and holding structures. Same free first call, same answer in writing." } ] },
+      { label: "ABOUT US", qs: [
+        { q: "Are you a government office?", preview: "No. We're a private consultancy.", a: "No. We're a private consultancy in Business Bay. We advise you on your options, costs and next steps. The authorities make the final decisions." },
+        { q: "What happens to my details?", preview: "Used only to reply to you.", a: "We use them only to reply to you about your plan. We never sell or share them." } ] }
+    ];
+    var flat = [], k = 0, active = st.thread[st.thread.length - 1];
+    var out = groups.map(function (g) {
+      return { label: g.label, qs: g.qs.map(function (d) {
+        var idx = k++; flat.push(d); var on = idx === active;
+        return { q: d.q, preview: d.preview, pressed: on ? "true" : "false",
+          go: function () {
+            var t = self.state.thread.filter(function (x) { return x !== idx; });
+            if (self.state.thread[self.state.thread.length - 1] === idx) return;
+            t.push(idx); self.setState({ thread: t.slice(-3), n: self.state.n + 1 });
+          },
+          style: on ? "background: #FFFFFF; border: 1.5px solid #B9714B; box-shadow: 0 16px 30px -24px rgba(185,113,75,0.9);" : "background: transparent; border: 1.5px solid #E7DCD2;",
+          icon: "flex: none; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; " + (on ? "background: #B9714B; color: #FFFFFF;" : "background: #F3E4D8; color: #9A5A36;") };
+      }) };
+    });
+    var p = st.n % 2 ? "A" : "B", L = st.thread.length;
+    var thread = st.thread.map(function (idx, j) {
+      var last = j === L - 1 && st.n > 0, d = flat[idx];
+      return {
+        q: d.q, a: d.a, last: last,
+        qStyle: "align-self: flex-end; max-width: 78%; background: #F3E4D8; color: #14213D; border-radius: 16px 4px 16px 16px; padding: 11px 14px; font-size: 15px; font-weight: 600; line-height: 1.45; box-shadow: 0 1px 2px rgba(20,33,61,0.06); " + (last ? "animation: in" + p + " .3s ease both;" : ""),
+        typing: "position: absolute; left: 0; top: 0; display: flex; gap: 5px; align-items: center; background: #FFFFFF; border-radius: 4px 16px 16px 16px; padding: 14px 16px; animation: out" + p + " .55s ease both",
+        aStyle: "background: #FFFFFF; border-radius: 4px 16px 16px 16px; padding: 12px 14px; font-size: 15px; line-height: 1.55; box-shadow: 0 1px 2px rgba(20,33,61,0.06); " + (last ? "animation: in" + p + " .35s ease .45s both;" : "")
+      };
+    });
+    return { groups: out, thread: thread };
+  }
+}
+</script>
+</body>
+</html>

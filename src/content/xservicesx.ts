@@ -1,195 +1,201 @@
 import { AC_SERVICE_ENQUIRED, CT_SERVICE_ENQUIRED, SPV_SERVICE_ENQUIRED } from "@/lib/lead";
-import { SITE } from "@/content/site";
+import { XS_CONFIG as C, type TopicId } from "@/content/xservicesx.config";
 
 /*
-  /xservicesx (Services page v2, brief: docs/briefs/xservicesx-page-brief.md). Copy is the brief's, word for word.
-  XS_FACTS holds every [bracketed] fact in the brief. null = not confirmed: the element is left out of the HTML, or
-  the brief's fallback wording is used. Fill a value only once Best Solution confirms it.
+  /xservicesx copy, from the design files (design/xservicesx) with the landing page copy rules applied: no "free"
+  outside "free zone", no start/renewal/cheapest, "Get my written plan" for every plan button, and the fees-in-writing
+  lines only while XS_CONFIG.feesInWritingConfirmed is true. Facts come from XS_CONFIG; a null fact drops its words.
 */
-export const XS_FACTS: {
-  /** e.g. "within 1 working hour" (section 1 facts, FAQ, form line, success message) */
-  replyTime: string | null;
-  /** e.g. "30-minute" (section 5, step 2) */
-  consultLength: string | null;
-  /** Section 6 advisor card and its WhatsApp link. photo: a path under /public. */
-  advisor: { photo: string; name: string; role: string; languages: string; sentence: string } | null;
-  /** Michael's Google review, 15 words or fewer, word for word (section 1 proof line). */
-  heroQuote: string | null;
-  /** e.g. "Rated 4.8 out of 5 from 200 Google reviews" (section 7 line) */
-  rating: string | null;
-  /** Section 7 client story. */
-  clientStory: { situation: string; advice: string; result: string } | null;
-  /** e.g. "Emirati-owned, advising since 2014" (section 6 trust list) */
-  emiratiOwnedSince: string | null;
-  /** Section 8 call link: the site's number (content/site SITE.phone). */
-  callNumber: { display: string; href: string } | null;
-} = {
-  replyTime: null,
-  consultLength: null,
-  advisor: null,
-  heroQuote: null,
-  rating: null,
-  clientStory: null,
-  emiratiOwnedSince: null,
-  callNumber: SITE.phone,
+
+export type { TopicId };
+export const TOPIC_IDS: TopicId[] = ["new_company", "fz_or_mainland", "holding", "bookkeeping", "corporate_tax", "not_sure"];
+export const isTopic = (v: unknown): v is TopicId => (TOPIC_IDS as unknown[]).includes(v);
+
+/** label: the hero select and WhatsApp text; short: chips, the plan's ABOUT row and the sticky bar. */
+export const TOPICS: Record<TopicId, { label: string; short: string }> = {
+  new_company: { label: "Planning a new company", short: "New company" },
+  fz_or_mainland: { label: "Free zone or mainland", short: "Free zone or mainland" },
+  holding: { label: "Holding assets or several companies", short: "Holding assets" },
+  bookkeeping: { label: "Monthly bookkeeping", short: "Monthly books" },
+  corporate_tax: { label: "Corporate Tax", short: "Corporate Tax" },
+  not_sure: { label: "Not sure yet", short: "Not sure yet" },
 };
 
-/** The form's "Need" options, in the brief's order. Also the value a card pre-fills and the lead's service interest. */
-export const NEEDS = [
-  "Starting a new company",
-  "Free zone or mainland",
-  "Holding or several companies",
-  "Bookkeeping",
-  "Corporate Tax",
-  "Not sure yet",
-] as const;
-export type Need = (typeof NEEDS)[number];
-export const isNeed = (v: unknown): v is Need => (NEEDS as readonly unknown[]).includes(v);
-
-/** The ERP "Service Enquired" option for each need (exact Select options; undefined = the ERP default "Business Setup"). */
-export const NEED_SERVICE: Record<Need, string | undefined> = {
-  "Starting a new company": undefined,
-  "Free zone or mainland": undefined,
-  "Holding or several companies": SPV_SERVICE_ENQUIRED,
-  Bookkeeping: AC_SERVICE_ENQUIRED,
-  "Corporate Tax": CT_SERVICE_ENQUIRED,
-  "Not sure yet": undefined,
+/** The ERP "Service Enquired" option per topic (exact Select options; undefined = the ERP default "Business Setup"). */
+export const TOPIC_SERVICE: Record<TopicId, string | undefined> = {
+  new_company: undefined,
+  fz_or_mainland: undefined,
+  holding: SPV_SERVICE_ENQUIRED,
+  bookkeeping: AC_SERVICE_ENQUIRED,
+  corporate_tax: CT_SERVICE_ENQUIRED,
+  not_sure: undefined,
 };
 
-export const XS_DISCLAIMER = "Best Solution is a private business consultancy, not a government office or a free zone authority.";
-export const XS_FOOTER_LEGAL =
-  "Best Solution is a private business consultancy and is not affiliated with any government entity or free zone authority. Free zone names identify the zones we advise on and do not imply any partnership. Final decisions are made only by the relevant UAE authorities.";
-export const SAFETY_LINE = "Free · 2 minutes · no obligation";
+export const PLAN_CTA = "Get my written plan";
+export const CTA_NOTE = "2 minutes · no obligation";
+export const FEES_NEUTRAL = "We agree our fees with you before any work starts.";
+export const DISCLAIMER =
+  "Best Solution is a private business consultancy in Business Bay, Dubai. We are not a government office or a free zone authority.";
 
-export const FORM_COPY = {
-  title: "Get your free plan",
-  line: XS_FACTS.replyTime ? `Takes 2 minutes. We reply on WhatsApp ${XS_FACTS.replyTime}.` : "Takes 2 minutes. We reply on WhatsApp.",
-  button: "Get my free plan",
-  consent: "Free and no obligation. By sending this, you agree we can contact you about your request by WhatsApp, phone or email.",
+/** wa.me link with the topic only in the message (never a name, number or email). */
+export const waLink = (topic?: TopicId | null) =>
+  `https://wa.me/${C.whatsappNumber}${topic ? `?text=${encodeURIComponent(`Hi, I'd like advice on: ${TOPICS[topic].label}`)}` : ""}`;
+
+const advisorName = C.advisors[0]?.name ?? null;
+
+/* ─── Hero plan card ─── */
+export type PlanRow = { label: string; text?: string; bar?: number; pre?: string; post?: string };
+const B = (label: string, bar: number, pre = "", post = ""): PlanRow => ({ label, bar, pre, post });
+const T = (label: string, text: string): PlanRow => ({ label, text });
+export const HERO_PLANS: Record<TopicId, { rows: PlanRow[]; cta: string }> = {
+  new_company: { rows: [T("Right structure", "Matched to your activity"), B("Year one", 92, "AED "), B("Every year after", 76, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
+  fz_or_mainland: { rows: [B("Free zones that allow your activity", 60), B("Mainland, for your customers", 60), B("Year one, each option", 92, "AED "), T("Our recommendation", "With the reasons")], cta: "Compare my options" },
+  holding: { rows: [B("Structure that fits", 96), B("What it keeps separate", 84), B("First-year and yearly cost", 80, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
+  bookkeeping: { rows: [B("Monthly fee", 70, "AED "), T("Each month", "Entries, bank matching, reports"), T("Your software", "Zoho, QuickBooks, Tally or ours"), B("Can begin in", 44, "", " days")], cta: "Get my written quote" },
+  corporate_tax: { rows: [B("Does it apply to you", 70), B("Your next deadline", 84), T("What to prepare", "A simple checklist"), B("Our fee", 70, "AED ")], cta: "Check my position" },
+  not_sure: { rows: [B("Where to begin", 96), B("First step", 84), B("Rough budget", 80, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
 };
+export const HERO_PREPARED = `Prepared for you by ${advisorName ?? "an advisor"}, sent to your WhatsApp`;
+export const HERO_TRUST = ["Office in Business Bay", "In person or by video", ...(C.feesInWritingConfirmed ? ["Fees in writing first"] : [])];
 
-/** Field errors; the phone message names the chosen country (lib/servicesPlan planPhoneError). */
-export const PLAN_ERRORS = {
-  name: "Please add your name.",
-  need: "Please pick where you are right now.",
-  email: "Please check your email, or leave it empty.",
-  send: `Sorry, that didn't go through. Message us on WhatsApp or call ${SITE.phone.display} and we'll help straight away.`,
-} as const;
+/* ─── S2 worries: desktop and phone wording ─── */
+export const WORRIES: { text: string; textShort: string; lead: string; rest: string; leadShort: string; restShort: string; tag: string }[] = [
+  { text: "Three consultants gave me three different prices. Which one is right?", textShort: "Three consultants gave me three different prices.", lead: "One clear cost, in writing,", rest: "so you can compare it with any quote you already have.", leadShort: "One clear cost,", restShort: "in writing, to compare with any quote.", tag: "Which price is right?" },
+  { text: "Free zone or mainland? I've read ten articles and I'm still not sure.", textShort: "Free zone or mainland? I'm still not sure.", lead: "Free zone or mainland, decided with you,", rest: "based on your activity and your customers.", leadShort: "Free zone or mainland,", restShort: "decided with you.", tag: "Free zone or mainland?" },
+  { text: "Does a free zone even allow my activity?", textShort: "Does a free zone allow my activity?", lead: "Your activity checked", rest: "against the zones that allow it, before you pay anything.", leadShort: "Your activity checked", restShort: "against the zones that allow it.", tag: "Is my activity allowed?" },
+  { text: "What costs show up in year two that nobody mentioned?", textShort: "What costs show up in year two?", lead: "Year one and every year after,", rest: "shown upfront, before you commit.", leadShort: "Year one and after,", restShort: "shown upfront.", tag: "What will year two cost?" },
+  { text: "Something else. I'll tell the advisor.", textShort: "Something else. I'll tell the advisor.", lead: "Tell us in your own words,", rest: "in the form or on WhatsApp, and an advisor gives you a clear answer.", leadShort: "Tell us in your own words,", restShort: "and get a clear answer.", tag: "Something else" },
+];
+export const S2_ADVISOR_LINE = advisorName ? `${advisorName} answers these every day` : null;
 
-export const successText = (firstName: string) =>
-  `Thanks, ${firstName}. Your request is in. An advisor will message you on WhatsApp ${XS_FACTS.replyTime ? `${XS_FACTS.replyTime} ` : ""}(${SITE.hours.long}) to agree a time.`;
-
-export const WORRIES = [
-  "Three consultants gave you three different prices, and you can't tell which is right.",
-  "You've read ten articles and you're still not sure: free zone or mainland?",
-  "You don't know if a free zone allows your activity.",
-  "You're worried about costs that only show up in year two.",
+/* ─── S3 situations ─── */
+export const S3_BIG = {
+  title: "I'm planning a new company",
+  text: "For founders in the UAE or abroad with a business idea and a budget.",
+  points: ["Where to base it: free zone or mainland", "Year one and yearly costs, in writing", "What to prepare, as a simple checklist"],
+  pointsShort: ["Where to base it", "Year one and yearly costs, in writing", "What to prepare"],
+};
+export const S3_CARDS: { topic: TopicId; icon: IconName; title: string; titleShort: string; what: string; page: string; cta: string; ctaShort: string }[] = [
+  { topic: "fz_or_mainland", icon: "arrowLeftRight", title: "Free zone or mainland?", titleShort: "Free zone or mainland?", what: "What each one allows, what each costs, and which fits your activity.", page: "Free zone advice", cta: "Compare my options", ctaShort: "Compare" },
+  { topic: "holding", icon: "layers", title: "Holding assets or several companies", titleShort: "Holding assets", what: "Whether a holding or offshore structure fits, and what it keeps separate.", page: "Holding structures", cta: PLAN_CTA, ctaShort: "See options" },
+  { topic: "bookkeeping", icon: "book", title: "Monthly books", titleShort: "Monthly books", what: "Clean monthly books, matched bank statements, reports you can read.", page: "Bookkeeping", cta: "Get my written quote", ctaShort: "Get a quote" },
+  { topic: "corporate_tax", icon: "percent", title: "Corporate Tax questions", titleShort: "Corporate Tax", what: "Whether it applies to you, your deadlines, and help with your return.", page: "Corporate Tax", cta: "Check my position", ctaShort: "Check" },
 ];
 
-export type IconId = "setup" | "freezone" | "spv" | "accounting" | "tax" | "help";
-export const CARDS: { icon: IconId; title: string; who: string; get: string; button: string; need: Need; links: { href: string; label: string }[] }[] = [
+/* ─── S4 outcomes ─── */
+export const OUTCOMES: { title: string; sub: string; subShort: string }[] = [
+  { title: "Which structure fits", sub: "and why the others don't", subShort: "and why the others don't" },
+  { title: "What it costs", sub: "year one, and every year after", subShort: "year one, and every year after" },
+  { title: "What to prepare", sub: "as a simple checklist", subShort: "as a simple checklist" },
+  { title: "How long it takes", sub: "realistically, step by step", subShort: "realistically, step by step" },
+  C.feesInWritingConfirmed
+    ? { title: "What our help costs", sub: "confirmed in writing before any work starts", subShort: "in writing, before any work" }
+    : { title: "What our help costs", sub: "agreed with you before any work starts", subShort: "agreed before any work" },
+];
+export const S4_FEES_LINE = C.feesInWritingConfirmed ? "Confirmed in writing, before any work" : "Agreed with you, before any work";
+export const S4_DELIVERY = C.planDelivery ? `Sent to your WhatsApp within ${C.planDelivery} of the call` : null;
+export const S4_DELIVERY_SHORT = C.planDelivery ? `Sent within ${C.planDelivery}` : null;
+
+/* ─── S5 how it works ─── */
+export const S5_TITLE = C.planDelivery ? { a: "From first message to a written plan", b: `in ${C.planDelivery}.` } : { a: "From first message", b: "to a written plan." };
+export const S5_SUB = C.feesInWritingConfirmed ? "No surprises. Nothing is charged until you agree in writing." : `No surprises. ${FEES_NEUTRAL}`;
+export const S5_CALL = C.consultLength ? `A ${C.consultLength} call with your advisor. Ask anything, get plain answers.` : "A call with your advisor. Ask anything, get plain answers.";
+export const S5_CALL_SHORT = C.consultLength ? `A ${C.consultLength} call. Ask anything, get plain answers.` : "A call with your advisor. Ask anything, get plain answers.";
+export const S5_STEP3_LABEL = C.planDelivery ? `WITHIN ${C.planDelivery.toUpperCase()}` : null;
+export const S5_YOUR_CALL = C.feesInWritingConfirmed
+  ? "Go ahead with us, with fees agreed in writing first. Or take the plan and do it yourself."
+  : "Go ahead with us, and we agree our fees with you before any work starts. Or take the plan and do it yourself.";
+export const S5_CHIPS: { topic: TopicId; label: string }[] = [
+  { topic: "new_company", label: "New company" },
+  { topic: "fz_or_mainland", label: "Free zone or mainland" },
+  { topic: "holding", label: "Holding assets" },
+  { topic: "bookkeeping", label: "Monthly books" },
+  { topic: "corporate_tax", label: "Corporate Tax" },
+  { topic: "not_sure", label: "Something else" },
+];
+export const MODE_NOTE = { video: "We send you a link. Join from anywhere.", office: "Coffee at our office in Business Bay." };
+
+/* ─── S6 ─── */
+export const NO_PREF = `The first available advisor calls you${C.replyTime ? `, usually within ${C.replyTime}` : ""} in office hours.`;
+export const OFFICE_LINE = C.officeAddress ? `${C.officeAddress}, Business Bay, Dubai` : "Business Bay, Dubai";
+
+/* ─── S8 questions (also the FAQPage JSON-LD) ─── */
+export const FAQ_GROUPS: { label: string; qs: { id: string; q: string; qShort: string; preview: string; a: string; aShort: string }[] }[] = [
   {
-    icon: "setup",
-    title: "I'm starting a new company",
-    who: "Founders in the UAE or abroad with a business idea and a budget",
-    get: "Where to base it, what year one and renewal will cost, and what to prepare",
-    button: "Get my free plan",
-    need: "Starting a new company",
-    links: [{ href: "/cost-calculator", label: "More details" }],
-  },
-  {
-    icon: "freezone",
-    title: "Free zone or mainland?",
-    who: "Anyone comparing where to base their company",
-    get: "What each one allows, what each costs, and which fits your activity and customers",
-    button: "Get my free plan",
-    need: "Free zone or mainland",
-    links: [
-      { href: "/freezone", label: "Free zone details" },
-      { href: "/mainland", label: "Mainland details" },
+    label: "COSTS",
+    qs: [
+      {
+        id: "pay_consultation",
+        q: "Do I pay for the consultation?",
+        qShort: "Do I pay for the consultation?",
+        preview: "No. The call and your written plan cost nothing.",
+        a: "No. The call and your written plan cost you nothing. If you want our help after that, we agree our fees with you before any work starts.",
+        aShort: "No. The call and your written plan cost you nothing. If you want our help after that, we agree our fees with you before any work starts.",
+      },
+      {
+        id: "costs_least",
+        q: "Which free zone costs the least?",
+        qShort: "Which free zone costs the least?",
+        preview: "The smallest number on paper isn't always the smallest bill.",
+        a: "The smallest number on paper isn't always the smallest bill by year two. It depends on your activity and your team. Your written plan compares the options for your case, side by side.",
+        aShort: "The smallest number on paper isn't always the smallest bill by year two. Your plan compares the options for your case.",
+      },
     ],
   },
   {
-    icon: "spv",
-    title: "I want to hold assets or own several companies",
-    who: "Owners of property, shares or more than one business",
-    get: "Whether a holding or offshore structure fits, and how it would work for you",
-    button: "Get my free plan",
-    need: "Holding or several companies",
-    links: [
-      { href: "/spv", label: "Holding details" },
-      { href: "/offshore", label: "Offshore details" },
+    label: "PROCESS",
+    qs: [
+      {
+        id: "how_long",
+        q: "How long does it all take?",
+        qShort: "How long does it all take?",
+        preview: "It depends. Your plan shows every step.",
+        a: "It depends on your activity and the authority. Your written plan gives you a realistic timeline, step by step, so you can plan around it.",
+        aShort: "It depends on your activity and the authority. Your plan shows a realistic timeline, step by step.",
+      },
+      {
+        id: "existing_company",
+        q: "I already have a company. Can you still help?",
+        qShort: "I already have a company. Can you help?",
+        preview: "Yes. Books, Corporate Tax and holding structures.",
+        a: "Yes. We advise existing companies on monthly books, Corporate Tax and holding structures. Same first call, same answer in writing.",
+        aShort: "Yes. Monthly books, Corporate Tax and holding structures. Same first call, same answer in writing.",
+      },
     ],
   },
   {
-    icon: "accounting",
-    title: "I need my books done every month",
-    who: "Running companies behind on bookkeeping, or tired of chasing it",
-    get: "Clean monthly books, matched bank statements and reports you can actually read",
-    button: "Get my free quote",
-    need: "Bookkeeping",
-    links: [{ href: "/accounting", label: "More details" }],
-  },
-  {
-    icon: "tax",
-    title: "I have Corporate Tax questions",
-    who: "Companies unsure what applies to them or when their return is due",
-    get: "Whether it applies, your deadlines, and help preparing your return",
-    button: "Get my free plan",
-    need: "Corporate Tax",
-    links: [{ href: "/corporate-tax", label: "More details" }],
-  },
-  {
-    icon: "help",
-    title: "I'm not sure yet",
-    who: "Anyone with a plan but no clear next step",
-    get: "An advisor reads your plan and tells you where to start",
-    button: "Get my free plan",
-    need: "Not sure yet",
-    links: [],
+    label: "ABOUT US",
+    qs: [
+      {
+        id: "government_office",
+        q: "Are you a government office?",
+        qShort: "Are you a government office?",
+        preview: "No. We're a private consultancy.",
+        a: "No. We're a private consultancy in Business Bay. We advise you on your options, costs and next steps. The authorities make the final decisions.",
+        aShort: "No. We're a private consultancy in Business Bay. The authorities make the final decisions.",
+      },
+      {
+        id: "my_details",
+        q: "What happens to my details?",
+        qShort: "What happens to my details?",
+        preview: "Used only to reply to you.",
+        a: "We use them only to reply to you about your plan. We never sell or share them.",
+        aShort: "We use them only to reply to you. We never sell or share them.",
+      },
+    ],
   },
 ];
+export const FAQS = FAQ_GROUPS.flatMap((g) => g.qs);
+export const CHAT_TITLE = advisorName ? `${advisorName} · Best Solution` : "Best Solution";
+export const CHAT_REPLIES = C.replyTime ? `Usually replies within ${C.replyTime}` : null;
+export const CHAT_GREETING = advisorName ? `Hi, I'm ${advisorName}. Ask me anything about your company plan.` : "Hi. Ask us anything about your company plan.";
 
-export const OUTCOMES: [string, string][] = [
-  ["Which structure fits", ", and why the others don't"],
-  ["What it costs", ": year one and every year after"],
-  ["What to prepare", ", as a simple checklist"],
-  ["How long it takes", ", realistically"],
-  ["What our help costs", ", confirmed in writing before any work starts"],
-];
+/* ─── S9 ─── */
+export const S9_MICRO = `No obligation${C.replyTime ? ` · reply within ${C.replyTime} in office hours` : ""}.`;
+export const thanksBody = (who: string | null, pref: "whatsapp" | "call") =>
+  `${who ?? "An advisor"} will ${pref === "whatsapp" ? "WhatsApp" : "call"} you${C.replyTime ? ` within ${C.replyTime}` : ""} in office hours. Your written plan follows after the call.`;
 
-export const STEPS: [string, string][] = [
-  ["Tell us your plan.", "Use the form or WhatsApp. It takes 2 minutes."],
-  [
-    "Talk it through.",
-    `A ${XS_FACTS.consultLength ? `${XS_FACTS.consultLength} ` : ""}call by video, or a coffee at our Business Bay office.`,
-  ],
-  ["Get it in writing.", "Your plan, costs and timeline, written down. Decide in your own time."],
-];
-
-export const TRUST: [string, string][] = [
-  ["An office you can visit", " in Business Bay, Dubai"],
-  ["Fees in writing first.", " You know what our help costs before we start"],
-  ["Plain answers.", " Your options explained simply, so you can compare them yourself"],
-  ...(XS_FACTS.emiratiOwnedSince ? ([[XS_FACTS.emiratiOwnedSince, ""]] as [string, string][]) : []),
-];
-
-export const XS_FAQS: { q: string; a: string }[] = [
-  { q: "Is the first consultation really free?", a: "Yes. No fee, no obligation, and no pressure to buy anything afterwards." },
-  { q: "Will you push me into a package?", a: "No. We recommend what fits your plan and confirm any fee in writing first. You decide, in your own time." },
-  {
-    q: "Are you a government office or a free zone authority?",
-    a: "No. We're a private business consultancy. Final decisions on any application are made by the relevant UAE authorities.",
-  },
-  { q: "I'm not in the UAE yet. Can you still help?", a: "Yes. Many clients plan their company from abroad. We meet by video and send everything in writing." },
-  {
-    q: "How much will my company cost?",
-    a: "It depends on your activity, where you base it and your team. After the first conversation you get a written breakdown for year one and the years after.",
-  },
-  {
-    q: "How fast will you reply?",
-    a: XS_FACTS.replyTime
-      ? `${XS_FACTS.replyTime[0].toUpperCase()}${XS_FACTS.replyTime.slice(1)}, Monday to Friday, 9am to 6pm. After hours, we reply the next working morning.`
-      : "Monday to Friday, 9am to 6pm. After hours, we reply the next working morning.",
-  },
-];
+/* Line icons (lucide shapes, stroke 2). */
+export type IconName =
+  | "arrowRight" | "arrowLeftRight" | "layers" | "book" | "percent" | "help" | "check" | "lock" | "phone" | "whatsapp" | "pin"
+  | "clock" | "mail" | "send" | "user" | "file" | "plus" | "chevronLeft" | "chevronRight" | "hand" | "star";

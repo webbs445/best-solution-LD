@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section 9 · Your plan is almost ready · phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.bs-primary{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;padding:0 10px 0 24px;border:0;border-radius:14px;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;background:#B9714B;color:#FFFFFF;box-shadow:inset 0 1px 0 rgba(255,255,255,.22);cursor:pointer}
+.bs-arrow{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center}
+.fin{width:100%;height:52px;box-sizing:border-box;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:#FFFFFF;font-family:Inter,system-ui,sans-serif;font-size:16px;outline:none}
+.fin::placeholder{color:#8C96AB}
+.lnk{background:none;border:0;padding:0;font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:600;color:#9A5A36;cursor:pointer;text-decoration:underline}
+@keyframes bsIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes stamp{0%{transform:rotate(-10deg) scale(1.8);opacity:0}100%{transform:rotate(-10deg) scale(1);opacity:1}}
+</style>
+</helmet>
+<div style="width: 390px; height: 1240px; box-sizing: border-box; background: #14213D; font-family: Inter, system-ui, sans-serif; color: #FFFFFF; padding: 52px 20px 36px; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #E3A47E">ONE LAST STEP</span>
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 32px; line-height: 1.08">Your plan is almost ready. <span style="color: #E3A47E">Tell us where to send it.</span></h2>
+</div>
+
+<div style="position: relative; background: #FFFFFF; color: #14213D; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px; transform: rotate(-1deg); box-shadow: 0 30px 50px -30px rgba(0,0,0,0.7)">
+<div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 2px solid #14213D">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 700">Best Solution · Written plan</span><span style="{{forStyle}}">For: {{forName}}</span></span>
+<span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 15px; font-weight: 800; color: #B9714B; background: #FBF1EA; padding: 5px 10px; border-radius: 999px">{{pct}} ready</span>
+</div>
+<div style="display: grid; grid-template-columns: 92px 1fr; row-gap: 8px; column-gap: 8px; font-size: 13px">
+<span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #9A5A36">ABOUT</span><strong>New company</strong>
+<span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #9A5A36">QUESTIONS</span><span>Year two costs · Free zone or mainland</span>
+<span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #9A5A36">ADVISOR</span><span>[Advisor 1]</span>
+</div>
+<span style="font-size: 11px; color: #5B6375">🔒 Structure, costs, checklist and timeline: written after your free call.</span>
+<sc-if value="{{sent}}" hint-placeholder-val="false"><span style="position: absolute; right: 18px; bottom: 34px; padding: 6px 10px; border: 2.5px solid #1F6B45; border-radius: 8px; color: #1F6B45; font-size: 14px; font-weight: 800; background: rgba(232,244,236,0.92); animation: stamp .5s ease both">REQUEST SENT</span></sc-if>
+</div>
+
+<sc-if value="{{notSent}}" hint-placeholder-val="true">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<input class="fin" type="text" autocomplete="name" placeholder="Your name" value="{{name}}" onChange="{{setName}}">
+<div style="display: flex; gap: 8px"><span style="flex: none; height: 52px; padding: 0 12px; border-radius: 12px; background: rgba(255,255,255,0.12); display: inline-flex; align-items: center; font-size: 15px; font-weight: 600">+971</span><input class="fin" type="tel" inputmode="tel" autocomplete="tel" placeholder="WhatsApp number" value="{{phone}}" onChange="{{setPhone}}"></div>
+<input class="fin" type="email" autocomplete="email" inputmode="email" placeholder="Email">
+<button type="button" class="bs-primary" onClick="{{submit}}">Send me my plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></button>
+<span style="font-size: 12px; color: #8C96AB; text-align: center">Free · no obligation · reply within [1 hour]</span>
+</div>
+</sc-if>
+<sc-if value="{{sent}}" hint-placeholder-val="false">
+<div style="display: flex; flex-direction: column; gap: 10px; animation: bsIn .4s ease">
+<span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 24px; font-weight: 800">{{thanks}}</span>
+<span style="font-size: 15px; line-height: 1.55; color: #C3CAD8">[Advisor 1] will WhatsApp you within [1 hour] in office hours.</span>
+<button type="button" class="lnk" style="align-self: flex-start; color: #8C96AB" onClick="{{reset}}">Start again (demo only)</button>
+</div>
+</sc-if>
+<span style="font-size: 14px; color: #C3CAD8; text-align: center">Prefer to chat? <a href="#" style="font-weight: 600; color: #E3A47E">WhatsApp us</a></span>
+<p style="margin: auto 0 0; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; line-height: 1.5; color: #8C96AB">Best Solution is a private business consultancy in Business Bay, Dubai. We are not a government office or a free zone authority.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { name: "", phone: "", sent: false }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var nm = (st.name || "").trim(), ph = (st.phone || "").replace(/\D/g, "");
+    var p = st.sent ? 1 : 0.6 + (nm ? 0.2 : 0) + (ph.length >= 8 ? 0.2 : 0);
+    return {
+      forName: nm || "[Your name]",
+      forStyle: "font-size: 12px; " + (nm ? "color: #14213D; font-weight: 700;" : "color: #8A93A5;"),
+      pct: Math.round(p * 100) + "%",
+      name: st.name, phone: st.phone,
+      setName: function (e) { self.setState({ name: e && e.target ? e.target.value : "" }); },
+      setPhone: function (e) { self.setState({ phone: e && e.target ? e.target.value : "" }); },
+      sent: st.sent, notSent: !st.sent,
+      submit: function () { self.setState({ sent: true }); },
+      thanks: nm ? "Thanks, " + nm + "." : "Thanks.",
+      reset: function () { self.setState({ sent: false, name: "", phone: "" }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

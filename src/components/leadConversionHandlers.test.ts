@@ -35,12 +35,6 @@ const handlers = [
     success: ["setDone(true)"],
     error: ["if (!res.ok || !json.ok)", "catch {"],
   },
-  {
-    // The /xservicesx "Get my free plan" form (hero, pop-up and closing form).
-    file: "./xservicesx/PlanForm.tsx",
-    success: ['setStatus("sent")'],
-    error: ['setStatus("error")', "catch {"],
-  },
 ];
 
 function containsIdentifier(node: ts.Node, identifier: string): boolean {

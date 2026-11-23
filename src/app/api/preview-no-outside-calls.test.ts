@@ -38,7 +38,6 @@ const lead = (n: number) => ({
   mobile_no: `050 000 000${n}`,
   country: "AE",
   topic: "Office options",
-  need: "Not sure yet",
   gclid: "TEST123",
   utm_source: "google",
   utm_medium: "cpc",

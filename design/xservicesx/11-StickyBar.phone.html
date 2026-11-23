@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sticky phone bar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.seg{flex:1;height:36px;border:0;border-radius:9px;font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:600;cursor:pointer}
+@keyframes up{from{transform:translateY(110%)}to{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #FFFFFF; font-family: Inter, system-ui, sans-serif; color: #14213D; overflow: hidden">
+
+<div style="padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #FBF6F1; border-bottom: 1px solid #E7DCD2">
+<span style="font-size: 12px; font-weight: 700; color: #5B6375">DEMO · WHEN THE BAR SHOWS</span>
+<div style="display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: #F0E8E0">
+<button type="button" class="seg" onClick="{{v0}}" style="{{g0}}">Hero</button>
+<button type="button" class="seg" onClick="{{v1}}" style="{{g1}}">Mid page</button>
+<button type="button" class="seg" onClick="{{v2}}" style="{{g2}}">Final form</button>
+</div>
+<span style="font-size: 13px; line-height: 1.45; color: #3C4659">{{note}}</span>
+</div>
+
+<div style="padding: 28px 20px; display: flex; flex-direction: column; gap: 14px; opacity: 0.55">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #9A5A36">{{eyebrow}}</span>
+<span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 28px; font-weight: 800; line-height: 1.1">{{heading}}</span>
+<span style="height: 12px; width: 92%; border-radius: 6px; background: #EDE4DB"></span>
+<span style="height: 12px; width: 76%; border-radius: 6px; background: #EDE4DB"></span>
+<span style="height: 12px; width: 84%; border-radius: 6px; background: #EDE4DB"></span>
+<span style="height: 190px; border-radius: 18px; background: #F4EDE5; margin-top: 8px"></span>
+<span style="height: 12px; width: 70%; border-radius: 6px; background: #EDE4DB"></span>
+<span style="height: 12px; width: 88%; border-radius: 6px; background: #EDE4DB"></span>
+</div>
+
+<sc-if value="{{show}}" hint-placeholder-val="true">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 14px 26px; background: rgba(255,255,255,0.96); border-top: 1px solid #E7DCD2; box-shadow: 0 -12px 30px -18px rgba(20,33,61,0.45); display: flex; gap: 10px; animation: up .35s ease both">
+<a href="#" aria-label="Chat on WhatsApp" style="flex: none; width: 54px; height: 54px; border-radius: 14px; border: 1.5px solid #E2D3C6; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; color: #14213D"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 20l1.3-5A8.4 8.4 0 1 1 21 11.5z"/></svg></a>
+<a href="#" style="flex: 1; height: 54px; border-radius: 14px; background: #B9714B; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.22)"><span style="display: flex; flex-direction: column; align-items: center; line-height: 1.15"><span>{{cta}}</span><span style="font-size: 11px; font-weight: 500; opacity: 0.85">Free · 2 minutes</span></span></a>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { v: 1, pick: "New company" }; }
+  renderVals() {
+    var self = this, v = this.state.v;
+    var seg = function (i) { return v === i ? "background: #14213D; color: #FFFFFF;" : "background: transparent; color: #3C4659;"; };
+    var set = function (i) { return function () { self.setState({ v: i }); }; };
+    var views = [
+      { eyebrow: "PRIVATE BUSINESS ADVISORS", heading: "Make the right call on your UAE company", note: "Hidden in the hero: the hero already has its own buttons.", show: false },
+      { eyebrow: "WHAT YOU WALK AWAY WITH", heading: "In one free consultation, you'll know", note: "Slides up once the hero buttons scroll out of view. If the visitor picked a topic, the button says so.", show: true },
+      { eyebrow: "ONE LAST STEP", heading: "Your plan is almost ready", note: "Hides again when the final form is on screen, so it never covers the form.", show: false }
+    ];
+    var d = views[v];
+    return { v0: set(0), v1: set(1), v2: set(2), g0: seg(0), g1: seg(1), g2: seg(2), note: d.note, eyebrow: d.eyebrow, heading: d.heading, show: d.show, cta: "Get my free plan" };
+  }
+}
+</script>
+</body>
+</html>

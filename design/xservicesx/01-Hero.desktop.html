@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hero A · Plan preview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9A5A36}a:hover{color:#7A4428}
+</style>
+</helmet>
+<div style="width: 1440px; height: 860px; box-sizing: border-box; background: #FBF6F1; font-family: Inter, system-ui, sans-serif; color: #14213D; position: relative; overflow: hidden">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 28px 120px">
+<a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #14213D"><span style="width: 36px; height: 36px; border-radius: 10px; background: #B9714B; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px">b</span><span style="font-weight: 600; font-size: 18px; letter-spacing: -0.01em">best solution</span></a>
+<nav style="display: flex; gap: 36px; font-size: 15px; font-weight: 500"><a href="#" style="color: #14213D; text-decoration: none">Services</a><a href="#" style="color: #14213D; text-decoration: none">Reviews</a><a href="#" style="color: #14213D; text-decoration: none">FAQ</a></nav>
+<a href="#" style="color: #14213D; text-decoration: none; font-size: 15px; font-weight: 600">+971 52 233 0011</a>
+</header>
+
+<div style="display: grid; grid-template-columns: 620px 540px; gap: 100px; padding: 52px 120px 0">
+
+<div style="display: flex; flex-direction: column; gap: 26px">
+<span style="align-self: flex-start; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: #7A4428; background: #F3E4D8; padding: 8px 14px; border-radius: 999px">Private business advisors · Business Bay, Dubai</span>
+<h1 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 60px; line-height: 1.04; letter-spacing: -0.03em">Make the right call on your UAE company, <span style="color: #B9714B">before you spend a dirham.</span></h1>
+<p style="margin: 0; font-size: 19px; line-height: 1.55; color: #3C4659; max-width: 560px">Free zone or mainland? What will year two really cost? Tell us your plan, and an advisor sends you a clear answer, in writing. Free.</p>
+<div style="display: flex; align-items: center; gap: 14px">
+<a href="#" style="display: inline-flex; align-items: center; gap: 10px; background: #B9714B; color: #FFFFFF; text-decoration: none; font-size: 17px; font-weight: 700; padding: 17px 26px; border-radius: 14px">Get my free plan <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
+<a href="#" style="display: inline-flex; align-items: center; gap: 10px; color: #14213D; text-decoration: none; font-size: 17px; font-weight: 600; padding: 16px 22px; border-radius: 14px; border: 1.5px solid #E2D3C6; background: #FFFFFF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6L3 21z"/></svg>Ask on WhatsApp</a>
+</div>
+<span style="font-size: 14px; color: #5B6375; margin-top: -12px">Free · 2 minutes · no obligation</span>
+
+<div style="display: flex; flex-direction: column; gap: 16px; margin-top: 8px; padding-top: 24px; border-top: 1px solid #EADFD4">
+<div style="display: flex; gap: 28px; font-size: 14px; color: #3C4659">
+<span style="display: inline-flex; align-items: center; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9714B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Office in Business Bay</span>
+<span style="display: inline-flex; align-items: center; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9714B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>In person or by video</span>
+<span style="display: inline-flex; align-items: center; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9714B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Fees in writing first</span>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="background: #FFFFFF; border-radius: 24px; box-shadow: 0 30px 60px -30px rgba(20,33,61,0.25), 0 0 0 1px rgba(20,33,61,0.06); padding: 28px 32px; display: flex; flex-direction: column; gap: 18px">
+<label style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #B9714B">YOUR WRITTEN PLAN FOR</span>
+<select value="{{pick}}" onChange="{{onPick}}" style="font-family: inherit; font-size: 20px; font-weight: 700; color: #14213D; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #E2D3C6; background: #FBF6F1; cursor: pointer">
+<option value="0">Starting a new company</option>
+<option value="1">Free zone or mainland</option>
+<option value="2">Holding assets or several companies</option>
+<option value="3">Monthly bookkeeping</option>
+<option value="4">Corporate Tax</option>
+<option value="5">Not sure yet</option>
+</select>
+</label>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 26px"><span style="font-size: 15px; color: #5B6375">{{r.label}}</span><span style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600"><sc-if value="{{r.text}}" hint-placeholder-val="{{false}}">{{r.text}}</sc-if>{{r.pre}}<sc-if value="{{r.bar}}" hint-placeholder-val="{{true}}"><span style="{{r.barStyle}}"></span></sc-if>{{r.post}}</span></div>
+</sc-for>
+<div style="display: flex; flex-direction: column; gap: 7px"><span style="width: 100%; height: 10px; border-radius: 5px; background: #F0E8E0"></span><span style="width: 78%; height: 10px; border-radius: 5px; background: #F0E8E0"></span></div>
+<div style="display: flex; align-items: center; gap: 10px; padding-top: 4px"><div style="width: 36px; height: 36px; border-radius: 50%; background: #E9DCCF; flex: none"></div><span style="font-size: 13px; color: #5B6375">Prepared for you by <span style="color: #14213D; font-weight: 600">[Advisor name]</span>, sent to your WhatsApp</span></div>
+<a href="#" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #14213D; color: #FFFFFF; text-decoration: none; font-size: 17px; font-weight: 700; padding: 16px; border-radius: 14px">{{cta}}</a>
+</div>
+<span style="font-size: 12px; color: #6B7280; text-align: center">Example layout. Your plan depends on your activity and team.</span>
+</div>
+</div>
+
+<p style="position: absolute; left: 120px; bottom: 26px; margin: 0; font-size: 12px; color: #6B7280">Best Solution is a private business consultancy, not a government office or a free zone authority.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":860}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { pick: 0 }; }
+  renderVals() {
+    var bar = function (w) { return "display: inline-block; width: " + w + "px; height: 14px; border-radius: 7px; background: #E6DCD2"; };
+    var B = function (label, w, pre, post) { return { label: label, bar: true, barStyle: bar(w), pre: pre || "", post: post || "", text: "" }; };
+    var T = function (label, text) { return { label: label, bar: false, barStyle: "", pre: "", post: "", text: text }; };
+    var plans = [
+      [T("Best structure", "Matched to your activity"), B("Year one", 92, "AED "), B("Every year after", 76, "AED "), B("Timeline", 44, "", " weeks")],
+      [B("Free zones that allow your activity", 60), B("Mainland, for your customers", 60), B("Year one, each option", 92, "AED "), T("Our recommendation", "With the reasons")],
+      [B("Structure that fits", 96), B("What it keeps separate", 84), B("Set-up and yearly cost", 80, "AED "), B("Timeline", 44, "", " weeks")],
+      [B("Monthly fee", 70, "AED "), T("Each month", "Entries, bank matching, reports"), T("Your software", "Zoho, QuickBooks, Tally or ours"), B("Can start in", 44, "", " days")],
+      [B("Does it apply to you", 70), B("Your next deadline", 84), T("What to prepare", "A simple checklist"), B("Our fee", 70, "AED ")],
+      [B("Where to start", 96), B("First step", 84), B("Rough budget", 80, "AED "), B("Timeline", 44, "", " weeks")]
+    ];
+    var ctas = ["Get my free plan", "Compare my options", "Get my free plan", "Get my free quote", "Check my position", "Get my free plan"];
+    var self = this;
+    var p = this.state.pick;
+    return {
+      pick: String(p),
+      onPick: function (e) { self.setState({ pick: Number(e.target.value) }); },
+      rows: plans[p],
+      cta: ctas[p]
+    };
+  }
+}
+</script>
+</body>
+</html>
