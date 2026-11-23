@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section 6 · Who you'll talk to</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.bs-primary,.bs-dark{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:0 10px 0 24px;border-radius:14px;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;box-sizing:border-box;color:#FFFFFF;white-space:nowrap}
+.bs-primary{background:#B9714B;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.bs-primary:hover{background:#A8623E;color:#FFFFFF;transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 14px 26px -14px rgba(0,0,0,.7)}
+.bs-dark{background:#14213D}
+.bs-dark:hover{background:#0E1830;color:#FFFFFF;transform:translateY(-1px);box-shadow:0 14px 26px -14px rgba(20,33,61,.7)}
+.bs-arrow{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;transition:transform .2s}
+.bs-primary:hover .bs-arrow,.bs-dark:hover .bs-arrow{transform:translateX(3px)}
+.bs-primary:focus-visible{outline:3px solid #FFFFFF;outline-offset:3px}
+.bs-dark:focus-visible,.panel:focus-visible{outline:3px solid #14213D;outline-offset:3px}
+.bs-link{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:600;color:#14213D;text-decoration:none;padding-bottom:3px}
+.bs-link::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:32%;background:#B9714B;transition:width .25s}
+.bs-link:hover::after{width:100%}
+.panel{position:relative;border-radius:24px;overflow:hidden;cursor:pointer;min-width:0;transition:flex .55s cubic-bezier(.2,.8,.2,1),box-shadow .3s}
+@keyframes pinPulse{0%{transform:scale(.6);opacity:.6}100%{transform:scale(2.2);opacity:0}}
+</style>
+</helmet>
+<div style="width: 1440px; height: 980px; box-sizing: border-box; background: #FBF6F1; font-family: Inter, system-ui, sans-serif; color: #14213D; padding: 88px 120px; display: flex; flex-direction: column; gap: 40px">
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #9A5A36">WHO YOU'LL TALK TO</span>
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 44px; line-height: 1.08; letter-spacing: -0.02em">Real people. Not a call centre.</h2>
+<span style="font-size: 17px; color: #3C4659">Meet the advisors behind your plan. Pick one, or let whoever is free call you.</span>
+</div>
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #5B6375"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9714B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V5a2 2 0 0 1 4 0v6"/><path d="M13 10V8a2 2 0 0 1 4 0v4a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 13.5V12a2 2 0 0 1 4 0"/></svg>Hover a photo to meet them</span>
+</div>
+
+<div style="display: flex; gap: 16px; height: 520px">
+<sc-for list="{{panels}}" as="p" hint-placeholder-count="3">
+<div class="panel" tabindex="0" role="button" aria-expanded="{{p.open}}" aria-label="{{p.aria}}" onMouseEnter="{{p.go}}" onFocus="{{p.go}}" onClick="{{p.go}}" style="{{p.style}}">
+<div style="position: absolute; inset: 0; background: linear-gradient(165deg, #2E4068 0%, #1A2847 55%, #14213D 100%)"></div>
+<svg style="position: absolute; left: 50%; top: 46px; width: 300px; height: 360px; transform: translateX(-50%)" viewBox="0 0 200 240" aria-hidden="true"><circle cx="100" cy="86" r="44" fill="rgba(255,255,255,0.09)"/><path d="M14 240c0-68 40-96 86-96s86 28 86 96z" fill="rgba(255,255,255,0.07)"/></svg>
+<span style="position: absolute; left: 18px; top: 18px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 999px">[Photo]</span>
+<span style="{{p.plus}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+<div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(14,24,48,0.97) 0%, rgba(14,24,48,0.75) 42%, rgba(14,24,48,0) 72%)"></div>
+
+<div style="{{p.short}}">
+<span style="font-size: 18px; font-weight: 700; color: #FFFFFF">{{p.name}}</span>
+<span style="font-size: 13px; color: #C3CAD8">{{p.focus}}</span>
+</div>
+
+<div style="{{p.detail}}">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #E3A47E">YOU'LL TALK TO</span>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 30px; font-weight: 800; color: #FFFFFF">{{p.name}}</span>
+<span style="font-size: 14px; color: #C3CAD8">{{p.role}}</span>
+</div>
+<p style="margin: 0; font-size: 19px; line-height: 1.45; color: #FFFFFF">“{{p.quote}}”</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{p.topics}}" as="t" hint-placeholder-count="2">
+<span style="font-size: 13px; font-weight: 600; color: #FFFFFF; background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 999px">{{t.label}}</span>
+</sc-for>
+</div>
+<span style="font-size: 13px; color: #C3CAD8">[Languages] · Video or in person</span>
+<a href="#" class="bs-primary" style="align-self: flex-start; margin-top: 4px">Talk to {{p.name}} <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a>
+</div>
+</div>
+</sc-for>
+
+<div style="flex: none; width: 280px; border-radius: 24px; background: #FFFFFF; border: 1px solid #E7DCD2; overflow: hidden; display: flex; flex-direction: column">
+<div style="position: relative; height: 270px; background: #F1EAE2">
+<svg width="280" height="270" viewBox="0 0 280 270" aria-hidden="true" style="position: absolute; inset: 0">
+<path d="M-10 196 C 60 170, 110 214, 170 184 S 260 150, 300 170" stroke="#CFE0EC" stroke-width="22" fill="none"/>
+<path d="M0 70 H280 M0 128 H280 M0 240 H280 M58 0 V270 M150 0 V270 M226 0 V270" stroke="#FFFFFF" stroke-width="9"/>
+<path d="M0 30 L280 110" stroke="#FFFFFF" stroke-width="14"/>
+<rect x="72" y="84" width="62" height="30" rx="5" fill="#E6DCD1"/><rect x="164" y="138" width="48" height="36" rx="5" fill="#E6DCD1"/><rect x="72" y="138" width="62" height="34" rx="5" fill="#E6DCD1"/><rect x="164" y="80" width="48" height="34" rx="5" fill="#E6DCD1"/>
+</svg>
+<span style="position: absolute; left: 132px; top: 102px; width: 16px; height: 16px; border-radius: 50%; background: rgba(185,113,75,0.5); animation: pinPulse 1.8s ease-out infinite"></span>
+<svg style="position: absolute; left: 124px; top: 74px" width="32" height="42" viewBox="0 0 24 32" aria-hidden="true"><path d="M12 31s10-11 10-19a10 10 0 0 0-20 0c0 8 10 19 10 19z" fill="#B9714B"/><circle cx="12" cy="12" r="4" fill="#FFFFFF"/></svg>
+</div>
+<div style="padding: 22px; display: flex; flex-direction: column; gap: 8px; flex: 1">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #9A5A36">VISIT US</span>
+<span style="font-size: 17px; font-weight: 700; line-height: 1.35">[Office address], Business Bay, Dubai</span>
+<span style="font-size: 14px; color: #5B6375">[Sun to Fri · 9 AM to 6 PM]</span>
+<a href="#" class="bs-link" style="margin-top: auto; align-self: flex-start">Get directions →</a>
+</div>
+</div>
+</div>
+
+<div style="display: flex; align-items: center; gap: 18px; padding: 16px 16px 16px 24px; border: 1.5px dashed #D8C8BA; border-radius: 20px">
+<span style="flex: none; width: 44px; height: 44px; border-radius: 50%; background: #F3E4D8; color: #9A5A36; display: inline-flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></span>
+<span style="flex: 1; font-size: 16px; color: #3C4659"><strong style="color: #14213D">No preference?</strong> The first free advisor calls you, usually within [1 hour] in office hours.</span>
+<a href="#" class="bs-dark">Whoever is free first <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { a: 0 }; }
+  renderVals() {
+    var self = this, a = this.state.a;
+    var data = [
+      { name: "[Advisor 1]", role: "[Role]", focus: "New companies", topics: ["New companies", "Free zone or mainland"], quote: "[One line in their own words, about how they help founders decide.]" },
+      { name: "[Advisor 2]", role: "[Role]", focus: "Books and Corporate Tax", topics: ["Monthly books", "Corporate Tax"], quote: "[One line in their own words, about keeping the numbers simple.]" },
+      { name: "[Advisor 3]", role: "[Role]", focus: "Holding assets", topics: ["Holding assets", "Growing an existing company"], quote: "[One line in their own words, about planning for the long term.]" }
+    ];
+    var panels = data.map(function (d, i) {
+      var on = i === a;
+      return {
+        name: d.name, role: d.role, focus: d.focus, quote: d.quote,
+        topics: d.topics.map(function (l) { return { label: l }; }),
+        open: on ? "true" : "false", aria: "Meet " + d.name,
+        go: function () { if (self.state.a !== i) self.setState({ a: i }); },
+        style: "flex: " + (on ? "2.6" : "1") + "; " + (on ? "box-shadow: 0 40px 60px -40px rgba(20,33,61,0.7);" : ""),
+        plus: "position: absolute; right: 18px; top: 18px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.14); color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; transition: opacity .25s; opacity: " + (on ? "0" : "1"),
+        short: "position: absolute; left: 24px; right: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 4px; transition: opacity .2s; opacity: " + (on ? "0" : "1"),
+        detail: "position: absolute; left: 30px; bottom: 30px; width: 420px; display: flex; flex-direction: column; gap: 12px; transition: opacity .35s ease " + (on ? ".25s" : "0s") + ", transform .35s ease " + (on ? ".25s" : "0s") + "; opacity: " + (on ? "1" : "0") + "; transform: translateY(" + (on ? "0" : "10px") + "); pointer-events: " + (on ? "auto" : "none")
+      };
+    });
+    return { panels: panels };
+  }
+}
+</script>
+</body>
+</html>

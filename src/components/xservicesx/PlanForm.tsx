@@ -1,158 +1,215 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useRef, useSyncExternalStore, type FormEvent } from "react";
 import { SERVICES_PLAN_FORM_ID, TRAP_FIELD } from "@/lib/lead";
-import { DEFAULT_PHONE_COUNTRY, phonePlaceholder, type PhoneCountry } from "@/lib/phone";
-import { checkPlan, planPhoneError, type PlanField } from "@/lib/servicesPlan";
-import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
+import { DEFAULT_PHONE_COUNTRY, type PhoneCountry } from "@/lib/phoneCountries";
+import type { PlanField } from "@/lib/servicesPlan";
+import { genEventId, isConfirmedLeadResponse } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
+import { pushXsLead } from "@/lib/xsAnalytics";
 import { PhoneCountrySelect } from "@/components/ui/PhoneCountrySelect";
-import { SITE } from "@/content/site";
-import { FORM_COPY, NEEDS, PLAN_ERRORS, successText } from "@/content/xservicesx";
-import "@/components/consult/consult-form.css";
-
-type Status = "idle" | "sending" | "sent" | "error";
-const FIELD_NAME: Record<PlanField, string> = { name: "lead_name", phone: "mobile_no", need: "need", email: "email_id" };
+import { S9_MICRO, thanksBody, waLink } from "@/content/xservicesx";
+import { XS_CONFIG as C } from "@/content/xservicesx.config";
+import { getXs, setXs, useXs, xsTrack } from "./store";
+import { BtnArrow, Icon } from "./ui";
+import { XsWhatsApp } from "./XsCta";
 
 /*
-  The /xservicesx form: hero, pop-up and closing form. Same flow as the consultation form (components/consult): the
-  country picker, attribution and consent fields, the spam trap, and form_submit + generate_lead (sharing an evt_ id
-  with the ERP lead) only once the API confirms a new lead. form_start / form_error / form_abandon come from AnalyticsInit.
+  The page's lead form, shown in section 9 and in the plan pop-up. Both copies share one store: what is typed in one
+  shows in the other, and once the server confirms the lead both show the thank-you (a lead is sent once). The thank-you
+  appears only after the server confirms a new lead; any other answer shows the error.
 */
-export function PlanForm({ idPrefix, need: startNeed = "" }: { idPrefix: string; need?: string }) {
-  const [errors, setErrors] = useState<Partial<Record<PlanField, boolean>>>({});
-  const [status, setStatus] = useState<Status>("idle");
-  const [country, setCountry] = useState<PhoneCountry>(DEFAULT_PHONE_COUNTRY);
-  const [firstName, setFirstName] = useState("");
-  const success = useRef<HTMLDivElement>(null);
-  const honeypot = useRef<HTMLInputElement>(null);
+type Status = "idle" | "sending" | "sent" | "error";
+type Checker = typeof import("@/lib/servicesPlanCheck");
+export interface FormState {
+  name: string;
+  phone: string;
+  email: string;
+  country: PhoneCountry;
+  status: Status;
+  errors: Partial<Record<PlanField, string>>;
+  checker: Checker | null;
+}
 
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const f = new FormData(e.currentTarget);
-    const v = (k: string) => String(f.get(k) || "").trim();
-    const values = { name: v("lead_name"), phone: v("mobile_no"), need: v("need"), email: v("email_id") };
-    const { bad, e164 } = checkPlan(values, country);
-    setErrors(Object.fromEntries(bad.map((k) => [k, true])));
-    if (bad.length || !e164) return (e.currentTarget.elements.namedItem(FIELD_NAME[bad[0]]) as HTMLElement | null)?.focus();
+let form: FormState = { name: "", phone: "", email: "", country: DEFAULT_PHONE_COUNTRY, status: "idle", errors: {}, checker: null };
+const listeners = new Set<() => void>();
+const setForm = (patch: Partial<FormState>) => ((form = { ...form, ...patch }), listeners.forEach((l) => l()));
+const SERVER_FORM = form;
+export const useForm = () =>
+  useSyncExternalStore(
+    (l) => (listeners.add(l), () => void listeners.delete(l)),
+    () => form,
+    () => SERVER_FORM,
+  );
 
-    // One id for the dataLayer conversion and the ERP lead, so offline conversions can be matched later.
-    const eventId = genEventId();
-    const [first, ...rest] = values.name.split(/\s+/);
-    setStatus("sending");
-    try {
-      const res = await fetch("/api/services-plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lead_name: values.name,
-          mobile_no: e164,
-          country,
-          email_id: values.email,
-          need: values.need,
-          ...attributionFields(),
-          event_id: eventId,
-          landing_page: window.location.href.split("#")[0],
-          form_id: SERVICES_PLAN_FORM_ID,
-          [TRAP_FIELD]: honeypot.current?.value || "",
-        }),
-      });
-      if (!res.ok) throw new Error(String(res.status));
-      const responseBody = await res.json().catch(() => ({}));
-      setFirstName(first);
-      setStatus("sent");
-      requestAnimationFrame(() => success.current?.focus());
-      if (!isConfirmedLeadResponse(responseBody)) return;
-      pushFormSubmit({ formId: SERVICES_PLAN_FORM_ID, formName: "Services Plan", formType: "consultation", serviceInterest: values.need, email: values.email, phone: e164, firstName: first, lastName: rest.join(" "), eventId });
-      pushGenerateLead({ formId: SERVICES_PLAN_FORM_ID, service: values.need, email: values.email, phone: e164 });
-    } catch {
-      setStatus("error");
-    }
-  };
+let started = false;
+let sentOnce = false;
+/** The number check needs libphonenumber-js (about 30 KB): loaded when the visitor reaches a form, not with the page. */
+export const getChecker = async () => form.checker ?? import("@/lib/servicesPlanCheck").then((m) => (setForm({ checker: m }), m));
 
-  if (status === "sent") {
-    return (
-      <div className="ad-cf xs-success" ref={success} role="status" tabIndex={-1}>
-        <span aria-hidden="true">✓</span>
-        <p>
-          {successText(firstName)} Want to start now?{" "}
-          <a href={SITE.whatsapp} target="_blank" rel="noopener" data-cta-location="XS Form Success - Open WhatsApp">
-            Open WhatsApp
-          </a>
-        </p>
-      </div>
-    );
+const fieldId = (prefix: string, k: PlanField) => `${prefix}-${k}`;
+
+async function submit(e: FormEvent<HTMLFormElement>, prefix: string, location: "s9" | "popup", honeypot: string) {
+  e.preventDefault();
+  if (form.status === "sending" || form.status === "sent") return;
+  const { name, phone, email, country } = form;
+  const { errors, e164 } = (await getChecker()).checkPlan({ name, phone, email }, country);
+  setForm({ errors });
+  const bad = Object.keys(errors) as PlanField[];
+  if (bad.length || !e164) {
+    bad.forEach((f) => xsTrack("xs_form_error", { field: f, location }));
+    document.getElementById(fieldId(prefix, bad[0] ?? "phone"))?.focus();
+    return;
   }
+  const s = getXs();
+  const eventId = genEventId();
+  const topic = s.topic ?? "not_sure";
+  setForm({ status: "sending" });
+  try {
+    const res = await fetch("/api/services-plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lead_name: name.trim(),
+        mobile_no: e164,
+        country,
+        email_id: email.trim().toLowerCase(),
+        topic,
+        worries: s.worries,
+        advisor_pref: s.advisor ?? "any",
+        contact_pref: s.contactPref,
+        consult_mode: s.consultMode,
+        form_location: location,
+        page: "/xservicesx",
+        ...attributionFields(),
+        event_id: eventId,
+        landing_page: window.location.href.split("#")[0],
+        form_id: SERVICES_PLAN_FORM_ID,
+        [TRAP_FIELD]: honeypot,
+      }),
+    });
+    const responseBody = await res.json().catch(() => ({}));
+    if (!res.ok || !isConfirmedLeadResponse(responseBody)) throw new Error(String(res.status));
+    setForm({ status: "sent" });
+    requestAnimationFrame(() => (document.getElementById(`${prefix}-thanks`) as HTMLElement | null)?.focus());
+    if (sentOnce) return;
+    sentOnce = true;
+    pushXsLead({ eventId, topic, contactPref: s.contactPref, location });
+  } catch {
+    setForm({ status: "error" });
+  }
+}
 
-  const id = (k: string) => `${idPrefix}-${k}`;
+export function PlanForm({ prefix, location, heading }: { prefix: string; location: "s9" | "popup"; heading?: string }) {
+  const f = useForm();
+  const s = useXs();
+  const honeypot = useRef<HTMLInputElement>(null);
+  const advisor = s.advisor && s.advisor !== "any" ? C.advisors.find((a) => a.id === s.advisor) : undefined;
+  const firstName = f.name.trim().split(/\s+/)[0] ?? "";
+  const id = (k: PlanField) => fieldId(prefix, k);
+  const field = (k: PlanField) => ({
+    id: id(k),
+    "aria-invalid": f.errors[k] ? true : undefined,
+    "aria-describedby": f.errors[k] ? `${id(k)}-err` : undefined,
+  });
   const err = (k: PlanField) =>
-    errors[k] ? (
-      <p className="ad-err" id={id(`${k}-err`)}>
-        {k === "phone" ? planPhoneError(country) : PLAN_ERRORS[k]}
+    f.errors[k] ? (
+      <p className="xs-err" id={`${id(k)}-err`}>
+        {f.errors[k]}
       </p>
     ) : null;
-  const aria = (k: PlanField) => ({ "aria-invalid": errors[k] || undefined, "aria-describedby": errors[k] ? id(`${k}-err`) : undefined });
+
+  if (f.status === "sent")
+    return (
+      <div className="xs-thanks" id={`${prefix}-thanks`} tabIndex={-1} role="status">
+        <span className="xs-thanks-tick" aria-hidden="true">
+          <Icon name="check" size={28} strokeWidth={2.6} />
+        </span>
+        <b>{firstName ? `Thanks, ${firstName}.` : "Thanks."}</b>
+        <p>{thanksBody(advisor?.name ?? null, s.contactPref)}</p>
+        <XsWhatsApp location={`${location}_thanks`} className="xs-thanks-wa">
+          Prefer to chat now? WhatsApp us →
+        </XsWhatsApp>
+      </div>
+    );
 
   return (
-    <form className="ad-cf ad-form xs-form" onSubmit={submit} noValidate data-track={SERVICES_PLAN_FORM_ID}>
-      <div className="ad-field">
-        <label htmlFor={id("name")}>Your name</label>
-        <input id={id("name")} name="lead_name" type="text" autoComplete="name" placeholder="e.g. Sara Ahmed" required {...aria("name")} />
+    <form
+      className="xs-form"
+      onSubmit={(e) => submit(e, prefix, location, honeypot.current?.value || "")}
+      noValidate
+      data-track={SERVICES_PLAN_FORM_ID}
+      onFocus={() => {
+        void getChecker();
+        if (started) return;
+        started = true;
+        xsTrack("xs_form_start", { location });
+      }}
+    >
+      {heading && <h3 className="d-only">{heading}</h3>}
+      <div className="xs-field">
+        <label htmlFor={id("name")}>Your full name</label>
+        <input {...field("name")} name="lead_name" type="text" autoComplete="name" placeholder="e.g. Sara Ahmed" value={f.name} onChange={(e) => setForm({ name: e.target.value })} maxLength={60} required />
         {err("name")}
       </div>
-      <div className="ad-field">
+      <div className="xs-field">
         <label htmlFor={id("phone")}>WhatsApp number</label>
-        <div className="ad-tel">
-          <PhoneCountrySelect
-            value={country}
-            onChange={(e) => {
-              setCountry(e.target.value as PhoneCountry);
-              setErrors((x) => ({ ...x, phone: false }));
-            }}
-          />
-          <input id={id("phone")} name="mobile_no" type="tel" inputMode="tel" autoComplete="tel" placeholder={country === "AE" ? "e.g. 50 123 4567" : phonePlaceholder(country)} required {...aria("phone")} />
+        <div className="xs-tel">
+          <PhoneCountrySelect value={f.country} onChange={(e) => setForm({ country: e.target.value as PhoneCountry, errors: { ...f.errors, phone: undefined } })} />
+          <input {...field("phone")} name="mobile_no" type="tel" inputMode="tel" autoComplete="tel" placeholder={f.country === "AE" ? "50 123 4567" : "Mobile number"} value={f.phone} onChange={(e) => setForm({ phone: e.target.value })} required />
         </div>
         {err("phone")}
       </div>
-      <div className="ad-field">
-        <label htmlFor={id("need")}>Where are you right now?</label>
-        <select id={id("need")} name="need" required defaultValue={startNeed} {...aria("need")}>
-          <option value="" disabled>
-            Choose one
-          </option>
-          {NEEDS.map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </select>
-        {err("need")}
-      </div>
-      <div className="ad-field">
+      <div className="xs-field">
         <label htmlFor={id("email")}>
-          Email <span>(optional)</span>
+          Email <span>(we send your written plan here too)</span>
         </label>
-        <input id={id("email")} name="email_id" type="email" inputMode="email" autoComplete="email" placeholder="name@company.com" {...aria("email")} />
+        <input {...field("email")} name="email_id" type="email" inputMode="email" autoComplete="email" placeholder="you@company.com" value={f.email} onChange={(e) => setForm({ email: e.target.value })} required />
         {err("email")}
+      </div>
+      <div className="xs-seg xs-seg-form" role="group" aria-label="How should we reply?">
+        {(["whatsapp", "call"] as const).map((p) => (
+          <button key={p} type="button" aria-pressed={s.contactPref === p} onClick={() => setXs({ contactPref: p })}>
+            {p === "whatsapp" ? "Reply on WhatsApp" : "Call me"}
+          </button>
+        ))}
       </div>
       {/* Spam trap: invisible to people, tempting to bots. */}
       <div className="sr-only" aria-hidden="true">
-        <label htmlFor={id("hp")}>Leave this field empty</label>
-        <input ref={honeypot} id={id("hp")} name={TRAP_FIELD} type="text" tabIndex={-1} autoComplete="off" />
+        <label htmlFor={`${prefix}-hp`}>Leave this field empty</label>
+        <input ref={honeypot} id={`${prefix}-hp`} name={TRAP_FIELD} type="text" tabIndex={-1} autoComplete="off" />
       </div>
-      {status === "error" && (
-        <p className="ad-err" role="alert">
-          {PLAN_ERRORS.send}
+      {f.status === "error" && (
+        <p className="xs-err xs-err-send" role="alert">
+          Something went wrong. Please try again, or{" "}
+          <a href={waLink(s.topic)} target="_blank" rel="noopener">
+            message us on WhatsApp
+          </a>
+          .
         </p>
       )}
-      <button type="submit" className="btn btn-primary btn-block ad-submit" disabled={status === "sending"}>
-        {status === "sending" ? "Sending..." : FORM_COPY.button}
+      <button type="submit" className="xs-btn xs-primary xs-block" disabled={f.status === "sending"} aria-busy={f.status === "sending"}>
+        {f.status === "sending" ? (
+          <>
+            <span className="xs-spin" aria-hidden="true" />
+            Sending…
+          </>
+        ) : (
+          <>
+            Send me my plan
+            <BtnArrow />
+          </>
+        )}
       </button>
-      <p className="ad-privacy">
-        {FORM_COPY.consent}{" "}
-        <a href={SITE.privacy} target="_blank" rel="noopener">
-          Privacy policy
-        </a>
+      <p className="xs-form-micro">
+        {S9_MICRO}
+        <span className="d-only">
+          <br />
+          Your details are used only to reply to you.{" "}
+          <a href={C.privacyUrl} target="_blank" rel="noopener">
+            Privacy policy
+          </a>
+        </span>
       </p>
     </form>
   );

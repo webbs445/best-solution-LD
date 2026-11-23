@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trust · review wall and office</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.bs-primary,.bs-dark{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:0 10px 0 24px;border-radius:14px;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;box-sizing:border-box;color:#FFFFFF;white-space:nowrap}
+.bs-primary{background:#A8623E;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.bs-primary:hover{background:#94532F;color:#FFFFFF;transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 14px 26px -14px rgba(148,83,47,.8)}
+.bs-dark{background:#14213D}
+.bs-dark:hover{background:#0E1830;color:#FFFFFF;transform:translateY(-1px)}
+.bs-arrow{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;transition:transform .2s}
+.bs-primary:hover .bs-arrow,.bs-dark:hover .bs-arrow{transform:translateX(3px)}
+.bs-primary:focus-visible,.bs-dark:focus-visible,.bs-link:focus-visible,.pz:focus-visible{outline:3px solid #14213D;outline-offset:3px}
+.bs-link{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:600;color:#14213D;text-decoration:none;padding-bottom:3px}
+.bs-link::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:32%;background:#B9714B;transition:width .25s}
+.bs-link:hover::after{width:100%}
+.wall{position:relative;margin:0 -120px;display:flex;flex-direction:column;gap:16px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 120px,#000 calc(100% - 120px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 120px,#000 calc(100% - 120px),transparent 100%)}
+.track{display:flex;gap:16px;width:max-content}
+.wall:hover .track{animation-play-state:paused!important}
+.rcard{flex:none;width:380px;height:196px;box-sizing:border-box;background:#FBF6F1;border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:12px;transition:background .2s,box-shadow .2s,transform .2s}
+.rcard:hover{background:#FFFFFF;box-shadow:0 22px 40px -28px rgba(20,33,61,.45),0 0 0 1px #E7DCD2;transform:translateY(-3px)}
+.rtext{margin:0;font-size:15px;line-height:1.55;color:#14213D;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pz{width:40px;height:40px;border-radius:50%;border:1.5px solid #E2D3C6;background:#FFFFFF;color:#14213D;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+@keyframes left{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes right{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@keyframes pinPulse{0%{transform:scale(.6);opacity:.6}100%{transform:scale(2.2);opacity:0}}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1080px; box-sizing: border-box; background: #FFFFFF; font-family: Inter, system-ui, sans-serif; color: #14213D; padding: 88px 120px; display: flex; flex-direction: column; gap: 40px; overflow: hidden">
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #9A5A36">WHY FOUNDERS TRUST US</span>
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 44px; line-height: 1.08; letter-spacing: -0.02em">Don't take our word for it.</h2>
+<span style="font-size: 17px; color: #3C4659">Real Google reviews from founders we've advised. Word for word.</span>
+</div>
+<div style="display: flex; align-items: center; gap: 18px">
+<span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 64px; font-weight: 800; line-height: 1; letter-spacing: -0.03em">[4.9]</span>
+<span style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 20px; letter-spacing: 3px; color: #B9714B" aria-label="Rated [4.9] out of 5">★★★★★</span><span style="font-size: 14px; color: #5B6375">from [N] Google reviews</span><a href="#" class="bs-link" style="font-size: 14px; align-self: flex-start">Read them all <span>→</span></a></span>
+<button type="button" class="pz" aria-label="{{pzLabel}}" onClick="{{toggle}}" style="margin-left: 10px">{{pzIcon}}</button>
+</div>
+</div>
+
+<div class="wall" aria-label="Client reviews">
+<div class="track" style="{{row1}}">
+<sc-for list="{{a}}" as="r" hint-placeholder-count="8">
+<div class="rcard"><div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; letter-spacing: 2px; color: #B9714B">★★★★★</span><span style="font-size: 11px; font-weight: 600; color: #9A5A36; background: #F3E4D8; padding: 3px 9px; border-radius: 999px">{{r.topic}}</span></div><p class="rtext">{{r.text}}</p><div style="margin-top: auto; display: flex; align-items: center; gap: 10px"><span style="width: 32px; height: 32px; border-radius: 50%; background: #14213D; color: #E3A47E; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800">{{r.ini}}</span><span style="font-size: 14px; font-weight: 700">{{r.name}}</span><span style="font-size: 12px; color: #5B6375">· Google · {{r.month}}</span></div></div>
+</sc-for>
+</div>
+<div class="track" style="{{row2}}">
+<sc-for list="{{b}}" as="r" hint-placeholder-count="8">
+<div class="rcard"><div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; letter-spacing: 2px; color: #B9714B">★★★★★</span><span style="font-size: 11px; font-weight: 600; color: #9A5A36; background: #F3E4D8; padding: 3px 9px; border-radius: 999px">{{r.topic}}</span></div><p class="rtext">{{r.text}}</p><div style="margin-top: auto; display: flex; align-items: center; gap: 10px"><span style="width: 32px; height: 32px; border-radius: 50%; background: #14213D; color: #E3A47E; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800">{{r.ini}}</span><span style="font-size: 14px; font-weight: 700">{{r.name}}</span><span style="font-size: 12px; color: #5B6375">· Google · {{r.month}}</span></div></div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 300px 1fr 420px; border: 1px solid #E7DCD2; border-radius: 24px; overflow: hidden; height: 210px">
+<div style="position: relative; background: #F1EAE2">
+<svg width="300" height="210" viewBox="0 0 300 210" aria-hidden="true" style="position: absolute; inset: 0"><path d="M-10 160 C 60 136, 120 180, 190 150 S 280 124, 320 138" stroke="#CFE0EC" stroke-width="22" fill="none"/><path d="M0 54 H300 M0 104 H300 M60 0 V210 M160 0 V210 M246 0 V210" stroke="#FFFFFF" stroke-width="9"/><path d="M0 16 L300 82" stroke="#FFFFFF" stroke-width="12"/><rect x="74" y="64" width="72" height="26" rx="6" fill="#E6DCD1"/><rect x="174" y="114" width="60" height="28" rx="6" fill="#E6DCD1"/><rect x="74" y="114" width="72" height="28" rx="6" fill="#E6DCD1"/></svg>
+<span style="position: absolute; left: 144px; top: 80px; width: 16px; height: 16px; border-radius: 50%; background: rgba(185,113,75,0.5); animation: pinPulse 1.8s ease-out infinite"></span>
+<svg style="position: absolute; left: 136px; top: 52px" width="32" height="42" viewBox="0 0 24 32" aria-hidden="true"><path d="M12 31s10-11 10-19a10 10 0 0 0-20 0c0 8 10 19 10 19z" fill="#B9714B"/><circle cx="12" cy="12" r="4" fill="#FFFFFF"/></svg>
+</div>
+<div style="padding: 30px 34px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #9A5A36">VISIT US</span>
+<span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 24px; font-weight: 800">Business Bay, Dubai</span>
+<span style="font-size: 15px; color: #5B6375">Monday to Friday, 9am to 6pm · or by video from anywhere</span>
+<a href="#" class="bs-link" style="margin-top: auto; align-self: flex-start">Get directions <span>→</span></a>
+</div>
+<div style="background: #FBF1EA; padding: 30px 34px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 18px; font-weight: 700">Prefer to talk first?</span>
+<span style="font-size: 15px; line-height: 1.5; color: #3C4659">The first available advisor calls you in office hours.</span>
+<a href="#" class="bs-dark" style="margin-top: auto; align-self: flex-start">Request a call back <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a>
+</div>
+</div>
+
+<div style="display: flex; align-items: center; gap: 22px">
+<a href="#" class="bs-primary">Get my written plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a>
+<span style="font-size: 15px; color: #5B6375">Join them. 2 minutes · no obligation</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1080}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { paused: false }; }
+  renderVals() {
+    var self = this, P = this.state.paused;
+    var R = function (name, topic, text) { return { name: name, ini: name.charAt(1) === "R" ? "?" : name.charAt(0), topic: topic, text: text, month: "[Month year]" }; };
+    var set1 = [
+      { name: "Michael D.", ini: "M", topic: "New company", text: "25+ years in banking and corporate services, and Best Solution truly stands apart. From day one, I knew I was in safe hands.", month: "[Month year]" },
+      R("[Name 2]", "Free zone or mainland", "[Real Google review, word for word. Ideally one about choosing free zone or mainland.]"),
+      R("[Name 3]", "Corporate Tax", "[Real Google review, word for word, about Corporate Tax or deadlines.]"),
+      R("[Name 4]", "Monthly books", "[Real Google review, word for word, about monthly books.]")
+    ];
+    var set2 = [
+      { name: "Hadi", ini: "H", topic: "New company", text: "[Hadi's Google review, word for word, as the live page already has it.]", month: "[Month year]" },
+      R("[Name 6]", "Holding assets", "[Real Google review, word for word, about a holding or several companies.]"),
+      R("[Name 7]", "New company", "[Real Google review that names an advisor or the written plan.]"),
+      R("[Name 8]", "Free zone or mainland", "[Real Google review, word for word, about costs being clear.]")
+    ];
+    var anim = function (name, sec) { return "animation: " + name + " " + sec + "s linear infinite; animation-play-state: " + (P ? "paused" : "running") + ";"; };
+    return {
+      a: set1.concat(set1), b: set2.concat(set2),
+      row1: anim("left", 60), row2: anim("right", 70),
+      toggle: function () { self.setState({ paused: !self.state.paused }); },
+      pzLabel: P ? "Play reviews" : "Pause reviews", pzIcon: P ? "▶" : "❚❚"
+    };
+  }
+}
+</script>
+</body>
+</html>

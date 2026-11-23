@@ -44,7 +44,6 @@ function validLead() {
     email_id: "qa.person@example.org",
     mobile_no: `+971501234${String(serial).padStart(3, "0")}`,
     country: "AE",
-    need: "Not sure yet",
   };
 }
 

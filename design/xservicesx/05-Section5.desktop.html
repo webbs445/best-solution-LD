@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section 5 · From first message to a written plan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.bs-primary{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:0 10px 0 24px;border-radius:14px;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;box-sizing:border-box;background:#B9714B;color:#FFFFFF;box-shadow:inset 0 1px 0 rgba(255,255,255,.22);white-space:nowrap}
+.bs-primary:hover{background:#A8623E;color:#FFFFFF;transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 14px 26px -14px rgba(0,0,0,.6)}
+.bs-arrow{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;transition:transform .2s}
+.bs-primary:hover .bs-arrow{transform:translateX(3px)}
+.bs-primary:focus-visible{outline:3px solid #FFFFFF;outline-offset:3px}
+.tchip{height:38px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.tchip:hover{border-color:#E3A47E;color:#F0BC9C}
+.tchip.on{background:#B9714B;border-color:#B9714B;color:#FFFFFF}
+.tchip:focus-visible,.seg:focus-visible{outline:3px solid #FFFFFF;outline-offset:2px}
+.seg{flex:1;height:36px;border:0;border-radius:9px;font-family:Inter,system-ui,sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s,color .2s}
+@keyframes bsPop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="width: 1440px; height: 940px; box-sizing: border-box; background: #14213D; font-family: Inter, system-ui, sans-serif; color: #FFFFFF; padding: 80px 120px; display: flex; flex-direction: column; gap: 40px">
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #E3A47E">HOW IT WORKS</span>
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 44px; line-height: 1.08; letter-spacing: -0.02em">From first message to a written plan<br><span style="color: #E3A47E">in [1 working day].</span></h2>
+<span style="font-size: 17px; color: #C3CAD8; margin-top: 2px">No surprises. Nothing is charged until you agree in writing.</span>
+</div>
+<span style="font-size: 13px; color: #8C96AB">Example timeline. Times depend on your case.</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 20px">
+<div style="position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px">
+<div style="position: absolute; left: 191px; width: 818px; top: 47px; border-top: 2px dashed rgba(227,164,126,0.35)"></div>
+<div style="{{fill}}"></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="{{l0}}">TODAY · 10:00 AM</span><span style="{{n0}}">1</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="{{l1}}">TODAY · 2:00 PM</span><span style="{{n1}}">2</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px"><span style="{{l2}}">[NEXT WORKING DAY]</span><span style="{{n2}}">3</span></div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px">
+
+<div onMouseEnter="{{h0}}" style="{{c0}}">
+<h3 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 24px">Tell us your plan</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.55; color: #C3CAD8">Pick what's on your mind. A few lines is enough.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="6">
+<button type="button" class="{{c.cls}}" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" onFocus="{{h0}}">{{c.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div onMouseEnter="{{h1}}" style="{{c1}}">
+<h3 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 24px">Talk it through</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.55; color: #C3CAD8">A [30-minute] call with your advisor. Ask anything, get plain answers.</p>
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="flex: none; width: 44px; height: 44px; border-radius: 50%; background: #2A3A5E; border: 2px solid #E3A47E; display: inline-flex; align-items: center; justify-content: center; color: #E3A47E"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">[Advisor name]</span><span style="font-size: 13px; color: #8C96AB">[Role] · [Languages]</span></span>
+</div>
+<div style="display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255,255,255,0.06)">
+<button type="button" class="seg" aria-pressed="{{p0}}" onClick="{{m0}}" onFocus="{{h1}}" style="{{s0}}">Video call</button>
+<button type="button" class="seg" aria-pressed="{{p1}}" onClick="{{m1}}" onFocus="{{h1}}" style="{{s1}}">Business Bay office</button>
+</div>
+<span style="font-size: 13px; color: #C3CAD8; animation: bsPop .3s ease">{{modeNote}}</span>
+</div>
+
+<div onMouseEnter="{{h2}}" style="{{c2}}">
+<h3 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 24px">Get it in writing</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.55; color: #C3CAD8">Your plan lands on WhatsApp. Read it, share it, decide in your own time.</p>
+<div style="background: #FFFFFF; color: #14213D; border-radius: 16px 16px 16px 4px; padding: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 18px 30px -20px rgba(0,0,0,0.6)">
+<span style="font-size: 14px; line-height: 1.45">Hi [Your name], your written plan is ready.</span>
+<div style="display: flex; align-items: center; gap: 10px; background: #F6F1EC; border-radius: 10px; padding: 10px">
+<span style="flex: none; width: 34px; height: 34px; border-radius: 8px; background: #F3E4D8; color: #9A5A36; display: inline-flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13px; font-weight: 700">Your written plan.pdf</span><span style="font-size: 12px; color: #5B6375">Structure · costs · timeline · fees</span></span>
+</div>
+<span style="align-self: flex-end; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #5B6375">10:12 AM <svg width="16" height="12" viewBox="0 0 28 16" fill="none" stroke="#34B7F1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 9 4 4 8-10"/><path d="m12 13 2-0 10-10"/></svg></span>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 40px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.12)">
+<p style="margin: 0; font-size: 16px; line-height: 1.55; color: #C3CAD8; max-width: 640px"><strong style="color: #FFFFFF; font-weight: 700">Then it's your call.</strong> Go ahead with us, with fees agreed in writing first. Or take the plan and do it yourself.</p>
+<div style="display: flex; align-items: center; gap: 18px">
+<span style="font-size: 14px; color: #8C96AB">Free · no obligation</span>
+<a href="#" class="bs-primary">{{cta}} <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":940}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 0, picked: -1, mode: 0 }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var labels = ["New company", "Free zone or mainland", "Holding assets", "Monthly books", "Corporate Tax", "Something else"];
+    var chips = labels.map(function (l, i) {
+      var on = st.picked === i;
+      return { label: l, cls: on ? "tchip on" : "tchip", pressed: on ? "true" : "false",
+        pick: function () { self.setState({ picked: on ? -1 : i, step: 0 }); } };
+    });
+    var go = function (i) { return function () { if (self.state.step !== i) self.setState({ step: i }); }; };
+    var card = function (i) {
+      var on = st.step === i;
+      return "display: flex; flex-direction: column; gap: 14px; padding: 28px; border-radius: 22px; height: 340px; box-sizing: border-box; transition: background .25s, border-color .25s, transform .25s; " + (on ? "background: rgba(255,255,255,0.075); border: 1px solid rgba(227,164,126,0.55); transform: translateY(-4px);" : "background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.1);");
+    };
+    var node = function (i) {
+      var done = i <= st.step;
+      return "position: relative; width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: 'Inter Tight', Inter, sans-serif; font-size: 18px; font-weight: 800; transition: background .3s, color .3s; box-shadow: 0 0 0 6px #14213D; " + (done ? "background: #B9714B; color: #FFFFFF;" : "background: #1E2C4D; color: #E3A47E; outline: 1px solid rgba(227,164,126,0.4);");
+    };
+    var lab = function (i) { return "font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 0.08em; transition: color .3s; color: " + (i <= st.step ? "#E3A47E" : "#8C96AB"); };
+    var seg = function (i) { return st.mode === i ? "background: #F3E4D8; color: #14213D;" : "background: transparent; color: #C3CAD8;"; };
+    return {
+      chips: chips,
+      h0: go(0), h1: go(1), h2: go(2),
+      c0: card(0), c1: card(1), c2: card(2),
+      n0: node(0), n1: node(1), n2: node(2),
+      l0: lab(0), l1: lab(1), l2: lab(2),
+      fill: "position: absolute; left: 191px; top: 47px; height: 2px; border-radius: 2px; background: #B9714B; transition: width .45s ease; width: " + (st.step * 409) + "px",
+      m0: function () { self.setState({ mode: 0, step: 1 }); }, m1: function () { self.setState({ mode: 1, step: 1 }); },
+      s0: seg(0), s1: seg(1), p0: st.mode === 0 ? "true" : "false", p1: st.mode === 1 ? "true" : "false",
+      modeNote: st.mode === 0 ? "We send you a link. Join from anywhere." : "Coffee at our office in Business Bay. Free parking [confirm].",
+      cta: st.picked >= 0 ? "Continue: " + labels[st.picked] : "Start with step 1"
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import type { SelectHTMLAttributes } from "react";
-import { PHONE_COUNTRIES, phoneCountryLabel } from "@/lib/phone";
+import { PHONE_COUNTRIES, phoneCountryLabel } from "@/lib/phoneCountries";
 
 /*
   The WhatsApp number's country picker, shared by every lead form (lib/phone validates the number against it).

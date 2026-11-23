@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section 2 · Sound familiar? · phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9A5A36}a:hover{color:#7A4428}
+@keyframes bsIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes bsGlow{0%{background:rgba(227,164,126,0.28)}100%{background:rgba(227,164,126,0)}}
+</style>
+</helmet>
+<div style="width: 390px; height: 1100px; box-sizing: border-box; background: #FFFFFF; font-family: Inter, system-ui, sans-serif; color: #14213D; padding: 44px 20px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #B9714B">SOUND FAMILIAR?</span>
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 30px; line-height: 1.1; letter-spacing: -0.02em">Which of these is on your mind?</h2>
+<p style="margin: 0 0 6px; font-size: 15px; color: #5B6375">Tap all that apply.</p>
+<sc-for list="{{worries}}" as="w" hint-placeholder-count="5">
+<button type="button" aria-pressed="{{w.pressed}}" onClick="{{w.toggle}}" style="{{w.style}}"><span style="{{w.boxStyle}}"><sc-if value="{{w.on}}" hint-placeholder-val="{{false}}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></sc-if></span><span style="font-size: 15px; line-height: 1.4; text-align: left">{{w.text}}</span></button>
+</sc-for>
+
+<div style="background: #14213D; color: #FFFFFF; border-radius: 22px; padding: 24px 20px; display: flex; flex-direction: column; gap: 12px; margin-top: 12px">
+<div style="display: flex; align-items: center; gap: 10px"><div style="width: 36px; height: 36px; border-radius: 50%; background: #2A3A5E; border: 2px solid #E3A47E; flex: none"></div><span style="font-size: 13px; color: #C3CAD8">[Advisor name] answers these every day</span></div>
+<h3 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 22px; line-height: 1.2">{{heading}} <span style="color: #E3A47E">in one free conversation.</span></h3>
+<sc-for list="{{answers}}" as="a" hint-placeholder-count="4">
+<div style="{{a.style}}"><span style="flex: none; width: 22px; height: 22px; border-radius: 50%; background: #B9714B; display: inline-flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><span style="font-size: 15px; line-height: 1.45; color: #E6EAF1"><span style="font-weight: 700; color: #FFFFFF">{{a.lead}}</span> {{a.rest}}</span></div>
+</sc-for>
+<a href="#" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #B9714B; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 14px; margin-top: 6px">{{cta}}</a>
+<span style="font-size: 13px; color: #A9B2C3; text-align: center">Free · one conversation · answers in writing</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { picked: [], last: -1 }; }
+  renderVals() {
+    var data = [
+      { text: "Three consultants gave me three different prices.", lead: "One clear cost,", rest: "in writing, to compare with any quote." },
+      { text: "Free zone or mainland? I'm still not sure.", lead: "Free zone or mainland,", rest: "decided with you." },
+      { text: "Does a free zone allow my activity?", lead: "Your activity checked", rest: "against the zones that allow it." },
+      { text: "What costs show up in year two?", lead: "Year one and after,", rest: "shown upfront." },
+      { text: "Something else. I'll tell the advisor.", lead: "Tell us in your own words,", rest: "and get a clear answer." }
+    ];
+    var picked = this.state.picked, last = this.state.last, self = this;
+    var worries = data.map(function (d, i) {
+      var on = picked.indexOf(i) !== -1;
+      return {
+        text: d.text, on: on, pressed: on ? "true" : "false",
+        toggle: function () {
+          var p = self.state.picked.slice();
+          var k = p.indexOf(i);
+          if (k === -1) { p.push(i); self.setState({ picked: p, last: i }); }
+          else { p.splice(k, 1); self.setState({ picked: p, last: -1 }); }
+        },
+        style: "display: flex; align-items: center; gap: 12px; width: 100%; font-family: inherit; color: #14213D; cursor: pointer; padding: 13px 14px; border-radius: 14px; min-height: 52px; " + (on ? "background: #FBF1EA; border: 2px solid #B9714B;" : "background: #FFFFFF; border: 1.5px solid #E7DCD2;"),
+        boxStyle: "flex: none; width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; " + (on ? "background: #B9714B; border: 2px solid #B9714B;" : "background: #FFFFFF; border: 2px solid #CDBFB2;")
+      };
+    });
+    var chosen = picked.length ? picked.slice().sort() : [0, 1, 2, 3];
+    var answers = chosen.map(function (i) {
+      return { lead: data[i].lead, rest: data[i].rest, style: "display: flex; gap: 10px; align-items: flex-start; padding: 6px 8px; margin: 0 -8px; border-radius: 10px; animation: " + (i === last ? "bsIn .35s ease, bsGlow 1.6s ease" : "none") };
+    });
+    var n = picked.length;
+    return {
+      worries: worries, answers: answers,
+      heading: n ? "Here's how we sort that out," : "That's what we sort out,",
+      cta: n > 1 ? "Get answers to my " + n + " questions" : (n === 1 ? "Get my answer" : "Get my free plan")
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section 9 · Your plan is almost ready</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.bs-primary{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:56px;padding:0 10px 0 24px;border:0;border-radius:14px;font-family:Inter,system-ui,sans-serif;font-size:17px;font-weight:600;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;box-sizing:border-box;background:#B9714B;color:#FFFFFF;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.bs-primary:hover{background:#A8623E;transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 16px 30px -14px rgba(0,0,0,.8)}
+.bs-arrow{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;transition:transform .2s}
+.bs-primary:hover .bs-arrow{transform:translateX(3px)}
+.bs-primary:focus-visible,.seg:focus-visible,.lnk:focus-visible{outline:3px solid #FFFFFF;outline-offset:3px}
+.fin{width:100%;height:54px;box-sizing:border-box;padding:0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:#FFFFFF;font-family:Inter,system-ui,sans-serif;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s,background .2s}
+.fin::placeholder{color:#8C96AB}
+.fin:focus{border-color:#E3A47E;box-shadow:0 0 0 3px rgba(227,164,126,.25);background:rgba(255,255,255,.1)}
+.seg{flex:1;height:42px;border:0;border-radius:10px;font-family:Inter,system-ui,sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s,color .2s}
+.lnk{background:none;border:0;padding:0;font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:600;color:#9A5A36;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.lnk:focus-visible{outline:2px solid #14213D;outline-offset:2px}
+@keyframes bsIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes stamp{0%{transform:rotate(-12deg) scale(1.8);opacity:0}60%{transform:rotate(-12deg) scale(.95);opacity:1}100%{transform:rotate(-12deg) scale(1);opacity:1}}
+@keyframes flash{0%{background:#FBF1EA}100%{background:transparent}}
+</style>
+</helmet>
+<div style="position: relative; width: 1440px; height: 1060px; box-sizing: border-box; background: #14213D; font-family: Inter, system-ui, sans-serif; color: #FFFFFF; padding: 88px 120px 44px; display: flex; flex-direction: column; align-items: center; gap: 48px; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; left: 260px; top: 260px; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(185,113,75,0.28) 0%, rgba(185,113,75,0) 62%)"></div>
+
+<div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #E3A47E">ONE LAST STEP</span>
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 54px; line-height: 1.05; letter-spacing: -0.025em">Your plan is almost ready.<br><span style="color: #E3A47E">Tell us where to send it.</span></h2>
+<p style="margin: 0; font-size: 18px; line-height: 1.55; color: #C3CAD8; max-width: 640px">We've kept what you picked on this page. Add your name and WhatsApp, and an advisor takes it from here.</p>
+</div>
+
+<div style="position: relative; display: grid; grid-template-columns: 540px 440px; gap: 80px; align-items: center">
+
+<div style="position: relative; height: 560px; display: flex; align-items: center; justify-content: center">
+<div aria-hidden="true" style="position: absolute; width: 470px; height: 520px; border-radius: 12px; background: #DCCFC2; transform: rotate(3deg) translate(14px, 6px)"></div>
+<div style="position: relative; width: 480px; background: #FFFFFF; color: #14213D; border-radius: 12px; padding: 28px 30px; display: flex; flex-direction: column; gap: 14px; transform: rotate(-2deg); box-shadow: 0 50px 80px -40px rgba(0,0,0,0.7)">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 2px solid #14213D">
+<span style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; font-weight: 700">Best Solution · Written plan</span><span style="{{forStyle}}">For: {{forName}}</span></span>
+<span style="position: relative; width: 68px; height: 68px; margin: -8px -6px 0 0">
+<svg width="68" height="68" viewBox="0 0 68 68" aria-hidden="true"><circle cx="34" cy="34" r="29" fill="none" stroke="#F3E4D8" stroke-width="6"/><circle cx="34" cy="34" r="29" fill="none" stroke="{{ringColor}}" stroke-width="6" stroke-linecap="round" stroke-dasharray="182.2" stroke-dashoffset="{{ringOffset}}" transform="rotate(-90 34 34)" style="transition: stroke-dashoffset .5s ease, stroke .3s"/></svg>
+<span style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 17px; font-weight: 800">{{pct}}</span><span style="font-size: 9px; font-weight: 600; color: #5B6375; margin-top: 2px">ready</span></span>
+</span>
+</div>
+
+<div style="display: grid; grid-template-columns: 112px 1fr; row-gap: 12px; column-gap: 12px; align-items: center; font-size: 14px">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #9A5A36">ABOUT</span>
+<span style="display: flex; align-items: center; gap: 10px"><strong style="{{aboutStyle}}">{{about}}</strong><button type="button" class="lnk" onClick="{{cycle}}">Change</button></span>
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #9A5A36">YOUR QUESTIONS</span>
+<span style="display: flex; flex-wrap: wrap; gap: 6px"><span style="font-size: 12px; font-weight: 600; background: #F3E4D8; padding: 4px 9px; border-radius: 999px">What will year two cost?</span><span style="font-size: 12px; font-weight: 600; background: #F3E4D8; padding: 4px 9px; border-radius: 999px">Free zone or mainland?</span></span>
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #9A5A36">YOUR ADVISOR</span>
+<span style="font-weight: 600">[Advisor 1]</span>
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #9A5A36">SEND TO</span>
+<span style="{{sendStyle}}">{{sendTo}}</span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; margin-top: 4px"><span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #5B6375">INSIDE YOUR PLAN</span><span style="flex: 1; height: 1px; background: #EDE4DB"></span></div>
+<div style="display: flex; flex-direction: column; gap: 9px">
+<span style="display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B9A595" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span style="width: 150px">Recommended structure</span><span style="flex: 1; height: 7px; border-radius: 4px; background: #F2EBE4"></span></span>
+<span style="display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B9A595" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span style="width: 150px">Year one and after</span><span style="flex: 1; height: 7px; border-radius: 4px; background: #EDE4DB"></span></span>
+<span style="display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B9A595" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span style="width: 150px">What to prepare</span><span style="flex: 1; height: 7px; border-radius: 4px; background: #F2EBE4"></span></span>
+<span style="display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B9A595" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span style="width: 150px">Timeline</span><span style="flex: 1; height: 7px; border-radius: 4px; background: #EDE4DB"></span></span>
+</div>
+<span style="font-size: 12px; color: #5B6375">Written by your advisor after your free call.</span>
+
+<sc-if value="{{sent}}" hint-placeholder-val="false">
+<span style="position: absolute; right: 34px; bottom: 70px; padding: 10px 16px; border: 3px solid #1F6B45; border-radius: 10px; color: #1F6B45; font-family: 'Inter Tight', Inter, sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.06em; background: rgba(232,244,236,0.92); animation: stamp .5s ease both">REQUEST SENT</span>
+</sc-if>
+</div>
+</div>
+
+<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 26px; padding: 30px; display: flex; flex-direction: column; gap: 18px; min-height: 470px; box-sizing: border-box">
+<sc-if value="{{notSent}}" hint-placeholder-val="true">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 24px; font-weight: 800">Where should we send it?</span>
+<label style="display: flex; flex-direction: column; gap: 8px"><span style="font-size: 14px; font-weight: 600">Your name</span><input class="fin" type="text" autocomplete="name" placeholder="First name is fine" value="{{name}}" onChange="{{setName}}"></label>
+<label style="display: flex; flex-direction: column; gap: 8px"><span style="font-size: 14px; font-weight: 600">WhatsApp number</span><div style="display: flex; gap: 8px"><span style="flex: none; height: 54px; padding: 0 14px; border-radius: 12px; background: rgba(255,255,255,0.12); display: inline-flex; align-items: center; font-size: 15px; font-weight: 600">+971</span><input class="fin" type="tel" inputmode="tel" autocomplete="tel" placeholder="50 123 4567" value="{{phone}}" onChange="{{setPhone}}"></div></label>
+<label style="display: flex; flex-direction: column; gap: 8px"><span style="font-size: 14px; font-weight: 600">Email <span style="font-weight: 400; color: #8C96AB">(we send your written plan here too)</span></span><input class="fin" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com"></label>
+<div style="display: flex; gap: 4px; padding: 4px; border-radius: 13px; background: rgba(255,255,255,0.07)"><button type="button" class="seg" aria-pressed="{{p0}}" onClick="{{r0}}" style="{{g0}}">Reply on WhatsApp</button><button type="button" class="seg" aria-pressed="{{p1}}" onClick="{{r1}}" style="{{g1}}">Call me</button></div>
+<button type="button" class="bs-primary" onClick="{{submit}}">Send me my plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></button>
+<span style="font-size: 13px; line-height: 1.5; color: #8C96AB; text-align: center">Free · no obligation · reply within [1 hour] in office hours.<br>Your details are used only to reply to you.</span>
+</div>
+</sc-if>
+<sc-if value="{{sent}}" hint-placeholder-val="false">
+<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 14px; animation: bsIn .4s ease">
+<span style="width: 60px; height: 60px; border-radius: 50%; background: #B9714B; display: inline-flex; align-items: center; justify-content: center"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span>
+<span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 28px; font-weight: 800">{{thanks}}</span>
+<span style="font-size: 16px; line-height: 1.6; color: #C3CAD8">{{thanksBody}}</span>
+<a href="#" style="font-size: 15px; font-weight: 600; color: #E3A47E">Prefer to chat now? WhatsApp us →</a>
+<button type="button" class="lnk" style="align-self: flex-start; margin-top: 10px; color: #8C96AB" onClick="{{reset}}">Start again (demo only)</button>
+</div>
+</sc-if>
+<span style="margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 14px; color: #C3CAD8; text-align: center">Prefer to chat? <a href="#" style="font-weight: 600; color: #E3A47E">WhatsApp us</a></span>
+</div>
+</div>
+
+<p style="position: relative; margin: auto 0 0; align-self: stretch; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 13px; color: #8C96AB">Best Solution is a private business consultancy in Business Bay, Dubai. We are not a government office or a free zone authority. Final decisions and government fees are set by the relevant authorities.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { name: "", phone: "", pref: 0, sent: false, about: 0, n: 0 }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var abouts = ["New company", "Free zone or mainland", "Holding assets", "Monthly books", "Corporate Tax"];
+    var nm = (st.name || "").trim(), ph = (st.phone || "").replace(/\D/g, "");
+    var p = st.sent ? 1 : 0.6 + (nm ? 0.2 : 0) + (ph.length >= 8 ? 0.2 : 0);
+    var seg = function (i) { return st.pref === i ? "background: #F3E4D8; color: #14213D;" : "background: transparent; color: #C3CAD8;"; };
+    var masked = ph.length >= 4 ? "+971 " + ph.slice(0, 2) + " ••• " + ph.slice(-2) : "[your number]";
+    return {
+      forName: nm || "[Your name]",
+      forStyle: "font-size: 13px; transition: color .2s; " + (nm ? "color: #14213D; font-weight: 700;" : "color: #8A93A5;"),
+      pct: Math.round(p * 100) + "%", ringOffset: String(182.2 * (1 - p)), ringColor: st.sent ? "#1F6B45" : "#B9714B",
+      about: abouts[st.about], aboutStyle: "font-weight: 700; padding: 2px 6px; margin: -2px -6px; border-radius: 6px; animation: " + (st.n % 2 ? "flash" : "bsIn") + " .6s ease",
+      cycle: function () { self.setState({ about: (self.state.about + 1) % abouts.length, n: self.state.n + 1 }); },
+      sendTo: (st.pref === 0 ? "WhatsApp · " : "Phone call · ") + masked,
+      sendStyle: "font-weight: 600; " + (ph.length >= 4 ? "color: #14213D;" : "color: #8A93A5;"),
+      name: st.name, phone: st.phone,
+      setName: function (e) { self.setState({ name: e && e.target ? e.target.value : "" }); },
+      setPhone: function (e) { self.setState({ phone: e && e.target ? e.target.value : "" }); },
+      p0: st.pref === 0 ? "true" : "false", p1: st.pref === 1 ? "true" : "false",
+      r0: function () { self.setState({ pref: 0 }); }, r1: function () { self.setState({ pref: 1 }); },
+      g0: seg(0), g1: seg(1),
+      sent: st.sent, notSent: !st.sent,
+      submit: function () { self.setState({ sent: true }); },
+      thanks: nm ? "Thanks, " + nm + "." : "Thanks.",
+      thanksBody: (st.pref === 0 ? "[Advisor 1] will WhatsApp you" : "[Advisor 1] will call you") + " within [1 hour] in office hours. Your written plan follows after the call.",
+      reset: function () { self.setState({ sent: false, name: "", phone: "" }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

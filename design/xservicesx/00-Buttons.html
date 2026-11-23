@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Button system</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9A5A36}a:hover{color:#7A4428}
+.bs-primary,.bs-dark,.bs-ghost{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:0 10px 0 24px;border-radius:14px;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s,border-color .2s;box-sizing:border-box}
+.bs-primary{background:#B9714B;color:#FFFFFF;border:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.bs-primary:hover,.bs-primary.is-hover{background:#A8623E;color:#FFFFFF;transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 14px 26px -14px rgba(168,98,62,.8)}
+.bs-dark{background:#14213D;color:#FFFFFF;border:0}
+.bs-dark:hover,.bs-dark.is-hover{background:#0C1630;color:#FFFFFF;transform:translateY(-1px);box-shadow:0 14px 26px -14px rgba(20,33,61,.7)}
+.bs-ghost{background:#FFFFFF;color:#14213D;border:1.5px solid #E2D3C6;padding:0 22px}
+.bs-ghost:hover,.bs-ghost.is-hover{border-color:#B9714B;background:#FBF1EA;color:#14213D}
+.bs-arrow{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;transition:transform .2s}
+.bs-primary:hover .bs-arrow,.bs-primary.is-hover .bs-arrow,.bs-dark:hover .bs-arrow,.bs-dark.is-hover .bs-arrow{transform:translateX(3px)}
+.bs-primary:focus-visible,.bs-dark:focus-visible,.bs-ghost:focus-visible,.bs-link:focus-visible,.bs-chip:focus-visible,.is-focus{outline:3px solid #14213D;outline-offset:3px}
+.bs-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:#14213D;font-family:Inter,system-ui,sans-serif;font-size:16px;font-weight:600;text-decoration:none;background:linear-gradient(#B9714B,#B9714B) 0 calc(100% - 10px)/32% 2px no-repeat;transition:background-size .25s}
+.bs-link:hover,.bs-link.is-hover{color:#14213D;background-size:100% 2px}
+.bs-link span{transition:transform .2s}
+.bs-link:hover span,.bs-link.is-hover span{transform:translateX(3px)}
+.bs-chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;background:#FBF1EA;color:#7A4428;font-family:Inter,system-ui,sans-serif;font-size:14px;font-weight:700;text-decoration:none;transition:background .2s,color .2s}
+.bs-chip:hover,.bs-chip.is-hover{background:#B9714B;color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1440px; height: 700px; box-sizing: border-box; background: #FBF6F1; font-family: Inter, system-ui, sans-serif; color: #14213D; padding: 64px 120px; display: flex; flex-direction: column; gap: 30px">
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #B9714B">BUTTON SYSTEM</span><h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 800; font-size: 36px">Five buttons, one job each</h2></div>
+
+<div style="display: grid; grid-template-columns: 220px repeat(3, minmax(0, 1fr)); gap: 20px 24px; align-items: center">
+<span style="font-size: 13px; font-weight: 700; color: #5B6375"></span><span style="font-size: 13px; font-weight: 700; color: #5B6375">DEFAULT</span><span style="font-size: 13px; font-weight: 700; color: #5B6375">HOVER</span><span style="font-size: 13px; font-weight: 700; color: #5B6375">KEYBOARD FOCUS</span>
+
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">Primary</span><span style="font-size: 13px; color: #5B6375">The one main action per screen</span></div>
+<div><a href="#" class="bs-primary">Get my free plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a></div>
+<div><a href="#" class="bs-primary is-hover">Get my free plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a></div>
+<div><a href="#" class="bs-primary is-focus">Get my free plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a></div>
+
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">Dark</span><span style="font-size: 13px; color: #5B6375">Second action, or on cards</span></div>
+<div><a href="#" class="bs-dark">Tell us your plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a></div>
+<div><a href="#" class="bs-dark is-hover">Tell us your plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a></div>
+<div><a href="#" class="bs-dark is-focus">Tell us your plan <span class="bs-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span></a></div>
+
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">Ghost</span><span style="font-size: 13px; color: #5B6375">WhatsApp, next to Primary</span></div>
+<div><a href="#" class="bs-ghost"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6L3 21z"/></svg>Ask on WhatsApp</a></div>
+<div><a href="#" class="bs-ghost is-hover"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6L3 21z"/></svg>Ask on WhatsApp</a></div>
+<div><a href="#" class="bs-ghost is-focus"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6L3 21z"/></svg>Ask on WhatsApp</a></div>
+
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">Link</span><span style="font-size: 13px; color: #5B6375">To a service page</span></div>
+<div><a href="#" class="bs-link">Bookkeeping <span>→</span></a></div>
+<div><a href="#" class="bs-link is-hover">Bookkeeping <span>→</span></a></div>
+<div><a href="#" class="bs-link is-focus">Bookkeeping <span>→</span></a></div>
+
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">Chip</span><span style="font-size: 13px; color: #5B6375">Small action inside a card</span></div>
+<div><a href="#" class="bs-chip">Get my free quote</a></div>
+<div><a href="#" class="bs-chip is-hover">Get my free quote</a></div>
+<div><a href="#" class="bs-chip is-focus">Get my free quote</a></div>
+</div>
+<p style="margin: 0; font-size: 14px; color: #5B6375">Rules: one Primary per screen · Ghost only next to Primary · Links for pages, Chips for actions inside cards · height 52 px (Chip 40, Link 44 tap area) · phone: Primary and Dark full width</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":700}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
