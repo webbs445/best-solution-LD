@@ -7,8 +7,8 @@ import { Icon } from "./ui";
 import { XsCta, XsWhatsApp } from "./XsCta";
 
 /*
-  Phones and tablets: WhatsApp plus "Get my written plan". Hidden while the hero buttons are on screen, slides up once
-  they scroll away, hides again while the form (#plan) is on screen. IntersectionObserver only. While the cookie
+  Phones and tablets: WhatsApp plus "Get my written plan". Hidden while the hero buttons or any in-page primary or dark
+  button ([data-cta]) is on screen, slides up when none is, and hides while the form (#plan) is on screen. IntersectionObserver only. While the cookie
   banner shows, the bar sits above it (--xs-consent-h).
 */
 export function StickyBar() {
@@ -19,13 +19,14 @@ export function StickyBar() {
     const hero = document.getElementById("xs-hero-ctas");
     const plan = document.getElementById("plan");
     if (!hero || !plan || !("IntersectionObserver" in window)) return;
-    const vis = { hero: true, plan: false };
+    // Everything that hides the bar while on screen: the hero buttons, the form, and every in-page primary or dark button.
+    const watched = [hero, plan, ...[...document.querySelectorAll<HTMLElement>("[data-cta]")].filter((el) => !el.closest(".xs-sticky"))];
+    const onScreen = new Set<Element>([hero]);
     const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => (vis[e.target === hero ? "hero" : "plan"] = e.isIntersecting));
-      setShow(!vis.hero && !vis.plan);
+      entries.forEach((e) => (e.isIntersecting ? onScreen.add(e.target) : onScreen.delete(e.target)));
+      setShow(onScreen.size === 0);
     });
-    io.observe(hero);
-    io.observe(plan);
+    watched.forEach((el) => io.observe(el));
 
     // The cookie banner is a direct child of <body> while no choice is saved.
     const root = document.documentElement;

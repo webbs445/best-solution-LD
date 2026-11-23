@@ -31,6 +31,7 @@ export function CallbackButton() {
       type="button"
       className="xs-btn xs-dark"
       data-xs-cta="callback"
+      data-cta=""
       onClick={() => {
         setXs({ contactPref: "call", topic: getXs().topic ?? "not_sure" });
         xsTrack("xs_cta_click", { cta_id: "callback", location: "trust" });

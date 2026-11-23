@@ -8,7 +8,7 @@ import { genEventId, isConfirmedLeadResponse } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { pushXsLead } from "@/lib/xsAnalytics";
 import { PhoneCountrySelect } from "@/components/ui/PhoneCountrySelect";
-import { DISCLAIMER, S9_MICRO, TOPICS, TOPIC_IDS, WORRIES, thanksBody, waLink, type TopicId } from "@/content/xservicesx";
+import { S9_MICRO, TOPICS, TOPIC_IDS, WORRIES, thanksBody, waLink, type TopicId } from "@/content/xservicesx";
 import { XS_CONFIG as C } from "@/content/xservicesx.config";
 import { setXs, useXs, xsTrack } from "./store";
 import { BtnArrow, Icon } from "./ui";
@@ -130,8 +130,8 @@ export function PlanSection() {
           </h2>
           <p className="xs-s9-intro">
             {s.topic || s.worries.length
-              ? "We've kept what you picked on this page. Add your name and WhatsApp, and an advisor takes it from here."
-              : "Pick your topic, add your name and WhatsApp, and an advisor takes it from here."}
+              ? "We've kept what you picked. Add your details. An advisor calls you, then sends your written plan."
+              : "Add your details. An advisor calls you, then sends your written plan."}
           </p>
         </div>
 
@@ -339,11 +339,6 @@ export function PlanSection() {
             </p>
           </div>
         </div>
-
-        <p className="xs-s9-disc" data-legal>
-          {DISCLAIMER}
-          <span className="d-only"> Final decisions and government fees are set by the relevant authorities.</span>
-        </p>
       </div>
     </section>
   );

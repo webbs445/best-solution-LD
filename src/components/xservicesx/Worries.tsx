@@ -56,7 +56,7 @@ export function Worries() {
           <h3>
             <span className="d-only">{n ? "Here's how we sort that out," : "That's exactly what we sort out,"}</span>
             <span className="m-only">{n ? "Here's how we sort that out," : "That's what we sort out,"}</span>{" "}
-            <span className="xs-copper-l">in one conversation.</span>
+            <span className="xs-copper-l">in one consultation.</span>
           </h3>
           <ul aria-live="polite">
             {shown.map((i) => (
@@ -77,7 +77,7 @@ export function Worries() {
             <XsCta id="s2_get_answers" location="s2">
               {cta}
             </XsCta>
-            <span>One conversation · answers in writing</span>
+            <span>One consultation · answers in writing</span>
           </div>
         </div>
       </div>

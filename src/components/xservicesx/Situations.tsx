@@ -37,6 +37,37 @@ export function Situations() {
                 ))}
               </ul>
             </div>
+            {/* Decorative written-plan preview filling the card's spare height on desktop (scaled or hidden if short). */}
+            <div className="xs-big-preview" aria-hidden="true">
+              <div className="xs-big-inset">
+              <div className="xs-big-sheet">
+                <b>Best Solution · Written plan</b>
+                <span className="xs-bs-row">
+                  <span>Right structure</span>
+                  <i style={{ width: 92 }} />
+                </span>
+                <span className="xs-bs-row">
+                  <span>Year one</span>
+                  <span>
+                    AED <i style={{ width: 70 }} />
+                  </span>
+                </span>
+                <span className="xs-bs-row">
+                  <span>Every year after</span>
+                  <span>
+                    AED <i style={{ width: 56 }} />
+                  </span>
+                </span>
+                <span className="xs-bs-row">
+                  <span>Timeline</span>
+                  <span>
+                    <i style={{ width: 34 }} /> weeks
+                  </span>
+                </span>
+              </div>
+                <span className="xs-big-caption">Example layout. Yours depends on your activity.</span>
+              </div>
+            </div>
             <div className="xs-big-actions">
               <XsCta id="s3_plan_new_company" location="s3" set={{ topic: "new_company" }} source="s3">
                 Plan my new company

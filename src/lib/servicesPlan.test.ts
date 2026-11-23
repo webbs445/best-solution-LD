@@ -73,7 +73,7 @@ describe("topics and the lead notes", () => {
   });
 
   it("puts the topic, never contact details, in the WhatsApp link", () => {
-    expect(waLink("holding")).toBe(`https://wa.me/${XS_CONFIG.whatsappNumber}?text=Hi%2C%20I'd%20like%20advice%20on%3A%20Holding%20assets%20or%20several%20companies`);
+    expect(waLink("holding")).toBe(`https://wa.me/${XS_CONFIG.whatsappNumber}?text=Hi%2C%20I'd%20like%20advice%20on%3A%20Holding%20assets`);
     expect(waLink(null)).toBe(`https://wa.me/${XS_CONFIG.whatsappNumber}`);
   });
 });

@@ -11,12 +11,12 @@ export type { TopicId };
 export const TOPIC_IDS: TopicId[] = ["new_company", "fz_or_mainland", "holding", "bookkeeping", "corporate_tax", "not_sure"];
 export const isTopic = (v: unknown): v is TopicId => (TOPIC_IDS as unknown[]).includes(v);
 
-/** label: the hero select and WhatsApp text; short: chips, the plan's ABOUT row and the sticky bar. */
+/** One name per topic everywhere (select, chips, plan rows, ERP notes, WhatsApp text); label and short are the same. */
 export const TOPICS: Record<TopicId, { label: string; short: string }> = {
-  new_company: { label: "Planning a new company", short: "New company" },
+  new_company: { label: "New company", short: "New company" },
   fz_or_mainland: { label: "Free zone or mainland", short: "Free zone or mainland" },
-  holding: { label: "Holding assets or several companies", short: "Holding assets" },
-  bookkeeping: { label: "Monthly bookkeeping", short: "Monthly books" },
+  holding: { label: "Holding assets", short: "Holding assets" },
+  bookkeeping: { label: "Monthly books", short: "Monthly books" },
   corporate_tax: { label: "Corporate Tax", short: "Corporate Tax" },
   not_sure: { label: "Not sure yet", short: "Not sure yet" },
 };
@@ -51,7 +51,7 @@ export const HERO_PLANS: Record<TopicId, { rows: PlanRow[]; cta: string }> = {
   new_company: { rows: [T("Right structure", "Matched to your activity"), B("Year one", 92, "AED "), B("Every year after", 76, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
   fz_or_mainland: { rows: [B("Free zones that allow your activity", 60), B("Mainland, for your customers", 60), B("Year one, each option", 92, "AED "), T("Our recommendation", "With the reasons")], cta: "Compare my options" },
   holding: { rows: [B("Structure that fits", 96), B("What it keeps separate", 84), B("First-year and yearly cost", 80, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
-  bookkeeping: { rows: [B("Monthly fee", 70, "AED "), T("Each month", "Entries, bank matching, reports"), T("Your software", "Zoho, QuickBooks, Tally or ours"), B("Can begin in", 44, "", " days")], cta: "Get my written quote" },
+  bookkeeping: { rows: [B("Monthly fee", 70, "AED "), T("Each month", "Entries, bank matching, reports"), T("Your software", "Zoho, QuickBooks, Tally"), B("Can begin in", 44, "", " days")], cta: "Get my written quote" },
   corporate_tax: { rows: [B("Does it apply to you", 70), B("Your next deadline", 84), T("What to prepare", "A simple checklist"), B("Our fee", 70, "AED ")], cta: "Check my position" },
   not_sure: { rows: [B("Where to begin", 96), B("First step", 84), B("Rough budget", 80, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
 };
@@ -77,9 +77,9 @@ export const S3_BIG = {
   pointsShort: ["Where to base it", "Year one and yearly costs, in writing", "What to prepare"],
 };
 export const S3_CARDS: { topic: TopicId; ctaId: string; icon: IconName; title: string; titleShort: string; what: string; page: string; cta: string; ctaShort: string }[] = [
-  { topic: "fz_or_mainland", ctaId: "s3_fz_or_mainland", icon: "arrowLeftRight", title: "Free zone or mainland?", titleShort: "Free zone or mainland?", what: "What each one allows, what each costs, and which fits your activity.", page: "Free zone advice", cta: "Compare my options", ctaShort: "Compare" },
-  { topic: "holding", ctaId: "s3_plan_structure", icon: "layers", title: "Holding assets or several companies", titleShort: "Holding assets", what: "Whether a holding or offshore structure fits, and what it keeps separate.", page: "Holding structures", cta: "Plan my structure", ctaShort: "See options" },
-  { topic: "bookkeeping", ctaId: "s3_bookkeeping", icon: "book", title: "Monthly books", titleShort: "Monthly books", what: "Clean monthly books, matched bank statements, reports you can read.", page: "Bookkeeping", cta: "Get my written quote", ctaShort: "Get a quote" },
+  { topic: "fz_or_mainland", ctaId: "s3_fz_or_mainland", icon: "arrowLeftRight", title: "Free zone or mainland?", titleShort: "Free zone or mainland?", what: "What each one allows, what each costs, and which fits your activity.", page: "Free zone or mainland", cta: "Compare my options", ctaShort: "Compare" },
+  { topic: "holding", ctaId: "s3_plan_structure", icon: "layers", title: "Holding assets or several companies", titleShort: "Holding assets", what: "Whether a holding or offshore structure fits, and what it keeps separate.", page: "Holding assets", cta: "Plan my structure", ctaShort: "See options" },
+  { topic: "bookkeeping", ctaId: "s3_bookkeeping", icon: "book", title: "Monthly books", titleShort: "Monthly books", what: "Clean monthly books, matched bank statements, reports you can read.", page: "Monthly books", cta: "Get my written quote", ctaShort: "Get a quote" },
   { topic: "corporate_tax", ctaId: "s3_corporate_tax", icon: "percent", title: "Corporate Tax questions", titleShort: "Corporate Tax", what: "Whether it applies to you, your deadlines, and help with your return.", page: "Corporate Tax", cta: "Check my position", ctaShort: "Check" },
 ];
 
@@ -112,7 +112,7 @@ export const S5_CHIPS: { topic: TopicId; label: string }[] = [
   { topic: "holding", label: "Holding assets" },
   { topic: "bookkeeping", label: "Monthly books" },
   { topic: "corporate_tax", label: "Corporate Tax" },
-  { topic: "not_sure", label: "Something else" },
+  { topic: "not_sure", label: "Not sure yet" },
 ];
 /** Step 2's advisor row: the first advisor, or the team until advisors are confirmed. */
 export const S5_ADVISOR = C.advisors[0]

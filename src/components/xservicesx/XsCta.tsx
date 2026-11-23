@@ -35,6 +35,7 @@ export function XsCta({
       type="button"
       className={`xs-btn xs-${variant} ${className}`}
       data-xs-cta={id}
+      data-cta={variant === "chip" ? undefined : ""}
       onClick={() => {
         if (set) setXs(set);
         if (set?.topic) xsTrack("xs_topic_select", { topic: set.topic, source: source ?? "s3" });

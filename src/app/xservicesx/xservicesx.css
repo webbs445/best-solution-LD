@@ -807,3 +807,40 @@
   .xs .xs-explain-btn {font-size:14px}
   .xs .xs-explain-panel.is-card {padding:16px 18px;font-size:14.5px}
 }
+
+/* S3 big card (1024 px and up): a small written-plan preview in the spare height above the buttons. It sits in a size
+   container: when the space is short it scales down, and when it is very short it is hidden rather than squeezed. */
+.xs .xs-big-preview {display:none}
+@media (min-width:1024px) {
+  .xs .xs-big-preview {flex:1 1 0;min-height:0;container:xsprev/size;display:block}
+  .xs .xs-big-inset {height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--cream);border-radius:18px;overflow:hidden}
+  .xs .xs-big-sheet {width:300px;max-width:calc(100% - 32px);display:flex;flex-direction:column;gap:10px;padding:16px 18px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 22px 40px -26px rgba(20,33,61,.45);transform:rotate(-2deg)}
+  .xs .xs-big-sheet > b {font-size:12px;padding-bottom:8px;border-bottom:2px solid var(--navy)}
+  .xs .xs-bs-row {display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+  .xs .xs-bs-row > span:last-child {display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--navy)}
+  .xs .xs-bs-row i {display:inline-block;height:6px;border-radius:3px;background:#EDE4DB}
+  .xs .xs-big-caption {font-size:12px;color:var(--muted-2)}
+  @container xsprev (max-height: 250px) {
+    .xs .xs-big-sheet {transform:rotate(-2deg) scale(.82)}
+    .xs .xs-big-caption {display:none}
+  }
+  @container xsprev (max-height: 175px) {
+    .xs .xs-big-inset {display:none}
+  }
+}
+
+/* Phones: the S4 document illustration is left out (the numbered list and its button stay). */
+@media (max-width:767px) {
+  .xs .xs-s4-stage {display:none}
+}
+/* Tablet: the S3 big card has no spare height, so its plan preview gets a fixed one. */
+@media (min-width:768px) and (max-width:1023px) {
+  .xs .xs-big-preview {display:block;height:250px;container:xsprev/size}
+  .xs .xs-big-inset {height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--cream);border-radius:18px;overflow:hidden}
+  .xs .xs-big-sheet {width:300px;max-width:calc(100% - 32px);display:flex;flex-direction:column;gap:10px;padding:16px 18px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 22px 40px -26px rgba(20,33,61,.45);transform:rotate(-2deg)}
+  .xs .xs-big-sheet > b {font-size:12px;padding-bottom:8px;border-bottom:2px solid var(--navy)}
+  .xs .xs-bs-row {display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+  .xs .xs-bs-row > span:last-child {display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--navy)}
+  .xs .xs-bs-row i {display:inline-block;height:6px;border-radius:3px;background:#EDE4DB}
+  .xs .xs-big-caption {font-size:12px;color:var(--muted-2)}
+}

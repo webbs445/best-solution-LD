@@ -212,10 +212,23 @@ for (const width of [390, 1440]) {
   await p.evaluate(() => [...document.querySelectorAll(".xs-worry")].find((x) => x.offsetParent).click());
   await wait(200);
   const after = await intro();
-  check("S9 intro switches with earlier picks", before.startsWith("Pick your topic, add your name and WhatsApp") && after.startsWith("We've kept what you picked on this page."), `${before.slice(0, 25)} / ${after.slice(0, 25)}`);
+  check("S9 intro switches with earlier picks", before === "Add your details. An advisor calls you, then sends your written plan." && after === "We've kept what you picked. Add your details. An advisor calls you, then sends your written plan.", `${before.slice(0, 25)} / ${after.slice(0, 25)}`);
   await p.done();
 }
 
+
+// S3 big card: the written-plan preview fills the spare height (24 to 48 px above the buttons) at 1024 and 1440; not on phones or tablets.
+for (const width of [390, 768, 1024, 1440]) {
+  const p = await open(width);
+  const r = await p.evaluate(() => {
+    const inset = document.querySelector(".xs-big-inset"), actions = document.querySelector(".xs-big-actions");
+    const shown = !!inset?.offsetParent && getComputedStyle(inset).display !== "none";
+    return { shown, gap: shown ? Math.round(actions.getBoundingClientRect().top - inset.getBoundingClientRect().bottom) : null, sheet: shown ? Math.round(document.querySelector(".xs-big-sheet").getBoundingClientRect().height) : null, over: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+  });
+  const ok = width < 768 ? !r.shown : width < 1024 ? r.shown : r.shown && r.gap >= 24 && r.gap <= 48;
+  check(`S3 plan preview at ${width}px: ${width < 768 ? "not shown" : width < 1024 ? "shown at a fixed height" : "fills the space, 24 to 48 px above the buttons"}`, ok && r.over <= 0, JSON.stringify(r));
+  await p.done();
+}
 // Trust swipe row: the first card starts at the page gutter and the last card ends with it.
 for (const [width, gut] of [[390, 20], [768, 32]]) {
   const p = await open(width);
@@ -372,30 +385,48 @@ for (const w of [390, 1440]) {
   await p.done();
 }
 
-// 7. Sticky bar: hidden in the hero, shown mid-page, hidden at the form. Above the cookie banner while it shows.
+// 7. Sticky bar: walk the page in steps. It must never show while an in-page primary or dark button ([data-cta]) or the
+// form is on screen; it must show somewhere mid-page; hidden in the hero and at the form. Above the cookie banner.
+const sweep = async (p) =>
+  p.evaluate(async () => {
+    const bar = document.querySelector(".xs-sticky"), H = innerHeight, steps = [];
+    const ctaOnScreen = () => [...document.querySelectorAll("[data-cta]")].filter((el) => !el.closest(".xs-sticky") && el.offsetParent).some((el) => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < H; });
+    const planOnScreen = () => { const r = document.getElementById("plan").getBoundingClientRect(); return r.bottom > 0 && r.top < H; };
+    for (let y = 0; y < document.documentElement.scrollHeight; y += Math.round(H / 3)) {
+      window.scrollTo({ top: y, behavior: "instant" });
+      await new Promise((r) => setTimeout(r, 160));
+      steps.push({ y, on: bar.classList.contains("is-on"), cta: ctaOnScreen(), plan: planOnScreen() });
+    }
+    return steps;
+  });
 for (const w of [390, 768]) {
   const p = await open(w);
-  const shown = () => p.evaluate(() => document.querySelector(".xs-sticky").classList.contains("is-on"));
-  const at = async (sel) => (await p.evaluate((s) => document.querySelector(s).scrollIntoView({ block: "start" }), sel), wait(700));
-  const hero = await shown();
-  await at(".xs-s4");
-  const mid = await shown();
-  await at("#plan");
-  const form = await shown();
-  check(`sticky bar at ${w}px: hidden in hero, shown mid-page, hidden at the form`, !hero && mid && !form, `${hero}/${mid}/${form}`);
+  const steps = await sweep(p);
+  const clash = steps.filter((s) => s.on && (s.cta || s.plan));
+  const shownMid = steps.some((s) => s.on);
+  check(`sticky bar at ${w}px: never with an in-page CTA or the form on screen, shown mid-page, hidden in the hero`, !clash.length && shownMid && !steps[0].on, `${clash.length} clashes at ${clash.map((s) => s.y).slice(0, 4)}; shown at ${steps.filter((s) => s.on).length} of ${steps.length} steps`);
   await p.done();
 }
 {
   const p = await open(390, "ok", { accept: false });
-  await p.evaluate(() => document.querySelector(".xs-s4").scrollIntoView());
+  const steps = await sweep(p);
+  const y = steps.find((s) => s.on)?.y;
+  await p.evaluate((y) => window.scrollTo({ top: y, behavior: "instant" }), y);
   await wait(900);
-  const r = await p.evaluate(() => ({ bar: document.querySelector(".xs-sticky").getBoundingClientRect().bottom, banner: document.querySelector('[aria-labelledby="consent-title"]')?.getBoundingClientRect().top }));
-  check("sticky bar sits above the cookie banner", r.banner && r.bar <= r.banner + 1, JSON.stringify(r));
+  const r = await p.evaluate(() => ({ on: document.querySelector(".xs-sticky").classList.contains("is-on"), bar: document.querySelector(".xs-sticky").getBoundingClientRect().bottom, banner: document.querySelector('[aria-labelledby="consent-title"]')?.getBoundingClientRect().top }));
+  check("sticky bar sits above the cookie banner", r.on && r.banner && r.bar <= r.banner + 1, JSON.stringify(r));
   await p.done();
 }
 {
   const p = await open(1440);
   check("no sticky bar on laptop and desktop", await p.evaluate(() => getComputedStyle(document.querySelector(".xs-sticky")).display === "none"));
+  await p.done();
+}
+// S4 document: hidden on phones, shown from 768. One disclaimer at the end of the page (the footer), none under the form.
+for (const w of [390, 768, 1440]) {
+  const p = await open(w);
+  const r = await p.evaluate(() => ({ doc: !!document.querySelector(".xs-s4-stage")?.offsetParent, s9: (document.getElementById("plan").textContent.match(/not a government office/g) || []).length, foot: (document.querySelector("footer").textContent.match(/Not a government office/g) || []).length, hero: (document.querySelector(".xs-hero").textContent.match(/not a government office/g) || []).length }));
+  check(`S4 document ${w < 768 ? "hidden" : "shown"} at ${w}px; disclaimer in hero and footer only`, r.doc === w >= 768 && r.s9 === 0 && r.foot === 1 && r.hero === 1, JSON.stringify(r));
   await p.done();
 }
 

@@ -47,6 +47,7 @@ export function HowItWorks() {
             <h2 id="xsS5">
               {S5_TITLE.a} <span className="xs-copper-l">{S5_TITLE.b}</span>
             </h2>
+            <span className="xs-s5-note m-only">Example timeline. Times depend on your case.</span>
             <p>{S5_SUB}</p>
           </div>
           <span className="xs-s5-note d-only">Example timeline. Times depend on your case.</span>

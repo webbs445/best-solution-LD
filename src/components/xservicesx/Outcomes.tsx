@@ -56,7 +56,7 @@ export function Outcomes() {
               <span className="xs-doc-k">
                 1 · <span className="d-only">RECOMMENDED </span>STRUCTURE
               </span>
-              <span className="d-only xs-doc-v">Free zone company, matched to your activity</span>
+              <span className="d-only xs-doc-v">The structure that fits your activity</span>
               <span className="xs-bar" style={{ width: "86%" }} />
             </div>
             <div className={blk(1)}>
