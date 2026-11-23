@@ -244,7 +244,7 @@
 .xs .xs-s6-hint {display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
 .xs .xs-s6-hint svg {color:var(--copper)}
 .xs .xs-panels-row.no-adv {display:none}
-.xs .xs-rail {display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:20px calc(-1 * var(--gut)) 0;padding:0 var(--gut) 6px;scrollbar-width:none}
+.xs .xs-rail {display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:20px calc(-1 * var(--gut)) 0;padding:0 var(--gut) 6px;scroll-padding-inline:var(--gut);scrollbar-width:none}
 .xs .xs-rail::-webkit-scrollbar {display:none}
 .xs .xs-acard {flex:none;width:300px;height:520px;scroll-snap-align:start;position:relative;border-radius:22px;overflow:hidden;background:linear-gradient(165deg,#2E4068 0%,#1A2847 55%,#14213D 100%)}
 .xs .xs-adv-sil {position:absolute;left:50%;top:24px;width:240px;height:288px;transform:translateX(-50%)}
@@ -280,7 +280,7 @@
 .xs .xs-map-dir {display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:600;color:var(--copper-d);text-decoration:none}
 
 .xs .xs-stars {display:inline-flex;gap:1px;color:var(--copper);vertical-align:-2px}
-.xs .xs-chiprail {display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;margin:0 calc(-1 * var(--gut)) 16px;padding:0 var(--gut);scrollbar-width:none}
+.xs .xs-chiprail {display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;margin:0 calc(-1 * var(--gut)) 16px;padding:0 var(--gut);scroll-padding-inline:var(--gut);scrollbar-width:none}
 .xs .xs-chiprail::-webkit-scrollbar {display:none}
 .xs .xs-round {width:44px;height:44px;border-radius:50%;border:1.5px solid var(--border-2);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
 .xs .xs-round:hover {background:var(--navy);border-color:var(--navy);color:#fff}
@@ -308,8 +308,8 @@
 .xs .xs-rby b {font-size:14px}
 .xs .xs-rby small {font-size:12px;color:var(--muted)}
 .xs .xs-rinitial {flex:none;width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--copper-l);display:inline-flex;align-items:center;justify-content:center;font:800 13px var(--head)}
-.xs .xs-rmark {font:800 64px/.6 var(--head);color:var(--copper);height:28px}
-.xs .xs-swipe {display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:18px calc(-1 * var(--gut)) 0;padding:0 var(--gut) 6px;scrollbar-width:none}
+.xs .xs-rmark {flex:none;fill:var(--copper);stroke:var(--copper);opacity:.4}
+.xs .xs-swipe {display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:18px calc(-1 * var(--gut)) 0;padding:0 var(--gut) 6px;scroll-padding-inline:var(--gut);scrollbar-width:none}
 .xs .xs-swipe::-webkit-scrollbar {display:none}
 .xs .xs-swipe .xs-rcard {flex:0 0 84%;scroll-snap-align:start}
 .xs .xs-swipe-hint {margin-top:6px;font-size:13px;color:var(--muted)}
@@ -780,4 +780,24 @@
   .xs .xs-wall {-webkit-mask-image:none;mask-image:none}
   .xs .xs-wall-row {overflow-x:auto;scrollbar-width:thin}
   .xs .xs-wall-copy,.xs .xs-wall-toggle {display:none}
+}
+
+/* The skip link waits off screen until it gets keyboard focus; nothing else can see or hit it (never over section text). */
+.xs .skip-link:not(:focus) {clip-path:inset(50%);opacity:0;pointer-events:none}
+
+/* Hero: the Google rating item (only when the rating and count are set). */
+.xs .xs-trust-g {display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.xs .xs-trust-g svg {color:var(--copper)}
+
+/* S3 "What's the difference?": the panel floats inside the card, so no other card moves. */
+.xs .xs-explain {position:relative}
+.xs .xs-explain-btn {position:relative;z-index:1;display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;font:600 13px var(--font-inter),sans-serif;color:var(--copper-ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
+.xs .xs-explain-panel {position:absolute;z-index:4;left:-16px;right:-16px;top:100%;display:flex;flex-direction:column;gap:8px;padding:14px 16px;background:#fff;border:1.5px solid var(--dash);border-radius:14px;box-shadow:0 24px 40px -24px rgba(20,33,61,.45);font-size:13.5px;line-height:1.5;color:var(--ink)}
+.xs .xs-explain-panel[hidden] {display:none}
+.xs .xs-explain-panel b {color:var(--navy)}
+.xs .xs-explain-close {align-self:flex-start;min-height:44px;padding:0;border:0;background:none;font:600 13px var(--font-inter),sans-serif;color:var(--copper-ink);text-decoration:underline;cursor:pointer}
+.xs .xs-small:has(.xs-explain.is-open) {z-index:3}
+@media (min-width:1024px) {
+  .xs .xs-explain-btn {font-size:14px}
+  .xs .xs-explain-panel {left:-26px;right:-26px;padding:18px 22px;font-size:14.5px}
 }

@@ -39,7 +39,7 @@ describe("POST /api/services-plan", () => {
   it("creates a Services Plan lead from /xservicesx with the page choices as labelled lines, UTMs, click id and landing page", async () => {
     const res = await post({
       ...valid,
-      worries: [3, 1],
+      worries: [4, 2],
       advisor_pref: "any",
       contact_pref: "whatsapp",
       consult_mode: "video",
@@ -76,6 +76,11 @@ describe("POST /api/services-plan", () => {
       "gclid: TEST123",
     ])
       expect(notes).toContain(text);
+  });
+
+  it("writes the beginner worry as \"Where do I begin?\" in the ERP notes", async () => {
+    await post({ ...valid, worries: [0, 1] });
+    expect(String(sent[0].custom_client_profile_and_requirement)).toContain("Questions: Where do I begin?; Which price is right?");
   });
 
   it("files a lead without a topic as Not sure yet, under Business Setup", async () => {

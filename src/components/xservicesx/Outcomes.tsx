@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { OUTCOMES, PLAN_CTA, S4_DELIVERY, S4_DELIVERY_SHORT, S4_FEES_LINE } from "@/content/xservicesx";
+import { OUTCOMES, S4_DELIVERY, S4_DELIVERY_SHORT, S4_FEES_LINE } from "@/content/xservicesx";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
 
@@ -31,8 +31,8 @@ export function Outcomes() {
             </button>
           ))}
           <div className="xs-s4-cta">
-            <XsCta id="s4_plan" location="s4">
-              {PLAN_CTA}
+            <XsCta id="s4_want_plan" location="s4">
+              I want this plan
             </XsCta>
             <span>
               No pressure to buy<span className="d-only"> anything</span>. If we&apos;re not the right fit, we&apos;ll tell you.

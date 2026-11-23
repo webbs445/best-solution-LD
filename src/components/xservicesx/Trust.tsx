@@ -13,6 +13,17 @@ import { CallbackButton, WallToggle } from "./TrustParts";
   card is left out when S6 is on the page (it has its own).
 */
 const WALL_MIN = 6;
+/** An upright, rounded opening quote mark for the desktop still cards. */
+const QuoteMark = () => (
+  <svg className="xs-rmark" width="36" height="28" viewBox="0 0 36 28" aria-hidden="true" focusable="false">
+    {[0, 19].map((x) => (
+      <g key={x} transform={`translate(${x} 0)`}>
+        <circle cx="8.5" cy="19.5" r="7.5" />
+        <path d="M2.2 19.5C2.2 10.5 6.5 4.2 14 1.6" fill="none" strokeWidth="4.2" strokeLinecap="round" />
+      </g>
+    ))}
+  </svg>
+);
 const meta = (r: Review) => ["Google", r.month].filter(Boolean).join(" · ");
 
 /** A review card. wall: the cream card in the moving wall (3 lines on screen); still: full text, large quote. */
@@ -23,9 +34,7 @@ function Card({ r, kind, copy }: { r: Review; kind: "wall" | "still" | "swipe"; 
     <article className={`xs-rcard is-${kind}`} tabIndex={copy ? -1 : 0} aria-label={copy ? undefined : `Google review from ${r.firstNameInitial}`}>
       {kind === "still" ? (
         <div className="xs-rcard-top">
-          <span className="xs-rmark" aria-hidden="true">
-            &ldquo;
-          </span>
+          <QuoteMark />
           <span className="xs-rcard-tags">
             {tag}
             {stars}

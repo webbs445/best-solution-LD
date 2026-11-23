@@ -1,7 +1,8 @@
-import { PLAN_CTA, S3_BIG, S3_CARDS } from "@/content/xservicesx";
+import { S3_BIG, S3_CARDS } from "@/content/xservicesx";
 import { XS_CONFIG as C } from "@/content/xservicesx.config";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
+import { FzExplainer } from "./FzExplainer";
 
 /*
   Section 3: the "planning a new company" card, four smaller situations (link to the service page, chip action that
@@ -37,8 +38,8 @@ export function Situations() {
               </ul>
             </div>
             <div className="xs-big-actions">
-              <XsCta id="s3_new_company" location="s3" set={{ topic: "new_company" }} source="s3">
-                {PLAN_CTA}
+              <XsCta id="s3_plan_new_company" location="s3" set={{ topic: "new_company" }} source="s3">
+                Plan my new company
               </XsCta>
               <a className="xs-link" href={C.servicePages.new_company}>
                 Plan your budget <span aria-hidden="true">→</span>
@@ -59,15 +60,16 @@ export function Situations() {
                 <span className="d-only">{c.title}</span>
                 <span className="m-only">{c.titleShort}</span>
               </h3>
+              {c.topic === "fz_or_mainland" && <FzExplainer />}
               <p className="d-only">{c.what}</p>
               <div className="xs-small-foot">
                 <a className="xs-link d-only" href={C.servicePages[c.topic as keyof typeof C.servicePages]}>
                   {c.page} <span aria-hidden="true">→</span>
                 </a>
-                <XsCta id={`s3_${c.topic}`} location="s3" variant="chip" set={{ topic: c.topic }} source="s3" className="d-only">
+                <XsCta id={c.ctaId} location="s3" variant="chip" set={{ topic: c.topic }} source="s3" className="d-only">
                   {c.cta}
                 </XsCta>
-                <XsCta id={`s3_${c.topic}`} location="s3" variant="chip" set={{ topic: c.topic }} source="s3" className="m-only xs-tile-act">
+                <XsCta id={c.ctaId} location="s3" variant="chip" set={{ topic: c.topic }} source="s3" className="m-only xs-tile-act">
                   {c.ctaShort} <span aria-hidden="true">→</span>
                 </XsCta>
               </div>

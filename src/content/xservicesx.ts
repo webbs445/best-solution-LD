@@ -60,6 +60,7 @@ export const HERO_TRUST = ["Office in Business Bay", "In person or by video", ..
 
 /* ─── S2 worries: desktop and phone wording ─── */
 export const WORRIES: { text: string; textShort: string; lead: string; rest: string; leadShort: string; restShort: string; tag: string }[] = [
+  { text: "I've never done this before. Where do I even begin?", textShort: "I've never done this before. Where do I begin?", lead: "A clear first step,", rest: "in plain words, so you know exactly what to do next.", leadShort: "A clear first step,", restShort: "in plain words.", tag: "Where do I begin?" },
   { text: "Three consultants gave me three different prices. Which one is right?", textShort: "Three consultants gave me three different prices.", lead: "One clear cost, in writing,", rest: "so you can compare it with any quote you already have.", leadShort: "One clear cost,", restShort: "in writing, to compare with any quote.", tag: "Which price is right?" },
   { text: "Free zone or mainland? I've read ten articles and I'm still not sure.", textShort: "Free zone or mainland? I'm still not sure.", lead: "Free zone or mainland, decided with you,", rest: "based on your activity and your customers.", leadShort: "Free zone or mainland,", restShort: "decided with you.", tag: "Free zone or mainland?" },
   { text: "Does a free zone even allow my activity?", textShort: "Does a free zone allow my activity?", lead: "Your activity checked", rest: "against the zones that allow it, before you pay anything.", leadShort: "Your activity checked", restShort: "against the zones that allow it.", tag: "Is my activity allowed?" },
@@ -75,11 +76,11 @@ export const S3_BIG = {
   points: ["Where to base it: free zone or mainland", "Year one and yearly costs, in writing", "What to prepare, as a simple checklist"],
   pointsShort: ["Where to base it", "Year one and yearly costs, in writing", "What to prepare"],
 };
-export const S3_CARDS: { topic: TopicId; icon: IconName; title: string; titleShort: string; what: string; page: string; cta: string; ctaShort: string }[] = [
-  { topic: "fz_or_mainland", icon: "arrowLeftRight", title: "Free zone or mainland?", titleShort: "Free zone or mainland?", what: "What each one allows, what each costs, and which fits your activity.", page: "Free zone advice", cta: "Compare my options", ctaShort: "Compare" },
-  { topic: "holding", icon: "layers", title: "Holding assets or several companies", titleShort: "Holding assets", what: "Whether a holding or offshore structure fits, and what it keeps separate.", page: "Holding structures", cta: PLAN_CTA, ctaShort: "See options" },
-  { topic: "bookkeeping", icon: "book", title: "Monthly books", titleShort: "Monthly books", what: "Clean monthly books, matched bank statements, reports you can read.", page: "Bookkeeping", cta: "Get my written quote", ctaShort: "Get a quote" },
-  { topic: "corporate_tax", icon: "percent", title: "Corporate Tax questions", titleShort: "Corporate Tax", what: "Whether it applies to you, your deadlines, and help with your return.", page: "Corporate Tax", cta: "Check my position", ctaShort: "Check" },
+export const S3_CARDS: { topic: TopicId; ctaId: string; icon: IconName; title: string; titleShort: string; what: string; page: string; cta: string; ctaShort: string }[] = [
+  { topic: "fz_or_mainland", ctaId: "s3_fz_or_mainland", icon: "arrowLeftRight", title: "Free zone or mainland?", titleShort: "Free zone or mainland?", what: "What each one allows, what each costs, and which fits your activity.", page: "Free zone advice", cta: "Compare my options", ctaShort: "Compare" },
+  { topic: "holding", ctaId: "s3_plan_structure", icon: "layers", title: "Holding assets or several companies", titleShort: "Holding assets", what: "Whether a holding or offshore structure fits, and what it keeps separate.", page: "Holding structures", cta: "Plan my structure", ctaShort: "See options" },
+  { topic: "bookkeeping", ctaId: "s3_bookkeeping", icon: "book", title: "Monthly books", titleShort: "Monthly books", what: "Clean monthly books, matched bank statements, reports you can read.", page: "Bookkeeping", cta: "Get my written quote", ctaShort: "Get a quote" },
+  { topic: "corporate_tax", ctaId: "s3_corporate_tax", icon: "percent", title: "Corporate Tax questions", titleShort: "Corporate Tax", what: "Whether it applies to you, your deadlines, and help with your return.", page: "Corporate Tax", cta: "Check my position", ctaShort: "Check" },
 ];
 
 /* ─── S4 outcomes ─── */

@@ -245,8 +245,8 @@ export function PlanSection() {
               >
                 <h3 className="d-only">Where should we send it?</h3>
                 <div className="xs-field">
-                  <label htmlFor="xs-name">Your name</label>
-                  <input {...field("name")} name="lead_name" type="text" autoComplete="name" placeholder="First name is fine" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required />
+                  <label htmlFor="xs-name">Your full name</label>
+                  <input {...field("name")} name="lead_name" type="text" autoComplete="name" placeholder="e.g. Sara Ahmed" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required />
                   {err("name")}
                 </div>
                 <div className="xs-field">

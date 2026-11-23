@@ -60,7 +60,7 @@ describe("topics and the lead notes", () => {
   });
 
   it("writes the page choices as labelled lines, using only the page's own values", () => {
-    expect(choiceRows({ topic: "fz_or_mainland", worries: [3, 1, 99, "x", 1], advisor_pref: "any", contact_pref: "call", consult_mode: "office" })).toEqual([
+    expect(choiceRows({ topic: "fz_or_mainland", worries: [4, 2, 99, "x", 2], advisor_pref: "any", contact_pref: "call", consult_mode: "office" })).toEqual([
       ["Topic", "Free zone or mainland"],
       ["Questions", "What will year two cost?; Free zone or mainland?"],
       ["Advisor", "Any"],
@@ -69,6 +69,7 @@ describe("topics and the lead notes", () => {
       ["Form location", "s9"],
     ]);
     expect(choiceRows({ topic: "<script>" })[0]).toEqual(["Topic", TOPICS.not_sure.label]);
+    expect(choiceRows({ worries: [0] })[1]).toEqual(["Questions", "Where do I begin?"]);
   });
 
   it("puts the topic, never contact details, in the WhatsApp link", () => {

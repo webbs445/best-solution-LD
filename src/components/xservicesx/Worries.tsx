@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PLAN_CTA, S2_ADVISOR_LINE, WORRIES } from "@/content/xservicesx";
+import { S2_ADVISOR_LINE, WORRIES } from "@/content/xservicesx";
 import { getXs, setXs, useXs, xsTrack } from "./store";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
@@ -23,7 +23,7 @@ export function Worries() {
     setLast(on ? i : -1);
     xsTrack("xs_worry_toggle", { worry_id: i, on, count: next.length });
   };
-  const cta = n > 1 ? `Get answers to my ${n} questions` : n === 1 ? "Get my answer" : PLAN_CTA;
+  const cta = n > 1 ? `Get answers to my ${n} questions` : n === 1 ? "Get my answer" : "Get my answers";
   return (
     <section className="xs-sec xs-s2" aria-labelledby="xsS2">
       <div className="xs-wrap xs-s2-grid">
@@ -74,7 +74,7 @@ export function Worries() {
             ))}
           </ul>
           <div className="xs-answer-foot">
-            <XsCta id="s2_answer" location="s2">
+            <XsCta id="s2_get_answers" location="s2">
               {cta}
             </XsCta>
             <span>One conversation · answers in writing</span>

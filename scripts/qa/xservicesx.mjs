@@ -140,6 +140,82 @@ for (const w of [1024, 1440]) {
   check(`plan button row visible at ${w}px`, r.cta && r.note === "Join them. 2 minutes · no obligation", r.note);
   await p.done();
 }
+
+// S2: six worries, the beginner one first.
+{
+  const p = await open(390);
+  const w = await p.$$eval(".xs-worry", (b) => b.map((x) => x.innerText.trim()));
+  check("S2 has 6 worries, the beginner one first", w.length === 6 && w[0] === "I've never done this before. Where do I begin?", w[0]);
+  await p.done();
+}
+
+// S3 "What's the difference?": opens and closes by click and keyboard; no other card moves; no sideways scroll.
+for (const width of [390, 1440]) {
+  const p = await open(width);
+  const btn = ".xs-explain-btn";
+  await p.evaluate((s) => document.querySelector(s).scrollIntoView({ behavior: "instant", block: "center" }), btn);
+  await wait(200);
+  const rects = () => p.evaluate(() => [...document.querySelectorAll(".xs-bento > article, .xs-notsure")].filter((c) => !c.querySelector(".xs-explain")).map((c) => { const r = c.getBoundingClientRect(); return [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)].join(","); }).join(" "));
+  const before = await rects();
+  await p.click(btn);
+  await wait(200);
+  const open1 = await p.evaluate((s) => ({ exp: document.querySelector(s).getAttribute("aria-expanded"), shown: !document.querySelector(".xs-explain-panel").hidden, over: document.documentElement.scrollWidth - document.documentElement.clientWidth, text: document.querySelector(".xs-explain-panel").innerText }), btn);
+  const after = await rects();
+  check(`S3 explainer opens by click at ${width}px with no layout jump or sideways scroll`, open1.exp === "true" && open1.shown && open1.over <= 0 && before === after && open1.text.includes("We'll tell you in writing."), JSON.stringify({ ...open1, text: undefined, moved: before !== after }));
+  await p.click(btn);
+  await wait(150);
+  check(`S3 explainer closes by click at ${width}px`, (await p.$eval(btn, (b) => b.getAttribute("aria-expanded"))) === "false");
+  await p.focus(btn);
+  await p.keyboard.press("Enter");
+  await wait(150);
+  const kOpen = await p.$eval(btn, (b) => b.getAttribute("aria-expanded"));
+  await p.keyboard.press("Escape");
+  await wait(150);
+  const k = await p.evaluate((s) => ({ exp: document.querySelector(s).getAttribute("aria-expanded"), focus: document.activeElement === document.querySelector(s) }), btn);
+  check(`S3 explainer by keyboard at ${width}px: Enter opens, Escape closes and returns focus`, kOpen === "true" && k.exp === "false" && k.focus);
+  const ev = (await events(p, "xs_cta_click")).filter((e) => e.cta_id === "fz_explainer" && e.location === "s3");
+  check(`S3 explainer fires xs_cta_click fz_explainer once per open at ${width}px`, ev.length === 2, String(ev.length));
+  await p.done();
+}
+
+// Trust swipe row: the first card starts at the page gutter and the last card ends with it.
+for (const [width, gut] of [[390, 20], [768, 32]]) {
+  const p = await open(width);
+  const r = await p.evaluate(async () => {
+    const rail = document.querySelector(".xs-swipe");
+    rail.scrollIntoView({ behavior: "instant", block: "center" });
+    const cards = rail.querySelectorAll(".xs-rcard");
+    const first = Math.round(cards[0].getBoundingClientRect().left);
+    rail.scrollTo({ left: rail.scrollWidth, behavior: "instant" });
+    await new Promise((res) => setTimeout(res, 300));
+    const last = Math.round(document.documentElement.clientWidth - cards[cards.length - 1].getBoundingClientRect().right);
+    return { first, last };
+  });
+  check(`Trust swipe row at ${width}px starts and ends at the ${gut}px gutter`, Math.abs(r.first - gut) <= 1 && Math.abs(r.last - gut) <= 1, JSON.stringify(r));
+  await p.done();
+}
+
+// Nothing covers section headings, eyebrows or ledes on phones (sticky bar, skip link, header, banner).
+for (const width of [320, 375, 390, 430]) {
+  const p = await open(width);
+  const hits = await p.evaluate(async () => {
+    const out = [];
+    for (const el of document.querySelectorAll("main h2, main .xs-eyebrow, main .xs-lede, main .xs-head p, main .xs-trust-head p")) {
+      if (!el.offsetParent) continue;
+      const y = el.getBoundingClientRect().top + scrollY;
+      window.scrollTo({ top: y - 160, behavior: "instant" });
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const b = el.getBoundingClientRect();
+      for (const [x, yy] of [[b.left + 4, b.top + b.height / 2], [b.left + b.width / 2, b.top + b.height / 2], [b.right - 4, b.top + b.height / 2]]) {
+        const top = document.elementFromPoint(x, yy);
+        if (top && !el.contains(top) && !top.contains(el)) out.push(`${el.textContent.trim().slice(0, 30)} under ${top.className || top.tagName}`);
+      }
+    }
+    return [...new Set(out)];
+  });
+  check(`nothing covers section headings at ${width}px`, !hits.length, hits.slice(0, 4).join("; "));
+  await p.done();
+}
 // 1. No sideways scroll.
 for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   const p = await open(w);
@@ -157,7 +233,7 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   const about = await p.$eval(".xs-about strong", (e) => e.textContent);
   const qs = await p.$$eval(".xs-qtags span", (s) => s.map((x) => x.textContent));
   check("hero select shows in the plan's ABOUT row", about === "Corporate Tax", about);
-  check("S2 picks show in YOUR QUESTIONS", JSON.stringify(qs) === JSON.stringify(["Which price is right?", "Free zone or mainland?"]), qs.join(", "));
+  check("S2 picks show in YOUR QUESTIONS", JSON.stringify(qs) === JSON.stringify(["Where do I begin?", "Which price is right?"]), qs.join(", "));
   const topicEv = await events(p, "xs_topic_select");
   check("xs_topic_select {topic, source: hero}", topicEv.some((e) => e.topic === "corporate_tax" && e.source === "hero"));
   const worryEv = await events(p, "xs_worry_toggle");
