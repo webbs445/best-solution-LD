@@ -299,7 +299,7 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   // "Request a call back": reply by phone, keeps a picked topic, opens the plan pop-up.
   await p.evaluate(() => document.querySelector('[data-xs-cta="callback"]').click());
   await wait(400);
-  const cb = await p.evaluate(() => ({ call: document.querySelector("#xs-plan-dialog .xs-seg-form button:nth-child(2)").getAttribute("aria-pressed"), about: document.querySelector(".xs-about strong")?.textContent, picked: document.querySelector("#xs-plan-dialog .xs-tchip.on")?.textContent, open: document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.id }));
+  const cb = await p.evaluate(() => ({ call: document.querySelector("#xs-plan-dialog .xs-seg-form button:nth-child(2)").getAttribute("aria-pressed"), about: document.querySelector(".xs-about strong")?.textContent, picked: document.querySelector("#xsd-topic")?.selectedOptions[0]?.textContent, open: document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.id }));
   check("call-back button: Call me, topic kept, pop-up open, name focused", cb.call === "true" && cb.about === "Corporate Tax" && cb.picked === "Corporate Tax" && cb.open && cb.focus === "xsd-name", JSON.stringify(cb));
   check("xs_cta_click {cta_id: callback, location: trust}", (await events(p, "xs_cta_click")).some((e) => e.cta_id === "callback" && e.location === "trust"));
   await p.done();
@@ -331,7 +331,7 @@ for (const w of [390, 1440]) {
   await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
   await wait(300);
   const r2 = await p.evaluate(() => ({ focus: document.activeElement?.id, s9: document.getElementById("xs-name").value }));
-  check(`at ${w}px a filled name moves focus to the next empty field, and shows in section 9 too`, r2.focus === "xsd-phone" && r2.s9 === "TEST AUDIT - DELETE", JSON.stringify(r2));
+  check(`at ${w}px a filled name moves focus to the next empty field, and shows in section 9 too`, r2.focus === "xsd-email" && r2.s9 === "TEST AUDIT - DELETE", JSON.stringify(r2));
   await p.mouse.click(5, 5);
   await wait(250);
   check(`at ${w}px a tap outside closes the pop-up`, await p.evaluate(() => !document.getElementById("xs-plan-dialog").open));
@@ -368,19 +368,36 @@ for (const w of [390, 1440]) {
   await p.done();
 }
 
+// The pop-up fits the screen with no scrolling inside it (a topic and three questions picked).
+for (const [w, h] of [[375, 667], [390, 844], [768, 1024], [1024, 768], [1440, 900]]) {
+  const p = await open(w);
+  await p.setViewport({ width: w, height: h, isMobile: w < 768, hasTouch: w < 768 });
+  await p.evaluate(() => sessionStorage.setItem("bsx_xs_state", JSON.stringify({ topic: "corporate_tax", worries: [0, 1, 2], advisor: null, contactPref: "whatsapp", consultMode: null })));
+  await p.reload({ waitUntil: "load" });
+  await wait(400);
+  await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
+  await wait(500);
+  const r = await p.evaluate(() => {
+    const d = document.getElementById("xs-plan-dialog");
+    return { sh: d.scrollHeight, ch: d.clientHeight, vh: innerHeight, bottom: Math.round(d.getBoundingClientRect().bottom) };
+  });
+  check(`pop-up at ${w}×${h} fits with no inner scroll`, r.sh <= r.ch + 1 && r.bottom <= r.vh + 1, JSON.stringify(r));
+  await p.done();
+}
+
 // 4. Field errors.
 {
   const p = await open(390);
   await submit(p);
   await wait(300);
   const errs = await p.$$eval("#plan .xs-err", (e) => e.map((x) => x.textContent));
-  check("empty submit: name, number and email errors", JSON.stringify(errs) === JSON.stringify(["Please add your name.", "Please add your WhatsApp number.", "Please add your email."]), errs.join(" | "));
+  check("empty submit: name, number and email errors", JSON.stringify(errs) === JSON.stringify(["Please add your name.", "Please add your email.", "Please add your WhatsApp number."]), errs.join(" | "));
   check("errors linked with aria-describedby", await p.evaluate(() => ["xs-name", "xs-phone", "xs-email"].every((id) => document.getElementById(id).getAttribute("aria-describedby") === `${id}-err`)));
   for (const [id, v] of [["#xs-name", "T"], ["#xs-phone", "12"], ["#xs-email", "nope"]]) await p.type(id, v);
   await submit(p);
   await wait(300);
   const errs2 = await p.$$eval("#plan .xs-err", (e) => e.map((x) => x.textContent));
-  check("invalid name, number and email errors, typed values kept", errs2.length === 3 && errs2[1].includes("United Arab Emirates") && (await p.$eval("#xs-name", (e) => e.value)) === "T", errs2.join(" | "));
+  check("invalid name, number and email errors, typed values kept", errs2.length === 3 && errs2[2].includes("United Arab Emirates") && (await p.$eval("#xs-name", (e) => e.value)) === "T", errs2.join(" | "));
   check("no lead sent while fields are wrong", p.leads.length === 0);
   const fe = await events(p, "xs_form_error");
   check("xs_form_error {field} per bad field", fe.length === 6 && fe.every((e) => ["name", "phone", "email"].includes(e.field)));

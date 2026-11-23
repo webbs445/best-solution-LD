@@ -438,8 +438,6 @@
 .xs .xs-spin {width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:xsSpin .8s linear infinite}
 @keyframes xsSpin {to{transform:rotate(360deg)}}
 .xs .xs-form .xs-primary {margin-top:4px}
-.xs .xs-form-micro {font-size:12px;line-height:1.5;color:var(--on-navy-m);text-align:center}
-.xs .xs-form-micro a {color:var(--on-navy);display:inline-flex;align-items:center;min-height:44px}
 .xs .xs-thanks {display:flex;flex-direction:column;gap:10px;animation:xsIn .4s ease;min-height:300px;justify-content:center}
 .xs .xs-thanks:focus {outline:none}
 .xs .xs-thanks-tick {width:60px;height:60px;border-radius:50%;background:var(--copper);display:inline-flex;align-items:center;justify-content:center;color:#fff}
@@ -741,7 +739,6 @@
   .xs .xs-form {gap:16px}
   .xs .xs-field input {height:54px;padding:0 16px}
   .xs .xs-tel select {height:54px}
-  .xs .xs-form-micro {font-size:13px}
   .xs .xs-thanks {flex:1}
   .xs .xs-thanks b {font-size:28px}
   .xs .xs-thanks p {font-size:16px;line-height:1.6}
@@ -895,4 +892,82 @@
   .xs .xs-dlg-in {padding:26px 30px 24px}
   .xs .xs-dlg-in::before {display:none}
   .xs .xs-dlg-titles h2 {font-size:28px}
+}
+
+/* ─── Lead form polish (S9 and the pop-up share it) ─── */
+.xs .xs-form-head {display:flex;flex-direction:column;gap:4px}
+.xs .xs-form-head h3 {display:none}
+.xs .xs-form-head p {font-size:13px;font-weight:600;color:var(--copper-l);display:inline-flex;align-items:center;gap:8px}
+.xs .xs-form-head p::before {content:"";width:6px;height:6px;border-radius:50%;background:var(--copper-l);box-shadow:0 0 0 4px rgba(227,164,126,.18)}
+.xs .xs-frow {display:flex;flex-direction:column;gap:inherit}
+.xs .xs-in {position:relative;display:block;flex:1;min-width:0}
+.xs .xs-in-ico {position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--on-navy-m);pointer-events:none;transition:color .2s}
+.xs .xs-field .xs-in input {padding-left:44px}
+.xs .xs-in:focus-within .xs-in-ico {color:var(--copper-l)}
+.xs .xs-field input:hover:not(:focus) {border-color:rgba(255,255,255,.32)}
+.xs .xs-field input[aria-invalid="true"] {box-shadow:0 0 0 3px rgba(255,165,155,.15)}
+.xs .xs-seg-form {padding:5px;border:1px solid rgba(255,255,255,.12)}
+.xs .xs-seg-form button {display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.xs .xs-seg-form button[aria-pressed="true"] {box-shadow:0 6px 16px -8px rgba(0,0,0,.5)}
+.xs .xs-form .xs-primary {min-height:56px;font-size:16px;box-shadow:0 14px 30px -14px rgba(168,98,62,.9)}
+.xs .xs-form-trust {display:flex;align-items:flex-start;justify-content:center;gap:8px;font-size:12px;line-height:1.5;color:var(--on-navy-m);text-align:left}
+.xs .xs-form-trust svg {flex:none;margin-top:2px;color:var(--copper-l)}
+.xs .xs-form-trust a {color:var(--on-navy);text-decoration:underline;text-underline-offset:2px}
+@media (min-width:768px) {
+  .xs .xs-form.is-compact .xs-frow {display:grid;grid-template-columns:1fr 1fr;gap:12px}
+}
+@media (min-width:1024px) {
+  .xs .xs-form-head {padding-bottom:4px}
+  .xs .xs-form-head h3 {display:block}
+  .xs .xs-form-trust {font-size:13px}
+}
+
+/* Compact pop-up form: it must fit the screen without scrolling. */
+.xs .xs-form.is-compact {gap:10px}
+.xs .xs-form.is-compact .xs-field {gap:6px}
+.xs .xs-form.is-compact .xs-field label {font-size:13px}
+.xs .xs-form.is-compact .xs-field input,.xs .xs-form.is-compact .xs-tel select {height:48px}
+.xs .xs-form.is-compact .xs-primary {margin-top:2px;min-height:52px}
+.xs .xs-dialog .xs-dlg-in {gap:14px;padding-top:12px}
+.xs .xs-dialog .xs-dlg-head {align-items:center}
+.xs .xs-dialog .xs-dlg-mark {width:40px;height:40px}
+.xs .xs-dialog .xs-dlg-titles {gap:2px}
+.xs .xs-dialog .xs-dlg-titles h2 {font-size:22px}
+.xs .xs-dlg-picks {display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px 12px;padding:10px 12px}
+.xs .xs-dlg-sel {position:relative;display:block;min-width:0}
+.xs .xs-dlg-sel::after {content:"";position:absolute;right:14px;top:50%;width:8px;height:8px;border:solid var(--copper-l);border-width:0 2px 2px 0;transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.xs .xs-dlg-sel select {width:100%;height:44px;padding:0 36px 0 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font:600 15px var(--font-inter),sans-serif;appearance:none;cursor:pointer;outline:none}
+.xs .xs-dlg-sel select:focus {border-color:var(--copper-l);box-shadow:0 0 0 3px rgba(227,164,126,.25)}
+.xs .xs-dlg-sel select option {color:var(--navy)}
+.xs .xs-dlg-q {grid-column:1/-1;display:flex;gap:6px;align-items:flex-start;font-size:12px;overflow:hidden;white-space:nowrap}
+.xs .xs-dlg-q svg {flex:none;margin-top:2px;color:var(--copper-l)}
+.xs .xs-dlg-q span {overflow:hidden;text-overflow:ellipsis}
+.xs .xs-dlg-foot {font-size:13px;margin-top:-4px}
+.xs .xs-dlg-foot .xs-inline-wa {min-height:32px}
+@media (min-width:768px) {
+  .xs .xs-dialog {width:min(600px,calc(100vw - 48px))}
+  .xs .xs-dialog .xs-dlg-in {gap:16px;padding:24px 28px 20px}
+  .xs .xs-dialog .xs-dlg-titles h2 {font-size:26px}
+}
+/* Short phones (e.g. 375×667): drop the extras so the form still fits. */
+@media (max-height:720px) and (max-width:767px) {
+  .xs .xs-dialog .xs-eyebrow,.xs .xs-dlg-q,.xs .xs-dlg-foot {display:none}
+  .xs .xs-dialog .xs-dlg-in::before {display:none}
+  .xs .xs-dialog .xs-dlg-in {gap:10px}
+  .xs .xs-form.is-compact {gap:8px}
+}
+.xs .xs-seg-form button {white-space:nowrap;padding:0 8px}
+@media (max-width:767px) {
+  .xs .xs-dlg-picks {grid-template-columns:1fr;gap:6px}
+}
+
+/* ─── Section 9 as an inset premium panel: its own surface, set apart from the footer by a cream gap ─── */
+.xs .xs-s9 {margin:0 10px 10px;border-radius:28px;isolation:isolate;background:radial-gradient(130% 70% at 50% 0%,#24365F 0%,var(--navy) 52%,#101A33 100%);box-shadow:0 40px 80px -40px rgba(14,24,48,.55)}
+.xs .xs-s9::before {content:"";position:absolute;inset:0;z-index:-1;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1.3px);background-size:22px 22px;-webkit-mask-image:linear-gradient(to bottom,#000,transparent 75%);mask-image:linear-gradient(to bottom,#000,transparent 75%);pointer-events:none}
+.xs .xs-s9::after {content:"";position:absolute;top:0;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,var(--copper-l),transparent);opacity:.8;pointer-events:none}
+.xs .xs-s9 .xs-glow {z-index:-1}
+@media (min-width:1024px) {
+  .xs .xs-s9 {margin:0 24px 24px;border-radius:40px}
+  .xs .xs-formcard {position:relative;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.035));border-color:rgba(255,255,255,.16);box-shadow:0 30px 70px -30px rgba(5,10,25,.8),inset 0 1px 0 rgba(255,255,255,.12);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  .xs .xs-formcard::before {content:"";position:absolute;top:-1px;left:30px;right:30px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--copper),var(--copper-l))}
 }

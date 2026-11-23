@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import { TOPICS, TOPIC_IDS, WORRIES } from "@/content/xservicesx";
+import { TOPICS, TOPIC_IDS, WORRIES, type TopicId } from "@/content/xservicesx";
 import { popupOpener, setXs, useXs, xsTrack } from "./store";
 import { Icon } from "./ui";
 import { XsWhatsApp } from "./XsCta";
@@ -52,41 +52,53 @@ export function PlanDialog() {
 
         {!sent && (
           <div className="xs-dlg-picks">
-            <span className="xs-dlg-k" id="xsDlgAbout">
-              About
+            <label className="xs-dlg-k" htmlFor="xsd-topic">
+              Your plan is about
+            </label>
+            <span className="xs-dlg-sel">
+              <select
+                id="xsd-topic"
+                value={s.topic ?? ""}
+                onChange={(e) => {
+                  const t = e.target.value as TopicId;
+                  setXs({ topic: t });
+                  xsTrack("xs_topic_select", { topic: t, source: "popup" });
+                }}
+              >
+                {!s.topic && (
+                  <option value="" disabled>
+                    Pick a topic
+                  </option>
+                )}
+                {TOPIC_IDS.map((t) => (
+                  <option key={t} value={t}>
+                    {TOPICS[t].short}
+                  </option>
+                ))}
+              </select>
             </span>
-            <div className="xs-tchips" role="group" aria-labelledby="xsDlgAbout">
-              {TOPIC_IDS.map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  className={`xs-tchip${s.topic === t ? " on" : ""}`}
-                  aria-pressed={s.topic === t}
-                  onClick={() => {
-                    setXs({ topic: t });
-                    xsTrack("xs_topic_select", { topic: t, source: "popup" });
-                  }}
-                >
-                  {TOPICS[t].short}
-                </button>
-              ))}
-            </div>
             {s.worries.length > 0 && (
               <p className="xs-dlg-q">
-                <span className="xs-dlg-k">Your questions</span> {[...s.worries].sort((a, b) => a - b).map((i) => WORRIES[i].tag).join(" · ")}
+                <Icon name="check" size={14} strokeWidth={2.6} />
+                <span>
+                  {s.worries.length === 1 ? "1 question" : `${s.worries.length} questions`} added:{" "}
+                  {[...s.worries].sort((a, b) => a - b).map((i) => WORRIES[i].tag).join(" · ")}
+                </span>
               </p>
             )}
           </div>
         )}
 
-        <PlanForm prefix="xsd" location="popup" />
+        <PlanForm prefix="xsd" location="popup" compact />
 
-        <p className="xs-dlg-foot">
-          Prefer to chat?{" "}
-          <XsWhatsApp location="popup" className="xs-inline-wa">
-            WhatsApp us
-          </XsWhatsApp>
-        </p>
+        {!sent && (
+          <p className="xs-dlg-foot">
+            Prefer to chat?{" "}
+            <XsWhatsApp location="popup" className="xs-inline-wa">
+              WhatsApp us
+            </XsWhatsApp>
+          </p>
+        )}
       </div>
     </dialog>
   );
