@@ -2,7 +2,7 @@ import { S3_BIG, S3_CARDS } from "@/content/xservicesx";
 import { XS_CONFIG as C } from "@/content/xservicesx.config";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
-import { FzExplainer } from "./FzExplainer";
+import { FzExplainButton, FzExplainInCard, FzExplainRow } from "./FzExplainer";
 
 /*
   Section 3: the "planning a new company" card, four smaller situations (link to the service page, chip action that
@@ -46,7 +46,7 @@ export function Situations() {
               </a>
             </div>
           </article>
-          {S3_CARDS.map((c, i) => (
+          {S3_CARDS.map((c, i) => [
             <article key={c.topic} className="xs-card xs-small">
               <div className="xs-small-top">
                 <span className="xs-ico">
@@ -60,8 +60,8 @@ export function Situations() {
                 <span className="d-only">{c.title}</span>
                 <span className="m-only">{c.titleShort}</span>
               </h3>
-              {c.topic === "fz_or_mainland" && <FzExplainer />}
-              <p className="d-only">{c.what}</p>
+              {c.topic === "fz_or_mainland" && <FzExplainButton />}
+              {c.topic === "fz_or_mainland" ? <FzExplainInCard what={c.what} /> : <p className="d-only">{c.what}</p>}
               <div className="xs-small-foot">
                 <a className="xs-link d-only" href={C.servicePages[c.topic as keyof typeof C.servicePages]}>
                   {c.page} <span aria-hidden="true">→</span>
@@ -73,8 +73,9 @@ export function Situations() {
                   {c.ctaShort} <span aria-hidden="true">→</span>
                 </XsCta>
               </div>
-            </article>
-          ))}
+            </article>,
+            c.topic === "holding" && <FzExplainRow key="explain-row" />,
+          ])}
         </div>
         <div className="xs-notsure">
           <span className="xs-ico" aria-hidden="true">

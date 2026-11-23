@@ -108,19 +108,19 @@
 .xs .xs-worry[aria-pressed="true"] {background:var(--tint-2);border:2px solid var(--copper);padding:12.5px 13.5px}
 .xs .xs-box {flex:none;width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;background:#fff;border:2px solid #CDBFB2;color:#fff;transition:background .2s}
 .xs .xs-worry[aria-pressed="true"] .xs-box {background:var(--copper);border-color:var(--copper)}
-.xs .xs-answer {background:var(--navy);color:#fff;border-radius:22px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;min-height:420px}
+.xs .xs-answer {background:var(--navy);color:#fff;border-radius:22px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;min-height:300px}
 .xs .xs-answer-by {display:flex;align-items:center;gap:10px;font-size:13px;color:var(--on-navy)}
 .xs .xs-answer-av {flex:none;width:36px;height:36px;border-radius:50%;background:var(--navy-2);border:2px solid var(--copper-l);display:inline-flex;align-items:center;justify-content:center;color:var(--copper-l)}
 .xs .xs-answer h3 {font-size:22px;line-height:1.2}
 .xs .xs-answer ul {display:flex;flex-direction:column;gap:4px}
 .xs .xs-answer li {display:flex;gap:10px;align-items:flex-start;padding:6px 8px;margin:0 -8px;border-radius:10px;font-size:15px;line-height:1.45;color:#E6EAF1}
 .xs .xs-answer li b {color:#fff}
-.xs .xs-answer li.is-new {animation:xsIn .35s ease,xsGlow 1.6s ease}
+.xs .xs-answer li.is-new {animation:xsGlow 1.5s ease-out}
 .xs .xs-tick {flex:none;width:22px;height:22px;border-radius:50%;background:var(--copper);display:inline-flex;align-items:center;justify-content:center;color:#fff}
 .xs .xs-answer-foot {margin-top:auto;display:flex;flex-direction:column;gap:10px;padding-top:6px}
 .xs .xs-answer-foot > span {font-size:13px;color:#A9B2C3;text-align:center}
 @keyframes xsIn {from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes xsGlow {0%{background:rgba(227,164,126,.28)}100%{background:rgba(227,164,126,0)}}
+@keyframes xsGlow {0%,20%{background:rgba(227,164,126,.32);box-shadow:0 0 0 1px rgba(227,164,126,.45)}100%{background:rgba(227,164,126,0);box-shadow:0 0 0 1px rgba(227,164,126,0)}}
 
 /* ─── 3 · Where are you right now? (cream) ─── */
 .xs .xs-s3 {background:var(--cream)}
@@ -376,7 +376,7 @@
 .xs .xs-s9 .xs-wrap {position:relative}
 .xs .xs-s9-head {display:flex;flex-direction:column;gap:10px}
 .xs .xs-s9-head h2 {font-size:32px;line-height:1.08}
-.xs .xs-s9-head p {font-size:18px;line-height:1.55;color:var(--on-navy);max-width:640px}
+.xs .xs-s9-head p {font-size:15px;line-height:1.55;color:var(--on-navy);max-width:640px}
 .xs .xs-s9-grid {display:grid;gap:22px;margin-top:22px}
 .xs .xs-paper-stage {position:relative;display:flex;align-items:center;justify-content:center;min-width:0}
 .xs .xs-pile {position:relative;width:100%}
@@ -532,7 +532,7 @@
   .xs .xs-worry {gap:16px;min-height:60px;padding:16px 20px;border-radius:16px;font-size:17px}
   .xs .xs-worry[aria-pressed="true"] {padding:15.5px 19.5px}
   .xs .xs-box {width:24px;height:24px;border-radius:7px}
-  .xs .xs-answer {border-radius:28px;padding:40px 44px;gap:18px;min-height:560px}
+  .xs .xs-answer {border-radius:28px;padding:40px 44px;gap:18px;min-height:360px}
   .xs .xs-answer-by {font-size:14px}
   .xs .xs-answer-av {width:44px;height:44px}
   .xs .xs-answer h3 {font-size:30px;line-height:1.15;margin-bottom:4px}
@@ -545,7 +545,8 @@
   .xs .xs-s3 .xs-head {gap:12px;margin-bottom:36px}
   .xs .xs-bento {grid-template-columns:1.35fr 1fr 1fr;grid-template-rows:auto auto;gap:16px}
   .xs .xs-card {border-radius:22px;box-shadow:0 1px 0 rgba(20,33,61,.04)}
-  .xs .xs-big {grid-column:auto;grid-row:span 2;padding:34px 36px;justify-content:space-between;gap:20px;min-height:600px}
+  .xs .xs-big {grid-column:auto;grid-row:span 2;padding:34px 36px;justify-content:flex-start;gap:24px}
+  .xs .xs-big-actions {margin-top:auto}
   .xs .xs-big-top {gap:14px}
   .xs .xs-tag {font-size:12px;padding:6px 12px}
   .xs .xs-big h3 {font-size:34px;line-height:1.1}
@@ -724,6 +725,7 @@
   .xs .xs-s9-head {align-items:center;text-align:center;gap:14px}
   .xs .xs-s9-head h2 {font-size:clamp(44px,3.8vw,54px);line-height:1.05;letter-spacing:-.025em;max-width:860px}
   .xs .xs-s9-head .xs-copper-l {display:block}
+  .xs .xs-s9-head p {font-size:18px}
   .xs .xs-s9-grid {grid-template-columns:minmax(0,540fr) minmax(0,440fr);gap:clamp(48px,6vw,80px);align-items:center;margin-top:48px;max-width:1060px;margin-inline:auto}
   .xs .xs-paper-stage {min-height:560px}
   .xs .xs-pile {width:min(480px,100%)}
@@ -790,15 +792,18 @@
 .xs .xs-trust-g {display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .xs .xs-trust-g svg {color:var(--copper)}
 
-/* S3 "What's the difference?": the panel floats inside the card, so no other card moves. */
-.xs .xs-explain {position:relative}
-.xs .xs-explain-btn {position:relative;z-index:1;display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;font:600 13px var(--font-inter),sans-serif;color:var(--copper-ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
-.xs .xs-explain-panel {position:absolute;z-index:4;left:-16px;right:-16px;top:100%;display:flex;flex-direction:column;gap:8px;padding:14px 16px;background:#fff;border:1.5px solid var(--dash);border-radius:14px;box-shadow:0 24px 40px -24px rgba(20,33,61,.45);font-size:13.5px;line-height:1.5;color:var(--ink)}
-.xs .xs-explain-panel[hidden] {display:none}
+/* S3 "What's the difference?": inside the card from 768 px (the card grows), a full grid row on phones. */
+.xs .xs-explain-btn {position:relative;z-index:1;align-self:flex-start;display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;font:600 13px var(--font-inter),sans-serif;color:var(--copper-ink);text-decoration:underline;text-underline-offset:3px;text-align:left;cursor:pointer}
+.xs .xs-explain-panel {display:flex;flex-direction:column;gap:8px;padding:14px 16px;background:var(--tint-2);border:1.5px solid var(--dash);border-radius:14px;font-size:14px;line-height:1.5;color:var(--ink)}
 .xs .xs-explain-panel b {color:var(--navy)}
+.xs .xs-explain-panel.is-row {grid-column:1/-1}
+.xs .xs-explain-panel.is-card {display:none}
 .xs .xs-explain-close {align-self:flex-start;min-height:44px;padding:0;border:0;background:none;font:600 13px var(--font-inter),sans-serif;color:var(--copper-ink);text-decoration:underline;cursor:pointer}
-.xs .xs-small:has(.xs-explain.is-open) {z-index:3}
+@media (min-width:768px) {
+  .xs .xs-explain-panel.is-row {display:none}
+  .xs .xs-explain-panel.is-card {display:flex}
+}
 @media (min-width:1024px) {
   .xs .xs-explain-btn {font-size:14px}
-  .xs .xs-explain-panel {left:-26px;right:-26px;padding:18px 22px;font-size:14.5px}
+  .xs .xs-explain-panel.is-card {padding:16px 18px;font-size:14.5px}
 }

@@ -128,7 +128,11 @@ export function PlanSection() {
           <h2 id="xsS9">
             Your plan is almost ready. <span className="xs-copper-l">Tell us where to send it.</span>
           </h2>
-          <p className="d-only">We&apos;ve kept what you picked on this page. Add your name and WhatsApp, and an advisor takes it from here.</p>
+          <p className="xs-s9-intro">
+            {s.topic || s.worries.length
+              ? "We've kept what you picked on this page. Add your name and WhatsApp, and an advisor takes it from here."
+              : "Pick your topic, add your name and WhatsApp, and an advisor takes it from here."}
+          </p>
         </div>
 
         <div className="xs-s9-grid">

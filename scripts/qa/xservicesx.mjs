@@ -149,32 +149,70 @@ for (const w of [1024, 1440]) {
   await p.done();
 }
 
-// S3 "What's the difference?": opens and closes by click and keyboard; no other card moves; no sideways scroll.
-for (const width of [390, 1440]) {
+// S3 "What's the difference?": inline in the card from 768 px (chip and link stay visible and clickable), a full row on
+// phones; Escape closes it wherever focus is (also after a mouse open) and returns focus to the button.
+for (const width of [390, 768, 1440]) {
   const p = await open(width);
-  const btn = ".xs-explain-btn";
-  await p.evaluate((s) => document.querySelector(s).scrollIntoView({ behavior: "instant", block: "center" }), btn);
+  const btn = "#xs-explain-btn";
+  await p.evaluate((s) => document.querySelector(s).scrollIntoView({ behavior: "instant", block: "start" }), btn);
   await wait(200);
-  const rects = () => p.evaluate(() => [...document.querySelectorAll(".xs-bento > article, .xs-notsure")].filter((c) => !c.querySelector(".xs-explain")).map((c) => { const r = c.getBoundingClientRect(); return [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)].join(","); }).join(" "));
-  const before = await rects();
+  const below = () => p.evaluate(() => Math.round(document.querySelector(".xs-notsure").getBoundingClientRect().top));
+  const y0 = await below();
   await p.click(btn);
+  await wait(250);
+  const r = await p.evaluate(() => {
+    const card = document.querySelector("#xs-explain-btn").closest("article");
+    const panel = [...document.querySelectorAll(".xs-explain-panel")].find((x) => x.offsetParent);
+    const hit = (el) => { if (!el || !el.offsetParent) return "hidden"; el.scrollIntoView({ behavior: "instant", block: "center" }); const b = el.getBoundingClientRect(); const top = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); return el.contains(top) ? "ok" : `covered by ${top?.className}`; };
+    const chip = [...card.querySelectorAll("[data-xs-cta]")].find((x) => x.offsetParent);
+    const link = [...card.querySelectorAll("a.xs-link")].find((x) => x.offsetParent);
+    const grid = document.querySelector(".xs-bento").getBoundingClientRect();
+    return { panel: panel?.className, inCard: card.contains(panel), panelW: Math.round(panel?.getBoundingClientRect().width ?? 0), gridW: Math.round(grid.width), chip: hit(chip), link: link ? hit(link) : "none", desc: [...card.querySelectorAll("p.d-only")].some((x) => x.offsetParent), over: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+  });
+  const y1 = await below();
+  const placed = width < 768 ? r.panel?.includes("is-row") && !r.inCard && Math.abs(r.panelW - r.gridW) <= 1 : r.panel?.includes("is-card") && r.inCard && !r.desc;
+  check(`S3 explainer at ${width}px: ${width < 768 ? "full row under the tiles" : "inside the card, in place of the description"}, nothing covered`, placed && r.chip === "ok" && (width < 1024 || r.link === "ok") && r.over <= 0 && y1 > y0, JSON.stringify({ ...r, pushedDown: y1 - y0 }));
+  await p.evaluate(() => document.activeElement?.blur());
+  await p.keyboard.press("Escape");
   await wait(200);
-  const open1 = await p.evaluate((s) => ({ exp: document.querySelector(s).getAttribute("aria-expanded"), shown: !document.querySelector(".xs-explain-panel").hidden, over: document.documentElement.scrollWidth - document.documentElement.clientWidth, text: document.querySelector(".xs-explain-panel").innerText }), btn);
-  const after = await rects();
-  check(`S3 explainer opens by click at ${width}px with no layout jump or sideways scroll`, open1.exp === "true" && open1.shown && open1.over <= 0 && before === after && open1.text.includes("We'll tell you in writing."), JSON.stringify({ ...open1, text: undefined, moved: before !== after }));
-  await p.click(btn);
-  await wait(150);
-  check(`S3 explainer closes by click at ${width}px`, (await p.$eval(btn, (b) => b.getAttribute("aria-expanded"))) === "false");
+  const k = await p.evaluate(() => ({ exp: document.getElementById("xs-explain-btn").getAttribute("aria-expanded"), focus: document.activeElement?.id, panels: [...document.querySelectorAll(".xs-explain-panel")].length }));
+  check(`S3 explainer at ${width}px: Escape after a mouse open closes it and returns focus`, k.exp === "false" && k.focus === "xs-explain-btn" && k.panels === 0, JSON.stringify(k));
   await p.focus(btn);
   await p.keyboard.press("Enter");
   await wait(150);
   const kOpen = await p.$eval(btn, (b) => b.getAttribute("aria-expanded"));
   await p.keyboard.press("Escape");
   await wait(150);
-  const k = await p.evaluate((s) => ({ exp: document.querySelector(s).getAttribute("aria-expanded"), focus: document.activeElement === document.querySelector(s) }), btn);
-  check(`S3 explainer by keyboard at ${width}px: Enter opens, Escape closes and returns focus`, kOpen === "true" && k.exp === "false" && k.focus);
+  check(`S3 explainer at ${width}px: Enter opens, Escape closes`, kOpen === "true" && (await p.$eval(btn, (b) => b.getAttribute("aria-expanded"))) === "false");
   const ev = (await events(p, "xs_cta_click")).filter((e) => e.cta_id === "fz_explainer" && e.location === "s3");
-  check(`S3 explainer fires xs_cta_click fz_explainer once per open at ${width}px`, ev.length === 2, String(ev.length));
+  check(`S3 explainer at ${width}px fires xs_cta_click fz_explainer once per open`, ev.length === 2, String(ev.length));
+  await p.done();
+}
+
+// S2: with 1 and 2 worries picked the answer card fits its content, and every answer row ends at opacity 1.
+for (const width of [390, 1440]) {
+  const p = await open(width);
+  for (const n of [1, 2]) {
+    await p.evaluate((n) => { const ws = [...document.querySelectorAll(".xs-worry")].filter((x) => x.offsetParent); ws.forEach((w) => w.getAttribute("aria-pressed") === "true" && w.click()); ws.slice(0, n).forEach((w) => w.click()); }, n);
+    await wait(1900);
+    const r = await p.evaluate(() => {
+      const card = document.querySelector(".xs-answer"), lis = [...card.querySelectorAll("li")], foot = card.querySelector(".xs-answer-foot");
+      return { rows: lis.length, gap: Math.round(foot.getBoundingClientRect().top - lis[lis.length - 1].getBoundingClientRect().bottom), opacity: lis.map((l) => getComputedStyle(l).opacity), bg: lis.map((l) => getComputedStyle(l).backgroundColor) };
+    });
+    check(`S2 with ${n} worr${n > 1 ? "ies" : "y"} at ${width}px: no empty gap, rows at full opacity after the glow`, r.rows === n && r.gap <= 48 && r.opacity.every((o) => o === "1") && r.bg.every((b) => b === "rgba(0, 0, 0, 0)" || b.endsWith(", 0)")), JSON.stringify(r));
+  }
+  await p.done();
+}
+
+// S9 intro: "Pick your topic…" with no earlier picks, "We've kept what you picked…" after one.
+{
+  const p = await open(390);
+  const intro = () => p.$eval(".xs-s9-intro", (e) => e.textContent);
+  const before = await intro();
+  await p.evaluate(() => [...document.querySelectorAll(".xs-worry")].find((x) => x.offsetParent).click());
+  await wait(200);
+  const after = await intro();
+  check("S9 intro switches with earlier picks", before.startsWith("Pick your topic, add your name and WhatsApp") && after.startsWith("We've kept what you picked on this page."), `${before.slice(0, 25)} / ${after.slice(0, 25)}`);
   await p.done();
 }
 
