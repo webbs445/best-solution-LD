@@ -1,46 +1,26 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
-import { SERVICES_PLAN_FORM_ID, TRAP_FIELD } from "@/lib/lead";
-import { DEFAULT_PHONE_COUNTRY, PHONE_COUNTRIES, type PhoneCountry } from "@/lib/phoneCountries";
-import { maskPhone, nameOk, type PlanField } from "@/lib/servicesPlan";
-import { genEventId, isConfirmedLeadResponse } from "@/lib/analytics";
-import { attributionFields } from "@/lib/attribution";
-import { pushXsLead } from "@/lib/xsAnalytics";
-import { PhoneCountrySelect } from "@/components/ui/PhoneCountrySelect";
-import { S9_MICRO, TOPICS, TOPIC_IDS, WORRIES, thanksBody, waLink, type TopicId } from "@/content/xservicesx";
+import { useState } from "react";
+import { PHONE_COUNTRIES } from "@/lib/phoneCountries";
+import { maskPhone, nameOk } from "@/lib/servicesPlan";
+import { TOPICS, TOPIC_IDS, WORRIES, type TopicId } from "@/content/xservicesx";
 import { XS_CONFIG as C } from "@/content/xservicesx.config";
 import { setXs, useXs, xsTrack } from "./store";
-import { BtnArrow, Icon } from "./ui";
+import { Icon } from "./ui";
 import { XsWhatsApp } from "./XsCta";
+import { PlanForm, useForm } from "./PlanForm";
 
-type Status = "idle" | "sending" | "sent" | "error";
-type Checker = typeof import("@/lib/servicesPlanCheck");
-/** The number check needs libphonenumber-js (about 30 KB): loaded when the visitor reaches the form, not with the page. */
-const loadChecker = () => import("@/lib/servicesPlanCheck");
-const FIELD_ID: Record<PlanField, string> = { name: "xs-name", phone: "xs-phone", email: "xs-email" };
 const RING = 182.2;
 
 /*
-  Section 9, id="plan": the page's one form. The tilted plan on the left fills live from the shared state (topic,
-  questions, advisor, reply method) and from what is typed (name, masked number). The thank-you, the green ring and
-  the "REQUEST SENT" stamp appear only after the server confirms a new lead; any other answer shows the error.
+  Section 9, id="plan": the inline form (shared with the plan pop-up, components/xservicesx/PlanForm). The tilted plan
+  on the left fills live from the page state (topic, questions, advisor, reply method) and from what is typed (name,
+  masked number). The green ring and the "REQUEST SENT" stamp appear only after the server confirms a new lead.
 */
 export function PlanSection() {
   const s = useXs();
-  const [status, setStatus] = useState<Status>("idle");
-  const [errors, setErrors] = useState<Partial<Record<PlanField, string>>>({});
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [country, setCountry] = useState<PhoneCountry>(DEFAULT_PHONE_COUNTRY);
+  const { name, phone, country, status, checker } = useForm();
   const [picking, setPicking] = useState(false);
-  const [checker, setChecker] = useState<Checker | null>(null);
-  const getChecker = async () => checker ?? loadChecker().then((m) => (setChecker(m), m));
-  const started = useRef(false);
-  const sentOnce = useRef(false);
-  const honeypot = useRef<HTMLInputElement>(null);
-  const thanks = useRef<HTMLDivElement>(null);
 
   const sent = status === "sent";
   const firstName = name.trim().split(/\s+/)[0] ?? "";
@@ -58,66 +38,6 @@ export function PlanSection() {
     xsTrack("xs_topic_select", { topic: t, source: "s9" });
   };
 
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (status === "sending" || sent) return;
-    const { errors: bad, e164 } = (await getChecker()).checkPlan({ name, phone, email }, country);
-    setErrors(bad);
-    const fields = Object.keys(bad) as PlanField[];
-    if (fields.length || !e164) {
-      fields.forEach((f) => xsTrack("xs_form_error", { field: f }));
-      document.getElementById(FIELD_ID[fields[0] ?? "phone"])?.focus();
-      return;
-    }
-    const eventId = genEventId();
-    const topic = s.topic ?? "not_sure";
-    setStatus("sending");
-    try {
-      const res = await fetch("/api/services-plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lead_name: name.trim(),
-          mobile_no: e164,
-          country,
-          email_id: email.trim().toLowerCase(),
-          topic,
-          worries: s.worries,
-          advisor_pref: s.advisor ?? "any",
-          contact_pref: s.contactPref,
-          consult_mode: s.consultMode,
-          form_location: "s9",
-          page: "/xservicesx",
-          ...attributionFields(),
-          event_id: eventId,
-          landing_page: window.location.href.split("#")[0],
-          form_id: SERVICES_PLAN_FORM_ID,
-          [TRAP_FIELD]: honeypot.current?.value || "",
-        }),
-      });
-      const responseBody = await res.json().catch(() => ({}));
-      if (!res.ok || !isConfirmedLeadResponse(responseBody)) throw new Error(String(res.status));
-      setStatus("sent");
-      requestAnimationFrame(() => thanks.current?.focus());
-      if (sentOnce.current) return;
-      sentOnce.current = true;
-      pushXsLead({ eventId, topic, contactPref: s.contactPref });
-    } catch {
-      setStatus("error");
-    }
-  };
-
-  const field = (k: PlanField) => ({
-    id: FIELD_ID[k],
-    "aria-invalid": errors[k] ? true : undefined,
-    "aria-describedby": errors[k] ? `${FIELD_ID[k]}-err` : undefined,
-  });
-  const err = (k: PlanField) =>
-    errors[k] ? (
-      <p className="xs-err" id={`${FIELD_ID[k]}-err`}>
-        {errors[k]}
-      </p>
-    ) : null;
 
   return (
     <section className="xs-sec xs-s9" id="plan" aria-labelledby="xsS9">
@@ -234,103 +154,7 @@ export function PlanSection() {
           </div>
 
           <div className="xs-formcard">
-            {!sent ? (
-              <form
-                className="xs-form"
-                onSubmit={submit}
-                noValidate
-                data-track={SERVICES_PLAN_FORM_ID}
-                onFocus={() => {
-                  if (started.current) return;
-                  void getChecker();
-                  started.current = true;
-                  xsTrack("xs_form_start");
-                }}
-              >
-                <h3 className="d-only">Where should we send it?</h3>
-                <div className="xs-field">
-                  <label htmlFor="xs-name">Your full name</label>
-                  <input {...field("name")} name="lead_name" type="text" autoComplete="name" placeholder="e.g. Sara Ahmed" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required />
-                  {err("name")}
-                </div>
-                <div className="xs-field">
-                  <label htmlFor="xs-phone">WhatsApp number</label>
-                  <div className="xs-tel">
-                    <PhoneCountrySelect
-                      value={country}
-                      onChange={(e) => {
-                        setCountry(e.target.value as PhoneCountry);
-                        setErrors((x) => ({ ...x, phone: undefined }));
-                      }}
-                    />
-                    <input {...field("phone")} name="mobile_no" type="tel" inputMode="tel" autoComplete="tel" placeholder={country === "AE" ? "50 123 4567" : "Mobile number"} value={phone} onChange={(e) => setPhone(e.target.value)} required />
-                  </div>
-                  {err("phone")}
-                </div>
-                <div className="xs-field">
-                  <label htmlFor="xs-email">
-                    Email <span>(we send your written plan here too)</span>
-                  </label>
-                  <input {...field("email")} name="email_id" type="email" inputMode="email" autoComplete="email" placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  {err("email")}
-                </div>
-                <div className="xs-seg xs-seg-form" role="group" aria-label="How should we reply?">
-                  {(["whatsapp", "call"] as const).map((p) => (
-                    <button key={p} type="button" aria-pressed={s.contactPref === p} onClick={() => setXs({ contactPref: p })}>
-                      {p === "whatsapp" ? "Reply on WhatsApp" : "Call me"}
-                    </button>
-                  ))}
-                </div>
-                {/* Spam trap: invisible to people, tempting to bots. */}
-                <div className="sr-only" aria-hidden="true">
-                  <label htmlFor="xs-hp">Leave this field empty</label>
-                  <input ref={honeypot} id="xs-hp" name={TRAP_FIELD} type="text" tabIndex={-1} autoComplete="off" />
-                </div>
-                {status === "error" && (
-                  <p className="xs-err xs-err-send" role="alert">
-                    Something went wrong. Please try again, or{" "}
-                    <a href={waLink(s.topic)} target="_blank" rel="noopener">
-                      message us on WhatsApp
-                    </a>
-                    .
-                  </p>
-                )}
-                <button type="submit" className="xs-btn xs-primary xs-block" disabled={status === "sending"} aria-busy={status === "sending"}>
-                  {status === "sending" ? (
-                    <>
-                      <span className="xs-spin" aria-hidden="true" />
-                      Sending…
-                    </>
-                  ) : (
-                    <>
-                      Send me my plan
-                      <BtnArrow />
-                    </>
-                  )}
-                </button>
-                <p className="xs-form-micro">
-                  {S9_MICRO}
-                  <span className="d-only">
-                    <br />
-                    Your details are used only to reply to you.{" "}
-                    <a href={C.privacyUrl} target="_blank" rel="noopener">
-                      Privacy policy
-                    </a>
-                  </span>
-                </p>
-              </form>
-            ) : (
-              <div className="xs-thanks" ref={thanks} tabIndex={-1} role="status">
-                <span className="xs-thanks-tick" aria-hidden="true">
-                  <Icon name="check" size={28} strokeWidth={2.6} />
-                </span>
-                <b>{firstName ? `Thanks, ${firstName}.` : "Thanks."}</b>
-                <p>{thanksBody(advisor?.name ?? null, s.contactPref)}</p>
-                <XsWhatsApp location="s9_thanks" className="xs-thanks-wa">
-                  Prefer to chat now? WhatsApp us →
-                </XsWhatsApp>
-              </div>
-            )}
+            <PlanForm prefix="xs" location="s9" heading="Where should we send it?" />
             <p className="xs-formcard-foot">
               Prefer to chat?{" "}
               <XsWhatsApp location="s9" className="xs-inline-wa">

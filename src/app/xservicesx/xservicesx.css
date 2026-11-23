@@ -90,9 +90,6 @@
 .xs .xs-hcard-rows dt {font-size:14px;color:var(--muted)}
 .xs .xs-hcard-rows dd {display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;text-align:right}
 .xs .xs-blur {display:inline-block;height:14px;border-radius:7px;background:#E6DCD2;max-width:30vw}
-.xs .xs-hcard-lines {display:flex;flex-direction:column;gap:7px}
-.xs .xs-hcard-lines span {height:10px;border-radius:5px;background:#F0E8E0}
-.xs .xs-hcard-lines span:last-child {width:78%}
 .xs .xs-hcard-by {display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
 .xs .xs-hcard-av {flex:none;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px var(--border),0 4px 10px -6px rgba(20,33,61,.35);display:inline-flex;align-items:center;justify-content:center}
 .xs .xs-hcard-av img {width:20px;height:auto}
@@ -843,4 +840,59 @@
   .xs .xs-bs-row > span:last-child {display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--navy)}
   .xs .xs-bs-row i {display:inline-block;height:6px;border-radius:3px;background:#EDE4DB}
   .xs .xs-big-caption {font-size:12px;color:var(--muted-2)}
+}
+
+/* ─── Hero plan card (restyled): the first page of a written plan ─── */
+.xs .xs-hcard-wrap {position:relative}
+.xs .xs-hcard {position:relative;overflow:hidden;border:1px solid var(--border);box-shadow:0 34px 64px -34px rgba(20,33,61,.32),0 2px 6px rgba(20,33,61,.04)}
+.xs .xs-hcard::before {content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,var(--copper-h),var(--copper-l),var(--copper-h))}
+.xs .xs-hcard-back {display:none}
+.xs .xs-hcard-select {position:relative;display:block}
+.xs .xs-hcard-select select {appearance:none;-webkit-appearance:none;padding-right:48px;transition:border-color .2s,box-shadow .2s}
+.xs .xs-hcard-select select:hover {border-color:var(--dash)}
+.xs .xs-hcard-select select:focus-visible {outline:none;border-color:var(--copper);box-shadow:0 0 0 3px rgba(185,113,75,.22)}
+.xs .xs-hcard-chev {position:absolute;right:16px;top:50%;transform:translateY(-50%) rotate(90deg);color:var(--copper-d);pointer-events:none}
+.xs .xs-hcard-rows {gap:0;min-height:0}
+.xs .xs-hcard-rows > div {min-height:44px;padding:10px 0;border-bottom:1px dashed #EADFD4;animation:xsIn .35s ease both}
+.xs .xs-hcard-rows > div:nth-child(2) {animation-delay:.04s}
+.xs .xs-hcard-rows > div:nth-child(3) {animation-delay:.08s}
+.xs .xs-hcard-rows > div:nth-child(4) {animation-delay:.12s}
+.xs .xs-hcard-rows dt {display:inline-flex;align-items:center;gap:8px}
+.xs .xs-hcard-rows dt svg {flex:none;color:var(--copper);padding:3px;width:20px;height:20px;border-radius:50%;background:var(--tint-2)}
+.xs .xs-blur {background:linear-gradient(90deg,#E6DCD2 0%,#F1E9E1 50%,#E6DCD2 100%);background-size:200% 100%;animation:xsShimmer 2.4s ease-in-out infinite}
+@keyframes xsShimmer {0%{background-position:100% 0}100%{background-position:-100% 0}}
+.xs .xs-hcard-lock {display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--cream);font-size:13px;color:var(--muted)}
+.xs .xs-hcard-lock svg {flex:none;color:var(--copper-d)}
+.xs .xs-hcard-by > span:nth-child(2) {flex:1}
+.xs .xs-hcard-wa {flex:none;color:#1F8F4E}
+@media (min-width:1024px) {
+  .xs .xs-hcard {border-radius:24px}
+  .xs .xs-hcard-back {display:block;position:absolute;left:18px;right:-10px;top:14px;bottom:44px;border-radius:24px;background:#EADFD3;transform:rotate(2.5deg);box-shadow:0 20px 40px -30px rgba(20,33,61,.4)}
+}
+
+/* ─── Plan pop-up: a bottom sheet on phones, a centred panel from 768 px ─── */
+.xs .xs-dialog {width:100%;max-width:100%;max-height:92dvh;margin:auto 0 0;padding:0;border:0;border-radius:24px 24px 0 0;background:var(--navy);color:#fff;box-shadow:0 -20px 60px rgba(14,24,48,.45);overflow:auto;overscroll-behavior:contain}
+.xs .xs-dialog::backdrop {background:rgba(14,24,48,.6);backdrop-filter:blur(2px)}
+.xs .xs-dialog[open] {animation:xsSheet .3s ease both}
+@keyframes xsSheet {from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.xs .xs-dlg-in {display:flex;flex-direction:column;gap:16px;padding:18px var(--gut) calc(20px + env(safe-area-inset-bottom,0px))}
+.xs .xs-dlg-in::before {content:"";align-self:center;width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.25);margin-bottom:2px}
+.xs .xs-dlg-head {display:flex;align-items:flex-start;gap:12px}
+.xs .xs-dlg-mark {flex:none;width:44px;height:44px;border-radius:50%;background:#fff;display:inline-flex;align-items:center;justify-content:center}
+.xs .xs-dlg-titles {flex:1;display:flex;flex-direction:column;gap:4px}
+.xs .xs-dlg-titles h2 {font-size:24px;line-height:1.15}
+.xs .xs-dlg-close {flex:none;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.xs .xs-dlg-close svg {transform:rotate(45deg)}
+.xs .xs-dlg-close:hover {background:rgba(255,255,255,.14)}
+.xs .xs-dlg-picks {display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
+.xs .xs-dlg-k {font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--copper-l)}
+.xs .xs-dlg-q {font-size:13px;line-height:1.5;color:var(--on-navy)}
+.xs .xs-dlg-foot {font-size:14px;color:var(--on-navy);text-align:center}
+@media (min-width:768px) {
+  .xs .xs-dialog {width:min(560px,calc(100vw - 48px));margin:auto;border-radius:26px;max-height:calc(100dvh - 48px);box-shadow:0 40px 90px -30px rgba(14,24,48,.7)}
+  .xs .xs-dialog[open] {animation-name:xsPop}
+  @keyframes xsPop {from{transform:translateY(12px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+  .xs .xs-dlg-in {padding:26px 30px 24px}
+  .xs .xs-dlg-in::before {display:none}
+  .xs .xs-dlg-titles h2 {font-size:28px}
 }

@@ -57,6 +57,6 @@ export function choiceRows(body: Record<string, unknown>): [string, string][] {
     ["Advisor", advisor],
     ["Reply by", reply],
     ...(mode ? ([["Meeting", mode]] as [string, string][]) : []),
-    ["Form location", "s9"],
+    ["Form location", body.form_location === "popup" ? "popup" : "s9"],
   ];
 }

@@ -296,36 +296,75 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   // No advisors yet: S6 is left out, Trust shows with its office card, and the plan names the first available advisor.
   check("live config: Trust shown, S6 and S7 gone", await p.evaluate(() => !!document.querySelector("#reviews.xs-trustsec .xs-office-card") && !document.getElementById("advisors") && !document.querySelector(".xs-s7")));
   check("plan names the first available advisor", await p.evaluate(() => /YOUR ADVISOR\s*First available advisor/.test(document.querySelector(".xs-paper").innerText)));
-  // "Request a call back": reply by phone, keeps a picked topic, to the form.
+  // "Request a call back": reply by phone, keeps a picked topic, opens the plan pop-up.
   await p.evaluate(() => document.querySelector('[data-xs-cta="callback"]').click());
-  await wait(1600);
-  const cb = await p.evaluate(() => ({ call: document.querySelectorAll(".xs-seg-form button")[1].getAttribute("aria-pressed"), about: document.querySelector(".xs-about strong")?.textContent, focus: document.activeElement?.id, top: Math.round(document.getElementById("plan").getBoundingClientRect().top) }));
-  check("call-back button: Call me, topic kept, scrolled to #plan, name focused", cb.call === "true" && cb.about === "Corporate Tax" && cb.focus === "xs-name" && Math.abs(cb.top) <= 4, JSON.stringify(cb));
+  await wait(400);
+  const cb = await p.evaluate(() => ({ call: document.querySelector("#xs-plan-dialog .xs-seg-form button:nth-child(2)").getAttribute("aria-pressed"), about: document.querySelector(".xs-about strong")?.textContent, picked: document.querySelector("#xs-plan-dialog .xs-tchip.on")?.textContent, open: document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.id }));
+  check("call-back button: Call me, topic kept, pop-up open, name focused", cb.call === "true" && cb.about === "Corporate Tax" && cb.picked === "Corporate Tax" && cb.open && cb.focus === "xsd-name", JSON.stringify(cb));
   check("xs_cta_click {cta_id: callback, location: trust}", (await events(p, "xs_cta_click")).some((e) => e.cta_id === "callback" && e.location === "trust"));
   await p.done();
 }
 
-// 3. Every plan button scrolls to #plan and focuses the first empty field (then the next empty one).
+// 3. Every plan button opens the plan pop-up with the cursor in its first empty field; Escape closes it and focus goes
+// back to the button. A name typed in the pop-up is also in the section 9 form (one shared form).
 for (const w of [390, 1440]) {
   const p = await open(w);
-  const ids = await p.$$eval("[data-xs-cta]", (bs) => bs.filter((x) => x.offsetParent && !x.closest(".xs-sticky")).map((x) => x.getAttribute("data-xs-cta")));
+  const ids = await p.$$eval("[data-xs-cta]", (bs) => bs.filter((x) => x.offsetParent && !x.closest(".xs-sticky") && !x.closest("dialog")).map((x) => x.getAttribute("data-xs-cta")));
   const bad = [];
   for (const id of ids) {
-    await p.evaluate(() => window.scrollTo(0, 0));
-    await wait(150);
-    await p.evaluate((id) => [...document.querySelectorAll(`[data-xs-cta="${id}"]`)].filter((x) => x.offsetParent)[0]?.click(), id);
-    await wait(1600);
-    const r = await p.evaluate(() => ({ focus: document.activeElement?.id, top: Math.round(document.getElementById("plan").getBoundingClientRect().top) }));
-    if (r.focus !== "xs-name" || Math.abs(r.top) > 4) bad.push(`${id}: focus ${r.focus}, #plan top ${r.top}`);
+    const h = await p.evaluateHandle((id) => [...document.querySelectorAll(`[data-xs-cta="${id}"]`)].filter((x) => x.offsetParent && !x.closest("dialog"))[0], id);
+    await h.evaluate((el) => el.scrollIntoView({ behavior: "instant", block: "center" }));
+    await h.focus();
+    await h.evaluate((el) => el.click());
+    await wait(350);
+    const r = await p.evaluate(() => ({ open: document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.id }));
+    await p.keyboard.press("Escape");
+    await wait(250);
+    const back = await p.evaluate(() => ({ closed: !document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.getAttribute("data-xs-cta") }));
+    if (!r.open || r.focus !== "xsd-name" || !back.closed || back.focus !== id) bad.push(`${id}: ${JSON.stringify({ ...r, ...back })}`);
   }
-  check(`${ids.length} plan buttons at ${w}px scroll to #plan and focus the name field`, ids.length > 8 && !bad.length, bad.join("; "));
-  await p.type("#xs-name", NAME);
-  await p.evaluate(() => window.scrollTo(0, 0));
+  check(`${ids.length} plan buttons at ${w}px open the pop-up, focus the name field, Escape returns focus`, ids.length > 8 && !bad.length, bad.slice(0, 3).join("; "));
   await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
-  await wait(1600);
-  check(`at ${w}px a filled name moves focus to the next empty field`, (await p.evaluate(() => document.activeElement?.id)) === "xs-phone");
+  await wait(300);
+  await p.type("#xsd-name", NAME);
+  await p.keyboard.press("Escape");
+  await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
+  await wait(300);
+  const r2 = await p.evaluate(() => ({ focus: document.activeElement?.id, s9: document.getElementById("xs-name").value }));
+  check(`at ${w}px a filled name moves focus to the next empty field, and shows in section 9 too`, r2.focus === "xsd-phone" && r2.s9 === "TEST AUDIT - DELETE", JSON.stringify(r2));
+  await p.mouse.click(5, 5);
+  await wait(250);
+  check(`at ${w}px a tap outside closes the pop-up`, await p.evaluate(() => !document.getElementById("xs-plan-dialog").open));
   const cta = await events(p, "xs_cta_click");
-  check(`xs_cta_click {cta_id, location} at ${w}px`, cta.length === ids.length + 1 && cta.every((e) => e.cta_id && e.location));
+  check(`xs_cta_click {cta_id, location} at ${w}px`, cta.length === ids.length + 2 && cta.every((e) => e.cta_id && e.location), String(cta.length));
+  await p.done();
+}
+
+// Pop-up send (mocked): thank-you in the pop-up and in section 9, one generate_lead with form_location "popup".
+{
+  const p = await open(390);
+  await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
+  await wait(300);
+  for (const [id, v] of [["#xsd-name", NAME], ["#xsd-phone", PHONE], ["#xsd-email", EMAIL]]) await p.type(id, v);
+  await p.evaluate(() => document.querySelector("#xs-plan-dialog form button[type=submit]").click());
+  await wait(1200);
+  const r = await p.evaluate(() => ({ dlg: /Thanks, TEST\./.test(document.getElementById("xsd-thanks")?.textContent || ""), s9: !!document.getElementById("xs-thanks"), stamp: !!document.querySelector(".xs-stamp") }));
+  const gl = await events(p, "generate_lead");
+  check("pop-up send: thank-you in the pop-up and section 9, stamp on the plan", r.dlg && r.s9 && r.stamp, JSON.stringify(r));
+  check("pop-up send: one lead with form_location popup, one generate_lead", p.leads.length === 1 && p.leads[0].form_location === "popup" && gl.length === 1 && gl[0].form_location === "popup", JSON.stringify({ leads: p.leads.length, gl: gl.length }));
+  await p.evaluate(AXE);
+  const v = await p.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((x) => `${x.id}: ${x.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(", ")}`));
+  check("axe with the pop-up open (after a send): zero violations", !v.length, v.join(" ;; "));
+  await p.done();
+}
+for (const w of [390, 1440]) {
+  const p = await open(w);
+  await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
+  await wait(400);
+  await p.evaluate(AXE);
+  const v = await p.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((x) => `${x.id}: ${x.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(", ")}`));
+  const over = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  check(`pop-up open at ${w}px: axe zero violations, no sideways scroll`, !v.length && over <= 0, v.join(" ;; "));
   await p.done();
 }
 
@@ -334,13 +373,13 @@ for (const w of [390, 1440]) {
   const p = await open(390);
   await submit(p);
   await wait(300);
-  const errs = await p.$$eval(".xs-err", (e) => e.map((x) => x.textContent));
+  const errs = await p.$$eval("#plan .xs-err", (e) => e.map((x) => x.textContent));
   check("empty submit: name, number and email errors", JSON.stringify(errs) === JSON.stringify(["Please add your name.", "Please add your WhatsApp number.", "Please add your email."]), errs.join(" | "));
   check("errors linked with aria-describedby", await p.evaluate(() => ["xs-name", "xs-phone", "xs-email"].every((id) => document.getElementById(id).getAttribute("aria-describedby") === `${id}-err`)));
   for (const [id, v] of [["#xs-name", "T"], ["#xs-phone", "12"], ["#xs-email", "nope"]]) await p.type(id, v);
   await submit(p);
   await wait(300);
-  const errs2 = await p.$$eval(".xs-err", (e) => e.map((x) => x.textContent));
+  const errs2 = await p.$$eval("#plan .xs-err", (e) => e.map((x) => x.textContent));
   check("invalid name, number and email errors, typed values kept", errs2.length === 3 && errs2[1].includes("United Arab Emirates") && (await p.$eval("#xs-name", (e) => e.value)) === "T", errs2.join(" | "));
   check("no lead sent while fields are wrong", p.leads.length === 0);
   const fe = await events(p, "xs_form_error");
@@ -353,7 +392,8 @@ for (const w of [390, 1440]) {
 {
   const p = await open(1440);
   await p.evaluate(() => [...document.querySelectorAll('[data-xs-cta="s3_bookkeeping"]')].find((x) => x.offsetParent).click());
-  await wait(900);
+  await wait(400);
+  await p.keyboard.press("Escape"); // the button opened the pop-up; this test sends from the section 9 form
   await p.evaluate(() => document.querySelectorAll(".xs-seg-form button")[1].click());
   await fill(p);
   await submit(p);

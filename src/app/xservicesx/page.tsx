@@ -14,6 +14,7 @@ import { Questions } from "@/components/xservicesx/Questions";
 import { PlanSection } from "@/components/xservicesx/PlanSection";
 import { XsFooter } from "@/components/xservicesx/Footer";
 import { StickyBar } from "@/components/xservicesx/StickyBar";
+import { PlanDialog } from "@/components/xservicesx/PlanDialog";
 import "./xservicesx.css";
 
 const interTight = Inter_Tight({ subsets: ["latin"], weight: ["700", "800"], display: "swap", variable: "--font-inter-tight" });
@@ -83,6 +84,7 @@ export default function XServicesPage() {
       </main>
       <XsFooter showReviews />
       <StickyBar />
+      <PlanDialog />
     </div>
   );
 }

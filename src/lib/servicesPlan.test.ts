@@ -70,6 +70,8 @@ describe("topics and the lead notes", () => {
     ]);
     expect(choiceRows({ topic: "<script>" })[0]).toEqual(["Topic", TOPICS.not_sure.label]);
     expect(choiceRows({ worries: [0] })[1]).toEqual(["Questions", "Where do I begin?"]);
+    expect(choiceRows({ form_location: "popup" }).at(-1)).toEqual(["Form location", "popup"]);
+    expect(choiceRows({ form_location: "elsewhere" }).at(-1)).toEqual(["Form location", "s9"]);
   });
 
   it("puts the topic, never contact details, in the WhatsApp link", () => {

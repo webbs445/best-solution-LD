@@ -69,8 +69,29 @@ export const xsTrack = (event: string, params: Record<string, unknown> = {}) => 
 
 export const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** Scroll to the one form (#plan) and put the cursor in its first empty field. */
+let opener: HTMLElement | null = null;
+/** The button that last opened the plan pop-up (focus goes back to it when the pop-up closes). */
+export const popupOpener = () => opener;
+
+/**
+ * Open the plan pop-up and put the cursor in its first empty field (the submit button, or the thank-you once sent).
+ * Without the pop-up (never expected) it falls back to scrolling to the section 9 form.
+ */
 export function goToPlan(): void {
+  const dlg = document.getElementById("xs-plan-dialog") as HTMLDialogElement | null;
+  if (dlg) {
+    opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (!dlg.open) dlg.showModal();
+    const fields = ["xsd-name", "xsd-phone", "xsd-email"].map((id) => document.getElementById(id) as HTMLInputElement | null);
+    const target = fields.find((f) => f && !f.value.trim()) ?? (dlg.querySelector("button[type=submit], #xsd-thanks") as HTMLElement | null);
+    target?.focus();
+    return;
+  }
+  scrollToForm();
+}
+
+/** Scroll to the section 9 form (#plan) and put the cursor in its first empty field. */
+export function scrollToForm(): void {
   const plan = document.getElementById("plan");
   if (!plan) return;
   // scrollTo, not scrollIntoView: the site-wide scroll-padding-top (for other pages' sticky headers) would stop short.

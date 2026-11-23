@@ -3,11 +3,13 @@
 import Image from "next/image";
 import { HERO_PLANS, HERO_PREPARED, TOPICS, TOPIC_IDS, isTopic } from "@/content/xservicesx";
 import { setXs, useXs, xsTrack } from "./store";
+import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
 
 /*
-  The hero's "Your written plan for" card: a native select (good on phones) that sets the page topic; the rows and the
-  button follow the pick. Bars stand in for figures the advisor fills in later (never real numbers).
+  The hero's "Your written plan for" card, drawn as the first page of a written plan: a copper top edge, a stacked
+  sheet behind it on desktop, a native select (good on phones) that sets the page topic, and rows that follow the pick.
+  Bars stand in for figures the advisor fills in later (never real numbers); the lock line says so.
 */
 export function HeroCard() {
   const s = useXs();
@@ -15,10 +17,14 @@ export function HeroCard() {
   const plan = HERO_PLANS[topic];
   return (
     <div className="xs-hcard-wrap">
+      <span className="xs-hcard-back" aria-hidden="true" />
       <div className="xs-hcard">
-        <label className="xs-hcard-label">
+        <label className="xs-hcard-label" htmlFor="xs-hero-topic">
           <span className="xs-eyebrow">YOUR WRITTEN PLAN FOR</span>
+        </label>
+        <span className="xs-hcard-select">
           <select
+            id="xs-hero-topic"
             value={topic}
             onChange={(e) => {
               if (!isTopic(e.target.value)) return;
@@ -32,11 +38,15 @@ export function HeroCard() {
               </option>
             ))}
           </select>
-        </label>
-        <dl className="xs-hcard-rows">
+          <Icon name="chevronRight" size={18} strokeWidth={2.4} className="xs-hcard-chev" />
+        </span>
+        <dl className="xs-hcard-rows" key={topic}>
           {plan.rows.map((r) => (
             <div key={r.label}>
-              <dt>{r.label}</dt>
+              <dt>
+                <Icon name="check" size={14} strokeWidth={2.6} />
+                {r.label}
+              </dt>
               <dd>
                 {r.text ?? (
                   <>
@@ -49,17 +59,18 @@ export function HeroCard() {
             </div>
           ))}
         </dl>
-        <div className="xs-hcard-lines" aria-hidden="true">
-          <span />
-          <span />
-        </div>
+        <p className="xs-hcard-lock">
+          <Icon name="lock" size={14} strokeWidth={2.4} />
+          Figures filled in by your advisor after your call.
+        </p>
         <div className="xs-hcard-by">
           <span className="xs-hcard-av">
             <Image src="/brand/icon-mark.webp" alt="Best Solution" width={20} height={28} loading="eager" />
           </span>
           <span>{HERO_PREPARED}</span>
+          <Icon name="whatsapp" size={18} className="xs-hcard-wa" />
         </div>
-        <XsCta id="hero_card" location="hero" variant="dark" set={{ topic }} source="hero" className="xs-block" arrow={false}>
+        <XsCta id="hero_card" location="hero" variant="dark" set={{ topic }} source="hero" className="xs-block">
           {plan.cta}
         </XsCta>
       </div>
