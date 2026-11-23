@@ -5,7 +5,8 @@
 // generate_lead with the right parameters and no name, number or email); a mocked error (message, no success);
 // the sticky bar (hidden in the hero, shown mid-page, hidden at the form); every FAQ answer in the server HTML; the
 // copy policy on the rendered page; axe (WCAG 2.1 AA) with zero violations at 390 and 1440.
-// Usage: node scripts/qa/xservicesx.mjs [base]. Exit 1 on any failure.
+// Usage: node scripts/qa/xservicesx.mjs [base] [fixture]. Fixture runs need a local build made with
+// NEXT_PUBLIC_XS_FIXTURE=reviews3 (still row) or full (1 advisor, 8 reviews: S6 and the moving wall). Exit 1 on any failure.
 import { readFileSync } from "node:fs";
 import { BASE, blockTags, launch, wait } from "./common.mjs";
 
@@ -49,6 +50,75 @@ const fill = async (p) => {
 };
 const submit = (p) => p.evaluate(() => document.querySelector("#plan form button[type=submit]").click());
 
+// Fixture builds (NEXT_PUBLIC_XS_FIXTURE=reviews3 or full, local only): node scripts/qa/xservicesx.mjs <base> <fixture>.
+const FIX = process.argv[3] || "live";
+if (FIX !== "live") {
+  if (FIX === "reviews3") {
+    const p = await open(1440);
+    const r = await p.evaluate(() => ({ still: document.querySelectorAll(".xs-still .xs-rcard").length, wall: !!document.getElementById("xs-wall"), toggle: !!document.querySelector(".xs-wall-toggle") }));
+    check("3 reviews: one still row of 3 cards, no moving wall, no pause button", r.still === 3 && !r.wall && !r.toggle, JSON.stringify(r));
+    await p.done();
+  }
+  if (FIX === "full") {
+    const p = await open(1440);
+    const s = await p.evaluate(() => ({ s6: !!document.getElementById("advisors"), office: !!document.querySelector(".xs-trustsec .xs-office-card"), rows: document.querySelectorAll("#xs-wall .xs-wall-row").length, cards: [...document.querySelectorAll("#xs-wall .xs-wall-row")].map((r) => r.querySelectorAll(".xs-wall-track > .xs-rcard").length), copies: [...document.querySelectorAll("#xs-wall .xs-wall-copy")].every((c) => c.getAttribute("aria-hidden") === "true") }));
+    check("1 advisor: S6 returns and Trust drops its office card", s.s6 && !s.office, JSON.stringify(s));
+    check("8 reviews: two-row wall, reviews split 4 and 4, loop copies aria-hidden", s.rows === 2 && s.cards.join() === "4,4" && s.copies, JSON.stringify(s));
+    const state = () => p.evaluate(() => [...document.querySelectorAll(".xs-wall-track")].map((t) => getComputedStyle(t).animationPlayState + ":" + getComputedStyle(t).animationName).join(" "));
+    await p.evaluate(() => document.getElementById("xs-wall").scrollIntoView({ behavior: "instant", block: "center" }));
+    await p.mouse.move(5, 5);
+    await wait(300);
+    const run1 = await state();
+    const x1 = await p.evaluate(() => document.querySelector(".xs-wall-track").getBoundingClientRect().x);
+    await wait(1200);
+    const x2 = await p.evaluate(() => document.querySelector(".xs-wall-track").getBoundingClientRect().x);
+    check("wall moves: row 1 left, row 2 right", run1 === "running:xsMarqL running:xsMarqR" && x2 < x1, `${run1} ${x1}->${x2}`);
+    const box = await p.evaluate(() => { const r = document.getElementById("xs-wall").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + 40 }; });
+    await p.mouse.move(box.x, box.y);
+    await wait(300);
+    check("wall pauses on hover", (await state()).startsWith("paused") && !(await state()).includes("running"));
+    await p.mouse.move(5, 5);
+    await p.evaluate(() => document.querySelector("#xs-wall .xs-rcard").focus());
+    await wait(300);
+    check("wall pauses with focus inside", !(await state()).includes("running"));
+    await p.evaluate(() => document.activeElement.blur());
+    await p.click(".xs-wall-toggle");
+    await wait(300);
+    const lab = await p.$eval(".xs-wall-toggle", (b) => b.getAttribute("aria-label"));
+    check("pause button stops the wall and offers Play", !(await state()).includes("running") && lab === "Play the moving reviews", lab);
+    await p.click(".xs-wall-toggle");
+    await wait(300);
+    check("play button starts it again", (await state()) === "running:xsMarqL running:xsMarqR");
+    await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+    await wait(300);
+    const rm = await p.evaluate(() => [...document.querySelectorAll(".xs-wall-row")].map((r) => getComputedStyle(r.querySelector(".xs-wall-track")).animationName + "/" + getComputedStyle(r).overflowX + "/" + getComputedStyle(r.querySelector(".xs-wall-copy")).display).join(" "));
+    check("reduced motion: no animation, rows scroll by hand, no loop copy", rm === "none/auto/none none/auto/none", rm);
+    await p.evaluate(AXE);
+    await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "no-preference" }]);
+    const v = await p.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((x) => `${x.id}: ${x.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(", ")}`));
+    check("axe with the wall and S6: zero violations", !v.length, v.join(" ;; "));
+    await p.done();
+    for (const w of [320, 390, 768, 1024, 1280, 1440, 1920]) {
+      const q = await open(w);
+      const over = await q.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      check(`wall build: no sideways scroll at ${w}px`, over <= 0, `${over}px`);
+      await q.done();
+    }
+  }
+  await b.close();
+  console.log(failed ? `\n${failed} FAIL` : "\nALL PASS");
+  process.exit(failed ? 1 : 0);
+}
+
+// Live config: "Request a call back" with no topic picked files it as Not sure yet.
+{
+  const p = await open(390);
+  await p.evaluate(() => document.querySelector('[data-xs-cta="callback"]').click());
+  await wait(1600);
+  check("call-back with no topic: Not sure yet, Call me", await p.evaluate(() => document.querySelector(".xs-about strong")?.textContent === "Not sure yet" && document.querySelectorAll(".xs-seg-form button")[1].getAttribute("aria-pressed") === "true"));
+  await p.done();
+}
+
 // 1. No sideways scroll.
 for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   const p = await open(w);
@@ -75,10 +145,15 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   await p.reload({ waitUntil: "networkidle2" });
   await wait(400);
   check("page state survives a reload", (await p.$eval(".xs-about strong", (e) => e.textContent)) === "Corporate Tax");
-  // No advisors are configured yet: the "No preference" button sets advisor Any (the advisor row stays hidden).
-  await p.evaluate(() => document.querySelector('[data-xs-cta="s6_any"]').click());
-  await wait(900);
-  check("advisor row hidden while no advisors are configured", !(await p.evaluate(() => /YOUR ADVISOR/.test(document.querySelector(".xs-paper").textContent))));
+  // No advisors yet: S6 is left out, Trust shows with its office card, and the plan names the first available advisor.
+  check("live config: Trust shown, S6 and S7 gone", await p.evaluate(() => !!document.querySelector("#reviews.xs-trustsec .xs-office-card") && !document.getElementById("advisors") && !document.querySelector(".xs-s7")));
+  check("plan names the first available advisor", await p.evaluate(() => /YOUR ADVISOR\s*First available advisor/.test(document.querySelector(".xs-paper").innerText)));
+  // "Request a call back": reply by phone, keeps a picked topic, to the form.
+  await p.evaluate(() => document.querySelector('[data-xs-cta="callback"]').click());
+  await wait(1600);
+  const cb = await p.evaluate(() => ({ call: document.querySelectorAll(".xs-seg-form button")[1].getAttribute("aria-pressed"), about: document.querySelector(".xs-about strong")?.textContent, focus: document.activeElement?.id, top: Math.round(document.getElementById("plan").getBoundingClientRect().top) }));
+  check("call-back button: Call me, topic kept, scrolled to #plan, name focused", cb.call === "true" && cb.about === "Corporate Tax" && cb.focus === "xs-name" && Math.abs(cb.top) <= 4, JSON.stringify(cb));
+  check("xs_cta_click {cta_id: callback, location: trust}", (await events(p, "xs_cta_click")).some((e) => e.cta_id === "callback" && e.location === "trust"));
   await p.done();
 }
 

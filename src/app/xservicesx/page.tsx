@@ -9,7 +9,7 @@ import { Situations } from "@/components/xservicesx/Situations";
 import { Outcomes } from "@/components/xservicesx/Outcomes";
 import { HowItWorks } from "@/components/xservicesx/HowItWorks";
 import { Advisors } from "@/components/xservicesx/Advisors";
-import { Reviews } from "@/components/xservicesx/Reviews";
+import { Trust } from "@/components/xservicesx/Trust";
 import { Questions } from "@/components/xservicesx/Questions";
 import { PlanSection } from "@/components/xservicesx/PlanSection";
 import { XsFooter } from "@/components/xservicesx/Footer";
@@ -62,26 +62,26 @@ function jsonLd() {
   small client component sharing one page state (components/xservicesx/store). One form, in section 9 (#plan).
 */
 export default function XServicesPage() {
-  const showReviews = C.reviews.length > 0;
+  const hasAdvisors = C.advisors.length > 0;
   return (
     <div className={`xs ${interTight.variable}`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd() }} />
       <a className="skip-link" href="#plan">
         Skip to the form
       </a>
-      <XsHeader showReviews={showReviews} />
+      <XsHeader showReviews />
       <main id="top">
         <XsHero />
         <Worries />
         <Situations />
         <Outcomes />
         <HowItWorks />
-        <Advisors />
-        {showReviews && <Reviews />}
+        {hasAdvisors && <Advisors />}
+        <Trust withOffice={!hasAdvisors} />
         <Questions />
         <PlanSection />
       </main>
-      <XsFooter showReviews={showReviews} />
+      <XsFooter showReviews />
       <StickyBar />
     </div>
   );

@@ -24,6 +24,8 @@ const PATHS: Record<IconName, ReactNode> = {
   chevronRight: <path d="m9 6 6 6-6 6" />,
   hand: <><path d="M9 11V5a2 2 0 0 1 4 0v6" /><path d="M13 10V8a2 2 0 0 1 4 0v4a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 13.5V12a2 2 0 0 1 4 0" /></>,
   star: <path d="m12 2.5 2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17.1l-5.9 3.2 1.3-6.5-4.9-4.5 6.6-.8z" />,
+  play: <path d="M7 4l13 8-13 8z" />,
+  pause: <><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></>,
 };
 
 export function Icon({ name, size = 18, className, strokeWidth = 2 }: { name: IconName; size?: number; className?: string; strokeWidth?: number }) {
@@ -71,3 +73,27 @@ export const Silhouette = ({ className }: { className?: string }) => (
     <path d="M14 240c0-68 40-96 86-96s86 28 86 96z" fill="rgba(255,255,255,0.07)" />
   </svg>
 );
+
+/** The illustrated Business Bay map with its pin: full card art, or the compact strip for phones. */
+export function MapArt({ compact }: { compact?: boolean }) {
+  return compact ? (
+    <svg width="110" height="140" viewBox="0 0 110 140" aria-hidden="true">
+      <path d="M-5 100 C 30 86, 60 112, 115 90" stroke="#CFE0EC" strokeWidth="14" fill="none" />
+      <path d="M0 40 H110 M0 70 H110 M36 0 V140 M80 0 V140" stroke="#FFFFFF" strokeWidth="6" />
+      <path d="M55 64s10-11 10-19a10 10 0 0 0-20 0c0 8 10 19 10 19z" fill="#B9714B" />
+      <circle cx="55" cy="45" r="4" fill="#FFFFFF" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 280 270" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path d="M-10 196 C 60 170, 110 214, 170 184 S 260 150, 300 170" stroke="#CFE0EC" strokeWidth="22" fill="none" />
+      <path d="M0 70 H280 M0 128 H280 M0 240 H280 M58 0 V270 M150 0 V270 M226 0 V270" stroke="#FFFFFF" strokeWidth="9" />
+      <path d="M0 30 L280 110" stroke="#FFFFFF" strokeWidth="14" />
+      <rect x="72" y="84" width="62" height="30" rx="5" fill="#E6DCD1" />
+      <rect x="164" y="138" width="48" height="36" rx="5" fill="#E6DCD1" />
+      <rect x="72" y="138" width="62" height="34" rx="5" fill="#E6DCD1" />
+      <rect x="164" y="80" width="48" height="34" rx="5" fill="#E6DCD1" />
+      <path d="M140 116s10-11 10-19a10 10 0 0 0-20 0c0 8 10 19 10 19z" fill="#B9714B" />
+      <circle cx="140" cy="97" r="4" fill="#FFFFFF" />
+    </svg>
+  );
+}

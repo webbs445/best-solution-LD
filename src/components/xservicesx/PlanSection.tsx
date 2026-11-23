@@ -193,15 +193,13 @@ export function PlanSection() {
                     </span>
                   </>
                 )}
-                {C.advisors.length > 0 && (
-                  <>
-                    <span className="xs-k">
-                      <span className="d-only">YOUR ADVISOR</span>
-                      <span className="m-only">ADVISOR</span>
-                    </span>
-                    <span className="xs-v">{advisor?.name ?? "First available advisor"}</span>
-                  </>
-                )}
+                <>
+                  <span className="xs-k">
+                    <span className="d-only">YOUR ADVISOR</span>
+                    <span className="m-only">ADVISOR</span>
+                  </span>
+                  <span className="xs-v">{advisor?.name ?? "First available advisor"}</span>
+                </>
                 <span className="xs-k">SEND TO</span>
                 <span className={`xs-v${masked ? "" : " is-muted"}`}>
                   {s.contactPref === "whatsapp" ? "WhatsApp" : "Phone call"} · {masked ?? "your number"}

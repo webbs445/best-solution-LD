@@ -202,4 +202,4 @@ export const thanksBody = (who: string | null, pref: "whatsapp" | "call") =>
 /* Line icons (lucide shapes, stroke 2). */
 export type IconName =
   | "arrowRight" | "arrowLeftRight" | "layers" | "book" | "percent" | "help" | "check" | "lock" | "phone" | "whatsapp" | "pin"
-  | "clock" | "mail" | "send" | "user" | "file" | "plus" | "chevronLeft" | "chevronRight" | "hand" | "star";
+  | "clock" | "mail" | "send" | "user" | "file" | "plus" | "chevronLeft" | "chevronRight" | "hand" | "star" | "play" | "pause";

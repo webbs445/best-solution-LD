@@ -28,7 +28,7 @@ function pageText(): string {
   const body = html
     .replace(/<script[\s\S]*?<\/script>/g, " ")
     .replace(/<style[\s\S]*?<\/style>/g, " ")
-    .replace(/<blockquote[^>]*data-review-quote[^>]*>[\s\S]*?<\/blockquote>/g, " ")
+    .replace(/<(\w+)[^>]*data-review-quote[^>]*>[\s\S]*?<\/\1>/g, " ")
     .replace(/<[^>]+>/g, " ");
   const meta = [String((metadata.title as { absolute: string }).absolute), String(metadata.description)];
   return [body, ...attrs, ...wa, ...ld, ...meta]
@@ -44,7 +44,7 @@ describe("/xservicesx copy policy", () => {
   const around = (m: RegExpMatchArray) => `"${m[0]}" in ...${allowed.slice(Math.max(0, (m.index ?? 0) - 40), (m.index ?? 0) + 40)}...`;
 
   it("renders every section's copy", () => {
-    for (const t of ["Make the right call on your UAE company", "Which of these is on your mind?", "Pick your situation.", "In one consultation, you'll know", "Real people. Not a call centre.", "Ask us anything.", "Your plan is almost ready."])
+    for (const t of ["Make the right call on your UAE company", "Which of these is on your mind?", "Pick your situation.", "In one consultation, you'll know", "Don't take our word for it.", "Prefer to talk first?", "Ask us anything.", "Your plan is almost ready."])
       expect(text).toContain(t);
   });
 
@@ -71,5 +71,18 @@ describe("/xservicesx copy policy", () => {
       expect(html).toContain(`<dd>${f.a}</dd>`);
     }
     expect(html).toContain('"@type":"FAQPage"');
+  });
+});
+
+describe("/xservicesx with the live config", () => {
+  it("shows Trust with its office card and leaves S6 out while no advisors are set; QA fixtures are off", async () => {
+    const { XS_CONFIG } = await import("@/content/xservicesx.config");
+    expect(process.env.NEXT_PUBLIC_XS_FIXTURE).toBeUndefined();
+    expect(XS_CONFIG.reviews.map((r) => r.firstNameInitial)).toEqual(["Michael D.", "Hadi H."]);
+    const html = renderToStaticMarkup(createElement(Page));
+    expect(html).toContain('id="reviews"');
+    expect(html).toContain("Request a call back");
+    expect(html).not.toContain("Real people. Not a call centre.");
+    expect(html).not.toContain('id="xs-wall"'); // 2 reviews: one still row, no moving wall
   });
 });

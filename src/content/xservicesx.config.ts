@@ -1,4 +1,5 @@
 import { MAPS_URL, SITE } from "@/content/site";
+import { XS_FIXTURES } from "@/content/xservicesx.fixtures";
 
 /*
   /xservicesx facts. Every [bracket] in the design (design/xservicesx) comes from here. null (or an empty list) means
@@ -60,7 +61,7 @@ export const XS_CONFIG: {
   feesInWritingConfirmed: boolean;
   privacyUrl: string;
   termsUrl: string;
-} = {
+} = applyFixture({
   replyTime: null,
   consultLength: null,
   planDelivery: null,
@@ -104,4 +105,11 @@ export const XS_CONFIG: {
   feesInWritingConfirmed: false,
   privacyUrl: SITE.privacy,
   termsUrl: SITE.terms,
-};
+});
+
+/** Local QA builds only: NEXT_PUBLIC_XS_FIXTURE swaps in test advisors and reviews (content/xservicesx.fixtures). */
+function applyFixture<T extends object>(config: T): T {
+  const name = process.env.NEXT_PUBLIC_XS_FIXTURE;
+  const fixture = name ? XS_FIXTURES[name] : undefined;
+  return fixture ? { ...config, ...fixture } : config;
+}
