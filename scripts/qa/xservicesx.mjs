@@ -57,6 +57,8 @@ if (FIX !== "live") {
     const p = await open(1440);
     const r = await p.evaluate(() => ({ still: document.querySelectorAll(".xs-still .xs-rcard").length, wall: !!document.getElementById("xs-wall"), toggle: !!document.querySelector(".xs-wall-toggle") }));
     check("3 reviews: one still row of 3 cards, no moving wall, no pause button", r.still === 3 && !r.wall && !r.toggle, JSON.stringify(r));
+    const cols = await p.evaluate(() => ({ cols: getComputedStyle(document.querySelector(".xs-still")).gridTemplateColumns.split(" ").length, clamped: [...document.querySelectorAll(".xs-still .xs-rtext")].some((t) => t.scrollHeight > t.clientHeight + 1) }));
+    check("3 reviews: 3 equal columns, no text clamped", cols.cols === 3 && !cols.clamped, JSON.stringify(cols));
     await p.done();
   }
   if (FIX === "full") {
@@ -64,6 +66,7 @@ if (FIX !== "live") {
     const s = await p.evaluate(() => ({ s6: !!document.getElementById("advisors"), office: !!document.querySelector(".xs-trustsec .xs-office-card"), rows: document.querySelectorAll("#xs-wall .xs-wall-row").length, cards: [...document.querySelectorAll("#xs-wall .xs-wall-row")].map((r) => r.querySelectorAll(".xs-wall-track > .xs-rcard").length), copies: [...document.querySelectorAll("#xs-wall .xs-wall-copy")].every((c) => c.getAttribute("aria-hidden") === "true") }));
     check("1 advisor: S6 returns and Trust drops its office card", s.s6 && !s.office, JSON.stringify(s));
     check("8 reviews: two-row wall, reviews split 4 and 4, loop copies aria-hidden", s.rows === 2 && s.cards.join() === "4,4" && s.copies, JSON.stringify(s));
+    check("plan button row visible under the wall", await p.evaluate(() => !!document.querySelector('[data-xs-cta="trust_plan"]')?.offsetParent && document.querySelector(".xs-trust-cta").innerText.includes("Join them.")));
     const state = () => p.evaluate(() => [...document.querySelectorAll(".xs-wall-track")].map((t) => getComputedStyle(t).animationPlayState + ":" + getComputedStyle(t).animationName).join(" "));
     await p.evaluate(() => document.getElementById("xs-wall").scrollIntoView({ behavior: "instant", block: "center" }));
     await p.mouse.move(5, 5);
@@ -85,7 +88,7 @@ if (FIX !== "live") {
     await p.click(".xs-wall-toggle");
     await wait(300);
     const lab = await p.$eval(".xs-wall-toggle", (b) => b.getAttribute("aria-label"));
-    check("pause button stops the wall and offers Play", !(await state()).includes("running") && lab === "Play the moving reviews", lab);
+    check("pause button stops the wall and offers Play", !(await state()).includes("running") && lab === "Play reviews", lab);
     await p.click(".xs-wall-toggle");
     await wait(300);
     check("play button starts it again", (await state()) === "running:xsMarqL running:xsMarqR");
@@ -119,6 +122,24 @@ if (FIX !== "live") {
   await p.done();
 }
 
+
+// Live config (2 reviews): a still row of 2 equal columns across the full content width, every review in full;
+// the plan button row under the office card at 1024 and 1440.
+for (const w of [1024, 1440]) {
+  const p = await open(w);
+  const r = await p.evaluate(() => {
+    const row = document.querySelector(".xs-still"), wrap = row.parentElement, cs = getComputedStyle(wrap);
+    const inner = wrap.getBoundingClientRect().width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const cards = [...row.querySelectorAll(".xs-rcard")].map((c) => Math.round(c.getBoundingClientRect().width));
+    const clamped = [...row.querySelectorAll(".xs-rtext")].some((t) => t.scrollHeight > t.clientHeight + 1 || getComputedStyle(t).webkitLineClamp !== "none");
+    const cta = document.querySelector('[data-xs-cta="trust_plan"]'), note = cta?.nextElementSibling;
+    return { rowW: Math.round(row.getBoundingClientRect().width), inner: Math.round(inner), cards, clamped, cta: !!cta?.offsetParent, note: note?.offsetParent ? note.textContent : "" };
+  });
+  check(`2 reviews at ${w}px: 2 equal columns across the full width`, r.cards.length === 2 && Math.abs(r.rowW - r.inner) <= 1 && Math.abs(r.cards[0] - r.cards[1]) <= 1 && r.cards[0] > r.inner / 2 - 20, JSON.stringify(r));
+  check(`2 reviews at ${w}px: no text clamped`, !r.clamped);
+  check(`plan button row visible at ${w}px`, r.cta && r.note === "Join them. 2 minutes · no obligation", r.note);
+  await p.done();
+}
 // 1. No sideways scroll.
 for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   const p = await open(w);

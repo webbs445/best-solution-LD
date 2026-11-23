@@ -285,40 +285,47 @@
 .xs .xs-round {width:44px;height:44px;border-radius:50%;border:1.5px solid var(--border-2);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
 .xs .xs-round:hover {background:var(--navy);border-color:var(--navy);color:#fff}
 
-/* ─── Trust (white): reviews wall and office card; replaces S7 ─── */
+/* ─── Trust (white, design 06-Trust): reviews and office card; replaces S7 ─── */
 .xs .xs-trustsec {background:#fff}
 .xs .xs-trust-head {display:flex;flex-direction:column;gap:10px}
 .xs .xs-trust-head > div:first-child {display:flex;flex-direction:column;gap:10px}
-.xs .xs-trust-head p {font-size:15px;color:var(--muted)}
+.xs .xs-trust-head p {font-size:15px;color:var(--ink)}
 .xs .xs-trust-pill {display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin-top:12px}
 .xs .xs-trust-rating {display:inline-flex;align-items:center;gap:8px}
 .xs .xs-trust-rating b {font:800 18px var(--head)}
 .xs .xs-trust-rating > span:last-child {font-size:13px;color:var(--muted)}
-.xs .xs-rcard {flex:none;display:flex;flex-direction:column;gap:12px;background:#fff;border:1.5px solid #EDE3D9;border-radius:18px;padding:18px}
+/* Link with the short copper underline that grows on hover (design .bs-link). */
+.xs .xs-ulink {position:relative;display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:15px;font-weight:600;color:var(--navy);text-decoration:none}
+.xs .xs-ulink::after {content:"";position:absolute;left:0;bottom:8px;height:2px;width:32%;background:var(--copper);transition:width .25s}
+.xs .xs-ulink:hover::after,.xs .xs-ulink:focus-visible::after {width:100%}
+.xs .xs-rcard {flex:none;display:flex;flex-direction:column;gap:12px;background:var(--cream);border-radius:20px;padding:20px;transition:background .2s,box-shadow .2s,transform .2s}
 .xs .xs-rcard-top {display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:22px}
-.xs .xs-rtag {font-size:11px;font-weight:700;color:var(--copper-ink);background:var(--tint);padding:4px 10px;border-radius:999px}
-.xs .xs-rtext {font-size:15px;line-height:1.55;color:var(--navy);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
-.xs .xs-rby {display:flex;align-items:center;gap:10px;margin-top:auto}
-.xs .xs-rby > span:last-child {display:flex;flex-direction:column}
+.xs .xs-rcard-tags {display:inline-flex;align-items:center;gap:10px}
+.xs .xs-rtag {font-size:11px;font-weight:600;color:var(--copper-ink);background:var(--tint);padding:3px 9px;border-radius:999px}
+.xs .xs-rtext {font-size:15px;line-height:1.55;color:var(--navy)}
+.xs .xs-rcard.is-swipe .xs-rtext,.xs .xs-rcard.is-wall .xs-rtext {display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.xs .xs-rby {display:flex;align-items:center;gap:10px;margin-top:auto;flex-wrap:wrap}
 .xs .xs-rby b {font-size:14px}
 .xs .xs-rby small {font-size:12px;color:var(--muted)}
-.xs .xs-rinitial {flex:none;width:40px;height:40px;border-radius:50%;background:var(--navy);color:var(--copper-l);display:inline-flex;align-items:center;justify-content:center;font:800 16px var(--head)}
+.xs .xs-rinitial {flex:none;width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--copper-l);display:inline-flex;align-items:center;justify-content:center;font:800 13px var(--head)}
+.xs .xs-rmark {font:800 64px/.6 var(--head);color:var(--copper);height:28px}
 .xs .xs-swipe {display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:18px calc(-1 * var(--gut)) 0;padding:0 var(--gut) 6px;scrollbar-width:none}
 .xs .xs-swipe::-webkit-scrollbar {display:none}
 .xs .xs-swipe .xs-rcard {flex:0 0 84%;scroll-snap-align:start}
 .xs .xs-swipe-hint {margin-top:6px;font-size:13px;color:var(--muted)}
 .xs .xs-office-card {margin-top:24px;display:flex;flex-direction:column;background:var(--cream);border:1px solid var(--border);border-radius:22px;overflow:hidden}
-.xs .xs-oc-map {position:relative;background:#F1EAE2;min-height:220px}
+.xs .xs-oc-map {position:relative;background:#F1EAE2;min-height:210px}
 .xs .xs-oc-map svg {position:absolute;inset:0;width:100%;height:100%}
 .xs .xs-oc-visit,.xs .xs-oc-call {display:flex;flex-direction:column;gap:8px;padding:20px}
-.xs .xs-oc-visit b {font-size:17px;line-height:1.35}
-.xs .xs-oc-visit .xs-link {align-self:flex-start}
+.xs .xs-oc-visit > b {font-size:17px;line-height:1.35}
+.xs .xs-oc-visit .xs-ulink {align-self:flex-start}
 .xs .xs-oc-line {display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
 .xs .xs-oc-line svg {flex:none;color:var(--copper-d)}
 .xs .xs-oc-call {border-top:1px solid var(--border);gap:14px}
 .xs .xs-oc-call p {font-size:15px;line-height:1.5;color:var(--ink)}
 .xs .xs-oc-call strong {color:var(--navy)}
-.xs .xs-trust-cta {margin-top:20px}
+.xs .xs-trust-cta {margin-top:20px;display:flex;align-items:center;gap:22px}
+.xs .xs-trust-cta > span {font-size:15px;color:var(--muted)}
 @keyframes xsMarqL {from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @keyframes xsMarqR {from{transform:translateX(-50%)}to{transform:translateX(0)}}
 /* ─── 8 · Questions (cream) ─── */
@@ -655,28 +662,46 @@
   .xs .xs-nopref .xs-btn {flex:none}
 
 
-  .xs .xs-trust-head {flex-direction:row;justify-content:space-between;align-items:flex-end;gap:24px}
+  .xs .xs-trust-head {flex-direction:row;justify-content:space-between;align-items:flex-end;gap:40px}
   .xs .xs-trust-head > div:first-child {gap:12px}
   .xs .xs-trust-head p {font-size:17px}
   .xs .xs-trust-meta {display:flex;align-items:center;gap:18px;flex:none}
-  .xs .xs-trust-rating b {font-size:22px}
-  .xs .xs-trust-rating > span:last-child {font-size:14px}
-  .xs .xs-wall {margin-top:36px;display:flex;flex-direction:column;gap:16px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
-  .xs .xs-wall-row {overflow:hidden;padding-block:4px}
+  .xs .xs-trust-score {font:800 64px/1 var(--head);letter-spacing:-.03em}
+  .xs .xs-trust-meta-col {display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+  .xs .xs-trust-meta-col .xs-ulink {font-size:14px;align-self:flex-start;min-height:32px}
+  .xs .xs-trust-meta-col .xs-ulink::after {bottom:4px}
+  .xs .xs-wall-toggle {width:44px;height:44px;margin-left:10px}
+  /* Faded edges 120 px wide, as in the design. */
+  .xs .xs-wall {margin-top:40px;display:flex;flex-direction:column;gap:16px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 120px,#000 calc(100% - 120px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 120px,#000 calc(100% - 120px),transparent 100%)}
+  .xs .xs-wall-row {overflow:hidden;padding-block:6px}
   /* Both halves end with the same gap, so translating by half the track loops without a jump. */
   .xs .xs-wall-track {display:flex;gap:16px;width:max-content;padding-right:16px;animation:xsMarqL 60s linear infinite}
   .xs .xs-wall-row.is-right .xs-wall-track {animation-name:xsMarqR;animation-duration:70s}
   .xs .xs-wall-copy {display:flex;gap:16px}
   .xs .xs-wall:hover .xs-wall-track,.xs .xs-wall:focus-within .xs-wall-track,.xs .xs-wall.is-paused .xs-wall-track {animation-play-state:paused}
-  .xs .xs-wall .xs-rcard {width:360px;padding:22px}
-  .xs .xs-rtext {-webkit-line-clamp:3;font-size:16px}
-  .xs .xs-still {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:36px}
-  .xs .xs-still .xs-rcard {padding:22px}
-  .xs .xs-office-card {margin-top:40px;display:grid;grid-template-columns:minmax(220px,280px) minmax(0,1fr) minmax(0,1fr)}
+  .xs .xs-rcard.is-wall {width:380px;height:196px;padding:22px 24px}
+  .xs .xs-rcard.is-wall .xs-rtext {-webkit-line-clamp:3}
+  .xs .xs-rcard.is-wall:hover,.xs .xs-rcard.is-wall:focus-visible {background:#fff;box-shadow:0 22px 40px -28px rgba(20,33,61,.45),0 0 0 1px var(--border);transform:translateY(-3px)}
+  /* Still row: equal columns across the full width, each review in full. */
+  .xs .xs-still {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:40px}
+  .xs .xs-still.is-two {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .xs .xs-rcard.is-still {padding:30px 32px 26px;gap:18px;border-radius:24px}
+  .xs .xs-rcard.is-still .xs-rtext {font:700 22.5px/1.38 var(--head);letter-spacing:-.01em}
+  .xs .xs-rcard.is-still .xs-rinitial {width:40px;height:40px;font-size:15px}
+  .xs .xs-rcard.is-still .xs-rby b {font-size:15px}
+  .xs .xs-rcard.is-still .xs-rby small {font-size:13px}
+  .xs .xs-office-card {margin-top:40px;display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr) minmax(300px,420px);border-radius:24px;min-height:210px;background:#fff}
   .xs .xs-oc-map {min-height:100%}
-  .xs .xs-oc-visit,.xs .xs-oc-call {padding:28px 32px;justify-content:center}
-  .xs .xs-oc-call {border-top:0;border-left:1px solid var(--border)}
-  .xs .xs-oc-call .xs-btn {align-self:flex-start}
+  .xs .xs-oc-visit,.xs .xs-oc-call {padding:30px 34px}
+  .xs .xs-oc-visit {gap:6px}
+  .xs .xs-oc-visit > b {font:800 24px/1.2 var(--head)}
+  .xs .xs-oc-line {display:block;font-size:15px}
+  .xs .xs-oc-visit .xs-ulink {margin-top:auto}
+  .xs .xs-oc-call {border-top:0;background:var(--tint-2);gap:8px}
+  .xs .xs-oc-call > b {font-size:18px}
+  .xs .xs-oc-call .xs-btn {align-self:flex-start;margin-top:auto}
+  .xs .xs-trust-cta {margin-top:40px}
+  .xs .xs-trust-cta .xs-btn {width:auto}
   .xs .xs-s8-grid {grid-template-columns:minmax(0,1fr) minmax(0,560px);gap:clamp(48px,6vw,80px);align-items:center}
   .xs .xs-s8-left {gap:28px}
   .xs .xs-s8 .xs-head {gap:12px}

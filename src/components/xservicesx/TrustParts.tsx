@@ -12,7 +12,7 @@ export function WallToggle() {
       type="button"
       className="xs-round xs-wall-toggle"
       aria-controls="xs-wall"
-      aria-label={paused ? "Play the moving reviews" : "Pause the moving reviews"}
+      aria-label={paused ? "Play reviews" : "Pause reviews"}
       onClick={() => {
         const next = !paused;
         setPaused(next);
