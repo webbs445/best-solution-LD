@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { HERO_PLANS, HERO_PREPARED, TOPICS, TOPIC_IDS, isTopic } from "@/content/xservicesx";
 import { setXs, useXs, xsTrack } from "./store";
 import { XsCta } from "./XsCta";
@@ -53,7 +54,9 @@ export function HeroCard() {
           <span />
         </div>
         <div className="xs-hcard-by">
-          <span className="xs-hcard-av" aria-hidden="true" />
+          <span className="xs-hcard-av">
+            <Image src="/brand/icon-mark.webp" alt="Best Solution" width={20} height={28} loading="eager" />
+          </span>
           <span>{HERO_PREPARED}</span>
         </div>
         <XsCta id="hero_card" location="hero" variant="dark" set={{ topic }} source="hero" className="xs-block" arrow={false}>

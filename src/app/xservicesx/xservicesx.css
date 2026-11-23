@@ -94,7 +94,8 @@
 .xs .xs-hcard-lines span {height:10px;border-radius:5px;background:#F0E8E0}
 .xs .xs-hcard-lines span:last-child {width:78%}
 .xs .xs-hcard-by {display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
-.xs .xs-hcard-av {flex:none;width:36px;height:36px;border-radius:50%;background:#E9DCCF}
+.xs .xs-hcard-av {flex:none;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px var(--border),0 4px 10px -6px rgba(20,33,61,.35);display:inline-flex;align-items:center;justify-content:center}
+.xs .xs-hcard-av img {width:20px;height:auto}
 .xs .xs-hcard .xs-dark {font-size:17px;font-weight:700;padding:16px}
 .xs .xs-hcard-note {font-size:12px;color:var(--muted-2);text-align:center}
 
