@@ -1,9 +1,8 @@
-import { LEAD_RULES } from "@/lib/lead";
-import { PHONE_COUNTRIES, toE164Phone, type PhoneCountry } from "@/lib/phone";
+import { PHONE_COUNTRIES, type PhoneCountry } from "@/lib/phoneCountries";
 import { TOPICS, WORRIES, isTopic } from "@/content/xservicesx";
 import { XS_CONFIG } from "@/content/xservicesx.config";
 
-/* The /xservicesx form's field rules, shared by the form (instant feedback) and /api/services-plan (checked again there). */
+/* The /xservicesx form's field rules, shared by the form and /api/services-plan. No phone library here: the full check is lib/servicesPlanCheck. */
 
 export type PlanField = "name" | "phone" | "email";
 export interface PlanValues {
@@ -30,19 +29,6 @@ export function planPhoneError(c: PhoneCountry): string {
   return name
     ? `This doesn't look like a ${name} mobile number. Check it, or change the country.`
     : "This doesn't look like a full number with its country code. Check it, or change the country.";
-}
-
-/** Each field's error message (empty when fine), and the number in E.164 when it is valid. */
-export function checkPlan(v: PlanValues, country: PhoneCountry): { errors: Partial<Record<PlanField, string>>; e164: string | null } {
-  const e164 = toE164Phone(v.phone, country);
-  const errors: Partial<Record<PlanField, string>> = {};
-  if (!v.name.trim()) errors.name = PLAN_ERRORS.nameEmpty;
-  else if (!nameOk(v.name)) errors.name = PLAN_ERRORS.nameBad;
-  if (!v.phone.trim()) errors.phone = PLAN_ERRORS.phoneEmpty;
-  else if (!e164) errors.phone = planPhoneError(country);
-  if (!v.email.trim()) errors.email = PLAN_ERRORS.emailEmpty;
-  else if (!LEAD_RULES.email_id(v.email)) errors.email = PLAN_ERRORS.emailBad;
-  return { errors, e164 };
 }
 
 /** "+971 50 ••• 67": the country code, the first two and the last two digits of what was typed. */

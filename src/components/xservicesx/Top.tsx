@@ -42,7 +42,7 @@ export function XsHero() {
         <div className="xs-hero-copy">
           <span className="xs-pill">Private business advisors · Business Bay, Dubai</span>
           <h1 id="xsTitle">
-            Make the right call on your UAE company, <span className="xs-copper">before you spend a dirham.</span>
+            Make the right call on your UAE company, <span className="xs-copper">before you spend anything.</span>
           </h1>
           <p className="xs-hero-sub">
             Free zone or mainland? What will year two really cost? Tell us your plan, and an advisor sends you a clear answer, in writing.

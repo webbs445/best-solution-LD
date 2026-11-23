@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MODE_NOTE, S5_CALL, S5_CALL_SHORT, S5_CHIPS, S5_STEP3_LABEL, S5_SUB, S5_TITLE, S5_YOUR_CALL } from "@/content/xservicesx";
-import { XS_CONFIG as C } from "@/content/xservicesx.config";
+import { MODE_NOTE, S5_ADVISOR, S5_CALL, S5_CALL_SHORT, S5_CHIPS, S5_STEP3_LABEL, S5_SUB, S5_TITLE, S5_YOUR_CALL } from "@/content/xservicesx";
 import { setXs, useXs, xsTrack } from "./store";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
@@ -17,7 +16,6 @@ export function HowItWorks() {
   const s = useXs();
   const [step, setStep] = useState(0);
   const ref = useRef<HTMLElement>(null);
-  const advisor = C.advisors[0];
 
   useEffect(() => {
     const el = ref.current;
@@ -103,19 +101,15 @@ export function HowItWorks() {
                 <span className="d-only">{S5_CALL}</span>
                 <span className="m-only">{S5_CALL_SHORT}</span>
               </p>
-              {advisor && (
-                <div className="xs-step-adv">
-                  <span className="xs-adv-dot" aria-hidden="true">
-                    <Icon name="user" size={20} />
-                  </span>
-                  <span>
-                    <b>{advisor.name}</b>
-                    <small>
-                      {advisor.role} · {advisor.languages}
-                    </small>
-                  </span>
-                </div>
-              )}
+              <div className="xs-step-adv">
+                <span className="xs-adv-dot" aria-hidden="true">
+                  <Icon name="user" size={20} />
+                </span>
+                <span>
+                  <b>{S5_ADVISOR.name}</b>
+                  <small>{S5_ADVISOR.meta}</small>
+                </span>
+              </div>
               <div className="xs-seg" role="group" aria-label="How to meet">
                 {(["video", "office"] as const).map((m) => (
                   <button key={m} type="button" aria-pressed={mode === m} onClick={() => (setXs({ consultMode: m }), setStep(1))}>

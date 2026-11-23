@@ -2,8 +2,8 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { SERVICES_PLAN_FORM_ID, TRAP_FIELD } from "@/lib/lead";
-import { DEFAULT_PHONE_COUNTRY, PHONE_COUNTRIES, type PhoneCountry } from "@/lib/phone";
-import { checkPlan, maskPhone, nameOk, type PlanField } from "@/lib/servicesPlan";
+import { DEFAULT_PHONE_COUNTRY, PHONE_COUNTRIES, type PhoneCountry } from "@/lib/phoneCountries";
+import { maskPhone, nameOk, type PlanField } from "@/lib/servicesPlan";
 import { genEventId, isConfirmedLeadResponse } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { pushXsLead } from "@/lib/xsAnalytics";
@@ -15,6 +15,9 @@ import { BtnArrow, Icon } from "./ui";
 import { XsWhatsApp } from "./XsCta";
 
 type Status = "idle" | "sending" | "sent" | "error";
+type Checker = typeof import("@/lib/servicesPlanCheck");
+/** The number check needs libphonenumber-js (about 30 KB): loaded when the visitor reaches the form, not with the page. */
+const loadChecker = () => import("@/lib/servicesPlanCheck");
 const FIELD_ID: Record<PlanField, string> = { name: "xs-name", phone: "xs-phone", email: "xs-email" };
 const RING = 182.2;
 
@@ -32,6 +35,8 @@ export function PlanSection() {
   const [email, setEmail] = useState("");
   const [country, setCountry] = useState<PhoneCountry>(DEFAULT_PHONE_COUNTRY);
   const [picking, setPicking] = useState(false);
+  const [checker, setChecker] = useState<Checker | null>(null);
+  const getChecker = async () => checker ?? loadChecker().then((m) => (setChecker(m), m));
   const started = useRef(false);
   const sentOnce = useRef(false);
   const honeypot = useRef<HTMLInputElement>(null);
@@ -40,7 +45,7 @@ export function PlanSection() {
   const sent = status === "sent";
   const firstName = name.trim().split(/\s+/)[0] ?? "";
   const nameValid = nameOk(name);
-  const phoneValid = !checkPlan({ name: "", phone, email: "" }, country).errors.phone;
+  const phoneValid = !!checker && !checker.checkPlan({ name: "", phone, email: "" }, country).errors.phone;
   const pct = sent ? 1 : 0.6 + (nameValid ? 0.2 : 0) + (phoneValid ? 0.2 : 0);
   const dial = PHONE_COUNTRIES.find((c) => c.code === country)?.dial ?? "";
   const masked = maskPhone(phone, dial);
@@ -56,7 +61,7 @@ export function PlanSection() {
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (status === "sending" || sent) return;
-    const { errors: bad, e164 } = checkPlan({ name, phone, email }, country);
+    const { errors: bad, e164 } = (await getChecker()).checkPlan({ name, phone, email }, country);
     setErrors(bad);
     const fields = Object.keys(bad) as PlanField[];
     if (fields.length || !e164) {
@@ -161,6 +166,8 @@ export function PlanSection() {
                         </button>
                       )}
                     </>
+                  ) : sent ? (
+                    <strong>{TOPICS.not_sure.short}</strong>
                   ) : (
                     showTopicChips && (
                       <span className="xs-about-chips" role="group" aria-label="What your plan is about">
@@ -233,6 +240,7 @@ export function PlanSection() {
                 data-track={SERVICES_PLAN_FORM_ID}
                 onFocus={() => {
                   if (started.current) return;
+                  void getChecker();
                   started.current = true;
                   xsTrack("xs_form_start");
                 }}

@@ -27,7 +27,7 @@ export function XsFooter({ showReviews }: { showReviews: boolean }) {
           <div className="xs-fbrand">
             <b>Best Solution</b>
             <p>
-              Private business advisors in Business Bay, Dubai.<span className="d-only"> Clear answers, in writing, before you spend a dirham.</span>
+              Private business advisors in Business Bay, Dubai.<span className="d-only"> Clear answers, in writing, before you spend anything.</span>
             </p>
             <XsWhatsApp location="footer" className="xs-fwa d-only">
               <Icon name="whatsapp" size={18} />

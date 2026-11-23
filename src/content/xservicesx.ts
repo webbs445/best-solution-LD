@@ -33,7 +33,7 @@ export const TOPIC_SERVICE: Record<TopicId, string | undefined> = {
 
 export const PLAN_CTA = "Get my written plan";
 export const CTA_NOTE = "2 minutes · no obligation";
-export const FEES_NEUTRAL = "We agree our fees with you before any work starts.";
+export const FEES_NEUTRAL = "We agree our fees with you before any work begins.";
 export const DISCLAIMER =
   "Best Solution is a private business consultancy in Business Bay, Dubai. We are not a government office or a free zone authority.";
 
@@ -66,7 +66,7 @@ export const WORRIES: { text: string; textShort: string; lead: string; rest: str
   { text: "What costs show up in year two that nobody mentioned?", textShort: "What costs show up in year two?", lead: "Year one and every year after,", rest: "shown upfront, before you commit.", leadShort: "Year one and after,", restShort: "shown upfront.", tag: "What will year two cost?" },
   { text: "Something else. I'll tell the advisor.", textShort: "Something else. I'll tell the advisor.", lead: "Tell us in your own words,", rest: "in the form or on WhatsApp, and an advisor gives you a clear answer.", leadShort: "Tell us in your own words,", restShort: "and get a clear answer.", tag: "Something else" },
 ];
-export const S2_ADVISOR_LINE = advisorName ? `${advisorName} answers these every day` : null;
+export const S2_ADVISOR_LINE = `${advisorName ?? "Best Solution advisors"} answer${advisorName ? "s" : ""} these every day`;
 
 /* ─── S3 situations ─── */
 export const S3_BIG = {
@@ -89,8 +89,8 @@ export const OUTCOMES: { title: string; sub: string; subShort: string }[] = [
   { title: "What to prepare", sub: "as a simple checklist", subShort: "as a simple checklist" },
   { title: "How long it takes", sub: "realistically, step by step", subShort: "realistically, step by step" },
   C.feesInWritingConfirmed
-    ? { title: "What our help costs", sub: "confirmed in writing before any work starts", subShort: "in writing, before any work" }
-    : { title: "What our help costs", sub: "agreed with you before any work starts", subShort: "agreed before any work" },
+    ? { title: "What our help costs", sub: "confirmed in writing before any work begins", subShort: "in writing, before any work" }
+    : { title: "What our help costs", sub: "agreed with you before any work begins", subShort: "agreed before any work" },
 ];
 export const S4_FEES_LINE = C.feesInWritingConfirmed ? "Confirmed in writing, before any work" : "Agreed with you, before any work";
 export const S4_DELIVERY = C.planDelivery ? `Sent to your WhatsApp within ${C.planDelivery} of the call` : null;
@@ -104,7 +104,7 @@ export const S5_CALL_SHORT = C.consultLength ? `A ${C.consultLength} call. Ask a
 export const S5_STEP3_LABEL = C.planDelivery ? `WITHIN ${C.planDelivery.toUpperCase()}` : null;
 export const S5_YOUR_CALL = C.feesInWritingConfirmed
   ? "Go ahead with us, with fees agreed in writing first. Or take the plan and do it yourself."
-  : "Go ahead with us, and we agree our fees with you before any work starts. Or take the plan and do it yourself.";
+  : "Go ahead with us, and we agree our fees with you before any work begins. Or take the plan and do it yourself.";
 export const S5_CHIPS: { topic: TopicId; label: string }[] = [
   { topic: "new_company", label: "New company" },
   { topic: "fz_or_mainland", label: "Free zone or mainland" },
@@ -113,6 +113,10 @@ export const S5_CHIPS: { topic: TopicId; label: string }[] = [
   { topic: "corporate_tax", label: "Corporate Tax" },
   { topic: "not_sure", label: "Something else" },
 ];
+/** Step 2's advisor row: the first advisor, or the team until advisors are confirmed. */
+export const S5_ADVISOR = C.advisors[0]
+  ? { name: C.advisors[0].name, meta: `${C.advisors[0].role} · ${C.advisors[0].languages}` }
+  : { name: "Best Solution advisors", meta: "Video call or our Business Bay office" };
 export const MODE_NOTE = { video: "We send you a link. Join from anywhere.", office: "Coffee at our office in Business Bay." };
 
 /* ─── S6 ─── */
@@ -129,8 +133,8 @@ export const FAQ_GROUPS: { label: string; qs: { id: string; q: string; qShort: s
         q: "Do I pay for the consultation?",
         qShort: "Do I pay for the consultation?",
         preview: "No. The call and your written plan cost nothing.",
-        a: "No. The call and your written plan cost you nothing. If you want our help after that, we agree our fees with you before any work starts.",
-        aShort: "No. The call and your written plan cost you nothing. If you want our help after that, we agree our fees with you before any work starts.",
+        a: "No. The call and your written plan cost you nothing. If you want our help after that, we agree our fees with you before any work begins.",
+        aShort: "No. The call and your written plan cost you nothing. If you want our help after that, we agree our fees with you before any work begins.",
       },
       {
         id: "costs_least",
@@ -186,7 +190,7 @@ export const FAQ_GROUPS: { label: string; qs: { id: string; q: string; qShort: s
   },
 ];
 export const FAQS = FAQ_GROUPS.flatMap((g) => g.qs);
-export const CHAT_TITLE = advisorName ? `${advisorName} · Best Solution` : "Best Solution";
+export const CHAT_TITLE = advisorName ? `${advisorName} · Best Solution` : "Best Solution advisors";
 export const CHAT_REPLIES = C.replyTime ? `Usually replies within ${C.replyTime}` : null;
 export const CHAT_GREETING = advisorName ? `Hi, I'm ${advisorName}. Ask me anything about your company plan.` : "Hi. Ask us anything about your company plan.";
 

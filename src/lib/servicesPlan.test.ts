@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { checkPlan, choiceRows, maskPhone, nameOk, planPhoneError } from "./servicesPlan";
+import { choiceRows, maskPhone, nameOk, planPhoneError } from "./servicesPlan";
+import { checkPlan } from "./servicesPlanCheck";
 import { HERO_PLANS, TOPICS, TOPIC_IDS, TOPIC_SERVICE, isTopic, waLink } from "@/content/xservicesx";
 import { XS_CONFIG } from "@/content/xservicesx.config";
 import { cleanState } from "@/components/xservicesx/store";

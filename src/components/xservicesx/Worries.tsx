@@ -47,12 +47,12 @@ export function Worries() {
           })}
         </div>
         <div className="xs-answer">
-          {S2_ADVISOR_LINE && (
-            <div className="xs-answer-by">
-              <span className="xs-answer-av" aria-hidden="true" />
-              <span>{S2_ADVISOR_LINE}</span>
-            </div>
-          )}
+          <div className="xs-answer-by">
+            <span className="xs-answer-av" aria-hidden="true">
+              <Icon name="user" size={18} />
+            </span>
+            <span>{S2_ADVISOR_LINE}</span>
+          </div>
           <h3>
             <span className="d-only">{n ? "Here's how we sort that out," : "That's exactly what we sort out,"}</span>
             <span className="m-only">{n ? "Here's how we sort that out," : "That's what we sort out,"}</span>{" "}

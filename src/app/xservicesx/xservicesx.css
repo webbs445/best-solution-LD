@@ -37,7 +37,7 @@
 /* ─── Buttons (00-Buttons): primary, dark, ghost, link, chip ─── */
 .xs .xs-btn {display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 10px 0 24px;border-radius:14px;border:0;font:600 16px/1.2 var(--font-inter),sans-serif;text-decoration:none;cursor:pointer;text-align:center;transition:background .2s,transform .2s,box-shadow .2s,border-color .2s,color .2s}
 .xs .xs-primary {background:var(--copper-h);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
-.xs .xs-primary:hover {background:var(--copper-d);transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 14px 26px -14px rgba(168,98,62,.8)}
+.xs .xs-primary:hover {background:#94532F;transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 14px 26px -14px rgba(168,98,62,.8)}
 .xs .xs-dark {background:var(--navy);color:#fff}
 .xs .xs-dark:hover {background:#0C1630;transform:translateY(-1px);box-shadow:0 14px 26px -14px rgba(20,33,61,.7)}
 .xs .xs-ghost {background:#fff;color:var(--navy);border:1.5px solid var(--border-2);padding:0 22px;gap:10px}
@@ -109,7 +109,7 @@
 .xs .xs-worry[aria-pressed="true"] .xs-box {background:var(--copper);border-color:var(--copper)}
 .xs .xs-answer {background:var(--navy);color:#fff;border-radius:22px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;min-height:420px}
 .xs .xs-answer-by {display:flex;align-items:center;gap:10px;font-size:13px;color:var(--on-navy)}
-.xs .xs-answer-av {flex:none;width:36px;height:36px;border-radius:50%;background:var(--navy-2);border:2px solid var(--copper-l)}
+.xs .xs-answer-av {flex:none;width:36px;height:36px;border-radius:50%;background:var(--navy-2);border:2px solid var(--copper-l);display:inline-flex;align-items:center;justify-content:center;color:var(--copper-l)}
 .xs .xs-answer h3 {font-size:22px;line-height:1.2}
 .xs .xs-answer ul {display:flex;flex-direction:column;gap:4px}
 .xs .xs-answer li {display:flex;gap:10px;align-items:flex-start;padding:6px 8px;margin:0 -8px;border-radius:10px;font-size:15px;line-height:1.45;color:#E6EAF1}
@@ -217,7 +217,7 @@
 .xs .xs-step-adv {display:flex;align-items:center;gap:10px}
 .xs .xs-step-adv > span:last-child {display:flex;flex-direction:column}
 .xs .xs-step-adv b {font-size:14px}
-.xs .xs-step-adv small {font-size:12px;color:var(--on-navy-m)}
+.xs .xs-step-adv small {font-size:12px;color:var(--on-navy)}
 .xs .xs-adv-dot {flex:none;width:38px;height:38px;border-radius:50%;background:var(--navy-2);border:2px solid var(--copper-l);display:inline-flex;align-items:center;justify-content:center;color:var(--copper-l)}
 .xs .xs-seg {display:flex;gap:4px;padding:4px;border-radius:12px;background:rgba(255,255,255,.06)}
 .xs .xs-seg button {flex:1;min-height:44px;border:0;border-radius:9px;background:transparent;color:var(--on-navy);font-size:13px;font-weight:600;cursor:pointer;transition:background .2s,color .2s}
