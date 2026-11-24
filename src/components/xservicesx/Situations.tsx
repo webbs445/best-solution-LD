@@ -94,16 +94,17 @@ export function Situations() {
               </h3>
               {c.topic === "fz_or_mainland" && <FzExplainButton />}
               {c.topic === "fz_or_mainland" ? <FzExplainInCard what={c.what} /> : <p className="d-only">{c.what}</p>}
+              {/* The card's buttons go to its service page (links, not the plan pop-up); consultation_cta_click keeps the id. */}
               <div className="xs-small-foot">
                 <a className="xs-link d-only" href={C.servicePages[c.topic as keyof typeof C.servicePages]}>
                   {c.page} <span aria-hidden="true">→</span>
                 </a>
-                <XsCta id={c.ctaId} location="s3" variant="chip" set={{ topic: c.topic }} source="s3" className="d-only">
+                <a className="xs-btn xs-chip d-only" href={C.servicePages[c.topic as keyof typeof C.servicePages]} data-cta-location={c.ctaId}>
                   {c.cta}
-                </XsCta>
-                <XsCta id={c.ctaId} location="s3" variant="chip" set={{ topic: c.topic }} source="s3" className="m-only xs-tile-act">
+                </a>
+                <a className="xs-btn xs-chip m-only xs-tile-act" href={C.servicePages[c.topic as keyof typeof C.servicePages]} data-cta-location={c.ctaId}>
                   {c.ctaShort} <span aria-hidden="true">→</span>
-                </XsCta>
+                </a>
               </div>
             </article>,
             c.topic === "holding" && <FzExplainRow key="explain-row" />,

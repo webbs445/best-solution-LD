@@ -78,14 +78,14 @@ if (FIX !== "live") {
     check("1 advisor: S6 returns and Trust drops its office card", s.s6 && !s.office, JSON.stringify(s));
     check("8 reviews: two-row wall, reviews split 4 and 4, loop copies aria-hidden", s.rows === 2 && s.cards.join() === "4,4" && s.copies, JSON.stringify(s));
     check("plan button row visible under the wall", await p.evaluate(() => !!document.querySelector('[data-xs-cta="trust_plan"]')?.offsetParent && document.querySelector(".xs-trust-cta").textContent.includes("Join them.")));
-    const state = () => p.evaluate(() => [...document.querySelectorAll(".xs-wall-track")].map((t) => getComputedStyle(t).animationPlayState + ":" + getComputedStyle(t).animationName).join(" "));
+    const state = () => p.evaluate(() => [...document.querySelectorAll("#xs-wall .xs-wall-track")].map((t) => getComputedStyle(t).animationPlayState + ":" + getComputedStyle(t).animationName).join(" "));
     await p.evaluate(() => document.getElementById("xs-wall").scrollIntoView({ behavior: "instant", block: "center" }));
     await p.mouse.move(5, 5);
     await wait(300);
     const run1 = await state();
-    const x1 = await p.evaluate(() => document.querySelector(".xs-wall-track").getBoundingClientRect().x);
+    const x1 = await p.evaluate(() => document.querySelector("#xs-wall .xs-wall-track").getBoundingClientRect().x);
     await wait(1200);
-    const x2 = await p.evaluate(() => document.querySelector(".xs-wall-track").getBoundingClientRect().x);
+    const x2 = await p.evaluate(() => document.querySelector("#xs-wall .xs-wall-track").getBoundingClientRect().x);
     check("wall moves: row 1 left, row 2 right", run1 === "running:xsMarqL running:xsMarqR" && x2 < x1, `${run1} ${x1}->${x2}`);
     const box = await p.evaluate(() => { const r = document.getElementById("xs-wall").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + 40 }; });
     await p.mouse.move(box.x, box.y);
@@ -105,7 +105,7 @@ if (FIX !== "live") {
     check("play button starts it again", (await state()) === "running:xsMarqL running:xsMarqR");
     await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
     await wait(300);
-    const rm = await p.evaluate(() => [...document.querySelectorAll(".xs-wall-row")].map((r) => getComputedStyle(r.querySelector(".xs-wall-track")).animationName + "/" + getComputedStyle(r).overflowX + "/" + getComputedStyle(r.querySelector(".xs-wall-copy")).display).join(" "));
+    const rm = await p.evaluate(() => [...document.querySelectorAll("#xs-wall .xs-wall-row")].map((r) => getComputedStyle(r.querySelector(".xs-wall-track")).animationName + "/" + getComputedStyle(r).overflowX + "/" + getComputedStyle(r.querySelector(".xs-wall-copy")).display).join(" "));
     check("reduced motion: no animation, rows scroll by hand, no loop copy", rm === "none/auto/none none/auto/none", rm);
     await p.evaluate(AXE);
     await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "no-preference" }]);
@@ -172,7 +172,7 @@ for (const width of [390, 768, 1440]) {
     const card = document.querySelector("#xs-explain-btn").closest("article");
     const panel = [...document.querySelectorAll(".xs-explain-panel")].find((x) => x.offsetParent);
     const hit = (el) => { if (!el || !el.offsetParent) return "hidden"; el.scrollIntoView({ behavior: "instant", block: "center" }); const b = el.getBoundingClientRect(); const top = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); return el.contains(top) ? "ok" : `covered by ${top?.className}`; };
-    const chip = [...card.querySelectorAll("[data-xs-cta]")].find((x) => x.offsetParent);
+    const chip = [...card.querySelectorAll("a.xs-chip")].find((x) => x.offsetParent);
     const link = [...card.querySelectorAll("a.xs-link")].find((x) => x.offsetParent);
     const grid = document.querySelector(".xs-bento").getBoundingClientRect();
     return { panel: panel?.className, inCard: card.contains(panel), panelW: Math.round(panel?.getBoundingClientRect().width ?? 0), gridW: Math.round(grid.width), chip: hit(chip), link: link ? hit(link) : "none", desc: [...card.querySelectorAll("p.d-only")].some((x) => x.offsetParent), over: document.documentElement.scrollWidth - document.documentElement.clientWidth };
@@ -237,9 +237,33 @@ for (const width of [390, 768, 1024, 1440]) {
   check(`S3 plan preview at ${width}px: ${width < 768 ? "not shown" : width < 1024 ? "shown at a fixed height" : "fills the space, 24 to 48 px above the buttons"}`, ok && r.over <= 0, JSON.stringify(r));
   await p.done();
 }
-// Trust swipe row: the first card starts at the page gutter and the last card ends with it.
+// Trust on phones and tablets: with 6+ reviews one row flows (transform only), the button pauses and plays it, the
+// swipe row is hidden; the loop copy is hidden from screen readers.
+for (const width of FIX === "live" ? [390, 768] : []) { // live config (13 reviews) only
+  const p = await open(width);
+  await p.evaluate(() => document.getElementById("xs-pwall").scrollIntoView({ block: "center" }));
+  await wait(300);
+  const st = () => p.evaluate(() => { const t = document.querySelector("#xs-pwall .xs-wall-track"); return { x: t.getBoundingClientRect().x, anim: getComputedStyle(t).animationName, play: getComputedStyle(t).animationPlayState }; });
+  const a = await st();
+  await wait(700);
+  const b2 = await st();
+  const shown = await p.evaluate(() => ({ swipe: !!document.querySelector(".xs-swipe")?.offsetParent, copyHidden: document.querySelector("#xs-pwall .xs-wall-copy")?.getAttribute("aria-hidden") === "true", cards: document.querySelectorAll("#xs-pwall .xs-wall-track > .xs-rcard").length }));
+  check(`Trust at ${width}px: one row of reviews flows, swipe row hidden, loop copy hidden from screen readers`, a.anim === "xsMarqL" && a.play === "running" && b2.x < a.x && !shown.swipe && shown.copyHidden && shown.cards === 13, JSON.stringify({ a, b2, ...shown }));
+  await p.click(".xs-trust-pill .xs-wall-toggle");
+  await p.mouse.move(0, 0);
+  await wait(200);
+  const c = await st();
+  const label = await p.$eval(".xs-trust-pill .xs-wall-toggle", (x) => x.getAttribute("aria-label"));
+  check(`Trust at ${width}px: the pause button stops the row and offers Play`, c.play === "paused" && label === "Play reviews", JSON.stringify({ c, label }));
+  await p.done();
+}
+
+// Trust swipe row (with reduced motion, the flowing row's fallback): the first card starts at the page gutter and the
+// last card ends with it.
 for (const [width, gut] of [[390, 20], [768, 32]]) {
   const p = await open(width);
+  await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+  await wait(200);
   const r = await p.evaluate(async () => {
     const rail = document.querySelector(".xs-swipe");
     rail.scrollIntoView({ behavior: "instant", block: "center" });
@@ -334,7 +358,7 @@ for (const w of [390, 1440]) {
     const back = await p.evaluate(() => ({ closed: !document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.getAttribute("data-xs-cta") }));
     if (!r.open || r.focus !== "xsd-name" || !back.closed || back.focus !== id) bad.push(`${id}: ${JSON.stringify({ ...r, ...back })}`);
   }
-  check(`${ids.length} plan buttons at ${w}px open the pop-up, focus the name field, Escape returns focus`, ids.length > 8 && !bad.length, bad.slice(0, 3).join("; "));
+  check(`${ids.length} plan buttons at ${w}px open the pop-up, focus the name field, Escape returns focus`, ids.length >= 6 && !bad.length, bad.slice(0, 3).join("; "));
   await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
   await wait(300);
   await p.type("#xsd-name", NAME);
@@ -383,7 +407,7 @@ for (const w of [390, 1440]) {
 for (const [label, w, before, cta, want] of [
   ["hero, default value", 1440, null, "hero_primary", "new_company"],
   ["hero, changed value", 1440, (p) => p.select("#xs-hero-topic", "holding"), "hero_primary", "holding"],
-  ["an S3 card", 1440, null, "s3_bookkeeping", "bookkeeping"],
+  ["the S3 Not sure card", 1440, null, "s3_not_sure", "not_sure"],
   ["the sticky bar after an S5 pick", 390, (p) => p.evaluate(() => [...document.querySelectorAll(".xs-s5 .xs-tchip")].find((b) => b.textContent.trim() === "Corporate Tax").click()), "sticky_plan", "corporate_tax"],
 ]) {
   const p = await open(w);
@@ -465,12 +489,41 @@ for (const [w, h] of [[375, 667], [390, 844], [768, 1024], [1024, 768], [1440, 9
   await p.done();
 }
 
+// S3 "Not sure which one fits?" card: everything stays inside the card, and the heading takes at most two lines.
+for (const w of [320, 360, 375, 390, 414, 768, 1440]) {
+  const p = await open(w);
+  const r = await p.evaluate(() => {
+    const card = document.querySelector(".xs-notsure"), c = card.getBoundingClientRect();
+    const out = [...card.querySelectorAll("h3, .xs-btn")].filter((e) => e.offsetParent).map((e) => e.getBoundingClientRect()).filter((b) => b.left < c.left - 1 || b.right > c.right + 1 || b.top < c.top - 1 || b.bottom > c.bottom + 1).length;
+    return { out, h3: Math.round(card.querySelector("h3").getBoundingClientRect().height) };
+  });
+  check(`S3 Not sure card at ${w}px: nothing spills out, heading in two lines or fewer`, r.out === 0 && r.h3 <= 52, JSON.stringify(r));
+  await p.done();
+}
+
+// S3 small cards: their buttons are links to the service page (no pop-up), and report consultation_cta_click.
+for (const w of [390, 1440]) {
+  const p = await open(w);
+  const r = await p.evaluate(() => [...document.querySelectorAll(".xs-small .xs-small-foot a.xs-chip")].filter((a) => a.offsetParent).map((a) => [a.getAttribute("data-cta-location"), a.getAttribute("href"), a.hasAttribute("data-xs-cta")]));
+  const want = [["s3_fz_or_mainland", "/freezone"], ["s3_plan_structure", "/spv"], ["s3_bookkeeping", "/accounting"], ["s3_corporate_tax", "/corporate-tax"]];
+  check(`S3 card buttons at ${w}px link to their pages, not the pop-up`, JSON.stringify(r.map((x) => [x[0], x[1]])) === JSON.stringify(want) && r.every((x) => !x[2]), JSON.stringify(r));
+  // A click reports consultation_cta_click (the navigation itself is stopped so the test stays on the page).
+  await p.evaluate(() => {
+    const a = [...document.querySelectorAll(".xs-small .xs-small-foot a.xs-chip")].find((x) => x.offsetParent);
+    a.addEventListener("click", (e) => e.preventDefault(), { once: true });
+    a.click();
+  });
+  await wait(200);
+  const ev = await events(p, "consultation_cta_click");
+  check(`S3 card link click at ${w}px: consultation_cta_click s3_fz_or_mainland, no pop-up`, ev.some((e) => e.cta_location === "s3_fz_or_mainland") && !(await p.evaluate(() => document.getElementById("xs-plan-dialog").open)), JSON.stringify(ev.map((e) => e.cta_location)));
+  await p.done();
+}
+
 // 5. Mocked success: stamp, thank-you, one generate_lead with the right parameters and no personal data.
 {
   const p = await open(1440);
-  await p.evaluate(() => [...document.querySelectorAll('[data-xs-cta="s3_bookkeeping"]')].find((x) => x.offsetParent).click());
-  await wait(400);
-  await p.keyboard.press("Escape"); // the button opened the pop-up; this test sends from the section 9 form
+  await p.select("#xs-hero-topic", "bookkeeping"); // this test sends from the section 9 form
+  await wait(300);
   await p.evaluate(() => document.querySelectorAll(".xs-seg-form button")[1].click());
   await fill(p);
   await submit(p);

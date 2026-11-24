@@ -164,6 +164,10 @@ export function PlanSection() {
                 </span>
                 <span className={`xs-ready m-only${sent ? " is-sent" : ""}`}>{Math.round(pct * 100)}% ready</span>
               </div>
+              {/* Phones and tablets: a thin progress bar under the header (desktop has the ring). */}
+              <span className={`xs-ready-bar m-only${sent ? " is-sent" : ""}`} aria-hidden="true">
+                <i style={{ width: `${Math.round(pct * 100)}%` }} />
+              </span>
 
               <div className="xs-paper-rows">
                 <span className="xs-k">ABOUT</span>

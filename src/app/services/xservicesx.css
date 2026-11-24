@@ -1091,8 +1091,8 @@
   .xs .xs-outcome {min-height:50px;padding-block:9px}
   .xs .xs-notsure {flex-direction:row;align-items:center;gap:12px;padding:14px}
   .xs .xs-notsure .xs-ico,.xs .xs-notsure p {display:none}
-  .xs .xs-notsure > div {flex:1}
-  .xs .xs-notsure .xs-btn {flex:none;min-height:44px;padding-inline:14px 8px;gap:8px;font-size:14px}
+  .xs .xs-notsure > div {flex:1;min-width:0}
+  .xs .xs-notsure .xs-btn {flex:none;width:auto;min-height:44px;padding-inline:14px 8px;gap:8px;font-size:14px}
   .xs .xs-s9 {padding-top:32px}
   .xs .xs-s9 .xs-formcard .xs-form {gap:10px}
   .xs .xs-s9 .xs-formcard .xs-field input,.xs .xs-s9 .xs-formcard .xs-tel select {height:48px}
@@ -1252,3 +1252,86 @@
   .xs .xs-chat-spacer {display:block}
 }
 .xs .xs-chat-body:focus-visible {outline:2px solid var(--copper);outline-offset:-2px}
+/* Very narrow phones: the "Not sure" card stacks (heading, then the full-width button) so the heading is not squeezed. */
+@media (max-width:379px) {
+  .xs .xs-notsure {flex-direction:column;align-items:stretch}
+  .xs .xs-notsure .xs-btn {width:100%}
+}
+
+/* ─── S3 small cards on phones and tablets: the whole card is the link (the action's ::after covers it). The action
+   is a text row with a round arrow badge; on hover, focus or tap the badge turns copper (no filled block). ─── */
+@media (max-width:1023px) {
+  .xs .xs-small {-webkit-tap-highlight-color:transparent;transition:transform .15s ease,box-shadow .2s,border-color .2s}
+  .xs .xs-small:active {transform:scale(.985)}
+  .xs .xs-small .xs-small-foot {padding-top:10px;border-top:1px solid #F0E8E0}
+  .xs .xs-card .xs-tile-act {display:flex;width:100%;justify-content:space-between;align-items:center;min-height:32px;padding:0;background:none;color:var(--copper-d);font-size:13.5px;font-weight:700;outline:none}
+  .xs .xs-tile-act > span {flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--tint-2);color:var(--copper-d);font-size:14px;transition:background .2s,color .2s,transform .2s}
+  .xs .xs-card:hover .xs-tile-act,.xs .xs-card:focus-within .xs-tile-act,.xs .xs-card:active .xs-tile-act {background:none;color:var(--copper-ink)}
+  .xs .xs-card:hover .xs-tile-act > span,.xs .xs-card:focus-within .xs-tile-act > span,.xs .xs-card:active .xs-tile-act > span {background:var(--copper-h);color:#fff;transform:translateX(2px)}
+  .xs .xs-small:has(.xs-tile-act:focus-visible) {outline:2px solid var(--copper);outline-offset:3px}
+}
+
+/* ─── Phone polish (most visitors are on phones) ─── */
+@media (max-width:767px) {
+  /* Hero plan card: a thin copper edge; the EXAMPLE chip already says it, so the note goes. */
+  .xs .xs-hcard::before {height:3px}
+  .xs .xs-hcard {padding:18px 16px;gap:14px;border-radius:20px}
+  .xs .xs-hcard .xs-hcard-note {display:none}
+  .xs .xs-hcard-select select {font-size:17px;min-height:50px}
+
+  /* S8: one-line question chips in a swipe row with a fade hinting at more; no scrollbar; cut-off messages fade
+     out at the top of the chat. */
+  .xs .xs-s8 .xs-chiprail {position:relative;padding-bottom:2px;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}
+  .xs .xs-qchip {max-width:none;white-space:nowrap;min-height:40px;padding:0 14px;border-radius:999px;display:inline-flex;align-items:center;scroll-snap-align:start}
+  .xs .xs-chat {border-radius:20px}
+  .xs .xs-chat-body {scrollbar-width:none;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 36px);mask-image:linear-gradient(180deg,transparent 0,#000 36px)}
+  .xs .xs-chat-body::-webkit-scrollbar {display:none}
+
+  /* S9 document: a clean summary card. No corner tag or back sheets; a thin progress bar instead of the rule. */
+  .xs .xs-paper-tag,.xs .xs-paper-back {display:none}
+  .xs .xs-paper {transform:none;border-radius:16px;padding:16px;box-shadow:0 18px 36px -22px rgba(20,33,61,.35);border:1px solid var(--border)}
+  .xs .xs-paper-head {border-bottom:0;padding-bottom:0}
+  .xs .xs-ready {font-size:13px;padding:4px 10px}
+}
+@media (max-width:1023px) {
+  .xs .xs-ready-bar {display:block;height:4px;border-radius:2px;background:var(--tint);overflow:hidden}
+  .xs .xs-ready-bar i {display:block;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--copper-h),var(--copper-l));transition:width .5s ease}
+  .xs .xs-ready-bar.is-sent i {background:var(--ok)}
+}
+@media (prefers-reduced-motion:reduce) {
+  .xs .xs-ready-bar i {transition:none}
+}
+@media (max-width:767px) {
+  .xs .xs-chat-body {padding-top:24px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 20px);mask-image:linear-gradient(180deg,transparent 0,#000 20px)}
+}
+
+/* ─── Trust on phones and tablets: one row of reviews that flows (transform only, like the desktop wall); a touch,
+   focus or the pause button stops it; with reduced motion the swipe row shows instead. ─── */
+.xs .xs-pwall {display:none}
+@media (max-width:1023px) and (prefers-reduced-motion:no-preference) {
+  .xs .xs-pwall {display:block;margin-top:18px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 20px,#000 calc(100% - 20px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 20px,#000 calc(100% - 20px),transparent 100%)}
+  .xs .xs-pwall .xs-wall-row {overflow:hidden;padding-block:4px}
+  .xs .xs-pwall .xs-wall-track {display:flex;gap:12px;width:max-content;padding-right:12px;animation:xsMarqL 75s linear infinite}
+  .xs .xs-pwall .xs-wall-copy {display:flex;gap:12px}
+  .xs .xs-pwall .xs-rcard {width:280px}
+  .xs .xs-pwall:hover .xs-wall-track,.xs .xs-pwall:active .xs-wall-track,.xs .xs-pwall:focus-within .xs-wall-track,.xs .xs-pwall.is-paused .xs-wall-track {animation-play-state:paused}
+  .xs .xs-swipe-alt {display:none}
+  .xs .xs-trust-pill .xs-wall-toggle {width:40px;height:40px;margin-left:auto}
+}
+@media (max-width:1023px) and (prefers-reduced-motion:reduce) {
+  .xs .xs-trust-pill .xs-wall-toggle {display:none}
+}
+
+/* ─── "In one consultation, you'll know" on phones: one card like a page of the written plan. Rows split by dashed
+   lines, copper outline numbers; the tapped row fills its number, gets a copper edge and shows its line. ─── */
+.xs .xs-olist {display:flex;flex-direction:column;gap:inherit}
+@media (max-width:767px) {
+  .xs .xs-olist {gap:0;background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 18px 36px -26px rgba(20,33,61,.35)}
+  .xs .xs-olist .xs-outcome {border:0;border-radius:0;min-height:54px;padding:12px 16px;background:transparent;transition:background .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
+  .xs .xs-olist .xs-outcome + .xs-outcome {border-top:1px dashed var(--dash)}
+  .xs .xs-olist .xs-onum {width:30px;height:30px;border-radius:50%;background:#fff;border:1.5px solid var(--copper);color:var(--copper-d);font-size:14px;transition:background .2s,color .2s}
+  .xs .xs-olist .xs-outcome[aria-pressed="true"] {background:var(--tint-2);box-shadow:inset 3px 0 0 var(--copper-h)}
+  .xs .xs-olist .xs-outcome[aria-pressed="true"] .xs-onum {background:var(--copper-h);border-color:var(--copper-h);color:#fff}
+  .xs .xs-olist .xs-outcome[aria-pressed="true"] .xs-otext > span.m-only {display:block;font-size:13px;font-weight:500;color:var(--ink);animation:xsIn .25s ease}
+  .xs .xs-olist .xs-otext b {font-size:15.5px}
+}

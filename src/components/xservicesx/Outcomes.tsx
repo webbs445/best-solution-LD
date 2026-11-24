@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { COST_FACTORS, COST_FACTORS_NOTE, OUTCOMES, S4_DELIVERY, S4_DELIVERY_SHORT, S4_FEES_LINE } from "@/content/xservicesx";
+import {
+  COST_FACTORS,
+  COST_FACTORS_NOTE,
+  OUTCOMES,
+  S4_DELIVERY,
+  S4_DELIVERY_SHORT,
+  S4_FEES_LINE,
+} from "@/content/xservicesx";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
 
@@ -20,16 +27,27 @@ export function Outcomes() {
           <h2 id="xsS4">In one consultation, you&apos;ll know</h2>
         </div>
         <div className="xs-s4-list">
-          {OUTCOMES.map((o, i) => (
-            <button key={o.title} type="button" className="xs-outcome" aria-pressed={i === on} onMouseEnter={() => setOn(i)} onFocus={() => setOn(i)} onClick={() => setOn(i)}>
-              <span className="xs-onum">{i + 1}</span>
-              <span className="xs-otext">
-                <b>{o.title}</b>
-                <span className="d-only">{o.sub}</span>
-                <span className="m-only">{o.subShort}</span>
-              </span>
-            </button>
-          ))}
+          {/* Phones: one card like a page of the written plan; the tapped row shows its line. */}
+          <div className="xs-olist">
+            {OUTCOMES.map((o, i) => (
+              <button
+                key={o.title}
+                type="button"
+                className="xs-outcome"
+                aria-pressed={i === on}
+                onMouseEnter={() => setOn(i)}
+                onFocus={() => setOn(i)}
+                onClick={() => setOn(i)}
+              >
+                <span className="xs-onum">{i + 1}</span>
+                <span className="xs-otext">
+                  <b>{o.title}</b>
+                  <span className="d-only">{o.sub}</span>
+                  <span className="m-only">{o.subShort}</span>
+                </span>
+              </button>
+            ))}
+          </div>
           <div className="xs-costs">
             <h3>What decides your cost</h3>
             <ul>
@@ -51,7 +69,8 @@ export function Outcomes() {
               I want this plan
             </XsCta>
             <span>
-              No pressure to buy<span className="d-only"> anything</span>. If we&apos;re not the right fit, we&apos;ll tell you.
+              No pressure to buy<span className="d-only"> anything</span>. If
+              we&apos;re not the right fit, we&apos;ll tell you.
             </span>
           </div>
         </div>
@@ -72,7 +91,9 @@ export function Outcomes() {
               <span className="xs-doc-k">
                 1 · <span className="d-only">RECOMMENDED </span>STRUCTURE
               </span>
-              <span className="d-only xs-doc-v">The structure that fits your activity</span>
+              <span className="d-only xs-doc-v">
+                The structure that fits your activity
+              </span>
               <span className="xs-bar" style={{ width: "86%" }} />
             </div>
             <div className={blk(1)}>
@@ -127,7 +148,9 @@ export function Outcomes() {
               <span className="xs-bar m-only" style={{ width: "50%" }} />
             </div>
           </div>
-          <span className="xs-stage-note d-only">Example layout. Your plan depends on your activity and team.</span>
+          <span className="xs-stage-note d-only">
+            Example layout. Your plan depends on your activity and team.
+          </span>
         </div>
       </div>
     </section>
