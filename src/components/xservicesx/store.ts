@@ -81,8 +81,11 @@ export function goToPlan(): void {
   const dlg = document.getElementById("xs-plan-dialog") as HTMLDialogElement | null;
   if (dlg) {
     opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // The hero card always shows a topic (its default too): with nothing picked yet, the pop-up and the lead take that one.
+    const hero = (document.getElementById("xs-hero-topic") as HTMLSelectElement | null)?.value;
+    if (!current().topic && isTopic(hero)) setXs({ topic: hero });
     if (!dlg.open) dlg.showModal();
-    const fields = ["xsd-name", "xsd-phone", "xsd-email"].map((id) => document.getElementById(id) as HTMLInputElement | null);
+    const fields = ["xsd-name", "xsd-email", "xsd-phone"].map((id) => document.getElementById(id) as HTMLInputElement | null);
     const target = fields.find((f) => f && !f.value.trim()) ?? (dlg.querySelector("button[type=submit], #xsd-thanks") as HTMLElement | null);
     target?.focus();
     return;
@@ -98,7 +101,7 @@ export function scrollToForm(): void {
   window.scrollTo({ top: plan.getBoundingClientRect().top + window.scrollY, behavior: reducedMotion() ? "auto" : "smooth" });
   // If something above changed height during the smooth scroll, land exactly on the form once it ends.
   window.addEventListener("scrollend", () => Math.abs(plan.getBoundingClientRect().top) > 2 && window.scrollTo({ top: plan.getBoundingClientRect().top + window.scrollY }), { once: true });
-  const fields = ["xs-name", "xs-phone", "xs-email"].map((id) => document.getElementById(id) as HTMLInputElement | null);
+  const fields = ["xs-name", "xs-email", "xs-phone"].map((id) => document.getElementById(id) as HTMLInputElement | null);
   const target = fields.find((f) => f && !f.value.trim()) ?? (plan.querySelector("button[type=submit]") as HTMLElement | null);
   target?.focus({ preventScroll: true });
 }

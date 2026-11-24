@@ -282,9 +282,9 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   await p.evaluate(() => [...document.querySelectorAll(".xs-worry")].filter((x) => x.offsetParent).slice(0, 2).forEach((x) => x.click()));
   await wait(300);
   const about = await p.$eval(".xs-about strong", (e) => e.textContent);
-  const qs = await p.$$eval(".xs-qtags span", (s) => s.map((x) => x.textContent));
+  const qs = await p.$eval(".xs-qline", (e) => e.textContent);
   check("hero select shows in the plan's ABOUT row", about === "Corporate Tax", about);
-  check("S2 picks show in YOUR QUESTIONS", JSON.stringify(qs) === JSON.stringify(["Where do I begin?", "Which price is right?"]), qs.join(", "));
+  check("S2 picks show in YOUR QUESTIONS", qs === "Where do I begin? · Which price is right?", qs);
   const topicEv = await events(p, "xs_topic_select");
   check("xs_topic_select {topic, source: hero}", topicEv.some((e) => e.topic === "corporate_tax" && e.source === "hero"));
   const worryEv = await events(p, "xs_worry_toggle");
@@ -299,7 +299,7 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   // "Request a call back": reply by phone, keeps a picked topic, opens the plan pop-up.
   await p.evaluate(() => document.querySelector('[data-xs-cta="callback"]').click());
   await wait(400);
-  const cb = await p.evaluate(() => ({ call: document.querySelector("#xs-plan-dialog .xs-seg-form button:nth-child(2)").getAttribute("aria-pressed"), about: document.querySelector(".xs-about strong")?.textContent, picked: document.querySelector("#xs-plan-dialog .xs-tchip.on")?.textContent, open: document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.id }));
+  const cb = await p.evaluate(() => ({ call: document.querySelector("#xs-plan-dialog .xs-seg-form button:nth-child(2)").getAttribute("aria-pressed"), about: document.querySelector(".xs-about strong")?.textContent, picked: document.querySelector("#xsd-topic")?.selectedOptions[0]?.textContent, open: document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.id }));
   check("call-back button: Call me, topic kept, pop-up open, name focused", cb.call === "true" && cb.about === "Corporate Tax" && cb.picked === "Corporate Tax" && cb.open && cb.focus === "xsd-name", JSON.stringify(cb));
   check("xs_cta_click {cta_id: callback, location: trust}", (await events(p, "xs_cta_click")).some((e) => e.cta_id === "callback" && e.location === "trust"));
   await p.done();
@@ -331,7 +331,7 @@ for (const w of [390, 1440]) {
   await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
   await wait(300);
   const r2 = await p.evaluate(() => ({ focus: document.activeElement?.id, s9: document.getElementById("xs-name").value }));
-  check(`at ${w}px a filled name moves focus to the next empty field, and shows in section 9 too`, r2.focus === "xsd-phone" && r2.s9 === "TEST AUDIT - DELETE", JSON.stringify(r2));
+  check(`at ${w}px a filled name moves focus to the next empty field, and shows in section 9 too`, r2.focus === "xsd-email" && r2.s9 === "TEST AUDIT - DELETE", JSON.stringify(r2));
   await p.mouse.click(5, 5);
   await wait(250);
   check(`at ${w}px a tap outside closes the pop-up`, await p.evaluate(() => !document.getElementById("xs-plan-dialog").open));
@@ -368,19 +368,83 @@ for (const w of [390, 1440]) {
   await p.done();
 }
 
+// The pop-up's topic is the page topic (last set wins; with nothing picked, the hero card's default), and the lead sends it.
+for (const [label, w, before, cta, want] of [
+  ["hero, default value", 1440, null, "hero_primary", "new_company"],
+  ["hero, changed value", 1440, (p) => p.select("#xs-hero-topic", "holding"), "hero_primary", "holding"],
+  ["an S3 card", 1440, null, "s3_bookkeeping", "bookkeeping"],
+  ["the sticky bar after an S5 pick", 390, (p) => p.evaluate(() => [...document.querySelectorAll(".xs-s5 .xs-tchip")].find((b) => b.textContent.trim() === "Corporate Tax").click()), "sticky_plan", "corporate_tax"],
+]) {
+  const p = await open(w);
+  if (before) await before(p);
+  await wait(200);
+  await p.evaluate((id) => document.querySelector(`[data-xs-cta=${id}]`).click(), cta);
+  await wait(400);
+  const sel = await p.evaluate(() => {
+    const s = document.getElementById("xsd-topic");
+    return { value: s.value, text: s.selectedOptions[0]?.textContent, pick: [...s.options].some((o) => o.textContent === "Pick a topic") };
+  });
+  for (const [id, v] of [["#xsd-name", NAME], ["#xsd-email", EMAIL], ["#xsd-phone", PHONE]]) await p.type(id, v);
+  await p.evaluate(() => document.querySelector("#xs-plan-dialog button[type=submit]").click());
+  await wait(900);
+  const sent = p.leads[0]?.topic;
+  check(`pop-up from ${label}: shows ${want}, no "Pick a topic", the lead sends the same topic`, sel.value === want && !sel.pick && sent === want && p.leads.length === 1, JSON.stringify({ ...sel, sent }));
+  await p.done();
+}
+
+// S9 is light and the footer navy (clearly apart); the country code shows "+971 UAE" in full.
+for (const w of [320, 390, 768, 1440]) {
+  const p = await open(w);
+  const r = await p.evaluate(() => {
+    const lum = (c) => {
+      const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map((v) => +v / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const s9 = getComputedStyle(document.getElementById("plan")).backgroundImage.match(/rgba?\([^)]+\)/g).at(-1);
+    const foot = getComputedStyle(document.querySelector(".xs-footer")).backgroundColor;
+    const sel = document.querySelector("#plan .xs-tel select");
+    const cs = getComputedStyle(sel);
+    const ctx = document.createElement("canvas").getContext("2d");
+    ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const text = sel.selectedOptions[0].textContent;
+    const room = sel.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    return { s9: lum(s9), foot: lum(foot), text, need: Math.ceil(ctx.measureText(text).width), room };
+  });
+  if (w !== 320) check(`S9 light and footer navy at ${w}px`, r.s9 > 0.8 && r.foot < 0.05, JSON.stringify(r));
+  check(`country code "${r.text}" fits in full at ${w}px`, r.text === "+971 UAE" && r.need <= r.room, JSON.stringify(r));
+  await p.done();
+}
+
+// The pop-up fits the screen with no scrolling inside it (a topic and three questions picked).
+for (const [w, h] of [[375, 667], [390, 844], [768, 1024], [1024, 768], [1440, 900]]) {
+  const p = await open(w);
+  await p.setViewport({ width: w, height: h, isMobile: w < 768, hasTouch: w < 768 });
+  await p.evaluate(() => sessionStorage.setItem("bsx_xs_state", JSON.stringify({ topic: "corporate_tax", worries: [0, 1, 2], advisor: null, contactPref: "whatsapp", consultMode: null })));
+  await p.reload({ waitUntil: "load" });
+  await wait(400);
+  await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
+  await wait(500);
+  const r = await p.evaluate(() => {
+    const d = document.getElementById("xs-plan-dialog");
+    return { sh: d.scrollHeight, ch: d.clientHeight, vh: innerHeight, bottom: Math.round(d.getBoundingClientRect().bottom) };
+  });
+  check(`pop-up at ${w}×${h} fits with no inner scroll`, r.sh <= r.ch + 1 && r.bottom <= r.vh + 1, JSON.stringify(r));
+  await p.done();
+}
+
 // 4. Field errors.
 {
   const p = await open(390);
   await submit(p);
   await wait(300);
   const errs = await p.$$eval("#plan .xs-err", (e) => e.map((x) => x.textContent));
-  check("empty submit: name, number and email errors", JSON.stringify(errs) === JSON.stringify(["Please add your name.", "Please add your WhatsApp number.", "Please add your email."]), errs.join(" | "));
+  check("empty submit: name, number and email errors", JSON.stringify(errs) === JSON.stringify(["Please add your name.", "Please add your email.", "Please add your WhatsApp number."]), errs.join(" | "));
   check("errors linked with aria-describedby", await p.evaluate(() => ["xs-name", "xs-phone", "xs-email"].every((id) => document.getElementById(id).getAttribute("aria-describedby") === `${id}-err`)));
   for (const [id, v] of [["#xs-name", "T"], ["#xs-phone", "12"], ["#xs-email", "nope"]]) await p.type(id, v);
   await submit(p);
   await wait(300);
   const errs2 = await p.$$eval("#plan .xs-err", (e) => e.map((x) => x.textContent));
-  check("invalid name, number and email errors, typed values kept", errs2.length === 3 && errs2[1].includes("United Arab Emirates") && (await p.$eval("#xs-name", (e) => e.value)) === "T", errs2.join(" | "));
+  check("invalid name, number and email errors, typed values kept", errs2.length === 3 && errs2[2].includes("United Arab Emirates") && (await p.$eval("#xs-name", (e) => e.value)) === "T", errs2.join(" | "));
   check("no lead sent while fields are wrong", p.leads.length === 0);
   const fe = await events(p, "xs_form_error");
   check("xs_form_error {field} per bad field", fe.length === 6 && fe.every((e) => ["name", "phone", "email"].includes(e.field)));

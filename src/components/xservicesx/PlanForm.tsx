@@ -58,7 +58,7 @@ async function submit(e: FormEvent<HTMLFormElement>, prefix: string, location: "
   const bad = Object.keys(errors) as PlanField[];
   if (bad.length || !e164) {
     bad.forEach((f) => xsTrack("xs_form_error", { field: f, location }));
-    document.getElementById(fieldId(prefix, bad[0] ?? "phone"))?.focus();
+    document.getElementById(fieldId(prefix, (["name", "email", "phone"] as const).find((k) => errors[k]) ?? "phone"))?.focus();
     return;
   }
   const s = getXs();
@@ -100,7 +100,8 @@ async function submit(e: FormEvent<HTMLFormElement>, prefix: string, location: "
   }
 }
 
-export function PlanForm({ prefix, location, heading }: { prefix: string; location: "s9" | "popup"; heading?: string }) {
+/** compact: the pop-up's tighter layout (name and email side by side from 768 px, one footer line), so it fits without scrolling. */
+export function PlanForm({ prefix, location, heading, compact }: { prefix: string; location: "s9" | "popup"; heading?: string; compact?: boolean }) {
   const f = useForm();
   const s = useXs();
   const honeypot = useRef<HTMLInputElement>(null);
@@ -135,7 +136,7 @@ export function PlanForm({ prefix, location, heading }: { prefix: string; locati
 
   return (
     <form
-      className="xs-form"
+      className={`xs-form${compact ? " is-compact" : ""}`}
       onSubmit={(e) => submit(e, prefix, location, honeypot.current?.value || "")}
       noValidate
       data-track={SERVICES_PLAN_FORM_ID}
@@ -146,30 +147,49 @@ export function PlanForm({ prefix, location, heading }: { prefix: string; locati
         xsTrack("xs_form_start", { location });
       }}
     >
-      {heading && <h3 className="d-only">{heading}</h3>}
-      <div className="xs-field">
-        <label htmlFor={id("name")}>Your full name</label>
-        <input {...field("name")} name="lead_name" type="text" autoComplete="name" placeholder="e.g. Sara Ahmed" value={f.name} onChange={(e) => setForm({ name: e.target.value })} maxLength={60} required />
-        {err("name")}
+      {heading && (
+        <div className="xs-form-head">
+          <h3>{heading}</h3>
+          <span className="xs-2min">
+            <Icon name="clock" size={13} strokeWidth={2.4} />2 minutes
+          </span>
+        </div>
+      )}
+      <div className="xs-frow">
+        <div className="xs-field">
+          <label htmlFor={id("name")}>Your full name</label>
+          <span className="xs-in">
+            <Icon name="user" size={18} className="xs-in-ico" />
+            <input {...field("name")} name="lead_name" type="text" autoComplete="name" placeholder="e.g. Sara Ahmed" value={f.name} onChange={(e) => setForm({ name: e.target.value })} maxLength={60} required />
+          </span>
+          {err("name")}
+        </div>
+        <div className="xs-field">
+          <label htmlFor={id("email")}>
+            Email <span>(your plan comes here too)</span>
+          </label>
+          <span className="xs-in">
+            <Icon name="mail" size={18} className="xs-in-ico" />
+            <input {...field("email")} name="email_id" type="email" inputMode="email" autoComplete="email" placeholder="you@company.com" value={f.email} onChange={(e) => setForm({ email: e.target.value })} required />
+          </span>
+          {err("email")}
+        </div>
       </div>
       <div className="xs-field">
         <label htmlFor={id("phone")}>WhatsApp number</label>
         <div className="xs-tel">
           <PhoneCountrySelect value={f.country} onChange={(e) => setForm({ country: e.target.value as PhoneCountry, errors: { ...f.errors, phone: undefined } })} />
-          <input {...field("phone")} name="mobile_no" type="tel" inputMode="tel" autoComplete="tel" placeholder={f.country === "AE" ? "50 123 4567" : "Mobile number"} value={f.phone} onChange={(e) => setForm({ phone: e.target.value })} required />
+          <span className="xs-in">
+            <Icon name="whatsapp" size={18} className="xs-in-ico" />
+            <input {...field("phone")} name="mobile_no" type="tel" inputMode="tel" autoComplete="tel" placeholder={f.country === "AE" ? "50 123 4567" : "Mobile number"} value={f.phone} onChange={(e) => setForm({ phone: e.target.value })} required />
+          </span>
         </div>
         {err("phone")}
-      </div>
-      <div className="xs-field">
-        <label htmlFor={id("email")}>
-          Email <span>(we send your written plan here too)</span>
-        </label>
-        <input {...field("email")} name="email_id" type="email" inputMode="email" autoComplete="email" placeholder="you@company.com" value={f.email} onChange={(e) => setForm({ email: e.target.value })} required />
-        {err("email")}
       </div>
       <div className="xs-seg xs-seg-form" role="group" aria-label="How should we reply?">
         {(["whatsapp", "call"] as const).map((p) => (
           <button key={p} type="button" aria-pressed={s.contactPref === p} onClick={() => setXs({ contactPref: p })}>
+            <Icon name={p === "whatsapp" ? "whatsapp" : "phone"} size={16} />
             {p === "whatsapp" ? "Reply on WhatsApp" : "Call me"}
           </button>
         ))}
@@ -201,11 +221,10 @@ export function PlanForm({ prefix, location, heading }: { prefix: string; locati
           </>
         )}
       </button>
-      <p className="xs-form-micro">
-        {S9_MICRO}
-        <span className="d-only">
-          <br />
-          Your details are used only to reply to you.{" "}
+      <p className="xs-form-trust">
+        <Icon name="lock" size={14} strokeWidth={2.4} />
+        <span>
+          {S9_MICRO} Used only to reply to you.{" "}
           <a href={C.privacyUrl} target="_blank" rel="noopener">
             Privacy policy
           </a>

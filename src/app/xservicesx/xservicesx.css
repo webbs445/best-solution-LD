@@ -369,7 +369,6 @@
 
 /* ─── 9 · The form (navy) ─── */
 .xs .xs-s9 {position:relative;background:var(--navy);color:#fff;padding-top:52px;padding-bottom:36px;overflow:hidden}
-.xs .xs-glow {position:absolute;left:calc(50% - 460px);top:260px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(185,113,75,.28) 0%,rgba(185,113,75,0) 62%);pointer-events:none}
 .xs .xs-s9 .xs-wrap {position:relative}
 .xs .xs-s9-head {display:flex;flex-direction:column;gap:10px}
 .xs .xs-s9-head h2 {font-size:32px;line-height:1.08}
@@ -403,8 +402,6 @@
 .xs .xs-about-chips button {min-height:44px;padding:0 12px;border-radius:999px;border:1.5px solid var(--border-2);background:#fff;font-size:12px;font-weight:600;cursor:pointer}
 .xs .xs-about-chips button:hover {border-color:var(--copper)}
 .xs .xs-about-chips button[aria-pressed="true"] {background:var(--copper-h);border-color:var(--copper-h);color:#fff}
-.xs .xs-qtags {display:flex;flex-wrap:wrap;gap:6px}
-.xs .xs-qtags span {font-size:12px;font-weight:600;background:var(--tint);padding:4px 9px;border-radius:999px}
 .xs .xs-inside {display:flex;flex-direction:column;gap:9px;margin-top:4px}
 .xs .xs-inside-h {display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
 .xs .xs-inside-h i {flex:1;height:1px;background:#EDE4DB}
@@ -438,8 +435,6 @@
 .xs .xs-spin {width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:xsSpin .8s linear infinite}
 @keyframes xsSpin {to{transform:rotate(360deg)}}
 .xs .xs-form .xs-primary {margin-top:4px}
-.xs .xs-form-micro {font-size:12px;line-height:1.5;color:var(--on-navy-m);text-align:center}
-.xs .xs-form-micro a {color:var(--on-navy);display:inline-flex;align-items:center;min-height:44px}
 .xs .xs-thanks {display:flex;flex-direction:column;gap:10px;animation:xsIn .4s ease;min-height:300px;justify-content:center}
 .xs .xs-thanks:focus {outline:none}
 .xs .xs-thanks-tick {width:60px;height:60px;border-radius:50%;background:var(--copper);display:inline-flex;align-items:center;justify-content:center;color:#fff}
@@ -721,12 +716,11 @@
   .xs .xs-s9 {padding-top:88px;padding-bottom:44px}
   .xs .xs-s9-head {align-items:center;text-align:center;gap:14px}
   .xs .xs-s9-head h2 {font-size:clamp(44px,3.8vw,54px);line-height:1.05;letter-spacing:-.025em;max-width:860px}
-  .xs .xs-s9-head .xs-copper-l {display:block}
+  .xs .xs-s9-head .xs-s9-accent {display:block}
   .xs .xs-s9-head p {font-size:18px}
   .xs .xs-s9-grid {grid-template-columns:minmax(0,540fr) minmax(0,440fr);gap:clamp(48px,6vw,80px);align-items:center;margin-top:48px;max-width:1060px;margin-inline:auto}
   .xs .xs-paper-stage {min-height:560px}
   .xs .xs-pile {width:min(480px,100%)}
-  .xs .xs-paper-back {position:absolute;inset:0;border-radius:12px;background:#DCCFC2;transform:rotate(3deg) translate(14px,6px)}
   .xs .xs-about:has(.xs-about-chips) {grid-column:auto}
   .xs .xs-paper {padding:28px 30px;gap:14px;transform:rotate(-2deg);box-shadow:0 50px 80px -40px rgba(0,0,0,.7)}
   .xs .xs-paper-head {align-items:flex-start;padding-bottom:12px}
@@ -741,7 +735,6 @@
   .xs .xs-form {gap:16px}
   .xs .xs-field input {height:54px;padding:0 16px}
   .xs .xs-tel select {height:54px}
-  .xs .xs-form-micro {font-size:13px}
   .xs .xs-thanks {flex:1}
   .xs .xs-thanks b {font-size:28px}
   .xs .xs-thanks p {font-size:16px;line-height:1.6}
@@ -895,4 +888,123 @@
   .xs .xs-dlg-in {padding:26px 30px 24px}
   .xs .xs-dlg-in::before {display:none}
   .xs .xs-dlg-titles h2 {font-size:28px}
+}
+
+/* ─── Lead form polish (S9 and the pop-up share it) ─── */
+.xs .xs-frow {display:flex;flex-direction:column;gap:inherit}
+.xs .xs-in {position:relative;display:block;flex:1;min-width:0}
+.xs .xs-in-ico {position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--on-navy-m);pointer-events:none;transition:color .2s}
+.xs .xs-field .xs-in input {padding-left:44px}
+.xs .xs-in:focus-within .xs-in-ico {color:var(--copper-l)}
+.xs .xs-field input:hover:not(:focus) {border-color:rgba(255,255,255,.32)}
+.xs .xs-field input[aria-invalid="true"] {box-shadow:0 0 0 3px rgba(255,165,155,.15)}
+.xs .xs-seg-form {padding:5px;border:1px solid rgba(255,255,255,.12)}
+.xs .xs-seg-form button {display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.xs .xs-seg-form button[aria-pressed="true"] {box-shadow:0 6px 16px -8px rgba(0,0,0,.5)}
+.xs .xs-form .xs-primary {min-height:56px;font-size:16px;box-shadow:0 14px 30px -14px rgba(168,98,62,.9)}
+.xs .xs-form-trust {display:flex;align-items:flex-start;justify-content:center;gap:8px;font-size:12px;line-height:1.5;color:var(--on-navy-m);text-align:left}
+.xs .xs-form-trust svg {flex:none;margin-top:2px;color:var(--copper-l)}
+.xs .xs-form-trust a {color:var(--on-navy);text-decoration:underline;text-underline-offset:2px}
+@media (min-width:768px) {
+  .xs .xs-form.is-compact .xs-frow {display:grid;grid-template-columns:1fr 1fr;gap:12px}
+}
+@media (min-width:1024px) {
+  .xs .xs-form-trust {font-size:13px}
+}
+
+/* Compact pop-up form: it must fit the screen without scrolling. */
+.xs .xs-form.is-compact {gap:10px}
+.xs .xs-form.is-compact .xs-field {gap:6px}
+.xs .xs-form.is-compact .xs-field label {font-size:13px}
+.xs .xs-form.is-compact .xs-field input,.xs .xs-form.is-compact .xs-tel select {height:48px}
+.xs .xs-form.is-compact .xs-primary {margin-top:2px;min-height:52px}
+.xs .xs-dialog .xs-dlg-in {gap:14px;padding-top:12px}
+.xs .xs-dialog .xs-dlg-head {align-items:center}
+.xs .xs-dialog .xs-dlg-mark {width:40px;height:40px}
+.xs .xs-dialog .xs-dlg-titles {gap:2px}
+.xs .xs-dialog .xs-dlg-titles h2 {font-size:22px}
+.xs .xs-dlg-picks {display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px 12px;padding:10px 12px}
+.xs .xs-dlg-sel {position:relative;display:block;min-width:0}
+.xs .xs-dlg-sel::after {content:"";position:absolute;right:14px;top:50%;width:8px;height:8px;border:solid var(--copper-l);border-width:0 2px 2px 0;transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.xs .xs-dlg-sel select {width:100%;height:44px;padding:0 36px 0 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font:600 15px var(--font-inter),sans-serif;appearance:none;cursor:pointer;outline:none}
+.xs .xs-dlg-sel select:focus {border-color:var(--copper-l);box-shadow:0 0 0 3px rgba(227,164,126,.25)}
+.xs .xs-dlg-sel select option {color:var(--navy)}
+.xs .xs-dlg-q {grid-column:1/-1;display:flex;gap:6px;align-items:flex-start;font-size:12px;overflow:hidden;white-space:nowrap}
+.xs .xs-dlg-q svg {flex:none;margin-top:2px;color:var(--copper-l)}
+.xs .xs-dlg-q span {overflow:hidden;text-overflow:ellipsis}
+.xs .xs-dlg-foot {font-size:13px;margin-top:-4px}
+.xs .xs-dlg-foot .xs-inline-wa {min-height:32px}
+@media (min-width:768px) {
+  .xs .xs-dialog {width:min(600px,calc(100vw - 48px))}
+  .xs .xs-dialog .xs-dlg-in {gap:16px;padding:24px 28px 20px}
+  .xs .xs-dialog .xs-dlg-titles h2 {font-size:26px}
+}
+/* Short phones (e.g. 375×667): drop the extras so the form still fits. */
+@media (max-height:720px) and (max-width:767px) {
+  .xs .xs-dialog .xs-eyebrow,.xs .xs-dlg-q,.xs .xs-dlg-foot {display:none}
+  .xs .xs-dialog .xs-dlg-in::before {display:none}
+  .xs .xs-dialog .xs-dlg-in {gap:10px}
+  .xs .xs-form.is-compact {gap:8px}
+}
+.xs .xs-seg-form button {white-space:nowrap;padding:0 8px}
+@media (max-width:767px) {
+  .xs .xs-dlg-picks {grid-template-columns:1fr;gap:6px}
+}
+
+/* ─── Section 9 "blueprint" (design/xservicesx/09-Section9-blueprint): light cream, a copper drafting grid, a skyline
+   on its bottom edge so the navy footer starts right under it; the form sits in its own navy card. ─── */
+.xs .xs-s9 {isolation:isolate;color:var(--navy);background:radial-gradient(60% 420px at 50% 0%,#F7E3D3 0%,rgba(247,227,211,0) 100%),linear-gradient(180deg,#FBF6F1 0%,#F6ECE2 100%);padding-bottom:calc(90px + 28px)}
+.xs .xs-s9 :focus-visible {outline-color:var(--navy)}
+.xs .xs-s9 .xs-formcard :focus-visible {outline-color:#fff}
+.xs .xs-bp {position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.xs .xs-bp-marks {position:absolute;inset:-14px 6px;pointer-events:none}
+.xs .xs-bp-x {position:absolute;fill:none;stroke:var(--copper);stroke-opacity:.45;stroke-width:1}
+.xs .xs-bp-x.is-tl {left:0;top:0} .xs .xs-bp-x.is-tr {right:0;top:0} .xs .xs-bp-x.is-bl {left:0;bottom:0} .xs .xs-bp-x.is-br {right:0;bottom:0}
+.xs .xs-bp-label {position:absolute;top:4px;font:700 10px/1 var(--font-inter),monospace;letter-spacing:.14em;color:var(--copper);opacity:.5}
+.xs .xs-bp-label.is-a {left:30px} .xs .xs-bp-label.is-b {right:30px}
+.xs .xs-skyline {position:absolute;left:0;bottom:0;width:100%;height:90px;z-index:-1;pointer-events:none;display:block}
+.xs .xs-s9-eyebrow {align-self:flex-start;display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 10px;border-radius:999px;background:#fff;border:1px solid var(--border);box-shadow:0 6px 16px -10px rgba(20,33,61,.3);font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--copper-d)}
+.xs .xs-s9-eyebrow::before {content:"";width:7px;height:7px;border-radius:50%;background:var(--copper);box-shadow:0 0 0 3px rgba(185,113,75,.18)}
+.xs .xs-s9-head h2 {color:var(--navy)}
+.xs .xs-s9-accent {color:#A8623E}
+.xs .xs-s9-head p {color:var(--ink)}
+/* The plan document: three stacked sheets and a corner tag. */
+.xs .xs-paper-back {position:absolute;inset:0;border-radius:12px;pointer-events:none}
+.xs .xs-paper-back.is-1 {background:#EFE3D7;transform:rotate(1.5deg) translate(4px,4px)}
+.xs .xs-paper-back.is-2 {background:#E4D3C3;transform:rotate(4deg) translate(10px,8px)}
+.xs .xs-paper {box-shadow:0 30px 50px -30px rgba(20,33,61,.45)}
+.xs .xs-paper-tag {position:absolute;top:-11px;right:16px;padding:5px 10px;border-radius:6px;background:var(--navy);color:var(--copper-l);font-size:10px;font-weight:700;letter-spacing:.1em;white-space:nowrap;box-shadow:0 8px 18px -8px rgba(20,33,61,.6)}
+.xs .xs-qline {font-size:13px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* The navy form card on the light section. */
+.xs .xs-s9 .xs-formcard {position:relative;color:#fff;background:linear-gradient(180deg,#1C2C50 0%,#14213D 100%);border:1px solid rgba(20,33,61,.9);border-radius:22px;padding:22px 18px 18px;box-shadow:0 40px 80px -30px rgba(20,33,61,.55),0 12px 30px -18px rgba(20,33,61,.4)}
+.xs .xs-s9 .xs-formcard::before {content:"";position:absolute;top:0;left:24px;right:24px;height:2px;border-radius:0 0 2px 2px;background:linear-gradient(90deg,var(--copper),var(--copper-l),var(--copper))}
+.xs .xs-form-head {display:flex;align-items:center;justify-content:space-between;gap:12px}
+.xs .xs-form-head h3 {font-size:20px;color:#fff}
+.xs .xs-2min {flex:none;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:rgba(227,164,126,.14);border:1px solid rgba(227,164,126,.3);color:var(--copper-l);font-size:12px;font-weight:700}
+/* Country code: "+971 UAE" always in full (own chevron, so its width is known). */
+.xs .xs-tel select {width:124px;padding:0 26px 0 12px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23E3A47E' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+@media (max-width:399px) {
+  .xs .xs-tel .xs-in-ico {display:none}
+  .xs .xs-tel .xs-in input {padding-left:12px}
+  .xs .xs-s9 .xs-formcard {padding:20px 14px 16px}
+}
+@media (min-width:768px) {
+  .xs .xs-s9 {padding-bottom:calc(clamp(90px,10.4vw,150px) + 36px)}
+  .xs .xs-skyline {height:clamp(90px,10.4vw,150px)}
+  .xs .xs-s9 .xs-formcard {padding:28px}
+  @keyframes xsFloat {0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .xs .xs-pile {animation:xsFloat 6s ease-in-out infinite}
+}
+@media (min-width:1024px) {
+  .xs .xs-s9-eyebrow {align-self:center}
+  .xs .xs-s9 .xs-formcard {border-radius:26px;padding:30px}
+  .xs .xs-paper-tag {right:28px;top:-12px;font-size:11px}
+}
+@media (prefers-reduced-motion:reduce) {
+  .xs .xs-pile {animation:none}
+}
+.xs .xs-form-head {flex-wrap:wrap}
+.xs .xs-form-head h3 {white-space:nowrap}
+@media (min-width:1024px) {
+  .xs .xs-form-head h3 {font-size:22px}
 }
