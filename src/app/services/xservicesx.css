@@ -1371,3 +1371,13 @@
   /* Only the latest pair, from the first paint (the server HTML has three; the section hydrates when near). */
   .xs .xs-chat-body .xs-pair:not(:last-child) {display:none}
 }
+
+/* Hero plan card on phones: a short checklist of what the chosen plan covers, under the topic dropdown. */
+.xs .xs-hcard-mini {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;margin:0;padding:12px 14px;list-style:none;border-radius:14px;background:var(--cream);border:1px solid #F0E6DC;animation:xsIn .3s ease}
+.xs .xs-hcard-mini li {display:flex;align-items:flex-start;gap:6px;font-size:13px;line-height:1.35;font-weight:600;color:var(--navy)}
+.xs .xs-hcard-mini svg {flex:none;margin-top:2px;color:var(--copper)}
+@media (max-width:767px) {
+  /* The topic tabs make "Tap a question to see the answer" plain, so the line goes on phones. */
+  .xs .xs-s8 .xs-lede {display:none}
+  .xs .xs-hcard-mini {padding:10px 12px;gap:6px 12px}
+}

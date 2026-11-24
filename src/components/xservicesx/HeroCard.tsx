@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { HERO_NOTE, HERO_PLANS, HERO_PREPARED, TOPICS, TOPIC_IDS, isTopic } from "@/content/xservicesx";
+import { HERO_PLANS, HERO_PREPARED, TOPICS, TOPIC_IDS, isTopic } from "@/content/xservicesx";
 import { setXs, useXs, xsTrack } from "./store";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
@@ -21,11 +21,8 @@ export function HeroCard() {
       <div className="xs-hcard">
         <div className="xs-hcard-top">
           <label className="xs-hcard-label" htmlFor="xs-hero-topic">
-            <span className="xs-eyebrow">YOUR WRITTEN PLAN FOR</span>
+            <span className="xs-eyebrow">WHAT DO YOU NEED ADVICE ON?</span>
           </label>
-          <span className="xs-hcard-ex" title={HERO_NOTE}>
-            Example
-          </span>
         </div>
         <span className="xs-hcard-select">
           <select
@@ -45,6 +42,15 @@ export function HeroCard() {
           </select>
           <Icon name="chevronRight" size={18} strokeWidth={2.4} className="xs-hcard-chev" />
         </span>
+        {/* Phones: what this plan covers, as a short checklist (the preview rows show from 768 px). */}
+        <ul className="xs-hcard-mini p-only" key={"m-" + topic} aria-label="Your written plan covers">
+          {plan.rows.map((r) => (
+            <li key={r.label}>
+              <Icon name="check" size={13} strokeWidth={2.8} />
+              {r.label}
+            </li>
+          ))}
+        </ul>
         <dl className="xs-hcard-rows" key={topic}>
           {plan.rows.map((r) => (
             <div key={r.label}>
@@ -83,7 +89,6 @@ export function HeroCard() {
         <XsCta id="hero_card" location="hero" variant="dark" set={{ topic }} source="hero" className="xs-block">
           {plan.cta}
         </XsCta>
-        <span className="xs-hcard-note">{HERO_NOTE}</span>
       </div>
     </div>
   );

@@ -65,7 +65,6 @@ export const HERO_PLANS: Record<TopicId, { rows: PlanRow[]; cta: string }> = {
   not_sure: { rows: [B("Where to begin", 96), B("First step", 84), B("Rough budget", 80, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
 };
 export const HERO_PREPARED = { by: `Prepared by ${advisorName ?? "a Best Solution advisor"}`, to: "Sent to your WhatsApp" };
-export const HERO_NOTE = "Example layout. Your plan depends on your activity and team.";
 export const HERO_TRUST = ["Office in Business Bay", "In person or by video", ...(C.feesInWritingConfirmed ? ["Fees in writing first"] : [])];
 
 /* ─── S2 worries: desktop and phone wording ─── */
