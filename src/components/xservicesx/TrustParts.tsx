@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getXs, goToPlan, setXs, xsTrack } from "./store";
+import { getXs, goToPlan, setXs } from "./store";
 import { BtnArrow, Icon } from "./ui";
 
 /** Pauses and plays the review wall (#xs-wall). Hover and focus inside the wall pause it too (CSS). */
@@ -31,10 +31,10 @@ export function CallbackButton() {
       type="button"
       className="xs-btn xs-dark"
       data-xs-cta="callback"
+      data-cta-location="callback"
       data-cta=""
       onClick={() => {
         setXs({ contactPref: "call", topic: getXs().topic ?? "not_sure" });
-        xsTrack("xs_cta_click", { cta_id: "callback", location: "trust" });
         goToPlan();
       }}
     >

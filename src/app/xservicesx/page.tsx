@@ -3,7 +3,8 @@ import { Inter_Tight } from "next/font/google";
 import { SITE } from "@/content/site";
 import { FAQS } from "@/content/xservicesx";
 import { XS_CONFIG as C } from "@/content/xservicesx.config";
-import { XsHeader, XsHero } from "@/components/xservicesx/Top";
+import { XsHero } from "@/components/xservicesx/Top";
+import { XsHeader } from "@/components/xservicesx/Header";
 import { Worries } from "@/components/xservicesx/Worries";
 import { Situations } from "@/components/xservicesx/Situations";
 import { Outcomes } from "@/components/xservicesx/Outcomes";
@@ -15,6 +16,7 @@ import { PlanSection } from "@/components/xservicesx/PlanSection";
 import { XsFooter } from "@/components/xservicesx/Footer";
 import { StickyBar } from "@/components/xservicesx/StickyBar";
 import { PlanDialog } from "@/components/xservicesx/PlanDialog";
+import { LazySection } from "@/components/xservicesx/LazySection";
 import "./xservicesx.css";
 
 const interTight = Inter_Tight({ subsets: ["latin"], weight: ["700", "800"], display: "swap", variable: "--font-inter-tight" });
@@ -43,7 +45,7 @@ function jsonLd() {
     email: C.email,
     address: {
       "@type": "PostalAddress",
-      ...(C.officeAddress ? { streetAddress: C.officeAddress } : null),
+      ...(C.officeAddress ? { streetAddress: C.officeAddress.replace(/, Business Bay, Dubai$/, "") } : null),
       addressLocality: "Business Bay, Dubai",
       addressCountry: "AE",
     },
@@ -75,11 +77,20 @@ export default function XServicesPage() {
         <XsHero />
         <Worries />
         <Situations />
-        <Outcomes />
-        <HowItWorks />
+        {/* Below the fold: hydrated only when near the screen (LazySection). The form (S9) hydrates at once. */}
+        <LazySection>
+          <Outcomes />
+        </LazySection>
+        <LazySection>
+          <HowItWorks />
+        </LazySection>
         {hasAdvisors && <Advisors />}
-        <Trust withOffice={!hasAdvisors} />
-        <Questions />
+        <LazySection>
+          <Trust withOffice={!hasAdvisors} />
+        </LazySection>
+        <LazySection>
+          <Questions />
+        </LazySection>
         <PlanSection />
       </main>
       <XsFooter showReviews />

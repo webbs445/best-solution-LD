@@ -8,9 +8,9 @@ import { genEventId, isConfirmedLeadResponse } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { pushXsLead } from "@/lib/xsAnalytics";
 import { PhoneCountrySelect } from "@/components/ui/PhoneCountrySelect";
-import { S9_MICRO, thanksBody, waLink } from "@/content/xservicesx";
+import { S9_MICRO, THANKS_PREP, thanksBody, waLink } from "@/content/xservicesx";
 import { XS_CONFIG as C } from "@/content/xservicesx.config";
-import { getXs, setXs, useXs, xsTrack } from "./store";
+import { getXs, setXs, useXs } from "./store";
 import { BtnArrow, Icon } from "./ui";
 import { XsWhatsApp } from "./XsCta";
 
@@ -42,7 +42,6 @@ export const useForm = () =>
     () => SERVER_FORM,
   );
 
-let started = false;
 let sentOnce = false;
 /** The number check needs libphonenumber-js (about 30 KB): loaded when the visitor reaches a form, not with the page. */
 export const getChecker = async () => form.checker ?? import("@/lib/servicesPlanCheck").then((m) => (setForm({ checker: m }), m));
@@ -56,8 +55,8 @@ async function submit(e: FormEvent<HTMLFormElement>, prefix: string, location: "
   const { errors, e164 } = (await getChecker()).checkPlan({ name, phone, email }, country);
   setForm({ errors });
   const bad = Object.keys(errors) as PlanField[];
+  // form_error and form_start come from the site-wide form tracking (components/analytics/AnalyticsInit, data-track).
   if (bad.length || !e164) {
-    bad.forEach((f) => xsTrack("xs_form_error", { field: f, location }));
     document.getElementById(fieldId(prefix, (["name", "email", "phone"] as const).find((k) => errors[k]) ?? "phone"))?.focus();
     return;
   }
@@ -128,6 +127,14 @@ export function PlanForm({ prefix, location, heading, compact }: { prefix: strin
         </span>
         <b>{firstName ? `Thanks, ${firstName}.` : "Thanks."}</b>
         <p>{thanksBody(advisor?.name ?? null, s.contactPref)}</p>
+        <div className="xs-prep">
+          <span>{THANKS_PREP.title}</span>
+          <ol>
+            {THANKS_PREP.items.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ol>
+        </div>
         <XsWhatsApp location={`${location}_thanks`} className="xs-thanks-wa">
           Prefer to chat now? WhatsApp us →
         </XsWhatsApp>
@@ -140,12 +147,7 @@ export function PlanForm({ prefix, location, heading, compact }: { prefix: strin
       onSubmit={(e) => submit(e, prefix, location, honeypot.current?.value || "")}
       noValidate
       data-track={SERVICES_PLAN_FORM_ID}
-      onFocus={() => {
-        void getChecker();
-        if (started) return;
-        started = true;
-        xsTrack("xs_form_start", { location });
-      }}
+      onFocus={() => void getChecker()}
     >
       {heading && (
         <div className="xs-form-head">

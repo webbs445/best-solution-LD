@@ -9,7 +9,6 @@ const review = (n: number, topic: Review["topic"]): Review => ({
   topic,
   text: `QA fixture review ${n}. Not a real review, used only by the local test build. It is long enough to test the three line clamp on the review card in the wall.`,
   firstNameInitial: `Tester ${String.fromCharCode(64 + n)}.`,
-  month: n % 2 ? "March 2026" : null,
   stars: 5,
 });
 const reviews = (n: number) => Array.from({ length: n }, (_, i) => review(i + 1, i % 3 ? "bookkeeping" : null));

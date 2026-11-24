@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MODE_NOTE, S5_ADVISOR, S5_CALL, S5_CALL_SHORT, S5_CHIPS, S5_STEP3_LABEL, S5_SUB, S5_TITLE, S5_YOUR_CALL } from "@/content/xservicesx";
+import { MODE_NOTE, S5_ADVISOR, S5_CALL, S5_CALL_SHORT, S5_CHIPS, S5_LABELS as LABELS, S5_SUB, S5_TITLE, S5_YOUR_CALL } from "@/content/xservicesx";
 import { setXs, useXs, xsTrack } from "./store";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
 
-const LABELS = ["TODAY · 10:00 AM", "TODAY · 2:00 PM", S5_STEP3_LABEL];
-
 /*
   Section 5 (navy): three steps on a timeline. The copper line fills to the active step on hover or focus, and as the
   section scrolls into view (one step per third). Step 1 chips set the topic, the step 2 toggle the meeting mode.
+  Phones: each step is its title and one line (no chips, advisor row, toggle or WhatsApp preview: the pop-up asks).
 */
 export function HowItWorks() {
   const s = useXs();
@@ -58,7 +57,7 @@ export function HowItWorks() {
           <span className="xs-tl-fill" style={{ width: `calc(${step} * (100% - 2 * var(--tl-inset)) / 2)` }} />
           {LABELS.map((l, i) => (
             <span key={i} className={`xs-tl-node${i <= step ? " is-done" : ""}`}>
-              <span className="xs-tl-lab">{l ?? " "}</span>
+              <span className="xs-tl-lab">{l}</span>
               <span className="xs-tl-num">{i + 1}</span>
             </span>
           ))}
@@ -70,8 +69,11 @@ export function HowItWorks() {
             <div className="xs-step-body">
               <span className="xs-step-lab m-only">{LABELS[0]}</span>
               <h3>Tell us your plan</h3>
-              <p>Pick what&apos;s on your mind.<span className="d-only"> A few lines is enough.</span></p>
-              <div className="xs-tchips">
+              <p>
+                <span className="t-up">Pick what&apos;s on your mind. A few lines is enough.</span>
+                <span className="p-only">Tell us what&apos;s on your mind, in a few lines.</span>
+              </p>
+              <div className="xs-tchips t-up">
                 {S5_CHIPS.map((c) => {
                   const on = s.topic === c.topic;
                   return (
@@ -102,7 +104,7 @@ export function HowItWorks() {
                 <span className="d-only">{S5_CALL}</span>
                 <span className="m-only">{S5_CALL_SHORT}</span>
               </p>
-              <div className="xs-step-adv">
+              <div className="xs-step-adv t-up">
                 <span className="xs-adv-dot" aria-hidden="true">
                   <Icon name="user" size={20} />
                 </span>
@@ -111,14 +113,14 @@ export function HowItWorks() {
                   <small>{S5_ADVISOR.meta}</small>
                 </span>
               </div>
-              <div className="xs-seg" role="group" aria-label="How to meet">
+              <div className="xs-seg t-up" role="group" aria-label="How to meet">
                 {(["video", "office"] as const).map((m) => (
                   <button key={m} type="button" aria-pressed={mode === m} onClick={() => (setXs({ consultMode: m }), setStep(1))}>
                     {m === "video" ? "Video call" : "Business Bay office"}
                   </button>
                 ))}
               </div>
-              <span className="xs-mode-note" key={mode}>
+              <span className="xs-mode-note t-up" key={mode}>
                 {MODE_NOTE[mode]}
               </span>
             </div>
@@ -126,13 +128,13 @@ export function HowItWorks() {
           <li className={card(2)} onMouseEnter={go(2)} onFocus={go(2)}>
             <span className="xs-step-num m-only" aria-hidden="true">3</span>
             <div className="xs-step-body">
-              {LABELS[2] && <span className="xs-step-lab m-only">{LABELS[2]}</span>}
+              <span className="xs-step-lab m-only">{LABELS[2]}</span>
               <h3>Get it in writing</h3>
               <p>
                 <span className="d-only">Your plan lands on WhatsApp. Read it, share it, decide in your own time.</span>
                 <span className="m-only">Your plan lands on WhatsApp. Decide in your own time.</span>
               </p>
-              <div className="xs-msg" aria-hidden="true">
+              <div className="xs-msg t-up" aria-hidden="true">
                 <span>Hi, your written plan is ready.</span>
                 <span className="xs-msg-file">
                   <span className="xs-msg-ico">

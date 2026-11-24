@@ -1,6 +1,7 @@
 // Strict Google Ads compliance scan. Per route, after load with JS (tag hosts blocked, no consent given): ALL text in the
 // DOM, visible or hidden, plus alt/aria-label/title/placeholder, <title> and meta content, JSON-LD and decoded wa.me
-// message texts. [data-legal] (disclaimers) and [data-review-quote] (real Google review quotes) are exempt.
+// message texts. [data-legal] (disclaimers) and [data-review-quote] (real Google review quotes) are exempt, except on
+// /xservicesx (reviews scanned with two phrase exemptions; the verified rating exempt from the 4.8 rule).
 // Rules: banned words (rule 7), strict words (also run-together text), claim phrases, prices. Allowed: the corporate tax
 // threshold "AED 375,000" everywhere, and on /corporate-tax any AED amount as a tax fact unless fee(s), price, pricing,
 // cost, package, "from AED" or "starting at" is within about 6 words. /privacy and /terms are reported as "pending legal" and not counted while LEGAL_V2 is false
@@ -36,11 +37,15 @@ for (const r of ROUTES) {
   await blockTags(p);
   const res = await p.goto(BASE + r, { waitUntil: "networkidle2", timeout: 180000 });
   await wait(1000);
-  const d = await p.evaluate(() => {
+  // /xservicesx: its reviews are scanned (only "stress-free" and "THE BEST SOLUTIONS" exempt) and its verified Google
+  // rating ([data-google-rating], set in XS_CONFIG) is exempt from the 4.8 rule.
+  const xs = r === "/xservicesx";
+  const exempt = xs ? "[data-legal],[data-google-rating]" : "[data-legal],[data-review-quote]";
+  const raw = await p.evaluate((exempt) => {
     const clone = document.body.cloneNode(true);
-    clone.querySelectorAll("script, style, noscript, [data-legal], [data-review-quote]").forEach((e) => e.remove());
+    clone.querySelectorAll(`script, style, noscript, ${exempt}`).forEach((e) => e.remove());
     const attrs = [...document.querySelectorAll("[alt],[aria-label],[title],[placeholder]")]
-      .filter((e) => !e.closest("[data-legal],[data-review-quote]"))
+      .filter((e) => !e.closest(exempt))
       .flatMap((e) => ["alt", "aria-label", "title", "placeholder"].map((a) => e.getAttribute(a) || ""));
     const meta = [document.title, ...[...document.querySelectorAll("meta[content]")].map((m) => m.getAttribute("content"))];
     const schema = [...document.querySelectorAll('script[type="application/ld+json"]')].map((s) => s.textContent);
@@ -52,7 +57,8 @@ for (const r of ROUTES) {
       }
     });
     return [clone.textContent, attrs.join(" | "), meta.join(" | "), schema.join(" | "), wa.join(" | ")].join(" || ").replace(/\s+/g, " ");
-  });
+  }, exempt);
+  const d = xs ? raw.replace(/stress-free|THE BEST SOLUTIONS/g, " ") : raw;
   await ctx.close();
   const issues = [];
   const hit = (name, re, text = d, keep = () => true) => {

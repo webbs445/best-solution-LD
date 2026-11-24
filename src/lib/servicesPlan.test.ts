@@ -97,16 +97,25 @@ describe("page state", () => {
 describe("XS_CONFIG facts still to confirm", () => {
   it("leaves unconfirmed facts null or empty (the elements that need them are hidden)", () => {
     expect(XS_CONFIG).toMatchObject({
-      replyTime: null,
       consultLength: null,
       planDelivery: null,
-      officeAddress: null,
+      teamLanguages: null,
       advisors: [],
-      googleRating: null,
-      googleReviewCount: null,
       clientStory: null,
       aboutUrl: null,
       feesInWritingConfirmed: false,
+    });
+  });
+
+  it("holds the facts confirmed for this page", () => {
+    expect(XS_CONFIG).toMatchObject({
+      replyTime: "the same day",
+      officeAddress: "Office 906, Capital Golden Tower, Business Bay, Dubai",
+      officeHours: "Monday to Friday, 9am to 6pm",
+      googleRating: 4.8,
+      googleReviewCount: 225,
+      whatsappNumber: "97145531546",
+      phoneNumber: { display: "+971 52 233 0011", href: "tel:+971522330011" },
     });
   });
 });

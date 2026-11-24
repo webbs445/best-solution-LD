@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { pushEvent } from "@/lib/analytics";
+import { trackEvent } from "@/lib/analytics";
 import { WORRIES, isTopic, type TopicId } from "@/content/xservicesx";
 import { XS_CONFIG } from "@/content/xservicesx.config";
 
@@ -64,8 +64,8 @@ export function setXs(patch: Partial<XsState>): void {
 const subscribe = (l: () => void) => (listeners.add(l), () => void listeners.delete(l));
 export const useXs = () => useSyncExternalStore(subscribe, current, () => XS_DEFAULT);
 
-/** dataLayer push for this page's own events. Never a name, number or email. */
-export const xsTrack = (event: string, params: Record<string, unknown> = {}) => pushEvent(event, { ...params, page: "/xservicesx" });
+/** dataLayer push for this page's own events (with page_data, like other pages' custom events). Never a name, number or email. */
+export const xsTrack = (event: string, params: Record<string, unknown> = {}) => trackEvent(event, { ...params, page: "/xservicesx" });
 
 export const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

@@ -33,6 +33,8 @@
 .xs .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 @media (max-width:1023px) {.xs .d-only {display:none !important}}
 @media (min-width:1024px) {.xs .m-only {display:none !important}}
+@media (max-width:767px) {.xs .t-up {display:none !important}}
+@media (min-width:768px) {.xs .p-only {display:none !important}}
 
 /* ─── Buttons (00-Buttons): primary, dark, ghost, link, chip ─── */
 .xs .xs-btn {display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 10px 0 24px;border-radius:14px;border:0;font:600 16px/1.2 var(--font-inter),sans-serif;text-decoration:none;cursor:pointer;text-align:center;transition:background .2s,transform .2s,box-shadow .2s,border-color .2s,color .2s}
@@ -59,7 +61,6 @@
 
 /* ─── Header ─── */
 .xs .xs-header {background:var(--cream)}
-.xs .xs-header-in {display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;padding-block:10px}
 .xs .xs-logo {display:inline-flex}
 .xs .xs-logo img {width:auto;height:44px}
 .xs .xs-nav,.xs .xs-header-phone {display:none}
@@ -495,7 +496,6 @@
   .xs .xs-eyebrow {font-size:13px}
   .xs .xs-lede {font-size:17px}
 
-  .xs .xs-header-in {min-height:96px;padding-block:20px}
   .xs .xs-nav {display:flex;gap:36px;font-size:15px;font-weight:500}
   .xs .xs-nav a {display:inline-flex;align-items:center;min-height:44px;text-decoration:none}
   .xs .xs-nav a:hover {color:var(--copper-d)}
@@ -1008,3 +1008,247 @@
 @media (min-width:1024px) {
   .xs .xs-form-head h3 {font-size:22px}
 }
+
+/* ─── S4 "What decides your cost" strip ─── */
+.xs .xs-costs {display:flex;flex-direction:column;gap:10px;margin-top:6px;padding:14px 16px;border-radius:16px;background:#fff;border:1px solid var(--border)}
+.xs .xs-costs h3 {font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--copper-d);font-family:var(--font-inter),sans-serif}
+.xs .xs-costs ul {list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.xs .xs-costs li {display:flex;align-items:flex-start;gap:10px;font-size:14px;line-height:1.4;color:var(--ink)}
+.xs .xs-costs li b {color:var(--navy);font-weight:700}
+.xs .xs-costs-ico {flex:none;width:28px;height:28px;border-radius:8px;background:var(--tint-2);color:var(--copper-d);display:inline-flex;align-items:center;justify-content:center;margin-top:-4px}
+.xs .xs-costs p {font-size:13px;font-weight:600;color:var(--navy);padding-top:8px;border-top:1px dashed var(--dash)}
+@media (min-width:768px) {
+  .xs .xs-costs ul {grid-template-columns:1fr 1fr;gap:10px 18px}
+}
+
+/* S8 ask bar: a real field (16px text so phones don't zoom) and a send button. */
+.xs .xs-askbar input.xs-askbar-field {width:100%;min-width:0;border:1.5px solid transparent;color:var(--navy);font:16px var(--font-inter),sans-serif;outline:none;transition:border-color .2s,background .2s}
+.xs .xs-askbar input.xs-askbar-field::placeholder {color:var(--muted)}
+.xs .xs-askbar input.xs-askbar-field:focus {border-color:var(--copper);background:#fff}
+.xs .xs-askbar button.xs-send {border:0;cursor:pointer}
+.xs .xs-askbar button.xs-send:hover {transform:scale(1.06)}
+
+/* Thank-you: what to have ready before the call. */
+.xs .xs-prep {display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.xs .xs-prep > span {font-size:14px;font-weight:700;color:#fff}
+.xs .xs-prep ol {margin:0;padding:0;list-style:none;counter-reset:prep;display:grid;gap:6px}
+.xs .xs-prep li {counter-increment:prep;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--on-navy)}
+.xs .xs-prep li::before {content:counter(prep);flex:none;width:22px;height:22px;border-radius:50%;background:var(--copper-h);color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+
+/* Header Google badge (from 768 px), shown only while the rating is set in XS_CONFIG. */
+.xs .xs-hbadge {display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;background:#fff;border:1px solid var(--border);font-size:13px;color:var(--ink);white-space:nowrap}
+.xs .xs-hbadge b {color:var(--navy)}
+.xs .xs-hbadge svg {color:var(--copper)}
+.xs .xs-hbadge:hover {border-color:var(--copper)}
+@media (min-width:768px) and (max-width:1023px) {
+  .xs .xs-hbadge {margin-left:auto}
+}
+.xs .xs-contents {display:contents}
+
+/* Featured review (Michael's): the phones' first card and, with fewer than six reviews, the desktop still row's first. */
+.xs .xs-rcard.is-swipe.is-featured .xs-rtext {font:600 18px/1.45 var(--head);letter-spacing:-.01em;-webkit-line-clamp:7}
+@media (min-width:1024px) {
+  .xs .xs-still.is-two {grid-template-columns:3fr 2fr}
+  .xs .xs-rcard.is-still.is-featured .xs-rtext {font-size:26px}
+}
+.xs .xs-big-one {font-size:15px;line-height:1.5;color:var(--ink)}
+
+/* ─── Speed ─── */
+/* Below-the-fold sections: the browser skips their layout and paint until they come near the screen. The "auto"
+   intrinsic size remembers each section's real height once rendered, so the scrollbar stays steady. */
+.xs .xs-s4,.xs .xs-s5,.xs .xs-trustsec,.xs .xs-s8,.xs .xs-s9 {content-visibility:auto;contain-intrinsic-size:auto 1100px}
+@media (min-width:1024px) {
+  .xs .xs-s4,.xs .xs-s5,.xs .xs-trustsec,.xs .xs-s8,.xs .xs-s9 {contain-intrinsic-size:auto 900px}
+}
+/* Phones: transforms and opacity only. No backdrop blur, no animated shadows or backgrounds, no endless shimmer. */
+@media (max-width:767px) {
+  .xs .xs-dialog::backdrop {backdrop-filter:none}
+  .xs .xs-answer li.is-new {animation:xsIn .3s ease}
+  .xs .xs-about strong {animation:none}
+  .xs .xs-blur {animation:none;background:#EDE4DB}
+  .xs .xs-card,.xs .xs-rcard,.xs .xs-qbtn,.xs .xs-doc-blk {transition-property:transform,opacity}
+  .xs .xs-pile {animation:none}
+}
+
+/* ─── Phones: a shorter page (Part H). The popup asks for the details, so the duplicates go. ─── */
+@media (max-width:767px) {
+  .xs {--pad:32px}
+  /* Hero card: the topic choice and its button only (the preview rows show from 768 px). */
+  .xs .xs-hcard-rows,.xs .xs-hcard-lock,.xs .xs-hcard-by,.xs .xs-hcard-note {display:none}
+  .xs .xs-chat {height:420px}
+  /* The footer keeps the office (address, hours, Call, Directions); the Trust office card shows from 768 px. */
+  .xs .xs-office-card {display:none}
+  .xs .xs-s5-foot p {display:none}
+  .xs .xs-trust-cta {display:none}
+  .xs .xs-worry {padding-block:10px}
+  .xs .xs-costs {gap:8px;padding:12px 14px}
+  .xs .xs-costs li {font-size:13.5px}
+}
+@media (max-width:767px) {
+  .xs .xs-s5-head p {display:none}
+  .xs .xs-step-body {gap:6px;padding-block:14px}
+  .xs .xs-otext > span {display:none}
+  .xs .xs-outcome {min-height:50px;padding-block:9px}
+  .xs .xs-notsure {flex-direction:row;align-items:center;gap:12px;padding:14px}
+  .xs .xs-notsure .xs-ico,.xs .xs-notsure p {display:none}
+  .xs .xs-notsure > div {flex:1}
+  .xs .xs-notsure .xs-btn {flex:none;min-height:44px;padding-inline:14px 8px;gap:8px;font-size:14px}
+  .xs .xs-s9 {padding-top:32px}
+  .xs .xs-s9 .xs-formcard .xs-form {gap:10px}
+  .xs .xs-s9 .xs-formcard .xs-field input,.xs .xs-s9 .xs-formcard .xs-tel select {height:48px}
+}
+@media (max-width:767px) {
+  .xs .xs-chat {height:360px}
+  .xs .xs-answer-foot > span,.xs .xs-s4-cta > span {display:none}
+  .xs .xs-s9 {padding-bottom:calc(64px + 20px)}
+  .xs .xs-skyline {height:64px}
+  .xs .xs-hero {padding-bottom:24px}
+  .xs .xs-hero-copy .xs-trust {flex-direction:row;flex-wrap:wrap;gap:4px 16px}
+}
+@media (max-width:767px) {
+  .xs .xs-answer-by {display:none}
+}
+@media (max-width:767px) {
+  .xs .xs-answer {min-height:0}
+}
+
+/* ─── Hero polish: a proof block (Google rating card + checks) and a cleaner plan card ─── */
+.xs .xs-proof {display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;padding-top:18px;border-top:1px solid #EADFD4}
+.xs .xs-proof .xs-trust {padding-top:0;border-top:0;gap:6px 18px}
+.xs .xs-proof-g {display:inline-flex;align-items:center;gap:12px;min-height:56px;padding:8px 16px 8px 10px;border-radius:16px;background:#fff;border:1px solid var(--border);box-shadow:0 12px 26px -18px rgba(20,33,61,.45);color:var(--navy);transition:border-color .2s,transform .2s}
+.xs .xs-proof-g:hover {border-color:var(--copper);transform:translateY(-1px)}
+.xs .xs-proof-score {display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:40px;padding:0 8px;border-radius:10px;background:var(--navy);color:#fff;font:800 20px/1 var(--head);letter-spacing:-.02em}
+.xs .xs-proof-meta {display:flex;flex-direction:column;gap:3px;font-size:13px;font-weight:600;color:var(--ink)}
+.xs .xs-proof-meta .xs-stars {color:#E5A13A}
+/* Plan card: an "Example" chip in the header, a footer strip for who prepares it, the note inside the card. */
+.xs .xs-hcard-top {display:flex;align-items:center;justify-content:space-between;gap:12px}
+.xs .xs-hcard-ex {flex:none;padding:4px 10px;border-radius:999px;background:var(--tint-2);border:1px dashed var(--dash);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--copper-ink)}
+.xs .xs-hcard-by {padding:10px 12px;border-radius:14px;background:var(--cream);border:1px solid #F0E6DC}
+.xs .xs-hcard-av {box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--copper-l)}
+.xs .xs-hcard-by-t {flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
+.xs .xs-hcard-by-t b {font-size:14px;color:var(--navy)}
+.xs .xs-hcard-by-t small {font-size:12.5px;color:var(--muted)}
+.xs .xs-hcard-wa {flex:none;width:32px;height:32px;border-radius:50%;background:#E7F6EC;color:#1F8F4E;display:inline-flex;align-items:center;justify-content:center}
+.xs .xs-hcard .xs-dark {background:linear-gradient(180deg,#1E2C4D 0%,var(--navy) 100%);box-shadow:0 16px 30px -16px rgba(20,33,61,.7)}
+.xs .xs-hcard-note {display:block;margin-top:-4px;text-align:center;font-size:12px;color:var(--muted-2)}
+@media (min-width:1024px) {
+  .xs .xs-hero-grid {align-items:center;row-gap:40px}
+  .xs .xs-proof {gap:16px 28px;padding-top:24px}
+  .xs .xs-proof .xs-trust {flex-direction:column;gap:8px}
+}
+
+/* ─── Header: the other landing pages' floating bar. On the hero at the top; a floating rounded card once scrolled. ─── */
+.xs .xs-header {position:sticky;top:0;z-index:60;background:transparent;padding:8px 8px 0;pointer-events:none}
+.xs .xs-header-bar {pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1440px;min-height:64px;margin-inline:auto;padding:0 8px 0 14px;border:1px solid transparent;border-radius:16px;background:transparent;transition:background .25s ease,box-shadow .25s ease,border-color .25s ease}
+.xs .xs-header.is-scrolled .xs-header-bar {background:linear-gradient(#fff,#F5E8E2);border-color:rgba(204,134,103,.14);box-shadow:0 14px 40px rgba(20,37,62,.12)}
+.xs .xs-logo img {height:38px}
+.xs .xs-header-act {display:flex;align-items:center;gap:12px}
+.xs .xs-header-cta {display:none}
+.xs .xs-header-phone svg {color:var(--copper-d)}
+.xs .xs-nav .svm-btn,.xs .xs-nav > a {display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 16px;border-radius:8px;border:0;background:none;font:600 15px/1 var(--font-inter),sans-serif;color:var(--navy);cursor:pointer;text-decoration:none;transition:background-color .15s,color .15s}
+.xs .xs-nav .svm-btn:hover,.xs .xs-nav > a:hover {background:rgba(204,134,103,.1);color:var(--copper-ink)}
+.xs .xs-nav .svm-btn svg {width:16px;height:16px}
+@media (min-width:1024px) {
+  .xs .xs-header {padding:12px 24px 0}
+  .xs .xs-header-bar {min-height:72px;padding:0 12px 0 28px}
+  .xs .xs-logo img {height:44px}
+  .xs .xs-nav {display:flex;align-items:center;gap:4px}
+  .xs .xs-header-phone {display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:15px;font-weight:600;color:var(--navy);text-decoration:none}
+  .xs .xs-header-cta {display:inline-flex;width:auto;min-height:46px;padding:0 22px;border-radius:999px;font-size:15px;background:linear-gradient(to right bottom,#A8623E,#8F4F2C);box-shadow:0 8px 20px rgba(168,98,62,.32)}
+  .xs .xs-header-cta:hover {background:linear-gradient(to right bottom,#94532F,#7E4426);transform:translateY(-1px)}
+}
+@media (max-width:767px) {
+  .xs .xs-header.is-scrolled .xs-header-bar {box-shadow:0 10px 24px rgba(20,37,62,.12)}
+}
+
+/* ─── S8 chat: WhatsApp-style. A warm doodle wallpaper (own drawings) with a faint Best Solution watermark, green
+   "sent" bubbles with read ticks, white replies, a date chip, the brand mark as the avatar. ─── */
+.xs .xs-chat {background:#EDE4D8;border:1px solid #E2D5C6}
+.xs .xs-chat-head {background:linear-gradient(180deg,#1C2C50,var(--navy))}
+.xs .xs-chat-av {background:#fff;border:2px solid var(--copper-l)}
+.xs .xs-chat-av img {width:20px;height:auto}
+.xs .xs-chat-wa {margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(37,211,102,.16);color:#8EF0B0;font-size:12px;font-weight:700}
+.xs .xs-chat-body {position:relative;background-color:#EDE4D8;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22230%22%20height%3D%22230%22%20viewBox%3D%220%200%20230%20230%22%20fill%3D%22none%22%20stroke%3D%22%239A5A36%22%20stroke-opacity%3D%22.16%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate(14%2014)%20scale(1.05)%22%3E%3Cpath%20d%3D%22M3%2021l1.6-4.8A8.5%208.5%200%201%201%208%2019.6L3%2021z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(86%2010)%20scale(1.05)%22%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%2214%22%20height%3D%2218%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M9%208h6M9%2012h6M9%2016h4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(150%2030)%20scale(1.05)%22%3E%3Cpath%20d%3D%22m5%2012%205%205%209-10%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(40%2070)%20scale(1.05)%22%3E%3Cpath%20d%3D%22M4%2021V7l8-4%208%204v14M9%2021v-5h6v5M8%2010h.01M12%2010h.01M16%2010h.01%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(118%2078)%20scale(1.05)%22%3E%3Cpath%20d%3D%22M12%2021s7-6.2%207-11.5A7%207%200%200%200%205%209.5C5%2014.8%2012%2021%2012%2021z%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%229.5%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(6%20128)%20scale(1.05)%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M12%207v5l3%202%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(78%20140)%20scale(1.05)%22%3E%3Cpath%20d%3D%22m12%203%202.6%205.3%205.9.9-4.3%204.1%201%205.8L12%2016.4%206.8%2019.1l1-5.8L3.5%209.2l5.9-.9z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(150%20120)%20scale(1.05)%22%3E%3Cpath%20d%3D%22M4%204h16v12H8l-4%204z%22%2F%3E%3Cpath%20d%3D%22M8%209h8M8%2012h5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(190%20180)%20scale(1.05)%22%3E%3Cpath%20d%3D%22m5%2012%205%205%209-10%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(196%2070)%20scale(1.05)%22%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%2214%22%20height%3D%2218%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M9%208h6M9%2012h6%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");background-size:230px 230px}
+.xs .xs-chat-body::before {content:"";position:absolute;inset:0;background:url(/brand/mark-watermark.webp) center 42%/150px auto no-repeat;opacity:.07;pointer-events:none}
+.xs .xs-chat-body > * {position:relative}
+.xs .xs-chat-day {align-self:center;padding:4px 12px;border-radius:8px;background:rgba(255,255,255,.85);box-shadow:0 1px 2px rgba(20,33,61,.08);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.xs .xs-me {background:#D9FDD3;color:#10301B;padding-right:34px;position:relative}
+.xs .xs-me::after {content:"";position:absolute;right:10px;bottom:8px;width:18px;height:11px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2218%22 height=%2211%22 viewBox=%220 0 28 16%22 fill=%22none%22 stroke=%22%2334B7F1%22 stroke-width=%222.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22m2 9 4 4 8-10%22/%3E%3Cpath d=%22m12 13 2 0 10-10%22/%3E%3C/svg%3E") no-repeat}
+.xs .xs-adv-b {box-shadow:0 1px 2px rgba(20,33,61,.1)}
+.xs .xs-askbar {background:#F7F1EA;border-top:1px solid #E2D5C6}
+.xs .xs-askbar input.xs-askbar-field {background:#fff}
+.xs .xs-askbar .xs-send {background:#1F8F4E}
+.xs .xs-askbar:hover .xs-send,.xs .xs-askbar .xs-send:hover {background:#18783F}
+
+/* Desktop: tighter vertical rhythm from section 3 on (was 88 px per side, tall fixed boxes). */
+@media (min-width:1024px) {
+  .xs {--pad:64px}
+  .xs .xs-chat {height:600px}
+  .xs .xs-step-body {min-height:0}
+  .xs .xs-s9 {padding-top:64px}
+  .xs .xs-s9-grid {margin-top:36px}
+  .xs .xs-paper-stage {min-height:500px}
+  .xs .xs-formcard {min-height:0}
+  .xs .xs-office-card,.xs .xs-trust-cta {margin-top:28px}
+}
+@media (max-width:767px) {
+  .xs .xs-proof {flex-wrap:nowrap;gap:12px;padding-top:14px}
+  .xs .xs-proof-g {flex:none;min-height:0;padding:6px 10px 6px 6px;gap:8px;border-radius:14px}
+  .xs .xs-proof-score {min-width:38px;height:34px;font-size:17px}
+  .xs .xs-proof-meta {font-size:12px}
+  .xs .xs-hero-copy .xs-proof .xs-trust {flex-direction:column;flex-wrap:nowrap;gap:4px;font-size:13px}
+  .xs .xs-hero-copy .xs-proof .xs-trust li {gap:6px}
+}
+@media (max-width:767px) {
+  .xs {--pad:28px}
+  .xs .xs-s9-head h2 {font-size:28px}
+  .xs .xs-footer {padding-top:32px}
+}
+
+/* S8 chat, round 2: a WhatsApp chat with Best Solution. Header with back arrow, mark, verified tick and call; the
+   wallpaper is on-brand line art (the Best Solution mark drawn as a vector, a tower, documents, globe, calendar) on a
+   warm gradient; on desktop the chat is as tall as the question list. */
+.xs .xs-chat-wa {display:none}
+.xs .xs-chat-head {gap:10px;padding:10px 12px 10px 8px}
+.xs .xs-chat-back {flex:none;display:inline-flex;color:var(--on-navy)}
+.xs .xs-chat-name {flex:1;min-width:0;display:flex;align-items:center;gap:6px}
+.xs .xs-chat-name b {font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xs .xs-chat-ok {flex:none;width:16px;height:16px;border-radius:50%;background:var(--copper-l);color:var(--navy);display:inline-flex;align-items:center;justify-content:center}
+.xs .xs-chat-call {flex:none;width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;background:rgba(255,255,255,.08);transition:background .2s}
+.xs .xs-chat-call:hover {background:rgba(255,255,255,.16)}
+.xs .xs-chat-body {background-color:#EFE6DA;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22236%22%20height%3D%22236%22%20viewBox%3D%220%200%20236%20236%22%20fill%3D%22none%22%20stroke%3D%22%239A5A36%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate(16%2016)%20scale(1.25)%22%20stroke-opacity%3D%22.22%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(128%20124)%20scale(1.25)%22%20stroke-opacity%3D%22.22%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(80%2014)%20scale(1)%22%20stroke-opacity%3D%22.15%22%3E%3Cpath%20d%3D%22M12%202v3M10%205h4l1%2017H9zM9%2012h6M8.5%2017h7%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(172%2028)%20scale(1)%22%20stroke-opacity%3D%22.15%22%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%2214%22%20height%3D%2218%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22m9%2013%202%202%204-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(62%2074)%20scale(1)%22%20stroke-opacity%3D%22.14%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M3%2012h18M12%203c2.5%203%202.5%2015%200%2018M12%203c-2.5%203-2.5%2015%200%2018%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(188%2092)%20scale(1)%22%20stroke-opacity%3D%22.14%22%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%2218%22%20height%3D%2213%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M9%207V5h6v2M3%2012h18%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(10%20160)%20scale(1)%22%20stroke-opacity%3D%22.14%22%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%2216%22%20height%3D%2215%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%203v4M16%203v4M4%2010h16%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(72%20184)%20scale(1)%22%20stroke-opacity%3D%22.14%22%3E%3Cpath%20d%3D%22M4%205h16v11H9l-5%204z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(196%20182)%20scale(1)%22%20stroke-opacity%3D%22.13%22%3E%3Cpath%20d%3D%22m12%203%202.6%205.3%205.9.9-4.3%204.1%201%205.8L12%2016.4%206.8%2019.1l1-5.8L3.5%209.2l5.9-.9z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"),linear-gradient(180deg,#F3ECE2 0%,#EADFD1 100%);background-size:236px 236px,100% 100%}
+.xs .xs-chat-body::before {display:none}
+@media (min-width:1024px) {
+  .xs .xs-s8-grid {grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
+  .xs .xs-chat {height:auto;min-height:560px;position:sticky;top:104px;max-height:calc(100vh - 128px)}
+  .xs .xs-chat-head {padding:14px 16px 14px 12px}
+  .xs .xs-chat-name b {font-size:17px}
+}
+.xs .xs-formcard:has(.xs-thanks) .xs-formcard-foot {display:none}
+@media (max-width:767px) {
+  .xs .xs-paper-tag {left:14px;right:auto}
+}
+
+/* S8 chat, round 3: denser, even wallpaper (a 42 px staggered grid), verified badge and "online" under the name. */
+.xs .xs-chat-body {background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22168%22%20height%3D%22168%22%20viewBox%3D%220%200%20168%20168%22%20fill%3D%22none%22%20stroke%3D%22%239A5A36%22%20stroke-width%3D%221.7%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate(3%203)%20scale(.75)%22%20stroke-opacity%3D%22.24%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(45%203)%20scale(.75)%22%20stroke-opacity%3D%22.15%22%3E%3Cpath%20d%3D%22M4%205h16v11H9l-5%204z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(87%203)%20scale(.75)%22%20stroke-opacity%3D%22.16%22%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%2214%22%20height%3D%2218%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22m9%2013%202%202%204-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(129%203)%20scale(.75)%22%20stroke-opacity%3D%22.14%22%3E%3Cpath%20d%3D%22m12%203%202.6%205.3%205.9.9-4.3%204.1%201%205.8L12%2016.4%206.8%2019.1l1-5.8L3.5%209.2l5.9-.9z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(24%2045)%20scale(.75)%22%20stroke-opacity%3D%22.15%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M3%2012h18M12%203c2.5%203%202.5%2015%200%2018M12%203c-2.5%203-2.5%2015%200%2018%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(66%2045)%20scale(.75)%22%20stroke-opacity%3D%22.24%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(108%2045)%20scale(.75)%22%20stroke-opacity%3D%22.15%22%3E%3Cpath%20d%3D%22M4%205h16v11H9l-5%204z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(150%2045)%20scale(.75)%22%20stroke-opacity%3D%22.16%22%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%2214%22%20height%3D%2218%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22m9%2013%202%202%204-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(-18%2045)%20scale(.75)%22%20stroke-opacity%3D%22.16%22%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%2214%22%20height%3D%2218%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22m9%2013%202%202%204-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(3%2087)%20scale(.75)%22%20stroke-opacity%3D%22.15%22%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%2216%22%20height%3D%2215%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%203v4M16%203v4M4%2010h16%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(45%2087)%20scale(.75)%22%20stroke-opacity%3D%22.15%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M3%2012h18M12%203c2.5%203%202.5%2015%200%2018M12%203c-2.5%203-2.5%2015%200%2018%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(87%2087)%20scale(.75)%22%20stroke-opacity%3D%22.24%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(129%2087)%20scale(.75)%22%20stroke-opacity%3D%22.15%22%3E%3Cpath%20d%3D%22M4%205h16v11H9l-5%204z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(24%20129)%20scale(.75)%22%20stroke-opacity%3D%22.16%22%3E%3Cpath%20d%3D%22M12%202v3M10%205h4l1%2017H9zM9%2012h6M8.5%2017h7%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(66%20129)%20scale(.75)%22%20stroke-opacity%3D%22.15%22%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%2216%22%20height%3D%2215%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%203v4M16%203v4M4%2010h16%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(108%20129)%20scale(.75)%22%20stroke-opacity%3D%22.15%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M3%2012h18M12%203c2.5%203%202.5%2015%200%2018M12%203c-2.5%203-2.5%2015%200%2018%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(150%20129)%20scale(.75)%22%20stroke-opacity%3D%22.24%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(-18%20129)%20scale(.75)%22%20stroke-opacity%3D%22.24%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"),linear-gradient(180deg,#F3ECE2 0%,#EADFD1 100%);background-size:168px 168px,100% 100%}
+.xs .xs-chat-name {flex-direction:column;align-items:flex-start;gap:0}
+.xs .xs-chat-title {display:flex;align-items:center;gap:6px;min-width:0;max-width:100%}
+.xs .xs-chat-name small {font-size:12.5px;line-height:1.2;color:#9FE2B8}
+.xs svg.xs-chat-ok {flex:none;width:18px;height:18px;background:none}
+
+/* S8 chat, round 4: an organic doodle wallpaper (37 icons per 300 px tile, scattered with even spacing, mixed
+   sizes and angles, seamless repeat) and a WhatsApp-style note at the top of the thread. */
+.xs .xs-chat-body {background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22300%22%20viewBox%3D%220%200%20300%20300%22%20fill%3D%22none%22%20stroke%3D%22%239A5A36%22%20stroke-width%3D%221.7%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate(0.0%20134.1)%20rotate(-13)%20scale(0.76)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M7%2011V7a5%205%200%200%201%2010%200v4%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2216%22%20height%3D%2210%22%20rx%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(300.0%20134.1)%20rotate(-13)%20scale(0.76)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M7%2011V7a5%205%200%200%201%2010%200v4%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2216%22%20height%3D%2210%22%20rx%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(93.5%2013.5)%20rotate(-12)%20scale(0.76)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.26%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(93.5%20313.5)%20rotate(-12)%20scale(0.76)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.26%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(258.1%20122.6)%20rotate(6)%20scale(0.78)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M7%2011V7a5%205%200%200%201%2010%200v4%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2216%22%20height%3D%2210%22%20rx%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(155.2%20140.3)%20rotate(-6)%20scale(0.80)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M12%2021s7-6.2%207-11.5A7%207%200%200%200%205%209.5C5%2014.8%2012%2021%2012%2021z%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%229.5%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(141.7%2084.5)%20rotate(13)%20scale(0.83)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.17%22%3E%3Cpath%20d%3D%22M12%202v3M10%205h4l1%2017H9zM9%2012h6M8.5%2017h7%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(65.6%20214.1)%20rotate(4)%20scale(0.69)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.17%22%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%2214%22%20height%3D%2218%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22m9%2013%202%202%204-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(42.2%20114.1)%20rotate(-17)%20scale(0.81)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.26%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(176.4%20248.0)%20rotate(18)%20scale(0.62)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%2216%22%20height%3D%2215%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%203v4M16%203v4M4%2010h16%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(3.5%2057.9)%20rotate(18)%20scale(0.87)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%2218%22%20height%3D%2213%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M9%207V5h6v2M3%2012h18%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(303.5%2057.9)%20rotate(18)%20scale(0.87)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%2218%22%20height%3D%2213%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M9%207V5h6v2M3%2012h18%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(29.1%20183.2)%20rotate(6)%20scale(0.63)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.17%22%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%2214%22%20height%3D%2218%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22m9%2013%202%202%204-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(270.4%205.6)%20rotate(-22)%20scale(0.77)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.26%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(270.4%20305.6)%20rotate(-22)%20scale(0.77)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.26%22%3E%3Cpath%20d%3D%22M14%202v13.5a4.5%204.5%200%201%200%204.5-4.5h-1M10%206v11c0%202.6%202.1%204.6%205%204.6M6%209.5v8.8c0%203%202.5%205.2%206%205.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(-15.6%20219.5)%20rotate(-6)%20scale(0.72)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%2218%22%20height%3D%2213%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M9%207V5h6v2M3%2012h18%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(284.4%20219.5)%20rotate(-6)%20scale(0.72)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%2218%22%20height%3D%2213%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M9%207V5h6v2M3%2012h18%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(184.7%207.2)%20rotate(-12)%20scale(0.67)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.17%22%3E%3Cpath%20d%3D%22M12%202v3M10%205h4l1%2017H9zM9%2012h6M8.5%2017h7%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(184.7%20307.2)%20rotate(-12)%20scale(0.67)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.17%22%3E%3Cpath%20d%3D%22M12%202v3M10%205h4l1%2017H9zM9%2012h6M8.5%2017h7%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(105.5%20262.3)%20rotate(-8)%20scale(0.64)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M12%207v5l3%202%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(203.8%20152.8)%20rotate(7)%20scale(0.68)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M3%2021h18M5%2021V10l7-5%207%205v11M9%2021v-6h6v6%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(14.4%2015.6)%20rotate(1)%20scale(0.80)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M12%207v5l3%202%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(14.4%20315.6)%20rotate(1)%20scale(0.80)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M12%207v5l3%202%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(314.4%2015.6)%20rotate(1)%20scale(0.80)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M12%207v5l3%202%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(314.4%20315.6)%20rotate(1)%20scale(0.80)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M12%207v5l3%202%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(105.2%20165.3)%20rotate(1)%20scale(0.68)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M12%2021s7-6.2%207-11.5A7%207%200%200%200%205%209.5C5%2014.8%2012%2021%2012%2021z%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%229.5%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(47.8%20-11.5)%20rotate(-5)%20scale(0.92)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M3%2012h18M12%203c2.5%203%202.5%2015%200%2018M12%203c-2.5%203-2.5%2015%200%2018%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(47.8%20288.5)%20rotate(-5)%20scale(0.92)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M3%2012h18M12%203c2.5%203%202.5%2015%200%2018M12%203c-2.5%203-2.5%2015%200%2018%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(207.3%2086.5)%20rotate(-22)%20scale(0.78)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%2216%22%20height%3D%2215%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%203v4M16%203v4M4%2010h16%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(30.1%20239.4)%20rotate(5)%20scale(0.89)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M12%2021s7-6.2%207-11.5A7%207%200%200%200%205%209.5C5%2014.8%2012%2021%2012%2021z%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%229.5%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(262.0%2078.7)%20rotate(6)%20scale(0.67)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M7%2011V7a5%205%200%200%201%2010%200v4%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2216%22%20height%3D%2210%22%20rx%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(73.2%2079.5)%20rotate(8)%20scale(0.79)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M12%2021s7-6.2%207-11.5A7%207%200%200%200%205%209.5C5%2014.8%2012%2021%2012%2021z%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%229.5%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(149.1%20186.9)%20rotate(19)%20scale(0.86)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M3%2021h18M5%2021V10l7-5%207%205v11M9%2021v-6h6v6%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(118.2%2049.1)%20rotate(-11)%20scale(0.92)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M7%2011V7a5%205%200%200%201%2010%200v4%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2216%22%20height%3D%2210%22%20rx%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(251.4%20250.1)%20rotate(19)%20scale(0.72)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.14%22%3E%3Cpath%20d%3D%22M5%2012h14M13%206l6%206-6%206%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(142.7%20-0.6)%20rotate(0)%20scale(0.84)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M7%2011V7a5%205%200%200%201%2010%200v4%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2216%22%20height%3D%2210%22%20rx%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(142.7%20299.4)%20rotate(0)%20scale(0.84)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M7%2011V7a5%205%200%200%201%2010%200v4%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2216%22%20height%3D%2210%22%20rx%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(239.4%2034.7)%20rotate(-12)%20scale(0.83)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M4%205h16v11H9l-5%204z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(105.7%20104.7)%20rotate(-7)%20scale(0.64)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M7%2011V7a5%205%200%200%201%2010%200v4%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2216%22%20height%3D%2210%22%20rx%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(209.7%20221.8)%20rotate(7)%20scale(0.83)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.17%22%3E%3Cpath%20d%3D%22M12%202v3M10%205h4l1%2017H9zM9%2012h6M8.5%2017h7%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(43.6%2051.2)%20rotate(-12)%20scale(0.73)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M12%207v5l3%202%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(272.3%20168.5)%20rotate(11)%20scale(0.81)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.17%22%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%2214%22%20height%3D%2218%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22m9%2013%202%202%204-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(108.0%20212.0)%20rotate(-12)%20scale(0.67)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.14%22%3E%3Cpath%20d%3D%22M5%2012h14M13%206l6%206-6%206%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(-4.8%20261.8)%20rotate(11)%20scale(0.82)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M12%2021s7-6.2%207-11.5A7%207%200%200%200%205%209.5C5%2014.8%2012%2021%2012%2021z%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%229.5%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(295.2%20261.8)%20rotate(11)%20scale(0.82)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M12%2021s7-6.2%207-11.5A7%207%200%200%200%205%209.5C5%2014.8%2012%2021%2012%2021z%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%229.5%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(179.8%2055.4)%20rotate(17)%20scale(0.66)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%2218%22%20height%3D%2213%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M9%207V5h6v2M3%2012h18%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(223.0%20-5.5)%20rotate(1)%20scale(0.86)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.14%22%3E%3Cpath%20d%3D%22M5%2012h14M13%206l6%206-6%206%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(223.0%20294.5)%20rotate(1)%20scale(0.86)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.14%22%3E%3Cpath%20d%3D%22M5%2012h14M13%206l6%206-6%206%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(63.3%20148.2)%20rotate(8)%20scale(0.74)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.15%22%3E%3Cpath%20d%3D%22M7%2011V7a5%205%200%200%201%2010%200v4%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2216%22%20height%3D%2210%22%20rx%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(239.6%20191.7)%20rotate(5)%20scale(0.92)%20translate(-12%20-12)%22%20stroke-opacity%3D%220.16%22%3E%3Cpath%20d%3D%22M3%2021h18M5%2021V10l7-5%207%205v11M9%2021v-6h6v6%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"),linear-gradient(180deg,#F3ECE2 0%,#EADFD1 100%);background-size:300px 300px,100% 100%}
+.xs .xs-chat-note {align-self:center;max-width:86%;display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:10px;background:#FDF3D0;color:#5B4A1E;font-size:12.5px;line-height:1.45;text-align:center;box-shadow:0 1px 2px rgba(20,33,61,.08)}
+.xs .xs-chat-note svg {flex:none;margin-top:2px}
+@media (max-width:767px) {.xs .xs-chat-note,.xs .xs-chat-spacer {display:none}}
+.xs .xs-chat-body > .xs-chat-spacer {flex:1}
+/* S8 chat, round 5: the thread scrolls inside the window (never clipped); the wallpaper scrolls with it. The spacer keeps
+   short threads at the bottom, as in WhatsApp. */
+.xs .xs-chat-body {justify-content:flex-start;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(154,90,54,.3) transparent;background-attachment:local,local}
+.xs .xs-chat-body > * {flex:none}
+.xs .xs-chat-body > .xs-chat-spacer {flex:1 1 0}
+@media (max-width:767px) {
+  .xs .xs-chat-spacer {display:block}
+}
+.xs .xs-chat-body:focus-visible {outline:2px solid var(--copper);outline-offset:-2px}

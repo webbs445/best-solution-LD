@@ -200,15 +200,14 @@ export function PlanSection() {
                     <span className="xs-qline">{questionsLine(s.worries)}</span>
                   </>
                 )}
-                <>
-                  <span className="xs-k">
-                    <span className="d-only">YOUR ADVISOR</span>
-                    <span className="m-only">ADVISOR</span>
-                  </span>
-                  <span className="xs-v">{advisor?.name ?? "First available advisor"}</span>
-                </>
-                <span className="xs-k">SEND TO</span>
-                <span className={`xs-v${masked ? "" : " is-muted"}`}>
+                {/* Phones: the header, ABOUT and YOUR QUESTIONS only. */}
+                <span className="xs-k t-up">
+                  <span className="d-only">YOUR ADVISOR</span>
+                  <span className="m-only">ADVISOR</span>
+                </span>
+                <span className="xs-v t-up">{advisor?.name ?? "First available advisor"}</span>
+                <span className="xs-k t-up">SEND TO</span>
+                <span className={`xs-v t-up${masked ? "" : " is-muted"}`}>
                   {s.contactPref === "whatsapp" ? "WhatsApp" : "Phone call"} · {masked ?? "your number"}
                 </span>
               </div>
@@ -226,7 +225,7 @@ export function PlanSection() {
                   </span>
                 ))}
               </div>
-              <span className="xs-paper-foot">
+              <span className="xs-paper-foot t-up">
                 <Icon name="lock" size={12} strokeWidth={2.4} className="m-only" />
                 <span className="d-only">Written by your advisor after your call.</span>
                 <span className="m-only">Structure, costs, checklist and timeline: written after your call.</span>

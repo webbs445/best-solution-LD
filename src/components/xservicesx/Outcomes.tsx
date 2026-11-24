@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { OUTCOMES, S4_DELIVERY, S4_DELIVERY_SHORT, S4_FEES_LINE } from "@/content/xservicesx";
+import { COST_FACTORS, COST_FACTORS_NOTE, OUTCOMES, S4_DELIVERY, S4_DELIVERY_SHORT, S4_FEES_LINE } from "@/content/xservicesx";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
 
@@ -30,6 +30,22 @@ export function Outcomes() {
               </span>
             </button>
           ))}
+          <div className="xs-costs">
+            <h3>What decides your cost</h3>
+            <ul>
+              {COST_FACTORS.map((c) => (
+                <li key={c.lead}>
+                  <span className="xs-costs-ico" aria-hidden="true">
+                    <Icon name={c.icon} size={16} />
+                  </span>
+                  <span>
+                    <b>{c.lead}</b> {c.rest}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p>{COST_FACTORS_NOTE}</p>
+          </div>
           <div className="xs-s4-cta">
             <XsCta id="s4_want_plan" location="s4">
               I want this plan
