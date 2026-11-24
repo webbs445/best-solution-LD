@@ -6,11 +6,11 @@ import { CLAIMS } from "@/content/site";
 */
 
 /**
-  The site menu, in this order: Services (the hub), then each service page. Short labels; the /services header
-  dropdown and phone menu show it.
+  The site menu, in this order: /services (an advisor and a written plan), then each service page. Short labels; the
+  Services dropdown in every page header shows it.
 */
 export const SITE_MENU: { id: ServiceId | "hub"; label: string; line: string; href: string }[] = [
-  { id: "hub", label: "Services", line: "Every service on one page", href: "/services" },
+  { id: "hub", label: "Talk it through with an advisor", line: "A written plan for your company", href: "/services" },
   { id: "freezone", label: "Free zone", line: "Compare free zones with an advisor", href: "/freezone" },
   { id: "setup", label: "Mainland", line: "How a mainland business works", href: "/mainland" },
   { id: "offshore", label: "Offshore", line: "When an offshore structure fits", href: "/offshore" },

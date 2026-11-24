@@ -11,9 +11,9 @@ describe("services content", () => {
     expect(SERVICES.map((s) => s.href)).toEqual(["/freezone", "/mainland", "/offshore", "/spv", "/corporate-tax", "/accounting", "/cost-calculator"]);
   });
 
-  it("menu lists Services first, then every service page", () => {
-    expect(SITE_MENU.map((m) => m.label)).toEqual(["Services", "Free zone", "Mainland", "Offshore", "Plan your budget", "SPV", "Corporate tax", "Accounting"]);
-    expect(SITE_MENU[0].href).toBe("/services");
+  it("menu lists /services first (an advisor, a written plan), then every service page", () => {
+    expect(SITE_MENU.map((m) => m.label)).toEqual(["Talk it through with an advisor", "Free zone", "Mainland", "Offshore", "Plan your budget", "SPV", "Corporate tax", "Accounting"]);
+    expect(SITE_MENU[0]).toMatchObject({ href: "/services", label: "Talk it through with an advisor", line: "A written plan for your company" });
   });
 
   it("mainland advice goes through the one MAINLAND_HREF", () => {

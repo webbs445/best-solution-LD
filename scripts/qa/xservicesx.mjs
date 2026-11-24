@@ -574,18 +574,33 @@ for (const w of [390, 768, 1440]) {
   await p.done();
 }
 
-// The page moved from /xservicesx to /services: a 301 in one hop (with and without the trailing slash) that keeps the
-// query string; /services answers 200 with the new H1; the old /services H1 is gone from every page.
+// The page moved from /xservicesx to /services: /xservicesx is one 301 that keeps the query string; /xservicesx/ takes
+// Next's usual 308 to /xservicesx first (two hops, accepted), then the same 301. /reviews lands on the Trust section.
+// /services answers 200 with the new H1; the old /services H1 is gone from every page.
 {
-  const q = "?utm_source=google&utm_campaign=TEST-AUDIT-DELETE&gclid=TEST123";
-  for (const from of ["/xservicesx", "/xservicesx/"]) {
-    const r = await fetch(BASE + from + q, { redirect: "manual" });
-    const to = r.headers.get("location") || "";
-    const next = await fetch(new URL(to, BASE), { redirect: "manual" });
-    check(`${from}${q} answers 301 to /services with the query string, in one hop`, r.status === 301 && new URL(to, BASE).pathname === "/services" && new URL(to, BASE).search === q && next.status === 200, `${r.status} ${to} -> ${next.status}`);
+  // Follows redirects by hand: the list of [status, location] hops and the final status.
+  const hops = async (path) => {
+    const out = [];
+    let url = new URL(path, BASE);
+    for (let i = 0; i < 4; i++) {
+      const r = await fetch(url, { redirect: "manual" });
+      if (r.status < 300 || r.status >= 400) return { out, end: r.status, url };
+      url = new URL(r.headers.get("location"), url);
+      out.push([r.status, url.pathname + url.search + url.hash]);
+    }
+    return { out, end: 0, url };
+  };
+  for (const q of ["", "?utm_source=test", "?utm_source=google&utm_campaign=TEST-AUDIT-DELETE&gclid=TEST123"]) {
+    const a = await hops("/xservicesx" + q);
+    check(`/xservicesx${q} answers one 301 to /services${q}`, a.out.length === 1 && a.out[0][0] === 301 && a.out[0][1] === "/services" + q && a.end === 200, JSON.stringify(a.out));
   }
+  const s = await hops("/xservicesx/?utm_source=test");
+  check("/xservicesx/?utm_source=test: 308 then 301 to /services?utm_source=test", JSON.stringify(s.out.map((h) => h[0])) === "[308,301]" && s.out[1][1] === "/services?utm_source=test" && s.end === 200, JSON.stringify(s.out));
+  const rv = await hops("/reviews?utm_source=test");
+  const page = await (await fetch(BASE + "/services")).text();
+  check("/reviews lands on /services#reviews, the Trust section", rv.out.length === 1 && rv.out[0][1] === "/services?utm_source=test#reviews" && rv.end === 200 && /<section[^>]*class="[^"]*xs-trustsec[^"]*"[^>]*id="reviews"|<section[^>]*id="reviews"[^>]*class="[^"]*xs-trustsec/.test(page), JSON.stringify(rv.out));
   const slash = await fetch(BASE + "/freezone/?gclid=TEST123", { redirect: "manual" });
-  check("other trailing slashes still 308 to the URL without it (the proxy does it now)", slash.status === 308 && slash.headers.get("location")?.endsWith("/freezone?gclid=TEST123"), `${slash.status} ${slash.headers.get("location")}`);
+  check("other trailing slashes still 308 to the URL without it (Next's own redirect)", slash.status === 308 && slash.headers.get("location")?.endsWith("/freezone?gclid=TEST123"), `${slash.status} ${slash.headers.get("location")}`);
   const res = await fetch(BASE + "/services");
   const html = (await res.text()).replace(/&#x27;|&#39;/g, "'");
   check("/services answers 200 with the new H1", res.status === 200 && /<h1[^>]*>Make the right call on your UAE company/.test(html), String(res.status));

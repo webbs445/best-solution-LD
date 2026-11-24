@@ -7,11 +7,12 @@ const SITELINK_REDIRECTS = [
   { source: "/calculator", destination: "/cost-calculator" },
   { source: "/consultation", destination: "/consult" },
   { source: "/reviews", destination: "/services#reviews" },
+  // The Services page was built at /xservicesx and now lives at /services. /xservicesx/ takes Next's usual 308 to
+  // /xservicesx first (two hops), which the owner accepted rather than running the proxy on every request.
+  { source: "/xservicesx", destination: "/services" },
 ];
 
 const nextConfig: NextConfig = {
-  // src/proxy.ts does the trailing-slash redirect instead (same 308), so /xservicesx/ reaches /services in one hop.
-  skipTrailingSlashRedirect: true,
   // The dashboard reads its page template at run time (its Ad landings view borrows the styles from it too).
   outputFileTracingIncludes: { "/api/ads-report": ["./src/lib/adsReportPage.html"] },
   // Nothing on this subdomain goes in search results: the header also covers images, PDFs and other files the
