@@ -94,6 +94,7 @@ export function Situations() {
               </h3>
               {c.topic === "fz_or_mainland" && <FzExplainButton />}
               {c.topic === "fz_or_mainland" ? <FzExplainInCard what={c.what} /> : <p className="d-only">{c.what}</p>}
+              <p className="m-only xs-small-what">{c.whatShort}</p>
               {/* The card's buttons go to its service page (links, not the plan pop-up); consultation_cta_click keeps the id. */}
               <div className="xs-small-foot">
                 <a className="xs-link d-only" href={C.servicePages[c.topic as keyof typeof C.servicePages]}>
@@ -103,7 +104,7 @@ export function Situations() {
                   {c.cta}
                 </a>
                 <a className="xs-btn xs-chip m-only xs-tile-act" href={C.servicePages[c.topic as keyof typeof C.servicePages]} data-cta-location={c.ctaId}>
-                  {c.ctaShort} <span aria-hidden="true">→</span>
+                  <span className="xs-tile-txt">{c.ctaShort}</span> <span aria-hidden="true">→</span>
                 </a>
               </div>
             </article>,

@@ -1335,3 +1335,39 @@
   .xs .xs-olist .xs-outcome[aria-pressed="true"] .xs-otext > span.m-only {display:block;font-size:13px;font-weight:500;color:var(--ink);animation:xsIn .25s ease}
   .xs .xs-olist .xs-otext b {font-size:15.5px}
 }
+
+/* ─── S3 small cards on phones: one full-width row each (icon, title, what the page covers, arrow), the whole row
+   tappable. The action text stays for screen readers; tablets keep the two-column cards with the short line. ─── */
+.xs .xs-small-what {font-size:13.5px;line-height:1.45;color:var(--ink)}
+@media (max-width:767px) {
+  .xs .xs-bento {grid-template-columns:minmax(0,1fr)}
+  .xs .xs-small {display:grid;grid-template-columns:40px minmax(0,1fr) 28px;column-gap:12px;row-gap:3px;align-items:center;min-height:0;padding:14px 14px 14px 12px}
+  .xs .xs-small > .xs-small-top {grid-column:1;grid-row:1 / span 2;align-self:start}
+  .xs .xs-small > h3 {grid-column:2;grid-row:1;font-size:16px}
+  .xs .xs-small > .xs-small-what {grid-column:2;grid-row:2}
+  .xs .xs-small > .xs-explain-btn {grid-column:2;grid-row:3;justify-self:start;position:relative;z-index:1}
+  .xs .xs-small > .xs-small-foot {grid-column:3;grid-row:1 / span 2;margin:0;padding:0;border:0}
+  .xs .xs-small .xs-tile-act {width:auto}
+  .xs .xs-tile-txt {position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+}
+
+/* ─── S8 on phones and tablets: three topic tabs, that topic's questions wrapped below (all visible, no sideways
+   scroll); the chat shows the latest question and answer. ─── */
+.xs .xs-qtabs {display:flex;flex-direction:column;gap:10px}
+.xs .xs-qtab-row {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:12px;background:var(--cream-2);border:1px solid var(--border)}
+.xs .xs-qtab {min-height:40px;border:0;border-radius:9px;background:transparent;font:700 13.5px var(--font-inter),sans-serif;color:var(--ink);cursor:pointer;transition:background .2s,color .2s,box-shadow .2s}
+.xs .xs-qtab[aria-pressed="true"] {background:#fff;color:var(--navy);box-shadow:0 4px 12px -6px rgba(20,33,61,.4)}
+.xs .xs-qwrap {display:flex;flex-wrap:wrap;gap:8px;animation:xsIn .25s ease}
+.xs .xs-qtabs .xs-qwrap .xs-qchip {white-space:normal;max-width:100%;min-height:40px;padding:8px 14px;border-radius:14px;text-align:left;line-height:1.35}
+@media (max-width:767px) {
+  .xs .xs-chat {height:340px}
+}
+@media (max-width:767px) {
+  /* The chat fits its one question and answer, so the answer is never cut off. */
+  .xs .xs-chat {height:auto}
+  .xs .xs-chat-body {flex:none;min-height:260px;overflow:visible;-webkit-mask-image:none;mask-image:none}
+}
+@media (max-width:767px) {
+  /* Only the latest pair, from the first paint (the server HTML has three; the section hydrates when near). */
+  .xs .xs-chat-body .xs-pair:not(:last-child) {display:none}
+}

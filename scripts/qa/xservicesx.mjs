@@ -609,7 +609,7 @@ for (const w of [390, 768, 1440]) {
   await p.select("#xs-hero-topic", "holding");
   await p.evaluate(() => [...document.querySelectorAll(".xs-worry")].find((x) => x.offsetParent)?.click());
   await p.evaluate(() => document.getElementById("xs-explain-btn")?.click());
-  await p.evaluate(() => [...document.querySelectorAll(".xs-qchip")][3]?.click());
+  await p.evaluate(() => [...document.querySelectorAll(".xs-qwrap .xs-qchip")][1]?.click());
   await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
   await wait(400);
   for (const [id, v] of [["#xsd-name", NAME], ["#xsd-email", EMAIL], ["#xsd-phone", PHONE]]) await p.type(id, v);
