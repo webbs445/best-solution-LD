@@ -1,5 +1,5 @@
 /*
-  The Services dropdown in every page header: the /services header's dropdown rules (services.css .sv-dd*), unchanged,
+  The Services dropdown in every page header (first built for the old /services hub header, since removed),
   under their own class so every page can use them. Colours and font come from the global tokens (globals.css :root).
   Higher specificity on the links so a page's own `nav a` rules do not restyle the panel.
 */

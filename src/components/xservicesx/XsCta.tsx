@@ -7,7 +7,7 @@ import { BtnArrow, Icon } from "./ui";
 
 /*
   Every plan button on the page: saves what it stands for (topic, advisor) in the shared state and opens the plan
-  pop-up. Tracking uses the site-wide names (docs/xservicesx-events.md): data-cta-location sends
+  pop-up. Tracking uses the site-wide names (docs/services-events.md): data-cta-location sends
   consultation_cta_click {cta_location: id}; xs_topic_select / xs_advisor_select stay page-specific.
   variant: primary / dark (with the arrow square) or chip.
 */
@@ -44,8 +44,8 @@ export function XsCta({
       data-cta={variant === "chip" || !watch ? undefined : ""}
       onClick={() => {
         if (set) setXs(set);
-        if (set?.topic) xsTrack("xs_topic_select", { topic: set.topic, source: source ?? "s3" });
-        if (set?.advisor) xsTrack("xs_advisor_select", { advisor: set.advisor });
+        if (set?.topic) xsTrack("topic_select", { topic: set.topic, source: source ?? "s3" });
+        if (set?.advisor) xsTrack("advisor_select", { advisor: set.advisor });
         goToPlan();
       }}
     >

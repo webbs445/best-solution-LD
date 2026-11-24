@@ -7,6 +7,9 @@ const SITELINK_REDIRECTS = [
   { source: "/calculator", destination: "/cost-calculator" },
   { source: "/consultation", destination: "/consult" },
   { source: "/reviews", destination: "/services#reviews" },
+  // The Services page was built at /xservicesx and now lives at /services. /xservicesx/ takes Next's usual 308 to
+  // /xservicesx first (two hops), which the owner accepted rather than running the proxy on every request.
+  { source: "/xservicesx", destination: "/services" },
 ];
 
 const nextConfig: NextConfig = {

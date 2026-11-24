@@ -12,8 +12,8 @@ import { LEAD_RULES } from "@/lib/lead";
 import { TOPIC_SERVICE, isTopic } from "@/content/xservicesx";
 
 /*
-  The /xservicesx form (section 9, "Send me my plan"): creates a Lead in the ERP, form "Services Plan", source page
-  /xservicesx. Name, WhatsApp number and email are required (the ERP needs all three for Website leads). What the
+  The /services form (section 9, "Send me my plan"): creates a Lead in the ERP, form "Services Plan", source page
+  /services. Name, WhatsApp number and email are required (the ERP needs all three for Website leads). What the
   visitor picked on the page (topic, questions, advisor, reply method, meeting mode) goes into the lead's requirement
   notes as labelled lines; every value is checked against the page's own lists, so the browser cannot write free text
   there. Honeypot, field checks, preview guard (a mock lead, nothing outside), then about 5 per IP per hour. ERP
@@ -57,7 +57,7 @@ export const POST = withLeadLog("services-plan", async (request, log) => {
     email_id,
     mobile_no,
     ...trackingFields(body),
-    source_page: "/xservicesx",
+    source_page: "/services",
     form_id: SERVICES_PLAN_FORM_ID,
     form_name: "Services Plan",
     service_enquired: TOPIC_SERVICE[topic],

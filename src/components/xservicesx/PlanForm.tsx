@@ -79,7 +79,7 @@ async function submit(e: FormEvent<HTMLFormElement>, prefix: string, location: "
         contact_pref: s.contactPref,
         consult_mode: s.consultMode,
         form_location: location,
-        page: "/xservicesx",
+        page: "/services",
         ...attributionFields(),
         event_id: eventId,
         landing_page: window.location.href.split("#")[0],

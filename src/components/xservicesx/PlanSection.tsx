@@ -110,7 +110,7 @@ export function PlanSection() {
   const chooseTopic = (t: TopicId) => {
     setXs({ topic: t });
     setPicking(false);
-    xsTrack("xs_topic_select", { topic: t, source: "s9" });
+    xsTrack("topic_select", { topic: t, source: "s9" });
   };
 
 

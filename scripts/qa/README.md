@@ -22,7 +22,7 @@ npx next start -p 3010
 node scripts/qa/strict-scan.mjs     # Google Ads wording: banned words, strict words, claims, prices
 node scripts/qa/cloak.mjs           # same text for a browser, Googlebot and AdsBot-Google on every route
 node scripts/qa/forms-mock.mjs      # lead forms: nothing on an empty submit, one form_submit after a valid one
-node scripts/qa/xservicesx.mjs      # /xservicesx: widths 320 to 1920, page state, buttons to the form, errors, success, sticky bar, axe
+node scripts/qa/xservicesx.mjs      # /services (the old /xservicesx 301s there): widths 320 to 1920, page state, buttons to the form, errors, success, sticky bar, axe
 ```
 
 Each script takes an optional base URL (default `http://localhost:3010`) and exits with 1 when anything fails.

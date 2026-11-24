@@ -12,7 +12,7 @@ export function pushXsLead(args: { eventId: string; topic: string; contactPref: 
   pushEvent("generate_lead", {
     form_id: SERVICES_PLAN_FORM_ID,
     lead_type: "form",
-    page: "/xservicesx",
+    page: "/services",
     service: args.topic,
     topic: args.topic,
     contact_pref: args.contactPref,

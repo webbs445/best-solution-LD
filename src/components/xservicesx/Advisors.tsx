@@ -49,7 +49,7 @@ export function Advisors() {
     const id = list[i]?.id;
     if (id && !seen.current.has(id)) {
       seen.current.add(id);
-      xsTrack("xs_advisor_view", { advisor: id });
+      xsTrack("advisor_view", { advisor: id });
     }
   };
 

@@ -34,7 +34,7 @@ export function HeroCard() {
             onChange={(e) => {
               if (!isTopic(e.target.value)) return;
               setXs({ topic: e.target.value });
-              xsTrack("xs_topic_select", { topic: e.target.value, source: "hero" });
+              xsTrack("topic_select", { topic: e.target.value, source: "hero" });
             }}
           >
             {TOPIC_IDS.map((t) => (

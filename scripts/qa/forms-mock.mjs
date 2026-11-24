@@ -1,4 +1,4 @@
-// Form mocks: /services callback popup, /accounting quote builder, /consult form, the /xservicesx form,
+// Form mocks: /accounting quote builder, /consult form, the /services plan form,
 // /freezone budget popup, /freezone callback
 // popup and /freezone planner (with planner_start / planner_complete). Lead APIs are
 // answered inside the test browser (nothing reaches the ERP or the lead sheet); tag hosts are blocked. Each form must
@@ -65,15 +65,6 @@ const fillIds = (n, ph, em, phone = PHONE) => async (p) => {
 };
 const submitIn = (formSel) => (p) => p.evaluate((sel) => document.querySelector(sel).querySelector("button[type=submit]").click(), formSel);
 
-await run("Services callback popup", "/services", {
-  open: async (p) => {
-    await p.evaluate(() => [...document.querySelectorAll("[aria-controls=cbModal]")].find((x) => x.offsetParent)?.click());
-    await wait(800);
-  },
-  submit: submitIn("#cbModal form"),
-  fill: fillIds("#cb-name", "#cb-phone", "#cb-email"),
-});
-
 await run("Accounting quote form", "/accounting", {
   open: async (p) => {
     await p.evaluate(() => document.getElementById("contact").scrollIntoView());
@@ -101,11 +92,11 @@ await run("/consult form", "/consult", {
 });
 
 
-// /xservicesx: the page's one form (section 9). The page's own checks are in xservicesx.mjs.
-await run("Services plan form", "/xservicesx", {
+// /services: the page's one form (section 9). The page's own checks are in xservicesx.mjs.
+await run("Services plan form", "/services", {
   submit: submitIn("#plan form"),
   fill: fillIds("#xs-name", "#xs-phone", "#xs-email", "050 000 0000"),
-  check: async (p, body) => body.form_location === "s9" && body.page === "/xservicesx" && (await p.evaluate(() => !!document.querySelector(".xs-stamp"))),
+  check: async (p, body) => body.form_location === "s9" && body.page === "/services" && (await p.evaluate(() => !!document.querySelector(".xs-stamp"))),
 });
 
 await run("Free zone budget popup", "/freezone/budget", {
