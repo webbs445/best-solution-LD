@@ -147,7 +147,7 @@ export function HowItWorks() {
                 </span>
                 <span className="xs-msg-time">
                   10:12 AM
-                  <svg width="16" height="12" viewBox="0 0 28 16" fill="none" stroke="#34B7F1" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="16" height="12" viewBox="0 0 28 16" fill="none" stroke="#B9714B" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m2 9 4 4 8-10" />
                     <path d="m12 13 2 0 10-10" />
                   </svg>

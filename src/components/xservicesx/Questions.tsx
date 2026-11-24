@@ -115,7 +115,7 @@ export function Questions() {
                 <b>{CHAT_TITLE}</b>
                 {/* A verified-style badge (scalloped, drawn here). */}
                 <svg className="xs-chat-ok" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <polygon points="12.00,1.40 14.25,3.60 17.30,2.82 18.15,5.85 21.18,6.70 20.40,9.75 22.60,12.00 20.40,14.25 21.18,17.30 18.15,18.15 17.30,21.18 14.25,20.40 12.00,22.60 9.75,20.40 6.70,21.18 5.85,18.15 2.82,17.30 3.60,14.25 1.40,12.00 3.60,9.75 2.82,6.70 5.85,5.85 6.70,2.82 9.75,3.60" fill="#1D9BF0" stroke="#1D9BF0" strokeWidth="1.6" strokeLinejoin="round" />
+                  <polygon points="12.00,1.40 14.25,3.60 17.30,2.82 18.15,5.85 21.18,6.70 20.40,9.75 22.60,12.00 20.40,14.25 21.18,17.30 18.15,18.15 17.30,21.18 14.25,20.40 12.00,22.60 9.75,20.40 6.70,21.18 5.85,18.15 2.82,17.30 3.60,14.25 1.40,12.00 3.60,9.75 2.82,6.70 5.85,5.85 6.70,2.82 9.75,3.60" fill="#B9714B" stroke="#B9714B" strokeWidth="1.6" strokeLinejoin="round" />
                   <path d="m7.8 12.3 2.8 2.8 5.6-5.8" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </span>

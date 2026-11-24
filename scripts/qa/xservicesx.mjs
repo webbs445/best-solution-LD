@@ -134,7 +134,7 @@ if (FIX !== "live") {
 }
 
 
-// Live config (14 reviews): the moving wall at 1024 and 1440, 7 cards per row (plus the hidden copy), labels without a
+// Live config (13 reviews): the moving wall at 1024 and 1440, 7 and 6 cards per row (plus the hidden copy), labels without a
 // year, Michael's first; the plan button row under it.
 for (const w of [1024, 1440]) {
   const p = await open(w);
@@ -144,7 +144,7 @@ for (const w of [1024, 1440]) {
     const cta = document.querySelector('[data-xs-cta="trust_plan"]'), note = cta?.nextElementSibling;
     return { rows, years: labels.filter((l) => /\d{4}/.test(l)).length, first: document.querySelector("#xs-wall .xs-rby b")?.textContent, cta: !!cta?.offsetParent, note: note?.offsetParent ? note.textContent : "" };
   });
-  check(`14 reviews at ${w}px: the wall, 7 per row, no years, Michael first`, JSON.stringify(r.rows) === "[7,7]" && !r.years && r.first === "Michael D.", JSON.stringify(r));
+  check(`13 reviews at ${w}px: the wall, 7 and 6 per row, no years, Michael first`, JSON.stringify(r.rows) === "[7,6]" && !r.years && r.first === "Michael D.", JSON.stringify(r));
   check(`plan button row visible at ${w}px`, r.cta && r.note === "Join them. 2 minutes · no obligation", r.note);
   await p.done();
 }
@@ -584,6 +584,15 @@ for (const w of [390, 768, 1440]) {
   await p.done();
 }
 
+// No blue tick anywhere: the chat badge and the read ticks are copper (markup and every stylesheet).
+{
+  const p = await open(1440);
+  const css = (await Promise.all((await p.$$eval('link[rel="stylesheet"]', (l) => l.map((x) => x.href))).map((h) => fetch(h).then((r) => r.text())))).join("");
+  const html = await p.content();
+  check("no blue tick anywhere (markup and CSS)", !/1D9BF0|34B7F1|1877F2|0095F6/i.test(css + html));
+  await p.done();
+}
+
 // Page height at 390 (as laid out, content-visibility off): at least 20% under main's 9,395 px.
 {
   const p = await open(390, "ok", { warm: false });
@@ -606,7 +615,7 @@ for (const w of [390, 768, 1440]) {
     const wa = [...document.querySelectorAll('a[href*="wa.me"]')].map((a) => new URL(a.href).searchParams.get("text") || "");
     return [c.textContent, ...attrs, ...wa, document.title, document.querySelector('meta[name="description"]').content].join(" | ");
   });
-  // Reviews are scanned too: only "stress-free" (Hadi) and "THE BEST SOLUTIONS" (Dominique, the brand) are exempt.
+  // Reviews are scanned too: only "stress-free" (Hadi) and the brand name "best solution" are exempt.
   const allowed = t.replace(/stress-free/g, " ").replace(/best solution|best-solution\.ae/gi, " ").replace(/free zones?/gi, " ").replace(/We use cookies[^|]*/g, " ");
   const re = /\b(set[\s-]?up|startups?|start|starting|open|register|registration|licen[cs]e|visas?|permits?|approval|approved|documents?|formation|fast|faster|instant|quick|guarantee[sd]?|best|cheapest|lowest|launch|transparent|free|renew|renewal|official|trade name|incorporation)\b|100\s?%|no hidden fees|®|#1\b|\b(DED|PRO)\b|[[\]]|—/gi;
   const hits = [...allowed.matchAll(re)].map((m) => `"${m[0]}" ...${allowed.slice(Math.max(0, m.index - 30), m.index + 30)}...`);

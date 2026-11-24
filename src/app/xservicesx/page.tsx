@@ -49,8 +49,8 @@ function jsonLd() {
       addressLocality: "Business Bay, Dubai",
       addressCountry: "AE",
     },
-    // SITE.hours: Monday to Friday, 9am to 6pm.
-    ...(C.officeHours ? { openingHours: "Mo-Fr 09:00-18:00" } : null),
+    // From XS_CONFIG.officeHours (SITE.hours), so the Trust card, footer and JSON-LD always agree.
+    ...(C.officeHours ? { openingHours: /saturday/i.test(C.officeHours) ? "Mo-Sa 09:00-18:00" : "Mo-Fr 09:00-18:00" } : null),
   };
   const faq = {
     "@context": "https://schema.org",

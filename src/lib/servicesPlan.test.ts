@@ -119,3 +119,11 @@ describe("XS_CONFIG facts still to confirm", () => {
     });
   });
 });
+
+describe("/xservicesx reviews", () => {
+  it("has the 13 approved reviews, Michael first, and none names Yasmin, Yasmine or Jasmine", () => {
+    expect(XS_CONFIG.reviews).toHaveLength(13);
+    expect(XS_CONFIG.reviews[0].firstNameInitial).toBe("Michael D.");
+    expect(XS_CONFIG.reviews.filter((r) => /\b(yasmine?|jasmine)\b/i.test(r.text)).map((r) => r.firstNameInitial)).toEqual([]);
+  });
+});

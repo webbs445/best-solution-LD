@@ -1,7 +1,8 @@
 // Strict Google Ads compliance scan. Per route, after load with JS (tag hosts blocked, no consent given): ALL text in the
 // DOM, visible or hidden, plus alt/aria-label/title/placeholder, <title> and meta content, JSON-LD and decoded wa.me
 // message texts. [data-legal] (disclaimers) and [data-review-quote] (real Google review quotes) are exempt, except on
-// /xservicesx (reviews scanned with two phrase exemptions; the verified rating exempt from the 4.8 rule).
+// /xservicesx (reviews scanned, exempting only "stress-free" and the brand name "best solution"; the verified rating,
+// approved 24 Nov 2026 after checking Google Maps, exempt from the 4.8 rule).
 // Rules: banned words (rule 7), strict words (also run-together text), claim phrases, prices. Allowed: the corporate tax
 // threshold "AED 375,000" everywhere, and on /corporate-tax any AED amount as a tax fact unless fee(s), price, pricing,
 // cost, package, "from AED" or "starting at" is within about 6 words. /privacy and /terms are reported as "pending legal" and not counted while LEGAL_V2 is false
@@ -58,7 +59,7 @@ for (const r of ROUTES) {
     });
     return [clone.textContent, attrs.join(" | "), meta.join(" | "), schema.join(" | "), wa.join(" | ")].join(" || ").replace(/\s+/g, " ");
   }, exempt);
-  const d = xs ? raw.replace(/stress-free|THE BEST SOLUTIONS/g, " ") : raw;
+  const d = xs ? raw.replace(/stress-free|best solution/gi, " ") : raw;
   await ctx.close();
   const issues = [];
   const hit = (name, re, text = d, keep = () => true) => {
