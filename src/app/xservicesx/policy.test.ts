@@ -6,7 +6,8 @@ import { describe, expect, it, vi } from "vitest";
   Landing page copy policy for /xservicesx: renders the whole page on the server (every section, both the phone and
   the desktop wording) and fails on a banned word, a [placeholder] bracket or an em dash in the text, attributes people
   can read, the WhatsApp message, the JSON-LD or the meta tags. Allowed: "Best Solution" and "free zone". Google review
-  quotes ([data-review-quote]) are exempt: they are word for word and may not be edited.
+  quotes are scanned too; the only exemptions are "stress-free" and the brand name "best solution" (any case)
+  (word for word, may not be edited). A review that fails is dropped from XS_CONFIG, never edited.
 */
 vi.mock("next/font/google", () => ({ Inter_Tight: () => ({ variable: "font-inter-tight" }) }));
 
@@ -28,7 +29,6 @@ function pageText(): string {
   const body = html
     .replace(/<script[\s\S]*?<\/script>/g, " ")
     .replace(/<style[\s\S]*?<\/style>/g, " ")
-    .replace(/<(\w+)[^>]*data-review-quote[^>]*>[\s\S]*?<\/\1>/g, " ")
     .replace(/<[^>]+>/g, " ");
   const meta = [String((metadata.title as { absolute: string }).absolute), String(metadata.description)];
   return [body, ...attrs, ...wa, ...ld, ...meta]
@@ -40,7 +40,7 @@ function pageText(): string {
 
 describe("/xservicesx copy policy", () => {
   const text = pageText();
-  const allowed = text.replace(/best solution|best-solution.ae/gi, " ").replace(/free zones?/gi, " ");
+  const allowed = text.replace(/stress-free/g, " ").replace(/best solution|best-solution.ae/gi, " ").replace(/free zones?/gi, " ");
   const around = (m: RegExpMatchArray) => `"${m[0]}" in ...${allowed.slice(Math.max(0, (m.index ?? 0) - 40), (m.index ?? 0) + 40)}...`;
 
   it("renders every section's copy", () => {
@@ -78,11 +78,12 @@ describe("/xservicesx with the live config", () => {
   it("shows Trust with its office card and leaves S6 out while no advisors are set; QA fixtures are off", async () => {
     const { XS_CONFIG } = await import("@/content/xservicesx.config");
     expect(process.env.NEXT_PUBLIC_XS_FIXTURE).toBeUndefined();
-    expect(XS_CONFIG.reviews.map((r) => r.firstNameInitial)).toEqual(["Michael D.", "Hadi H."]);
+    expect(XS_CONFIG.reviews).toHaveLength(13);
+    expect(XS_CONFIG.reviews[0].firstNameInitial).toBe("Michael D.");
     const html = renderToStaticMarkup(createElement(Page));
     expect(html).toContain('id="reviews"');
     expect(html).toContain("Request a call back");
     expect(html).not.toContain("Real people. Not a call centre.");
-    expect(html).not.toContain('id="xs-wall"'); // 2 reviews: one still row, no moving wall
+    expect(html).toContain('id="xs-wall"'); // 13 reviews: the moving wall, 7 and 6
   });
 });

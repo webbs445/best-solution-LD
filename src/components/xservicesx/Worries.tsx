@@ -60,7 +60,8 @@ export function Worries() {
           </h3>
           <ul aria-live="polite">
             {shown.map((i) => (
-              <li key={i} className={i === last ? "is-new" : undefined}>
+              // Phones, nothing ticked: only the first two answers (the rest from 768 px).
+              <li key={i} className={[i === last && "is-new", !n && i > 1 && "t-up"].filter(Boolean).join(" ") || undefined}>
                 <span className="xs-tick" aria-hidden="true">
                   <Icon name="check" size={15} strokeWidth={3} />
                 </span>

@@ -24,14 +24,14 @@ const QuoteMark = () => (
     ))}
   </svg>
 );
-const meta = (r: Review) => ["Google", r.month].filter(Boolean).join(" · ");
+
 
 /** A review card. wall: the cream card in the moving wall (3 lines on screen); still: full text, large quote. */
-function Card({ r, kind, copy }: { r: Review; kind: "wall" | "still" | "swipe"; copy?: boolean }) {
+function Card({ r, kind, copy, featured }: { r: Review; kind: "wall" | "still" | "swipe"; copy?: boolean; featured?: boolean }) {
   const stars = r.stars === 5 && <Stars label={copy ? undefined : "5 out of 5 stars"} size={kind === "still" ? 16 : 14} />;
   const tag = r.topic && <span className="xs-rtag">{TOPICS[r.topic].short}</span>;
   return (
-    <article className={`xs-rcard is-${kind}`} tabIndex={copy ? -1 : 0} aria-label={copy ? undefined : `Google review from ${r.firstNameInitial}`}>
+    <article className={`xs-rcard is-${kind}${featured ? " is-featured" : ""}`} tabIndex={copy ? -1 : 0} aria-label={copy ? undefined : `Google review from ${r.firstNameInitial}`}>
       {kind === "still" ? (
         <div className="xs-rcard-top">
           <QuoteMark />
@@ -55,7 +55,7 @@ function Card({ r, kind, copy }: { r: Review; kind: "wall" | "still" | "swipe"; 
           {r.firstNameInitial.charAt(0)}
         </span>
         <b>{r.firstNameInitial}</b>
-        <small>· {meta(r)}</small>
+        <small>· Google review</small>
       </div>
     </article>
   );
@@ -98,13 +98,17 @@ export function Trust({ withOffice }: { withOffice: boolean }) {
             <p>Real Google reviews from founders we&apos;ve advised. Word for word.</p>
           </div>
           <div className="xs-trust-meta d-only">
-            {rating && <b className="xs-trust-score">{rating.score}</b>}
+            {rating && (
+              <b className="xs-trust-score" data-google-rating>
+                {rating.score}
+              </b>
+            )}
             <span className="xs-trust-meta-col">
               {rating && (
-                <>
+                <span className="xs-contents" data-google-rating>
                   <Stars label={`Rated ${rating.score} out of 5`} size={20} />
                   <span>from {rating.count} Google reviews</span>
-                </>
+                </span>
               )}
               {readAll}
             </span>
@@ -113,7 +117,7 @@ export function Trust({ withOffice }: { withOffice: boolean }) {
         </div>
         <div className="xs-trust-pill m-only">
           {rating && (
-            <span className="xs-trust-rating">
+            <span className="xs-trust-rating" data-google-rating>
               <b>{rating.score}</b>
               <Stars label={`Rated ${rating.score} out of 5`} />
               <span>from {rating.count} Google reviews</span>
@@ -134,7 +138,7 @@ export function Trust({ withOffice }: { withOffice: boolean }) {
             <div className="xs-wrap d-only">
               <div className={`xs-still${reviews.length === 2 ? " is-two" : ""}`}>
                 {reviews.map((r, i) => (
-                  <Card key={i} r={r} kind="still" />
+                  <Card key={i} r={r} kind="still" featured={i === 0} />
                 ))}
               </div>
             </div>
@@ -142,7 +146,7 @@ export function Trust({ withOffice }: { withOffice: boolean }) {
           <div className="xs-wrap m-only">
             <div className="xs-swipe">
               {reviews.map((r, i) => (
-                <Card key={i} r={r} kind="swipe" />
+                <Card key={i} r={r} kind="swipe" featured={i === 0} />
               ))}
             </div>
             {reviews.length > 1 && (

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { HERO_PLANS, HERO_PREPARED, TOPICS, TOPIC_IDS, isTopic } from "@/content/xservicesx";
+import { HERO_NOTE, HERO_PLANS, HERO_PREPARED, TOPICS, TOPIC_IDS, isTopic } from "@/content/xservicesx";
 import { setXs, useXs, xsTrack } from "./store";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
@@ -19,9 +19,14 @@ export function HeroCard() {
     <div className="xs-hcard-wrap">
       <span className="xs-hcard-back" aria-hidden="true" />
       <div className="xs-hcard">
-        <label className="xs-hcard-label" htmlFor="xs-hero-topic">
-          <span className="xs-eyebrow">YOUR WRITTEN PLAN FOR</span>
-        </label>
+        <div className="xs-hcard-top">
+          <label className="xs-hcard-label" htmlFor="xs-hero-topic">
+            <span className="xs-eyebrow">YOUR WRITTEN PLAN FOR</span>
+          </label>
+          <span className="xs-hcard-ex" title={HERO_NOTE}>
+            Example
+          </span>
+        </div>
         <span className="xs-hcard-select">
           <select
             id="xs-hero-topic"
@@ -67,14 +72,19 @@ export function HeroCard() {
           <span className="xs-hcard-av">
             <Image src="/brand/icon-mark.webp" alt="Best Solution" width={20} height={28} loading="eager" />
           </span>
-          <span>{HERO_PREPARED}</span>
-          <Icon name="whatsapp" size={18} className="xs-hcard-wa" />
+          <span className="xs-hcard-by-t">
+            <b>{HERO_PREPARED.by}</b>
+            <small>{HERO_PREPARED.to}</small>
+          </span>
+          <span className="xs-hcard-wa" aria-hidden="true">
+            <Icon name="whatsapp" size={16} />
+          </span>
         </div>
         <XsCta id="hero_card" location="hero" variant="dark" set={{ topic }} source="hero" className="xs-block">
           {plan.cta}
         </XsCta>
+        <span className="xs-hcard-note">{HERO_NOTE}</span>
       </div>
-      <span className="xs-hcard-note">Example layout. Your plan depends on your activity and team.</span>
     </div>
   );
 }

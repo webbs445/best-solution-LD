@@ -97,16 +97,33 @@ describe("page state", () => {
 describe("XS_CONFIG facts still to confirm", () => {
   it("leaves unconfirmed facts null or empty (the elements that need them are hidden)", () => {
     expect(XS_CONFIG).toMatchObject({
-      replyTime: null,
       consultLength: null,
       planDelivery: null,
-      officeAddress: null,
+      teamLanguages: null,
       advisors: [],
-      googleRating: null,
-      googleReviewCount: null,
       clientStory: null,
       aboutUrl: null,
       feesInWritingConfirmed: false,
     });
+  });
+
+  it("holds the facts confirmed for this page", () => {
+    expect(XS_CONFIG).toMatchObject({
+      replyTime: "the same day",
+      officeAddress: "Office 906, Capital Golden Tower, Business Bay, Dubai",
+      officeHours: "Monday to Friday, 9am to 6pm",
+      googleRating: 4.8,
+      googleReviewCount: 225,
+      whatsappNumber: "97145531546",
+      phoneNumber: { display: "+971 52 233 0011", href: "tel:+971522330011" },
+    });
+  });
+});
+
+describe("/xservicesx reviews", () => {
+  it("has the 13 approved reviews, Michael first, and none names Yasmin, Yasmine or Jasmine", () => {
+    expect(XS_CONFIG.reviews).toHaveLength(13);
+    expect(XS_CONFIG.reviews[0].firstNameInitial).toBe("Michael D.");
+    expect(XS_CONFIG.reviews.filter((r) => /\b(yasmine?|jasmine)\b/i.test(r.text)).map((r) => r.firstNameInitial)).toEqual([]);
   });
 });

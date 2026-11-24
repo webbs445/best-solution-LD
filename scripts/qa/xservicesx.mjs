@@ -21,7 +21,7 @@ const check = (name, ok, detail = "") => {
 };
 
 /** A fresh page at this width. api: "ok" | "error"; lead bodies are collected in page.leads. */
-async function open(width, api = "ok", { accept = true } = {}) {
+async function open(width, api = "ok", { accept = true, warm = true } = {}) {
   const ctx = await b.createBrowserContext();
   const p = await ctx.newPage();
   await p.setViewport({ width, height: width < 768 ? 844 : 900, isMobile: width < 768, hasTouch: width < 768 });
@@ -38,6 +38,17 @@ async function open(width, api = "ok", { accept = true } = {}) {
   await p.goto(`${BASE}${PATH}?utm_source=google&utm_campaign=TEST-AUDIT-DELETE`, { waitUntil: "networkidle2", timeout: 180000 });
   if (accept) await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept all")?.click());
   await wait(500);
+  // Like a visitor, scroll through once: below-the-fold sections hydrate when near the screen (LazySection).
+  if (warm) {
+    await p.evaluate(async () => {
+      for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight) {
+        window.scrollTo({ top: y, behavior: "instant" });
+        await new Promise((r) => setTimeout(r, 60));
+      }
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+    await wait(300);
+  }
   p.done = () => ctx.close();
   return p;
 }
@@ -66,7 +77,7 @@ if (FIX !== "live") {
     const s = await p.evaluate(() => ({ s6: !!document.getElementById("advisors"), office: !!document.querySelector(".xs-trustsec .xs-office-card"), rows: document.querySelectorAll("#xs-wall .xs-wall-row").length, cards: [...document.querySelectorAll("#xs-wall .xs-wall-row")].map((r) => r.querySelectorAll(".xs-wall-track > .xs-rcard").length), copies: [...document.querySelectorAll("#xs-wall .xs-wall-copy")].every((c) => c.getAttribute("aria-hidden") === "true") }));
     check("1 advisor: S6 returns and Trust drops its office card", s.s6 && !s.office, JSON.stringify(s));
     check("8 reviews: two-row wall, reviews split 4 and 4, loop copies aria-hidden", s.rows === 2 && s.cards.join() === "4,4" && s.copies, JSON.stringify(s));
-    check("plan button row visible under the wall", await p.evaluate(() => !!document.querySelector('[data-xs-cta="trust_plan"]')?.offsetParent && document.querySelector(".xs-trust-cta").innerText.includes("Join them.")));
+    check("plan button row visible under the wall", await p.evaluate(() => !!document.querySelector('[data-xs-cta="trust_plan"]')?.offsetParent && document.querySelector(".xs-trust-cta").textContent.includes("Join them.")));
     const state = () => p.evaluate(() => [...document.querySelectorAll(".xs-wall-track")].map((t) => getComputedStyle(t).animationPlayState + ":" + getComputedStyle(t).animationName).join(" "));
     await p.evaluate(() => document.getElementById("xs-wall").scrollIntoView({ behavior: "instant", block: "center" }));
     await p.mouse.move(5, 5);
@@ -123,20 +134,17 @@ if (FIX !== "live") {
 }
 
 
-// Live config (2 reviews): a still row of 2 equal columns across the full content width, every review in full;
-// the plan button row under the office card at 1024 and 1440.
+// Live config (13 reviews): the moving wall at 1024 and 1440, 7 and 6 cards per row (plus the hidden copy), labels without a
+// year, Michael's first; the plan button row under it.
 for (const w of [1024, 1440]) {
   const p = await open(w);
   const r = await p.evaluate(() => {
-    const row = document.querySelector(".xs-still"), wrap = row.parentElement, cs = getComputedStyle(wrap);
-    const inner = wrap.getBoundingClientRect().width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    const cards = [...row.querySelectorAll(".xs-rcard")].map((c) => Math.round(c.getBoundingClientRect().width));
-    const clamped = [...row.querySelectorAll(".xs-rtext")].some((t) => t.scrollHeight > t.clientHeight + 1 || getComputedStyle(t).webkitLineClamp !== "none");
+    const rows = [...document.querySelectorAll("#xs-wall .xs-wall-row")].map((row) => row.querySelectorAll(".xs-wall-track > .xs-rcard").length);
+    const labels = [...document.querySelectorAll("#xs-wall .xs-rby small")].map((s) => s.textContent);
     const cta = document.querySelector('[data-xs-cta="trust_plan"]'), note = cta?.nextElementSibling;
-    return { rowW: Math.round(row.getBoundingClientRect().width), inner: Math.round(inner), cards, clamped, cta: !!cta?.offsetParent, note: note?.offsetParent ? note.textContent : "" };
+    return { rows, years: labels.filter((l) => /\d{4}/.test(l)).length, first: document.querySelector("#xs-wall .xs-rby b")?.textContent, cta: !!cta?.offsetParent, note: note?.offsetParent ? note.textContent : "" };
   });
-  check(`2 reviews at ${w}px: 2 equal columns across the full width`, r.cards.length === 2 && Math.abs(r.rowW - r.inner) <= 1 && Math.abs(r.cards[0] - r.cards[1]) <= 1 && r.cards[0] > r.inner / 2 - 20, JSON.stringify(r));
-  check(`2 reviews at ${w}px: no text clamped`, !r.clamped);
+  check(`13 reviews at ${w}px: the wall, 7 and 6 per row, no years, Michael first`, JSON.stringify(r.rows) === "[7,6]" && !r.years && r.first === "Michael D.", JSON.stringify(r));
   check(`plan button row visible at ${w}px`, r.cta && r.note === "Join them. 2 minutes · no obligation", r.note);
   await p.done();
 }
@@ -184,8 +192,8 @@ for (const width of [390, 768, 1440]) {
   await p.keyboard.press("Escape");
   await wait(150);
   check(`S3 explainer at ${width}px: Enter opens, Escape closes`, kOpen === "true" && (await p.$eval(btn, (b) => b.getAttribute("aria-expanded"))) === "false");
-  const ev = (await events(p, "xs_cta_click")).filter((e) => e.cta_id === "fz_explainer" && e.location === "s3");
-  check(`S3 explainer at ${width}px fires xs_cta_click fz_explainer once per open`, ev.length === 2, String(ev.length));
+  const ev = (await events(p, "xs_explainer_open")).filter((e) => e.location === "s3");
+  check(`S3 explainer at ${width}px fires xs_explainer_open once per open`, ev.length === 2, String(ev.length));
   await p.done();
 }
 
@@ -295,13 +303,16 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   check("page state survives a reload", (await p.$eval(".xs-about strong", (e) => e.textContent)) === "Corporate Tax");
   // No advisors yet: S6 is left out, Trust shows with its office card, and the plan names the first available advisor.
   check("live config: Trust shown, S6 and S7 gone", await p.evaluate(() => !!document.querySelector("#reviews.xs-trustsec .xs-office-card") && !document.getElementById("advisors") && !document.querySelector(".xs-s7")));
-  check("plan names the first available advisor", await p.evaluate(() => /YOUR ADVISOR\s*First available advisor/.test(document.querySelector(".xs-paper").innerText)));
+  check("plan names the first available advisor", await p.evaluate(() => /YOUR ADVISOR\s*(ADVISOR)?\s*First available advisor/.test(document.querySelector(".xs-paper").textContent)));
   // "Request a call back": reply by phone, keeps a picked topic, opens the plan pop-up.
+  // After the reload, scroll to it like a visitor (Trust hydrates when near the screen).
+  await p.evaluate(() => document.querySelector('[data-xs-cta="callback"]').scrollIntoView({ block: "center" }));
+  await wait(500);
   await p.evaluate(() => document.querySelector('[data-xs-cta="callback"]').click());
   await wait(400);
-  const cb = await p.evaluate(() => ({ call: document.querySelector("#xs-plan-dialog .xs-seg-form button:nth-child(2)").getAttribute("aria-pressed"), about: document.querySelector(".xs-about strong")?.textContent, picked: document.querySelector("#xsd-topic")?.selectedOptions[0]?.textContent, open: document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.id }));
+  const cb =await p.evaluate(() => ({ call: document.querySelector("#xs-plan-dialog .xs-seg-form button:nth-child(2)").getAttribute("aria-pressed"), about: document.querySelector(".xs-about strong")?.textContent, picked: document.querySelector("#xsd-topic")?.selectedOptions[0]?.textContent, open: document.getElementById("xs-plan-dialog").open, focus: document.activeElement?.id }));
   check("call-back button: Call me, topic kept, pop-up open, name focused", cb.call === "true" && cb.about === "Corporate Tax" && cb.picked === "Corporate Tax" && cb.open && cb.focus === "xsd-name", JSON.stringify(cb));
-  check("xs_cta_click {cta_id: callback, location: trust}", (await events(p, "xs_cta_click")).some((e) => e.cta_id === "callback" && e.location === "trust"));
+  check("consultation_cta_click {cta_location: callback}", (await events(p, "consultation_cta_click")).some((e) => e.cta_location === "callback"));
   await p.done();
 }
 
@@ -335,8 +346,8 @@ for (const w of [390, 1440]) {
   await p.mouse.click(5, 5);
   await wait(250);
   check(`at ${w}px a tap outside closes the pop-up`, await p.evaluate(() => !document.getElementById("xs-plan-dialog").open));
-  const cta = await events(p, "xs_cta_click");
-  check(`xs_cta_click {cta_id, location} at ${w}px`, cta.length === ids.length + 2 && cta.every((e) => e.cta_id && e.location), String(cta.length));
+  const cta = await events(p, "consultation_cta_click");
+  check(`consultation_cta_click {cta_location} at ${w}px, no xs_cta_click`, cta.length === ids.length + 2 && cta.every((e) => e.cta_location) && !(await events(p, "xs_cta_click")).length, String(cta.length));
   await p.done();
 }
 
@@ -446,9 +457,11 @@ for (const [w, h] of [[375, 667], [390, 844], [768, 1024], [1024, 768], [1440, 9
   const errs2 = await p.$$eval("#plan .xs-err", (e) => e.map((x) => x.textContent));
   check("invalid name, number and email errors, typed values kept", errs2.length === 3 && errs2[2].includes("United Arab Emirates") && (await p.$eval("#xs-name", (e) => e.value)) === "T", errs2.join(" | "));
   check("no lead sent while fields are wrong", p.leads.length === 0);
-  const fe = await events(p, "xs_form_error");
-  check("xs_form_error {field} per bad field", fe.length === 6 && fe.every((e) => ["name", "phone", "email"].includes(e.field)));
-  check("xs_form_start once", (await events(p, "xs_form_start")).length === 1);
+  // Site-wide names (AnalyticsInit, data-track): form_error per blocked submit with the field names, form_start once.
+  const fe = await events(p, "form_error");
+  check("form_error {form_id, error_fields} per blocked submit once the form is started", fe.length >= 1 && fe.every((e) => e.form_data?.form_id === "LP Services Plan" && /lead_name|mobile_no|email_id/.test(e.form_data?.error_fields || "")), JSON.stringify(fe.map((e) => e.form_data)));
+  check("form_start once", (await events(p, "form_start")).length === 1);
+  check("no xs_form_start / xs_form_error duplicates", !(await events(p, "xs_form_start")).length && !(await events(p, "xs_form_error")).length);
   await p.done();
 }
 
@@ -465,6 +478,8 @@ for (const [w, h] of [[375, 667], [390, 844], [768, 1024], [1024, 768], [1440, 9
   const body = p.leads[0] || {};
   check("one lead sent with topic, contact_pref, form_location, page, UTMs", p.leads.length === 1 && body.topic === "bookkeeping" && body.contact_pref === "call" && body.form_location === "s9" && body.page === "/xservicesx" && body.utm_campaign === "TEST-AUDIT-DELETE" && body.mobile_no === "+971500000000" && body.email_id === EMAIL && body.bs_hp === "", JSON.stringify({ topic: body.topic, contact: body.contact_pref }));
   check("REQUEST SENT stamp and thank-you", await p.evaluate(() => !!document.querySelector(".xs-stamp") && /Thanks, TEST\./.test(document.querySelector(".xs-thanks")?.textContent || "") && /An advisor will call you/.test(document.querySelector(".xs-thanks").textContent)));
+  const prep = await p.evaluate(() => ({ title: document.querySelector("#plan .xs-prep > span")?.textContent, items: [...document.querySelectorAll("#plan .xs-prep li")].map((l) => l.textContent), body: document.querySelector("#plan .xs-thanks p")?.textContent, wa: !!document.querySelector("#plan .xs-thanks-wa") }));
+  check("thank-you: same-day line, the 3-item checklist, and WhatsApp us", prep.title === "Before your call, have these ready:" && JSON.stringify(prep.items) === JSON.stringify(["What you'll sell or offer", "Who your customers are, and where", "How many people will work with you"]) && /call you the same day, in office hours/.test(prep.body || "") && prep.wa, JSON.stringify(prep));
   check("progress ring at 100% and green", await p.evaluate(() => document.querySelector(".xs-ring b").textContent === "100%" && document.querySelectorAll(".xs-ring circle")[1].getAttribute("stroke") === "#1F6B45"));
   await submit(p).catch(() => {});
   await wait(500);
@@ -538,7 +553,56 @@ for (const w of [390, 768, 1440]) {
 {
   const html = (await (await fetch(BASE + PATH)).text()).replace(/&#x27;|&#39;/g, "'");
   const answers = [...html.matchAll(/<dd>([^<]+)<\/dd>/g)].map((m) => m[1]);
-  check("all six FAQ answers in the server HTML and FAQPage JSON-LD", answers.length >= 6 && html.includes('"@type":"FAQPage"') && answers.every((a) => html.includes(JSON.stringify(a).slice(1, 20))), `${answers.length} answers`);
+  check("all FAQ answers in the server HTML and FAQPage JSON-LD", answers.length >= 9 && html.includes('"@type":"FAQPage"') && answers.every((a) => html.includes(JSON.stringify(a).slice(1, 20))), `${answers.length} answers`);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]).find((x) => x["@type"] === "FAQPage");
+  const names = ld.mainEntity.map((q) => q.name);
+  const added = ["What decides my cost?", "Can I do this from outside the UAE?", "What happens after I send the form?"];
+  check("the new questions are in the server HTML and the JSON-LD; the languages one stays hidden", added.every((q) => names.includes(q) && html.includes(q)) && !html.includes("Which languages do you speak?"), names.join(" | "));
+}
+
+// S8 ask bar: the typed question opens wa.me with only that text (no name, number or email), whatsapp_click without the text.
+{
+  const p = await open(390);
+  await p.evaluate(() => (window.open = (u) => ((window.__opened = window.__opened || []).push(u), null)));
+  await p.evaluate(() => document.getElementById("xs-ask").scrollIntoView({ block: "center" }));
+  await wait(400);
+  await p.type("#xs-name", "TEST AUDIT - DELETE").catch(() => {});
+  await p.type("#xs-ask", "How long for a holding? Reach me at test-audit@xerebo.com or +971 50 000 0000");
+  await p.click(".xs-askbar .xs-send");
+  await wait(200);
+  await p.click("#xs-ask", { clickCount: 3 });
+  await p.keyboard.press("Backspace");
+  await p.click(".xs-askbar .xs-send");
+  await wait(200);
+  const opened = await p.evaluate(() => window.__opened || []);
+  const text = opened[0] ? new URL(opened[0]).searchParams.get("text") : "";
+  check("S8: send opens wa.me with \"Hi, my question: \" and the typed text, personal data dropped", opened[0]?.startsWith("https://wa.me/97145531546?text=") && text === "Hi, my question: How long for a holding? Reach me at or" && !/xerebo|0000|TEST AUDIT/.test(opened[0]), JSON.stringify(text));
+  check("S8: empty send opens the topic message", opened[1]?.startsWith("https://wa.me/97145531546") && !/my question/.test(decodeURIComponent(opened[1] || "")), opened[1]);
+  const wa = (await events(p, "whatsapp_click")).filter((e) => e.cta_location === "s8_ask");
+  check("S8: whatsapp_click {cta_location: s8_ask, has_text} with no text content", wa.length === 2 && wa[0].has_text === true && wa[1].has_text === false && !JSON.stringify(wa).includes("holding"), JSON.stringify(wa.map((e) => e.has_text)));
+  check("S8: the field takes at most 300 characters", (await p.$eval("#xs-ask", (e) => e.maxLength)) === 300);
+  await p.done();
+}
+
+// No blue tick anywhere: the chat badge and the read ticks are copper (markup and every stylesheet).
+{
+  const p = await open(1440);
+  const css = (await Promise.all((await p.$$eval('link[rel="stylesheet"]', (l) => l.map((x) => x.href))).map((h) => fetch(h).then((r) => r.text())))).join("");
+  const html = await p.content();
+  check("no blue tick anywhere (markup and CSS)", !/1D9BF0|34B7F1|1877F2|0095F6/i.test(css + html));
+  await p.done();
+}
+
+// Page height at 390 (as laid out, content-visibility off): at least 20% under main's 9,395 px.
+{
+  const p = await open(390, "ok", { warm: false });
+  const h = await p.evaluate(async () => {
+    document.head.insertAdjacentHTML("beforeend", "<style>.xs *{content-visibility:visible!important}</style>");
+    await new Promise((r) => setTimeout(r, 300));
+    return document.documentElement.scrollHeight;
+  });
+  check("page height at 390 is 20% or more under main (9,395 px)", h <= 9395 * 0.8, `${h} px`);
+  await p.done();
 }
 
 // 9. Copy policy on the rendered page (both widths' wording is in the DOM).
@@ -546,12 +610,13 @@ for (const w of [390, 768, 1440]) {
   const p = await open(1440);
   const t = await p.evaluate(() => {
     const c = document.body.cloneNode(true);
-    c.querySelectorAll("script,style,noscript,[data-review-quote]").forEach((e) => e.remove());
+    c.querySelectorAll("script,style,noscript").forEach((e) => e.remove());
     const attrs = [...document.querySelectorAll("[alt],[aria-label],[placeholder],[title]")].flatMap((e) => ["alt", "aria-label", "placeholder", "title"].map((a) => e.getAttribute(a) || ""));
     const wa = [...document.querySelectorAll('a[href*="wa.me"]')].map((a) => new URL(a.href).searchParams.get("text") || "");
     return [c.textContent, ...attrs, ...wa, document.title, document.querySelector('meta[name="description"]').content].join(" | ");
   });
-  const allowed = t.replace(/best solution|best-solution\.ae/gi, " ").replace(/free zones?/gi, " ").replace(/We use cookies[^|]*/g, " ");
+  // Reviews are scanned too: only "stress-free" (Hadi) and the brand name "best solution" are exempt.
+  const allowed = t.replace(/stress-free/g, " ").replace(/best solution|best-solution\.ae/gi, " ").replace(/free zones?/gi, " ").replace(/We use cookies[^|]*/g, " ");
   const re = /\b(set[\s-]?up|startups?|start|starting|open|register|registration|licen[cs]e|visas?|permits?|approval|approved|documents?|formation|fast|faster|instant|quick|guarantee[sd]?|best|cheapest|lowest|launch|transparent|free|renew|renewal|official|trade name|incorporation)\b|100\s?%|no hidden fees|®|#1\b|\b(DED|PRO)\b|[[\]]|—/gi;
   const hits = [...allowed.matchAll(re)].map((m) => `"${m[0]}" ...${allowed.slice(Math.max(0, m.index - 30), m.index + 30)}...`);
   check("copy policy on the rendered page (banned words, brackets, em dashes)", !hits.length, hits.slice(0, 5).join(" ;; "));

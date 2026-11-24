@@ -24,8 +24,9 @@ export function Situations() {
               <span className="xs-tag">MOST COMMON</span>
               <h3>{S3_BIG.title}</h3>
               <p className="d-only">{S3_BIG.text}</p>
+              <p className="p-only xs-big-one">{S3_BIG.textShort}</p>
             </div>
-            <div className="xs-big-get">
+            <div className="xs-big-get t-up">
               <span className="xs-eyebrow d-only">YOU&apos;LL GET</span>
               <ul>
                 {S3_BIG.points.map((p, i) => (

@@ -436,8 +436,8 @@ export function trackPhoneClick(phoneNumber: string, ctaLocation = ""): void {
   });
 }
 
-export function trackWhatsappClick(ctaLocation = ""): void {
-  pushEvent("whatsapp_click", { cta_location: ctaLocation || undefined, value: LEAD_VALUES.whatsapp, currency: LEAD_CURRENCY, ...pageData() });
+export function trackWhatsappClick(ctaLocation = "", extra: Record<string, string | number | boolean> = {}): void {
+  pushEvent("whatsapp_click", { cta_location: ctaLocation || undefined, ...extra, value: LEAD_VALUES.whatsapp, currency: LEAD_CURRENCY, ...pageData() });
 }
 
 export function trackEmailClick(email: string, ctaLocation = ""): void {
