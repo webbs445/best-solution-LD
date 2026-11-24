@@ -29,7 +29,7 @@ export const LEGAL_V2_DRAFT: Record<"privacy" | "terms", { blocks: LegalV2Block[
       ["p", "We do not ask for identity papers, payment card details or other sensitive data on this site."],
 
       ["h2", "3. Cookies and your consent"],
-      ["p", "When you first visit, a cookie banner asks for your choice: Reject all, Accept all, or Manage preferences (Analytics and Marketing). Until you choose, no analytics or advertising tag runs. We use Google Consent Mode so Google's tags follow your choice."],
+      ["p", "When you first visit, a cookie banner asks for your choice: Reject, Accept, or Choose what to allow (Analytics and Marketing). Until you choose, no analytics or advertising tag runs. We use Google Consent Mode so Google's tags follow your choice."],
       ["p", "We store your choice on your device so we do not ask again. You can change it at any time with the Cookie Settings link at the bottom of every page."],
       ["p", "Without cookies, we also keep anonymous daily totals of visits that arrive from an ad, the type of device (phone, tablet or desktop) and system (iOS, Android or other) they came from, and cookie banner choices (accept, reject or no choice). These counts store no IP address, click ID, browser details or other identifier."],
 

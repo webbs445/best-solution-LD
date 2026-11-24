@@ -36,7 +36,7 @@ async function open(width, api = "ok", { accept = true } = {}) {
     return false;
   });
   await p.goto(`${BASE}${PATH}?utm_source=google&utm_campaign=TEST-AUDIT-DELETE`, { waitUntil: "networkidle2", timeout: 180000 });
-  if (accept) await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept all")?.click());
+  if (accept) { await p.waitForFunction(() => [...document.querySelectorAll("button")].some((x) => x.innerText.trim() === "Accept"), { timeout: 5000 }).catch(() => {}); await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept")?.click()); }
   await wait(500);
   p.done = () => ctx.close();
   return p;

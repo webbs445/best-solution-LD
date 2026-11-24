@@ -29,7 +29,7 @@ async function run(name, path, { open, toContact, submit, fill, check }) {
     return false;
   });
   await p.goto(BASE + path + Q, { waitUntil: "networkidle2", timeout: 180000 });
-  await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept all")?.click());
+  { await p.waitForFunction(() => [...document.querySelectorAll("button")].some((x) => x.innerText.trim() === "Accept"), { timeout: 5000 }).catch(() => {}); await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept")?.click()); }
   await wait(1200);
   const stored = await p.evaluate(() => JSON.parse(sessionStorage.getItem("bs_attribution") || "{}").gclid);
   const subs = () => p.evaluate(() => (window.dataLayer || []).filter((d) => d && d.event === "form_submit").map((d) => ({ id: d.event_id, form: d.form_data?.form_id })));
