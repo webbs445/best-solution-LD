@@ -150,7 +150,9 @@ export function PlanForm({ prefix, location, heading, compact }: { prefix: strin
       {heading && (
         <div className="xs-form-head">
           <h3>{heading}</h3>
-          <p>Takes about 2 minutes.</p>
+          <span className="xs-2min">
+            <Icon name="clock" size={13} strokeWidth={2.4} />2 minutes
+          </span>
         </div>
       )}
       <div className="xs-frow">

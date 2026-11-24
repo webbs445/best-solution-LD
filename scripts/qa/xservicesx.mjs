@@ -282,9 +282,9 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   await p.evaluate(() => [...document.querySelectorAll(".xs-worry")].filter((x) => x.offsetParent).slice(0, 2).forEach((x) => x.click()));
   await wait(300);
   const about = await p.$eval(".xs-about strong", (e) => e.textContent);
-  const qs = await p.$$eval(".xs-qtags span", (s) => s.map((x) => x.textContent));
+  const qs = await p.$eval(".xs-qline", (e) => e.textContent);
   check("hero select shows in the plan's ABOUT row", about === "Corporate Tax", about);
-  check("S2 picks show in YOUR QUESTIONS", JSON.stringify(qs) === JSON.stringify(["Where do I begin?", "Which price is right?"]), qs.join(", "));
+  check("S2 picks show in YOUR QUESTIONS", qs === "Where do I begin? · Which price is right?", qs);
   const topicEv = await events(p, "xs_topic_select");
   check("xs_topic_select {topic, source: hero}", topicEv.some((e) => e.topic === "corporate_tax" && e.source === "hero"));
   const worryEv = await events(p, "xs_worry_toggle");
@@ -365,6 +365,53 @@ for (const w of [390, 1440]) {
   const v = await p.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((x) => `${x.id}: ${x.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(", ")}`));
   const over = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   check(`pop-up open at ${w}px: axe zero violations, no sideways scroll`, !v.length && over <= 0, v.join(" ;; "));
+  await p.done();
+}
+
+// The pop-up's topic is the page topic (last set wins; with nothing picked, the hero card's default), and the lead sends it.
+for (const [label, w, before, cta, want] of [
+  ["hero, default value", 1440, null, "hero_primary", "new_company"],
+  ["hero, changed value", 1440, (p) => p.select("#xs-hero-topic", "holding"), "hero_primary", "holding"],
+  ["an S3 card", 1440, null, "s3_bookkeeping", "bookkeeping"],
+  ["the sticky bar after an S5 pick", 390, (p) => p.evaluate(() => [...document.querySelectorAll(".xs-s5 .xs-tchip")].find((b) => b.textContent.trim() === "Corporate Tax").click()), "sticky_plan", "corporate_tax"],
+]) {
+  const p = await open(w);
+  if (before) await before(p);
+  await wait(200);
+  await p.evaluate((id) => document.querySelector(`[data-xs-cta=${id}]`).click(), cta);
+  await wait(400);
+  const sel = await p.evaluate(() => {
+    const s = document.getElementById("xsd-topic");
+    return { value: s.value, text: s.selectedOptions[0]?.textContent, pick: [...s.options].some((o) => o.textContent === "Pick a topic") };
+  });
+  for (const [id, v] of [["#xsd-name", NAME], ["#xsd-email", EMAIL], ["#xsd-phone", PHONE]]) await p.type(id, v);
+  await p.evaluate(() => document.querySelector("#xs-plan-dialog button[type=submit]").click());
+  await wait(900);
+  const sent = p.leads[0]?.topic;
+  check(`pop-up from ${label}: shows ${want}, no "Pick a topic", the lead sends the same topic`, sel.value === want && !sel.pick && sent === want && p.leads.length === 1, JSON.stringify({ ...sel, sent }));
+  await p.done();
+}
+
+// S9 is light and the footer navy (clearly apart); the country code shows "+971 UAE" in full.
+for (const w of [320, 390, 768, 1440]) {
+  const p = await open(w);
+  const r = await p.evaluate(() => {
+    const lum = (c) => {
+      const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map((v) => +v / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const s9 = getComputedStyle(document.getElementById("plan")).backgroundImage.match(/rgba?\([^)]+\)/g).at(-1);
+    const foot = getComputedStyle(document.querySelector(".xs-footer")).backgroundColor;
+    const sel = document.querySelector("#plan .xs-tel select");
+    const cs = getComputedStyle(sel);
+    const ctx = document.createElement("canvas").getContext("2d");
+    ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const text = sel.selectedOptions[0].textContent;
+    const room = sel.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    return { s9: lum(s9), foot: lum(foot), text, need: Math.ceil(ctx.measureText(text).width), room };
+  });
+  if (w !== 320) check(`S9 light and footer navy at ${w}px`, r.s9 > 0.8 && r.foot < 0.05, JSON.stringify(r));
+  check(`country code "${r.text}" fits in full at ${w}px`, r.text === "+971 UAE" && r.need <= r.room, JSON.stringify(r));
   await p.done();
 }
 
