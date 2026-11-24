@@ -1,4 +1,4 @@
-// /xservicesx browser checks. Every outside host is blocked and /api/services-plan is answered inside the browser
+// /services browser checks (the page built as /xservicesx). Every outside host is blocked and /api/services-plan is answered inside the browser
 // (success or error, as each check needs), so nothing reaches the ERP or the lead sheet. Test data only.
 // Checks: no sideways scroll at 320 to 1920; page state reaches the plan (hero topic, worries); every plan button
 // scrolls to #plan and focuses the first empty field; field errors; a mocked success (stamp, thank-you, exactly one
@@ -8,9 +8,9 @@
 // Usage: node scripts/qa/xservicesx.mjs [base] [fixture]. Fixture runs need a local build made with
 // NEXT_PUBLIC_XS_FIXTURE=reviews3 (still row) or full (1 advisor, 8 reviews: S6 and the moving wall). Exit 1 on any failure.
 import { readFileSync } from "node:fs";
-import { BASE, blockTags, launch, wait } from "./common.mjs";
+import { BASE, ROUTES, blockTags, launch, wait } from "./common.mjs";
 
-const PATH = "/xservicesx";
+const PATH = "/services";
 const NAME = "TEST AUDIT - DELETE", PHONE = "500000000", EMAIL = "test-audit@xerebo.com";
 const AXE = readFileSync(new URL("../../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
 const b = await launch();
@@ -192,7 +192,7 @@ for (const width of [390, 768, 1440]) {
   await p.keyboard.press("Escape");
   await wait(150);
   check(`S3 explainer at ${width}px: Enter opens, Escape closes`, kOpen === "true" && (await p.$eval(btn, (b) => b.getAttribute("aria-expanded"))) === "false");
-  const ev = (await events(p, "xs_explainer_open")).filter((e) => e.location === "s3");
+  const ev = (await events(p, "explainer_open")).filter((e) => e.location === "s3");
   check(`S3 explainer at ${width}px fires xs_explainer_open once per open`, ev.length === 2, String(ev.length));
   await p.done();
 }
@@ -293,9 +293,9 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   const qs = await p.$eval(".xs-qline", (e) => e.textContent);
   check("hero select shows in the plan's ABOUT row", about === "Corporate Tax", about);
   check("S2 picks show in YOUR QUESTIONS", qs === "Where do I begin? · Which price is right?", qs);
-  const topicEv = await events(p, "xs_topic_select");
+  const topicEv = await events(p, "topic_select");
   check("xs_topic_select {topic, source: hero}", topicEv.some((e) => e.topic === "corporate_tax" && e.source === "hero"));
-  const worryEv = await events(p, "xs_worry_toggle");
+  const worryEv = await events(p, "worry_toggle");
   check("xs_worry_toggle {worry_id, on, count}", worryEv.length === 2 && worryEv[1].count === 2 && worryEv[1].on === true);
   // The state survives a reload (sessionStorage).
   await p.reload({ waitUntil: "networkidle2" });
@@ -476,7 +476,7 @@ for (const [w, h] of [[375, 667], [390, 844], [768, 1024], [1024, 768], [1440, 9
   await submit(p);
   await wait(1200);
   const body = p.leads[0] || {};
-  check("one lead sent with topic, contact_pref, form_location, page, UTMs", p.leads.length === 1 && body.topic === "bookkeeping" && body.contact_pref === "call" && body.form_location === "s9" && body.page === "/xservicesx" && body.utm_campaign === "TEST-AUDIT-DELETE" && body.mobile_no === "+971500000000" && body.email_id === EMAIL && body.bs_hp === "", JSON.stringify({ topic: body.topic, contact: body.contact_pref }));
+  check("one lead sent with topic, contact_pref, form_location, page, UTMs", p.leads.length === 1 && body.topic === "bookkeeping" && body.contact_pref === "call" && body.form_location === "s9" && body.page === "/services" && body.utm_campaign === "TEST-AUDIT-DELETE" && body.mobile_no === "+971500000000" && body.email_id === EMAIL && body.bs_hp === "", JSON.stringify({ topic: body.topic, contact: body.contact_pref }));
   check("REQUEST SENT stamp and thank-you", await p.evaluate(() => !!document.querySelector(".xs-stamp") && /Thanks, TEST\./.test(document.querySelector(".xs-thanks")?.textContent || "") && /An advisor will call you/.test(document.querySelector(".xs-thanks").textContent)));
   const prep = await p.evaluate(() => ({ title: document.querySelector("#plan .xs-prep > span")?.textContent, items: [...document.querySelectorAll("#plan .xs-prep li")].map((l) => l.textContent), body: document.querySelector("#plan .xs-thanks p")?.textContent, wa: !!document.querySelector("#plan .xs-thanks-wa") }));
   check("thank-you: same-day line, the 3-item checklist, and WhatsApp us", prep.title === "Before your call, have these ready:" && JSON.stringify(prep.items) === JSON.stringify(["What you'll sell or offer", "Who your customers are, and where", "How many people will work with you"]) && /call you the same day, in office hours/.test(prep.body || "") && prep.wa, JSON.stringify(prep));
@@ -485,7 +485,7 @@ for (const [w, h] of [[375, 667], [390, 844], [768, 1024], [1024, 768], [1440, 9
   await wait(500);
   const gl = await events(p, "generate_lead");
   check("generate_lead exactly once", gl.length === 1, String(gl.length));
-  check("generate_lead {topic, contact_pref, form_location: s9, page: /xservicesx}", gl[0]?.topic === "bookkeeping" && gl[0]?.contact_pref === "call" && gl[0]?.form_location === "s9" && gl[0]?.page === "/xservicesx");
+  check("generate_lead {topic, contact_pref, form_location: s9, page: /services}", gl[0]?.topic === "bookkeeping" && gl[0]?.contact_pref === "call" && gl[0]?.form_location === "s9" && gl[0]?.page === "/services");
   const dl = JSON.stringify(await p.evaluate(() => window.dataLayer));
   check("no name, number or email anywhere in the dataLayer", !dl.includes("TEST AUDIT") && !dl.includes(EMAIL) && !dl.includes("500000000"));
   check("one form_submit with lead_conversion_eligible and the evt_ id sent to the ERP", (await events(p, "form_submit")).filter((e) => e.form_data?.lead_conversion_eligible && e.event_id === body.event_id).length === 1);
@@ -547,6 +547,51 @@ for (const w of [390, 768, 1440]) {
   const r = await p.evaluate(() => ({ doc: !!document.querySelector(".xs-s4-stage")?.offsetParent, s9: (document.getElementById("plan").textContent.match(/not a government office/g) || []).length, foot: (document.querySelector("footer").textContent.match(/Not a government office/g) || []).length, hero: (document.querySelector(".xs-hero").textContent.match(/not a government office/g) || []).length }));
   check(`S4 document ${w < 768 ? "hidden" : "shown"} at ${w}px; disclaimer in hero and footer only`, r.doc === w >= 768 && r.s9 === 0 && r.foot === 1 && r.hero === 1, JSON.stringify(r));
   await p.done();
+}
+
+// Every event on /services: no name starts with "xs_", and each carries page_path "/services" and page_type "landing"
+// (the page's own events and the shared ones, conversions included). No name, number or email in any event.
+{
+  const p = await open(390);
+  await p.select("#xs-hero-topic", "holding");
+  await p.evaluate(() => [...document.querySelectorAll(".xs-worry")].find((x) => x.offsetParent)?.click());
+  await p.evaluate(() => document.getElementById("xs-explain-btn")?.click());
+  await p.evaluate(() => [...document.querySelectorAll(".xs-qchip")][3]?.click());
+  await p.evaluate(() => document.querySelector("[data-xs-cta=hero_primary]").click());
+  await wait(400);
+  for (const [id, v] of [["#xsd-name", NAME], ["#xsd-email", EMAIL], ["#xsd-phone", PHONE]]) await p.type(id, v);
+  await p.evaluate(() => document.querySelector("#xs-plan-dialog button[type=submit]").click());
+  await wait(1200);
+  const ev = await p.evaluate(() => (window.dataLayer || []).filter((d) => d && typeof d.event === "string" && !d.event.startsWith("gtm.")));
+  const names = [...new Set(ev.map((e) => e.event))];
+  check("no event name on /services starts with xs_", !names.some((n) => n.startsWith("xs_")), names.join(", "));
+  const missing = ev.filter((e) => e.page_path !== "/services" || e.page_type !== "landing").map((e) => e.event);
+  const want = ["topic_select", "worry_toggle", "explainer_open", "faq_expand", "consultation_cta_click", "form_start", "form_submit", "generate_lead"];
+  check("every event carries page_path /services and page_type landing (own, shared and conversion events)", !missing.length && want.every((n) => names.includes(n)), `missing on: ${[...new Set(missing)].join(", ")} | seen: ${names.join(", ")}`);
+  const gl = ev.find((e) => e.event === "generate_lead");
+  check("generate_lead keeps its parameters", ["form_id", "lead_type", "page", "service", "topic", "contact_pref", "form_location", "value", "currency"].every((k) => k in gl) && gl.page === "/services", JSON.stringify(gl));
+  check("no name, number or email in any event", !/TEST AUDIT|test-audit@xerebo\.com|500000000|971500000000/.test(JSON.stringify(ev)));
+  await p.done();
+}
+
+// The page moved from /xservicesx to /services: a 301 in one hop (with and without the trailing slash) that keeps the
+// query string; /services answers 200 with the new H1; the old /services H1 is gone from every page.
+{
+  const q = "?utm_source=google&utm_campaign=TEST-AUDIT-DELETE&gclid=TEST123";
+  for (const from of ["/xservicesx", "/xservicesx/"]) {
+    const r = await fetch(BASE + from + q, { redirect: "manual" });
+    const to = r.headers.get("location") || "";
+    const next = await fetch(new URL(to, BASE), { redirect: "manual" });
+    check(`${from}${q} answers 301 to /services with the query string, in one hop`, r.status === 301 && new URL(to, BASE).pathname === "/services" && new URL(to, BASE).search === q && next.status === 200, `${r.status} ${to} -> ${next.status}`);
+  }
+  const slash = await fetch(BASE + "/freezone/?gclid=TEST123", { redirect: "manual" });
+  check("other trailing slashes still 308 to the URL without it (the proxy does it now)", slash.status === 308 && slash.headers.get("location")?.endsWith("/freezone?gclid=TEST123"), `${slash.status} ${slash.headers.get("location")}`);
+  const res = await fetch(BASE + "/services");
+  const html = (await res.text()).replace(/&#x27;|&#39;/g, "'");
+  check("/services answers 200 with the new H1", res.status === 200 && /<h1[^>]*>Make the right call on your UAE company/.test(html), String(res.status));
+  const old = [];
+  for (const r of ROUTES) if ((await (await fetch(BASE + r)).text()).includes("Plan and run your UAE business")) old.push(r);
+  check(`the old /services H1 is on no page (${ROUTES.length} routes)`, !old.length, old.join(", "));
 }
 
 // 8. Every FAQ answer in the server HTML (no JavaScript), plus FAQPage JSON-LD.

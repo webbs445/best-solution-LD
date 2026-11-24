@@ -15,6 +15,8 @@
 */
 
 import { readConsent } from "./consent";
+import { eventContext } from "./eventContext";
+export { setEventContext } from "./eventContext";
 import { LEAD_CURRENCY, LEAD_VALUES } from "./leadValues";
 
 declare global {
@@ -42,7 +44,7 @@ export function pushEvent(event: string, payload: Record<string, unknown> = {}):
     window.dataLayer.push({ user_data: null, form_data: null, event_id: null });
     conversionPending = false;
   }
-  window.dataLayer.push({ event, ...payload });
+  window.dataLayer.push({ event, ...payload, ...eventContext() });
 }
 
 /** Unique id for a single conversion, used by Meta browser pixel + CAPI dedup (and stored on the ERP lead). */

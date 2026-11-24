@@ -62,7 +62,7 @@ export function PlanDialog() {
                 onChange={(e) => {
                   const t = e.target.value as TopicId;
                   setXs({ topic: t });
-                  xsTrack("xs_topic_select", { topic: t, source: "popup" });
+                  xsTrack("topic_select", { topic: t, source: "popup" });
                 }}
               >
                 {!s.topic && (

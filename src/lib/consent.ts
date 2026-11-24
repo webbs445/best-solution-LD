@@ -10,6 +10,8 @@
   src/components/analytics/ConsentInit.tsx and with the main site.
 */
 
+import { eventContext } from "./eventContext";
+
 export const CONSENT_COOKIE = "bs_consent";
 // Bump when the category set changes: older cookies become invalid and the banner re-prompts.
 // v2 (Oct 2026): Necessary, Analytics, Marketing; the Functional category is gone.
@@ -103,7 +105,7 @@ export function applyConsent(choices: ConsentChoices): void {
     // Fallback if the gtag shim somehow hasn't initialised yet.
     w.dataLayer.push(["consent", "update", toConsentSignals(choices)]);
   }
-  w.dataLayer.push({ event: "consent_update", consent: choices });
+  w.dataLayer.push({ event: "consent_update", consent: choices, ...eventContext() });
   // DOM event so client code (click-id capture) can react without polling the dataLayer.
   try {
     window.dispatchEvent(new CustomEvent("consent_update", { detail: choices }));

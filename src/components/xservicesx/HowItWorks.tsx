@@ -85,7 +85,7 @@ export function HowItWorks() {
                       onClick={() => {
                         setXs({ topic: on ? null : c.topic });
                         setStep(0);
-                        if (!on) xsTrack("xs_topic_select", { topic: c.topic, source: "s5" });
+                        if (!on) xsTrack("topic_select", { topic: c.topic, source: "s5" });
                       }}
                     >
                       {c.label}

@@ -42,7 +42,7 @@ export function FzExplainButton() {
       aria-expanded={isOpen}
       aria-controls="xs-explain-card xs-explain-row"
       onClick={() => {
-        if (!isOpen) xsTrack("xs_explainer_open", { location: "s3" });
+        if (!isOpen) xsTrack("explainer_open", { location: "s3" });
         setOpen(!isOpen);
       }}
     >

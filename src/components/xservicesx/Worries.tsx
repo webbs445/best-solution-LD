@@ -21,7 +21,7 @@ export function Worries() {
     const next = on ? [...cur, i] : cur.filter((x) => x !== i);
     setXs({ worries: next });
     setLast(on ? i : -1);
-    xsTrack("xs_worry_toggle", { worry_id: i, on, count: next.length });
+    xsTrack("worry_toggle", { worry_id: i, on, count: next.length });
   };
   const cta = n > 1 ? `Get answers to my ${n} questions` : n === 1 ? "Get my answer" : "Get my answers";
   return (

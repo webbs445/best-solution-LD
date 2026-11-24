@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { trackEvent } from "@/lib/analytics";
+import { setEventContext, trackEvent } from "@/lib/analytics";
 import { WORRIES, isTopic, type TopicId } from "@/content/xservicesx";
 import { XS_CONFIG } from "@/content/xservicesx.config";
 
@@ -64,8 +64,12 @@ export function setXs(patch: Partial<XsState>): void {
 const subscribe = (l: () => void) => (listeners.add(l), () => void listeners.delete(l));
 export const useXs = () => useSyncExternalStore(subscribe, current, () => XS_DEFAULT);
 
+// Every event this page sends (its own and the shared ones) carries where it came from. Set when the page's code
+// loads, before the shared tracking's first event (content_view) fires after hydration.
+if (typeof window !== "undefined") setEventContext({ page_path: window.location.pathname, page_type: "landing" });
+
 /** dataLayer push for this page's own events (with page_data, like other pages' custom events). Never a name, number or email. */
-export const xsTrack = (event: string, params: Record<string, unknown> = {}) => trackEvent(event, { ...params, page: "/xservicesx" });
+export const xsTrack = (event: string, params: Record<string, unknown> = {}) => trackEvent(event, { ...params, page: "/services" });
 
 export const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

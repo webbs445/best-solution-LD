@@ -10,6 +10,8 @@ const SITELINK_REDIRECTS = [
 ];
 
 const nextConfig: NextConfig = {
+  // src/proxy.ts does the trailing-slash redirect instead (same 308), so /xservicesx/ reaches /services in one hop.
+  skipTrailingSlashRedirect: true,
   // The dashboard reads its page template at run time (its Ad landings view borrows the styles from it too).
   outputFileTracingIncludes: { "/api/ads-report": ["./src/lib/adsReportPage.html"] },
   // Nothing on this subdomain goes in search results: the header also covers images, PDFs and other files the

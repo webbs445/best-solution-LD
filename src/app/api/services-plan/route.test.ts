@@ -36,7 +36,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe("POST /api/services-plan", () => {
-  it("creates a Services Plan lead from /xservicesx with the page choices as labelled lines, UTMs, click id and landing page", async () => {
+  it("creates a Services Plan lead from /services with the page choices as labelled lines, UTMs, click id and landing page", async () => {
     const res = await post({
       ...valid,
       worries: [4, 2],
@@ -49,7 +49,7 @@ describe("POST /api/services-plan", () => {
       gclid: "TEST123",
       click_id: "TEST123",
       event_id: "evt_1_abc",
-      landing_page: "https://business.best-solution.ae/xservicesx?gclid=TEST123",
+      landing_page: "https://business.best-solution.ae/services?gclid=TEST123",
     });
     expect(await res.json()).toEqual({ ok: true, created: true });
     expect(sent[0]).toMatchObject({
@@ -70,8 +70,8 @@ describe("POST /api/services-plan", () => {
       "Reply by: WhatsApp",
       "Meeting: Video call",
       "Form location: s9",
-      "Source page: /xservicesx",
-      "Landing page: https://business.best-solution.ae/xservicesx?gclid=TEST123",
+      "Source page: /services",
+      "Landing page: https://business.best-solution.ae/services?gclid=TEST123",
       "Event ID: evt_1_abc",
       "gclid: TEST123",
     ])

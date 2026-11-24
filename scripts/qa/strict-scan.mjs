@@ -1,7 +1,7 @@
 // Strict Google Ads compliance scan. Per route, after load with JS (tag hosts blocked, no consent given): ALL text in the
 // DOM, visible or hidden, plus alt/aria-label/title/placeholder, <title> and meta content, JSON-LD and decoded wa.me
 // message texts. [data-legal] (disclaimers) and [data-review-quote] (real Google review quotes) are exempt, except on
-// /xservicesx (reviews scanned, exempting only "stress-free" and the brand name "best solution"; the verified rating,
+// /services (reviews scanned, exempting only "stress-free" and the brand name "best solution"; the verified rating,
 // approved 24 Nov 2026 after checking Google Maps, exempt from the 4.8 rule).
 // Rules: banned words (rule 7), strict words (also run-together text), claim phrases, prices. Allowed: the corporate tax
 // threshold "AED 375,000" everywhere, and on /corporate-tax any AED amount as a tax fact unless fee(s), price, pricing,
@@ -38,9 +38,9 @@ for (const r of ROUTES) {
   await blockTags(p);
   const res = await p.goto(BASE + r, { waitUntil: "networkidle2", timeout: 180000 });
   await wait(1000);
-  // /xservicesx: its reviews are scanned (only "stress-free" and "THE BEST SOLUTIONS" exempt) and its verified Google
+  // /services: its reviews are scanned (only "stress-free" and "THE BEST SOLUTIONS" exempt) and its verified Google
   // rating ([data-google-rating], set in XS_CONFIG) is exempt from the 4.8 rule.
-  const xs = r === "/xservicesx";
+  const xs = r === "/services";
   const exempt = xs ? "[data-legal],[data-google-rating]" : "[data-legal],[data-review-quote]";
   const raw = await p.evaluate((exempt) => {
     const clone = document.body.cloneNode(true);

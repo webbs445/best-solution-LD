@@ -1,67 +1,101 @@
 import type { Metadata } from "next";
-import { CLAIMS, FOOTER_TAIL, SITE } from "@/content/site";
-import { HUB_FAQS, SERVICES } from "@/content/services";
-import { SERVICES_FORM_ID } from "@/lib/lead";
-import { FzMotion } from "@/components/freezone/FzMotion";
-import { FzPartners } from "@/components/freezone/FzPartners";
-import { FzReviews } from "@/components/freezone/FzSections";
-import { FzFaq } from "@/components/freezone/FzFaq";
-import { FzHowItWorks, GENERAL_HOW } from "@/components/freezone/FzHowItWorks";
-import { FzFooter } from "@/components/freezone/FzFooter";
-import { MobileEstimateBar } from "@/components/ui/MobileEstimateBar";
-import { SvHeader } from "@/components/services/SvHeader";
-import { SvHero } from "@/components/services/SvHero";
-import { SvClosing, SvGrid, SvJourney, SvTrust } from "@/components/services/SvSections";
-import "@/app/freezone/freezone.css";
-import "./services.css";
+import { Inter_Tight } from "next/font/google";
+import { SITE } from "@/content/site";
+import { FAQS } from "@/content/xservicesx";
+import { XS_CONFIG as C } from "@/content/xservicesx.config";
+import { XsHero } from "@/components/xservicesx/Top";
+import { XsHeader } from "@/components/xservicesx/Header";
+import { Worries } from "@/components/xservicesx/Worries";
+import { Situations } from "@/components/xservicesx/Situations";
+import { Outcomes } from "@/components/xservicesx/Outcomes";
+import { HowItWorks } from "@/components/xservicesx/HowItWorks";
+import { Advisors } from "@/components/xservicesx/Advisors";
+import { Trust } from "@/components/xservicesx/Trust";
+import { Questions } from "@/components/xservicesx/Questions";
+import { PlanSection } from "@/components/xservicesx/PlanSection";
+import { XsFooter } from "@/components/xservicesx/Footer";
+import { StickyBar } from "@/components/xservicesx/StickyBar";
+import { PlanDialog } from "@/components/xservicesx/PlanDialog";
+import { LazySection } from "@/components/xservicesx/LazySection";
+import "./xservicesx.css";
 
-const TITLE = "UAE Business Advice Services | Best Solution";
-const DESCRIPTION =
-  `Private business advice in Dubai: free zone, mainland and offshore, budgeting, bookkeeping, corporate tax and holding structures.${CLAIMS.oneAdvisor ? " One advisor." : ""}`;
+const interTight = Inter_Tight({ subsets: ["latin"], weight: ["700", "800"], display: "swap", variable: "--font-inter-tight" });
 
-// noindex comes from the root layout (robots) and the X-Robots-Tag header, as on every page of this subdomain.
+const TITLE = "Business advice in Dubai, in writing | Best Solution";
+const DESCRIPTION = "Get a clear written plan for your UAE company from a private advisor in Business Bay, Dubai: structure, costs and next steps.";
+
+// noindex comes from the root layout (robots) and the X-Robots-Tag header, as on every page of this subdomain. Not in a
+// sitemap (there is none) and not linked from any nav.
 export const metadata: Metadata = {
-  title: TITLE,
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: "https://business.best-solution.ae/services" },
-  // openGraph and twitter replace the layout's objects rather than merging, so the shared fields are repeated.
-  openGraph: { type: "website", siteName: SITE.name, title: TITLE, description: DESCRIPTION, images: [SITE.ogImage] },
+  openGraph: { type: "website", siteName: SITE.name, url: "https://business.best-solution.ae/services", title: TITLE, description: DESCRIPTION, images: [SITE.ogImage] },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: [SITE.ogImage] },
 };
 
+/** ProfessionalService and FAQPage structured data, from confirmed values only. */
+function jsonLd() {
+  const service = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: SITE.name,
+    url: "https://business.best-solution.ae/services",
+    telephone: C.phoneNumber.href.replace("tel:", ""),
+    email: C.email,
+    address: {
+      "@type": "PostalAddress",
+      ...(C.officeAddress ? { streetAddress: C.officeAddress.replace(/, Business Bay, Dubai$/, "") } : null),
+      addressLocality: "Business Bay, Dubai",
+      addressCountry: "AE",
+    },
+    // From XS_CONFIG.officeHours (SITE.hours), so the Trust card, footer and JSON-LD always agree.
+    ...(C.officeHours ? { openingHours: /saturday/i.test(C.officeHours) ? "Mo-Sa 09:00-18:00" : "Mo-Fr 09:00-18:00" } : null),
+  };
+  const faq = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+  };
+  return JSON.stringify([service, faq]).replace(/</g, "\\u003c");
+}
+
 /*
-  /services: the hub for every service page. Advice and consultation only (Google Ads government documents policy).
-  The /freezone page's look and shared sections (reviews, FAQ, footer with the page's one callback popup), with the
-  services grid and steps built for it. The free zone strip lists zone names as text, no logos. GTM, consent and the cookie banner come from the root layout.
+  /services: the Services landing page (design/xservicesx; built at /xservicesx, which now 301s here). Server rendered; each section's interactive part is a
+  small client component sharing one page state (components/xservicesx/store). One form, in section 9 (#plan).
 */
-export default function ServicesPage() {
+export default function XServicesPage() {
+  const hasAdvisors = C.advisors.length > 0;
   return (
-    <div className="fz-page sv-page">
-      <a className="skip-link" href="#services">
-        Skip to the services
+    <div className={`xs ${interTight.variable}`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd() }} />
+      <a className="skip-link" href="#plan">
+        Skip to the form
       </a>
-      <SvHeader />
-      <FzMotion />
+      <XsHeader showReviews />
       <main id="top">
-        <SvHero />
-        <SvGrid />
-        <SvJourney />
-        <FzHowItWorks c={GENERAL_HOW} />
-        <SvTrust />
-        <FzPartners />
-        <FzReviews />
-        <FzFaq faqs={HUB_FAQS} title="Common questions" sub="Questions about your plans? Ask us." tabs={false} ctaLocation="SV FAQ - Request a Callback" />
-        <SvClosing />
+        <XsHero />
+        <Worries />
+        <Situations />
+        {/* Below the fold: hydrated only when near the screen (LazySection). The form (S9) hydrates at once. */}
+        <LazySection>
+          <Outcomes />
+        </LazySection>
+        <LazySection>
+          <HowItWorks />
+        </LazySection>
+        {hasAdvisors && <Advisors />}
+        <LazySection>
+          <Trust withOffice={!hasAdvisors} />
+        </LazySection>
+        <LazySection>
+          <Questions />
+        </LazySection>
+        <PlanSection />
       </main>
-      <FzFooter
-        blurb={`Business advice from a private consultancy in Business Bay, Dubai.${FOOTER_TAIL}`}
-        nav={SERVICES.map((s) => ({ href: s.href, label: s.name }))}
-        navLabel="Services"
-        defaultInterest="not_sure"
-        ctaLocation="SV Footer - Book a Callback"
-        formId={SERVICES_FORM_ID}
-      />
-      <MobileEstimateBar targetId="closing" location="SV Mobile Bar - Book a Consultation" label="Book a Consultation" callback />
+      <XsFooter showReviews />
+      <StickyBar />
+      <PlanDialog />
     </div>
   );
 }

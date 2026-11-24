@@ -13,7 +13,7 @@ export const ROUTES = [
   "/", "/services", "/mainland", "/offshore", "/freezone",
   ...["planner", "compare", "activity", "budget", "vs-mainland", "consultation", "dubai"].map((v) => `/freezone/${v}`),
   ...ZONE_PATHS,
-  "/cost-calculator", "/corporate-tax", "/spv", "/accounting", "/consult", "/xservicesx", "/privacy", "/terms",
+  "/cost-calculator", "/corporate-tax", "/spv", "/accounting", "/consult", "/privacy", "/terms",
 ];
 
 export const launch = () =>
