@@ -179,6 +179,8 @@ export function AnalyticsInit() {
           submit_attempts: st.attempts,
           seconds_in_form: Math.round((Date.now() - st.t0) / 1000),
           exit: st.whatsapp ? "whatsapp" : "page_leave",
+          // Only forms that say so (the /services hero plan builder).
+          plan_last_step: form.dataset.planStep || undefined,
         });
       });
     };

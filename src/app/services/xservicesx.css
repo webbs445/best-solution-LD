@@ -83,19 +83,7 @@
 .xs .xs-hero-disc {font-size:12px;line-height:1.5;color:var(--muted-2)}
 .xs .xs-hcard-wrap {display:flex;flex-direction:column;gap:12px;min-width:0}
 .xs .xs-hcard {background:#fff;border-radius:24px;box-shadow:0 30px 60px -30px rgba(20,33,61,.25),0 0 0 1px rgba(20,33,61,.06);padding:22px 20px;display:flex;flex-direction:column;gap:16px}
-.xs .xs-hcard-label {display:flex;flex-direction:column;gap:8px}
-.xs .xs-hcard-label .xs-eyebrow {color:var(--copper-d)}
-.xs .xs-hcard select {font:700 18px var(--font-inter),sans-serif;color:var(--navy);padding:12px 14px;min-height:52px;border-radius:12px;border:1.5px solid var(--border-2);background:var(--cream);cursor:pointer;width:100%}
-.xs .xs-hcard-rows {display:flex;flex-direction:column;gap:14px;min-height:140px}
-.xs .xs-hcard-rows > div {display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:26px}
-.xs .xs-hcard-rows dt {font-size:14px;color:var(--muted)}
-.xs .xs-hcard-rows dd {display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;text-align:right}
 .xs .xs-blur {display:inline-block;height:14px;border-radius:7px;background:#E6DCD2;max-width:30vw}
-.xs .xs-hcard-by {display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
-.xs .xs-hcard-av {flex:none;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px var(--border),0 4px 10px -6px rgba(20,33,61,.35);display:inline-flex;align-items:center;justify-content:center}
-.xs .xs-hcard-av img {width:20px;height:auto}
-.xs .xs-hcard .xs-dark {font-size:17px;font-weight:700;padding:16px}
-.xs .xs-hcard-note {font-size:12px;color:var(--muted-2);text-align:center}
 
 /* ─── 2 · Sound familiar? (white) ─── */
 .xs .xs-s2 {background:#fff}
@@ -512,10 +500,7 @@
   .xs .xs-micro {margin-top:-12px}
   .xs .xs-trust {gap:28px;margin-top:8px;padding-top:24px}
   .xs .xs-hero-disc {grid-column:1/-1}
-  .xs .xs-hcard {padding:28px 32px;gap:18px}
-  .xs .xs-hcard select {font-size:20px}
-  .xs .xs-hcard-rows {gap:18px}
-  .xs .xs-hcard-rows dt,.xs .xs-hcard-rows dd {font-size:15px}
+
 
   .xs .xs-s2 {padding-block:80px}
   .xs .xs-s2-grid {grid-template-columns:minmax(0,600fr) minmax(0,656fr);gap:64px;align-items:center}
@@ -835,32 +820,17 @@
   .xs .xs-big-caption {font-size:12px;color:var(--muted-2)}
 }
 
-/* ─── Hero plan card (restyled): the first page of a written plan ─── */
-.xs .xs-hcard-wrap {position:relative}
-.xs .xs-hcard {position:relative;overflow:hidden;border:1px solid var(--border);box-shadow:0 34px 64px -34px rgba(20,33,61,.32),0 2px 6px rgba(20,33,61,.04)}
-.xs .xs-hcard::before {content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,var(--copper-h),var(--copper-l),var(--copper-h))}
-.xs .xs-hcard-back {display:none}
-.xs .xs-hcard-select {position:relative;display:block}
-.xs .xs-hcard-select select {appearance:none;-webkit-appearance:none;padding-right:48px;transition:border-color .2s,box-shadow .2s}
-.xs .xs-hcard-select select:hover {border-color:var(--dash)}
-.xs .xs-hcard-select select:focus-visible {outline:none;border-color:var(--copper);box-shadow:0 0 0 3px rgba(185,113,75,.22)}
-.xs .xs-hcard-chev {position:absolute;right:16px;top:50%;transform:translateY(-50%) rotate(90deg);color:var(--copper-d);pointer-events:none}
-.xs .xs-hcard-rows {gap:0;min-height:0}
-.xs .xs-hcard-rows > div {min-height:44px;padding:10px 0;border-bottom:1px dashed #EADFD4;animation:xsIn .35s ease both}
-.xs .xs-hcard-rows > div:nth-child(2) {animation-delay:.04s}
-.xs .xs-hcard-rows > div:nth-child(3) {animation-delay:.08s}
-.xs .xs-hcard-rows > div:nth-child(4) {animation-delay:.12s}
-.xs .xs-hcard-rows dt {display:inline-flex;align-items:center;gap:8px}
-.xs .xs-hcard-rows dt svg {flex:none;color:var(--copper);padding:3px;width:20px;height:20px;border-radius:50%;background:var(--tint-2)}
+/* ─── Hero plan card shell (design/xservicesx/plan-builder): a plain white card, 520 px wide from 1024 px ─── */
+.xs .xs-hcard {border-radius:24px;box-shadow:0 30px 60px -30px rgba(20,33,61,.28),0 0 0 1px rgba(20,33,61,.06);padding:22px 18px;gap:14px}
 .xs .xs-blur {background:linear-gradient(90deg,#E6DCD2 0%,#F1E9E1 50%,#E6DCD2 100%);background-size:200% 100%;animation:xsShimmer 2.4s ease-in-out infinite}
 @keyframes xsShimmer {0%{background-position:100% 0}100%{background-position:-100% 0}}
-.xs .xs-hcard-lock {display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--cream);font-size:13px;color:var(--muted)}
-.xs .xs-hcard-lock svg {flex:none;color:var(--copper-d)}
-.xs .xs-hcard-by > span:nth-child(2) {flex:1}
-.xs .xs-hcard-wa {flex:none;color:#1F8F4E}
 @media (min-width:1024px) {
-  .xs .xs-hcard {border-radius:24px}
-  .xs .xs-hcard-back {display:block;position:absolute;left:18px;right:-10px;top:14px;bottom:44px;border-radius:24px;background:#EADFD3;transform:rotate(2.5deg);box-shadow:0 20px 40px -30px rgba(20,33,61,.4)}
+  .xs .xs-hcard-wrap {width:100%;max-width:520px;justify-self:end}
+  .xs .xs-hcard {padding:28px 30px;gap:14px}
+}
+/* 520 px from 1280: the hero column is a few px narrower, so the card reaches into the column gap. */
+@media (min-width:1280px) {
+  .xs .xs-hcard-wrap {width:520px;max-width:none}
 }
 
 /* ─── Plan pop-up: a bottom sheet on phones, a centred panel from 768 px ─── */
@@ -1074,7 +1044,6 @@
 @media (max-width:767px) {
   .xs {--pad:32px}
   /* Hero card: the topic choice and its button only (the preview rows show from 768 px). */
-  .xs .xs-hcard-rows,.xs .xs-hcard-lock,.xs .xs-hcard-by,.xs .xs-hcard-note {display:none}
   .xs .xs-chat {height:420px}
   /* The footer keeps the office (address, hours, Call, Directions); the Trust office card shows from 768 px. */
   .xs .xs-office-card {display:none}
@@ -1114,17 +1083,8 @@
 
 /* ─── Hero polish: a proof block (Google rating card + checks) and a cleaner plan card ─── */
 /* Plan card: an "Example" chip in the header, a footer strip for who prepares it, the note inside the card. */
-.xs .xs-hcard-top {display:flex;align-items:center;justify-content:space-between;gap:12px}
-.xs .xs-hcard-by {padding:10px 12px;border-radius:14px;background:var(--cream);border:1px solid #F0E6DC}
-.xs .xs-hcard-av {box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--copper-l)}
-.xs .xs-hcard-by-t {flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
-.xs .xs-hcard-by-t b {font-size:14px;color:var(--navy)}
-.xs .xs-hcard-by-t small {font-size:12.5px;color:var(--muted)}
-.xs .xs-hcard-wa {flex:none;width:32px;height:32px;border-radius:50%;background:#E7F6EC;color:#1F8F4E;display:inline-flex;align-items:center;justify-content:center}
-.xs .xs-hcard .xs-dark {background:linear-gradient(180deg,#1E2C4D 0%,var(--navy) 100%);box-shadow:0 16px 30px -16px rgba(20,33,61,.7)}
-.xs .xs-hcard-note {display:block;margin-top:-4px;text-align:center;font-size:12px;color:var(--muted-2)}
 @media (min-width:1024px) {
-  .xs .xs-hero-grid {align-items:center;row-gap:40px}
+  .xs .xs-hero-grid {align-items:start;row-gap:40px} /* top-aligned: the headline stays put when the plan card changes height */
 }
 
 /* ─── Header: the other landing pages' floating bar. On the hero at the top; a floating rounded card once scrolled. ─── */
@@ -1257,11 +1217,6 @@
 
 /* ─── Phone polish (most visitors are on phones) ─── */
 @media (max-width:767px) {
-  /* Hero plan card: a thin copper edge; the EXAMPLE chip already says it, so the note goes. */
-  .xs .xs-hcard::before {height:3px}
-  .xs .xs-hcard {padding:18px 16px;gap:14px;border-radius:20px}
-  .xs .xs-hcard .xs-hcard-note {display:none}
-  .xs .xs-hcard-select select {font-size:17px;min-height:50px}
 
   /* S8: one-line question chips in a swipe row with a fade hinting at more; no scrollbar; cut-off messages fade
      out at the top of the chat. */
@@ -1357,13 +1312,9 @@
 }
 
 /* Hero plan card on phones: a short checklist of what the chosen plan covers, under the topic dropdown. */
-.xs .xs-hcard-mini {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;margin:0;padding:12px 14px;list-style:none;border-radius:14px;background:var(--cream);border:1px solid #F0E6DC;animation:xsIn .3s ease}
-.xs .xs-hcard-mini li {display:flex;align-items:flex-start;gap:6px;font-size:13px;line-height:1.35;font-weight:600;color:var(--navy)}
-.xs .xs-hcard-mini svg {flex:none;margin-top:2px;color:var(--copper)}
 @media (max-width:767px) {
   /* The topic tabs make "Tap a question to see the answer" plain, so the line goes on phones. */
   .xs .xs-s8 .xs-lede {display:none}
-  .xs .xs-hcard-mini {padding:10px 12px;gap:6px 12px}
 }
 
 /* ─── How it works: three cards in one style, step 1 marked as the place to begin (soft copper border). Phones and
@@ -1418,3 +1369,84 @@
   .xs .xs-hero-copy .xs-proof .xs-proof-line + .xs-trust {padding-left:0;border-left:0}
 }
 .xs .xs-hero-copy .xs-proof .xs-trust {margin:0}
+
+/* ─── Hero plan builder (components/xservicesx/HeroPlanCard): header with the live title, progress and answer tags;
+   one question per step as option buttons; then the contact step (light-background fields) and the done screen.
+   Reuses the hero card shell (.xs-hcard). Motion: a short slide in, none with reduced motion. ─── */
+.xs .xs-pb-form {display:flex;flex-direction:column;gap:14px}
+.xs .xs-pb-head {display:flex;flex-direction:column;gap:10px}
+.xs .xs-pb-top {display:flex;align-items:center;justify-content:space-between;gap:10px}
+.xs .xs-pb-top .xs-eyebrow {font-size:12px;font-weight:700;letter-spacing:.08em;color:#9A5A36}
+.xs .xs-pb-pill {flex:none;padding:5px 10px;border-radius:999px;background:#F3EDE6;color:var(--navy);font-size:12px;font-weight:700;line-height:1.2;white-space:nowrap}
+.xs .xs-pb-pill.is-sent {background:var(--ok-bg);color:var(--ok)}
+.xs .xs-pb-title {font:800 20px/1.2 var(--head);color:var(--navy);letter-spacing:-.01em}
+.xs .xs-pb-bar {display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px}
+.xs .xs-pb-bar i {height:6px;border-radius:3px;background:#F0E8E0;transition:background .3s}
+.xs .xs-pb-bar i.is-on {background:#B9714B}
+.xs .xs-pb-tags {display:flex;flex-wrap:wrap;gap:6px;min-height:24px}
+.xs .xs-pb-tags span {padding:3px 10px;border-radius:999px;background:#FBF1EA;color:#9A5A36;font-size:12px;font-weight:600;line-height:18px}
+.xs .xs-pb-tags span.is-empty {background:#F3EDE6;color:#5B6375}
+.xs .xs-pb-body {display:flex;flex-direction:column;gap:12px;animation:xsPbIn .28s ease}
+@keyframes xsPbIn {from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.xs .xs-pb-step {display:flex;flex-direction:column;gap:6px}
+.xs .xs-pb-step h3 {font:800 24px/1.15 var(--head);color:var(--navy);letter-spacing:-.015em;outline:none;border-radius:6px}
+.xs .xs-pb-step h3:focus-visible {outline:2px solid var(--copper);outline-offset:3px}
+.xs .xs-pb-help {font-size:14px;line-height:1.45;color:#5B6375}
+.xs .xs-pb-opts {display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.xs .xs-pb-opt {display:flex;align-items:center;gap:14px;width:100%;min-height:44px;padding:14px 16px;border-radius:14px;border:1.5px solid #E7DCD2;background:#fff;color:var(--navy);font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.xs .xs-pb-opt:focus-visible {outline:2px solid var(--copper);outline-offset:2px}
+.xs .xs-pb-ico {flex:none;width:40px;height:40px;border-radius:12px;background:#F3E4D8;color:#9A5A36;display:inline-flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.xs .xs-pb-mark {flex:none;width:18px;height:18px;border-radius:50%;border:2px solid #D3C3B5;background:#fff;transition:border-color .15s,background .15s}
+.xs .xs-pb-txt {display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.xs .xs-pb-txt b {font-size:16px;font-weight:600;line-height:1.3}
+.xs .xs-pb-txt small {font-size:13px;line-height:1.35;color:#5B6375}
+.xs .xs-pb-arr {flex:none;color:#B9714B;opacity:.45;transition:opacity .15s}
+.xs .xs-pb-opt[aria-pressed="true"],.xs .xs-pb-opt.is-picked {border-color:#B9714B;background:#FBF1EA}
+.xs .xs-pb-opt[aria-pressed="true"] .xs-pb-ico,.xs .xs-pb-opt.is-picked .xs-pb-ico {background:#B9714B;color:#fff}
+.xs .xs-pb-opt[aria-pressed="true"] .xs-pb-mark,.xs .xs-pb-opt.is-picked .xs-pb-mark {border-color:#B9714B;background:#B9714B}
+.xs .xs-pb-opt[aria-pressed="true"] .xs-pb-arr,.xs .xs-pb-opt.is-picked .xs-pb-arr {opacity:1}
+@media (hover:hover) {
+  .xs .xs-pb-opt:hover {border-color:#B9714B;background:#FBF1EA}
+  .xs .xs-pb-opt:hover .xs-pb-ico {background:#B9714B;color:#fff}
+  .xs .xs-pb-opt:hover .xs-pb-arr {opacity:1}
+}
+.xs .xs-pb-back {align-self:flex-start;display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 6px;margin-left:-6px;border:0;border-radius:8px;background:none;color:var(--copper-ink);font:600 14px var(--font-inter),sans-serif;cursor:pointer}
+.xs .xs-pb-back:focus-visible {outline:2px solid var(--copper);outline-offset:2px}
+.xs .xs-pb-cover {display:flex;flex-direction:column;gap:8px;margin-top:10px;padding:12px 14px;border-radius:14px;background:var(--cream);border:1px solid #F0E6DC}
+.xs .xs-pb-cover > span {font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--copper-ink)}
+.xs .xs-pb-cover ul {display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.xs .xs-pb-cover li {display:flex;align-items:flex-start;gap:8px;font-size:13.5px;line-height:1.4;color:var(--navy)}
+.xs .xs-pb-cover li svg {flex:none;margin-top:3px;color:var(--copper)}
+/* Contact step: the form fields on the light card. */
+.xs .xs-pb-fields {display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.xs .xs-pb .xs-field label {font-size:13.5px;font-weight:600;color:var(--navy)}
+.xs .xs-pb .xs-field input,.xs .xs-pb .xs-tel select {height:50px;background:#fff;border:1.5px solid var(--border-2);color:var(--navy);font-size:16px}
+.xs .xs-pb .xs-field input {padding:0 14px}
+.xs .xs-pb .xs-field input::placeholder {color:#6B7280}
+.xs .xs-pb .xs-field input:focus,.xs .xs-pb .xs-tel select:focus {border-color:var(--copper);box-shadow:0 0 0 3px rgba(185,113,75,.18);background:#fff}
+.xs .xs-pb .xs-field input[aria-invalid="true"] {border-color:#C2410C}
+.xs .xs-pb .xs-tel select {background-color:var(--cream)}
+.xs .xs-pb-hint {font-size:12.5px;line-height:1.4;color:#5B6375}
+.xs .xs-pb .xs-err {color:#B3261E;font-size:13.5px}
+.xs .xs-pb .xs-err a {color:#B3261E}
+.xs .xs-pb .xs-err-send {background:#FDECEA}
+.xs .xs-pb .xs-primary {margin-top:14px;min-height:54px}
+.xs .xs-pb-fine {margin-top:8px;font-size:12.5px;line-height:1.5;color:#5B6375}
+.xs .xs-pb-fine a {color:var(--copper-ink);text-decoration:underline;text-underline-offset:2px}
+.xs .xs-pb-done {align-items:flex-start;gap:8px}
+.xs .xs-pb-tick {width:48px;height:48px;border-radius:50%;background:var(--ok);color:#fff;display:inline-flex;align-items:center;justify-content:center;margin-bottom:4px}
+@media (min-width:1024px) {
+  .xs .xs-pb-title {font-size:22px}
+  .xs .xs-pb-step h3 {font-size:27px}
+}
+/* Phones: a smaller tile and title so each option title fits on one line. */
+@media (max-width:639px) {
+  .xs .xs-pb-opt:has(.xs-pb-ico) {gap:12px}
+  .xs .xs-pb-ico {width:36px;height:36px}
+  .xs .xs-pb-txt b {font-size:15px}
+  .xs .xs-pb-arr {display:none}
+}
+@media (prefers-reduced-motion:reduce) {
+  .xs .xs-pb-body {animation:none}
+  .xs .xs-pb-bar i,.xs .xs-pb-opt,.xs .xs-pb-ico,.xs .xs-pb-mark,.xs .xs-pb-arr {transition:none}
+}

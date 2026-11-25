@@ -78,6 +78,37 @@ describe("POST /api/services-plan", () => {
       expect(notes).toContain(text);
   });
 
+  it("files a hero plan card lead with its Service Enquired and the one-line plan note", async () => {
+    const cases: [Record<string, string>, string, string][] = [
+      [{ situation: "new", base: "free_zone", timing: "this_month" }, "Business Setup", "Situation: I'm planning a new company · Base: Free zone · Timing: This month"],
+      [{ situation: "existing", need: "books", timing: "exploring" }, "Accounting & Bookkeeping Services", "Situation: I already have a company · Need: Monthly books · Timing: Just exploring"],
+      [{ situation: "existing", need: "both", timing: "one_to_three" }, "VAT & Tax Services", "Situation: I already have a company · Need: Books and tax together · Timing: In 1 to 3 months"],
+      [{ situation: "existing", need: "changes", timing: "this_month" }, "Other Services", "Situation: I already have a company · Need: Changes to my company · Timing: This month"],
+      [{ situation: "several", based: "abroad", timing: "exploring" }, "Other Services", "Situation: Several companies or property · Based: Outside the UAE · Timing: Just exploring"],
+      [{ situation: "not_sure", timing: "this_month" }, "Business Setup", "Situation: Not sure yet · Timing: This month"],
+    ];
+    for (const [plan, service, note] of cases) {
+      sent = [];
+      await post({ ...valid, topic: "not_sure", form_location: "hero", plan });
+      expect(sent[0]).toMatchObject({ custom_form_name: "Services Plan", custom_button_name: "Get my written plan", custom_service_enquired: service });
+      // The field is HTML, so the apostrophe in "I'm" is escaped there.
+      const notes = String(sent[0].custom_client_profile_and_requirement).replace(/&#39;/g, "'");
+      expect(notes).toContain(note);
+      expect(notes).toContain("Form location: hero card");
+      expect(notes).toContain("Source page: /services");
+      expect(notes).not.toContain("Topic:");
+    }
+  });
+
+  it("ignores plan answers that are not on a real path, and plan answers sent from another form", async () => {
+    await post({ ...valid, form_location: "hero", plan: { situation: "<b>x</b>" } });
+    expect(String(sent[0].custom_client_profile_and_requirement)).toContain("Topic: Corporate Tax");
+    sent = [];
+    await post({ ...valid, form_location: "s9", plan: { situation: "existing", need: "books" } });
+    expect(sent[0].custom_service_enquired).toBe("VAT & Tax Services");
+    expect(String(sent[0].custom_client_profile_and_requirement)).not.toContain("Situation:");
+  });
+
   it("writes the beginner worry as \"Where do I begin?\" in the ERP notes", async () => {
     await post({ ...valid, worries: [0, 1] });
     expect(String(sent[0].custom_client_profile_and_requirement)).toContain("Questions: Where do I begin?; Which price is right?");

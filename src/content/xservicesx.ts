@@ -52,19 +52,7 @@ export const askLink = (text: string, topic?: TopicId | null) => {
 
 const advisorName = C.advisors[0]?.name ?? null;
 
-/* ─── Hero plan card ─── */
-export type PlanRow = { label: string; text?: string; bar?: number; pre?: string; post?: string };
-const B = (label: string, bar: number, pre = "", post = ""): PlanRow => ({ label, bar, pre, post });
-const T = (label: string, text: string): PlanRow => ({ label, text });
-export const HERO_PLANS: Record<TopicId, { rows: PlanRow[]; cta: string }> = {
-  new_company: { rows: [T("Right structure", "Matched to your activity"), B("Year one", 92, "AED "), B("Every year after", 76, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
-  fz_or_mainland: { rows: [B("Free zones that allow your activity", 60), B("Mainland, for your customers", 60), B("Year one, each option", 92, "AED "), T("Our recommendation", "With the reasons")], cta: "Compare my options" },
-  holding: { rows: [B("Structure that fits", 96), B("What it keeps separate", 84), B("First-year and yearly cost", 80, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
-  bookkeeping: { rows: [B("Monthly fee", 70, "AED "), T("Each month", "Entries, bank matching, reports"), T("Your software", "Zoho, QuickBooks, Tally"), B("Can begin in", 44, "", " days")], cta: "Get my written quote" },
-  corporate_tax: { rows: [B("Does it apply to you", 70), B("Your next deadline", 84), T("What to prepare", "A simple checklist"), B("Our fee", 70, "AED ")], cta: "Check my position" },
-  not_sure: { rows: [B("Where to begin", 96), B("First step", 84), B("Rough budget", 80, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
-};
-export const HERO_PREPARED = { by: `Prepared by ${advisorName ?? "a Best Solution advisor"}`, to: "Sent to your WhatsApp" };
+/* ─── Hero (the plan card is components/xservicesx/HeroPlanCard, copy in content/heroPlan) ─── */
 export const HERO_TRUST = ["Office in Business Bay", "In person or by video", ...(C.feesInWritingConfirmed ? ["Fees in writing first"] : [])];
 
 /* ─── S2 worries: desktop and phone wording ─── */
@@ -255,4 +243,4 @@ export const THANKS_PREP = { title: "Before your call, have these ready:", items
 /* Line icons (lucide shapes, stroke 2). */
 export type IconName =
   | "arrowRight" | "arrowLeftRight" | "layers" | "book" | "percent" | "help" | "check" | "lock" | "phone" | "whatsapp" | "pin"
-  | "clock" | "mail" | "send" | "user" | "file" | "plus" | "chevronLeft" | "chevronRight" | "hand" | "star" | "play" | "pause";
+  | "clock" | "mail" | "send" | "user" | "file" | "plus" | "chevronLeft" | "chevronRight" | "hand" | "star" | "play" | "pause" | "briefcase" | "compass";

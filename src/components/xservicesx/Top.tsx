@@ -2,7 +2,7 @@ import { CTA_NOTE, DISCLAIMER, HERO_TRUST, PLAN_CTA } from "@/content/xservicesx
 import { XS_CONFIG as C } from "@/content/xservicesx.config";
 import { Icon, Stars } from "./ui";
 import { XsCta, XsWhatsApp } from "./XsCta";
-import { HeroCard } from "./HeroCard";
+import { HeroPlanCard } from "./HeroPlanCard";
 
 /* The hero (section 1). Server rendered; the plan card and buttons are small client parts. The header: Header.tsx. */
 export function XsHero() {
@@ -46,7 +46,7 @@ export function XsHero() {
             </ul>
           </div>
         </div>
-        <HeroCard />
+        <HeroPlanCard />
         <p className="xs-hero-disc" data-legal>
           {DISCLAIMER}
         </p>

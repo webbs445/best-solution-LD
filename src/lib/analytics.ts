@@ -203,6 +203,8 @@ export interface FormSubmitArgs {
   value?: number;
   /** Pass the id already sent to the ERP so both records share it. */
   eventId?: string;
+  /** Extra top-level parameters for this form (no personal data), e.g. the hero plan builder's plan_path. */
+  extra?: Record<string, string>;
 }
 
 /**
@@ -221,8 +223,10 @@ export function pushFormSubmit({
   nationality,
   value,
   eventId,
+  extra,
 }: FormSubmitArgs): void {
   pushEvent("form_submit", {
+    ...extra,
     event_id: eventId ?? genEventId(),
     form_data: {
       form_id: formId,
@@ -415,6 +419,8 @@ export interface FormAbandonDetails {
   seconds_in_form?: number;
   /** "whatsapp" when they tapped a WhatsApp link after starting (they contacted us), else "page_leave". */
   exit?: "whatsapp" | "page_leave";
+  /** The /services hero plan builder: the step left on (1, 2, 3 or contact). */
+  plan_last_step?: string;
 }
 
 export function trackFormAbandon(formId: string, details: FormAbandonDetails = {}): void {
