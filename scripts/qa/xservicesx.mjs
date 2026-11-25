@@ -662,6 +662,71 @@ for (const w of [390, 768, 1440]) {
   check(`the old /services H1 is on no page (${ROUTES.length} routes)`, !old.length, old.join(", "));
 }
 
+// How it works: no clock times or example note left; the three cards share one class except step 1's highlight; on
+// phones the dashed line joins the dot centres from dot 1 to dot 3 and stops there.
+{
+  const html = await (await fetch(BASE + PATH)).text();
+  check("no 10:00 and no Example timeline note left on the page", !html.includes("10:00") && !html.includes("Example timeline"));
+  for (const w of [390, 1440]) {
+    const p = await open(w);
+    const r = await p.evaluate(() => {
+      const steps = [...document.querySelectorAll(".xs-s5 .xs-steps > .xs-step")];
+      const labels = [...document.querySelectorAll(innerWidth < 1024 ? ".xs-s5 .xs-step-lab" : ".xs-s5 .xs-tl-lab")].map((x) => x.textContent);
+      const lines = steps.map((s) => s.querySelector(".xs-step-body > p")?.textContent.trim());
+      const dots = [...document.querySelectorAll(".xs-s5 .xs-step-num")].filter((d) => d.offsetParent).map((d) => { const b = d.getBoundingClientRect(); return { cx: b.left + b.width / 2, top: b.top, bottom: b.bottom }; });
+      const segs = steps.slice(0, -1).map((s) => { const cs = getComputedStyle(s, "::after"); const b = s.getBoundingClientRect(); return cs.content === "none" ? null : { x: b.left + parseFloat(cs.left) + 1, top: b.top + parseFloat(cs.top), bottom: b.bottom - parseFloat(cs.bottom) }; });
+      const last = getComputedStyle(steps[2], "::after").content;
+      return { classes: steps.map((s) => s.className), labels, lines, dots, segs, last };
+    });
+    const sameClass = r.classes[0] === "xs-step is-start" && r.classes[1] === "xs-step" && r.classes[2] === "xs-step";
+    const want = ["YOU · 2 MINUTES", "WE CALL YOU · THE SAME DAY", "WE SEND IT · AFTER THE CALL"];
+    const lines = ["Use the form or WhatsApp. A few lines is enough.", "Your advisor calls, by video or in person. Ask anything.", "Your plan comes to your WhatsApp and email. Decide in your own time."];
+    check(`How it works at ${w}px: new labels and lines, one card style with step 1 highlighted`, sameClass && JSON.stringify(r.labels) === JSON.stringify(want) && JSON.stringify(r.lines) === JSON.stringify(lines), JSON.stringify({ c: r.classes, l: r.labels, ln: r.lines }));
+    if (w < 1024) {
+      const ok = r.dots.length === 3 && r.segs.every((s, i) => s && Math.abs(s.x - r.dots[i].cx) <= 1.5 && Math.abs(s.top - r.dots[i].bottom) <= 1.5 && Math.abs(s.bottom - r.dots[i + 1].top) <= 1.5) && (r.last === "none" || r.last === "normal");
+      check(`How it works at ${w}px: the dashed line joins the dot centres from 1 to 3 and stops at 3`, ok, JSON.stringify({ dots: r.dots, segs: r.segs, last: r.last }));
+    }
+    await p.done();
+  }
+}
+
+// Hero on phones: "before you" stays on one line in the H1; the trust row is plain text (no link), fits without
+// sideways scroll, rating line with its aria-label, the two checks side by side from 360 px.
+for (const w of [320, 360, 375, 390, 414, 430]) {
+  const p = await open(w);
+  const r = await p.evaluate(() => {
+    const nb = document.querySelector("#xsTitle .xs-nowrap");
+    const row = document.querySelector(".xs-proof");
+    const checks = [...row.querySelectorAll(".xs-trust li")].map((li) => Math.round(li.getBoundingClientRect().top));
+    return {
+      together: nb?.textContent === "before you" && nb.getClientRects().length === 1,
+      links: row.querySelectorAll("a").length,
+      fits: row.scrollWidth <= row.clientWidth + 1 && document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+      label: row.querySelector(".xs-stars")?.getAttribute("aria-label"),
+      line: row.querySelector(".xs-proof-line")?.textContent.replace(/\s+/g, " ").trim(),
+      sameLine: checks.length === 2 && checks[0] === checks[1],
+    };
+  });
+  const ok = r.together && !r.links && r.fits && r.label === "Rated 4.8 out of 5 from 225 Google reviews" && r.line === "4.8 · 225 Google reviews" && (w < 360 || r.sameLine);
+  check(`hero at ${w}px: "before you" together, trust row plain text, fits${w >= 360 ? ", checks on one line" : ""}`, ok, JSON.stringify(r));
+  await p.done();
+}
+
+// Hero trust row on desktop: one row with a divider from 1280 px (stacked on small laptops), never within 24 px of
+// the plan card, and no link in it.
+for (const w of [1024, 1280, 1440, 1920]) {
+  const p = await open(w);
+  const r = await p.evaluate(() => {
+    const card = document.querySelector(".xs-hcard").getBoundingClientRect();
+    const kids = [...document.querySelectorAll(".xs-proof > *")].map((k) => k.getBoundingClientRect());
+    const trust = document.querySelector(".xs-proof .xs-trust");
+    return { gap: Math.round(card.left - Math.max(...kids.map((k) => k.right))), oneRow: Math.abs(kids[0].top + kids[0].height / 2 - (kids[1].top + kids[1].height / 2)) < 4, divider: getComputedStyle(trust).borderLeftWidth !== "0px", links: document.querySelectorAll(".xs-proof a").length };
+  });
+  const ok = r.gap >= 24 && !r.links && (w >= 1280 ? r.oneRow && r.divider : !r.oneRow && !r.divider);
+  check(`hero trust row at ${w}px: ${w >= 1280 ? "one row with a divider" : "stacked"}, clear of the plan card, no link`, ok, JSON.stringify(r));
+  await p.done();
+}
+
 // 8. Every FAQ answer in the server HTML (no JavaScript), plus FAQPage JSON-LD.
 {
   const html = (await (await fetch(BASE + PATH)).text()).replace(/&#x27;|&#39;/g, "'");

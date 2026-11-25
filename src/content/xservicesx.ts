@@ -119,10 +119,14 @@ export const S4_DELIVERY_SHORT = C.planDelivery ? `Sent within ${C.planDelivery}
 /* ─── S5 how it works ─── */
 export const S5_TITLE = { a: "From first message to a clear plan,", b: "the same day you ask." };
 export const S5_SUB = C.feesInWritingConfirmed ? "No surprises. Nothing is charged until you agree in writing." : `No surprises. ${FEES_NEUTRAL}`;
-export const S5_CALL = C.consultLength ? `A ${C.consultLength} call with your advisor. Ask anything, get plain answers.` : "A call with your advisor. Ask anything, get plain answers.";
-export const S5_CALL_SHORT = C.consultLength ? `A ${C.consultLength} call. Ask anything, get plain answers.` : "A call with your advisor. Ask anything, get plain answers.";
 /** The example timeline's three labels. */
-export const S5_LABELS = ["TODAY · 10:00 AM", "TODAY · SAME DAY", "AFTER YOUR CALL"] as const;
+export const S5_LABELS = ["YOU · 2 MINUTES", "WE CALL YOU · THE SAME DAY", "WE SEND IT · AFTER THE CALL"] as const;
+/** Each step's one line (desktop and phone). */
+export const S5_LINES = [
+  "Use the form or WhatsApp. A few lines is enough.",
+  "Your advisor calls, by video or in person. Ask anything.",
+  "Your plan comes to your WhatsApp and email. Decide in your own time.",
+] as const;
 export const S5_YOUR_CALL = C.feesInWritingConfirmed
   ? "Go ahead with us, with fees agreed in writing first. Or take the plan and do it yourself."
   : "Go ahead with us, and we agree our fees with you before any work begins. Or take the plan and do it yourself.";
