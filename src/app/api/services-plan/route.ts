@@ -10,6 +10,7 @@ import { isPreviewDeployment, previewLeadId } from "@/lib/preview";
 import { choiceRows, nameOk } from "@/lib/servicesPlan";
 import { LEAD_RULES } from "@/lib/lead";
 import { TOPIC_SERVICE, isTopic } from "@/content/xservicesx";
+import { cleanAnswers, planNoteRow, planService } from "@/content/heroPlan";
 
 /*
   The /services form (section 9, "Send me my plan"): creates a Lead in the ERP, form "Services Plan", source page
@@ -52,6 +53,8 @@ export const POST = withLeadLog("services-plan", async (request, log) => {
   if (!rateLimit(`services-plan:${clientIp(request)}`, 5, HOUR)) return Response.json({ error: "rate_limited" }, { status: 429 });
 
   const topic = isTopic(body.topic) ? body.topic : "not_sure";
+  // The hero plan builder sends its answers: they set Service Enquired and the one-line note (checked values only).
+  const plan = body.form_location === "hero" ? cleanAnswers(body.plan) : null;
   const result = await createErpLead({
     lead_name,
     email_id,
@@ -60,11 +63,11 @@ export const POST = withLeadLog("services-plan", async (request, log) => {
     source_page: "/services",
     form_id: SERVICES_PLAN_FORM_ID,
     form_name: "Services Plan",
-    service_enquired: TOPIC_SERVICE[topic],
-    button_name: "Send me my plan",
+    service_enquired: plan ? planService(plan) : TOPIC_SERVICE[topic],
+    button_name: plan ? "Get my written plan" : "Send me my plan",
     answers: {},
     estimate: null,
-    details: [...choiceRows(body), ...clickIdRows(body)],
+    details: plan ? [planNoteRow(plan), ["Form location", "hero card"], ...clickIdRows(body)] : [...choiceRows(body), ...clickIdRows(body)],
   });
 
   return leadReply(result, log);

@@ -307,18 +307,18 @@ for (const w of [320, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
   await p.done();
 }
 
-// 2. Page state reaches the plan: hero topic, S2 worries, advisor choice, reply method.
+// 2. Page state reaches the plan: a topic picked in S5, S2 worries, advisor choice, reply method.
 {
   const p = await open(1440);
-  await p.select(".xs-hcard select", "corporate_tax");
+  await p.evaluate(() => [...document.querySelectorAll(".xs-s5 .xs-tchip")].find((b) => b.textContent.trim() === "Corporate Tax").click());
   await p.evaluate(() => [...document.querySelectorAll(".xs-worry")].filter((x) => x.offsetParent).slice(0, 2).forEach((x) => x.click()));
   await wait(300);
   const about = await p.$eval(".xs-about strong", (e) => e.textContent);
   const qs = await p.$eval(".xs-qline", (e) => e.textContent);
-  check("hero select shows in the plan's ABOUT row", about === "Corporate Tax", about);
+  check("the S5 topic shows in the plan's ABOUT row", about === "Corporate Tax", about);
   check("S2 picks show in YOUR QUESTIONS", qs === "Where do I begin? · Which price is right?", qs);
   const topicEv = await events(p, "topic_select");
-  check("xs_topic_select {topic, source: hero}", topicEv.some((e) => e.topic === "corporate_tax" && e.source === "hero"));
+  check("topic_select {topic, source: s5}", topicEv.some((e) => e.topic === "corporate_tax" && e.source === "s5"));
   const worryEv = await events(p, "worry_toggle");
   check("xs_worry_toggle {worry_id, on, count}", worryEv.length === 2 && worryEv[1].count === 2 && worryEv[1].on === true);
   // The state survives a reload (sessionStorage).
@@ -403,10 +403,10 @@ for (const w of [390, 1440]) {
   await p.done();
 }
 
-// The pop-up's topic is the page topic (last set wins; with nothing picked, the hero card's default), and the lead sends it.
+// The pop-up's topic is the page topic (last set wins; with nothing picked, New company), and the lead sends it.
 for (const [label, w, before, cta, want] of [
-  ["hero, default value", 1440, null, "hero_primary", "new_company"],
-  ["hero, changed value", 1440, (p) => p.select("#xs-hero-topic", "holding"), "hero_primary", "holding"],
+  ["nothing picked (New company)", 1440, null, "hero_primary", "new_company"],
+  ["an S5 pick", 1440, (p) => p.evaluate(() => [...document.querySelectorAll(".xs-s5 .xs-tchip")].find((b) => b.textContent.trim() === "Holding assets").click()), "hero_primary", "holding"],
   ["the S3 Not sure card", 1440, null, "s3_not_sure", "not_sure"],
   ["the sticky bar after an S5 pick", 390, (p) => p.evaluate(() => [...document.querySelectorAll(".xs-s5 .xs-tchip")].find((b) => b.textContent.trim() === "Corporate Tax").click()), "sticky_plan", "corporate_tax"],
 ]) {
@@ -522,7 +522,7 @@ for (const w of [390, 1440]) {
 // 5. Mocked success: stamp, thank-you, one generate_lead with the right parameters and no personal data.
 {
   const p = await open(1440);
-  await p.select("#xs-hero-topic", "bookkeeping"); // this test sends from the section 9 form
+  await p.evaluate(() => [...document.querySelectorAll(".xs-s5 .xs-tchip")].find((b) => b.textContent.trim() === "Monthly books").click()); // this test sends from the section 9 form
   await wait(300);
   await p.evaluate(() => document.querySelectorAll(".xs-seg-form button")[1].click());
   await fill(p);
@@ -606,7 +606,7 @@ for (const w of [390, 768, 1440]) {
 // (the page's own events and the shared ones, conversions included). No name, number or email in any event.
 {
   const p = await open(390);
-  await p.select("#xs-hero-topic", "holding");
+  await p.evaluate(() => [...document.querySelectorAll(".xs-s5 .xs-tchip")].find((b) => b.textContent.trim() === "Holding assets").click());
   await p.evaluate(() => [...document.querySelectorAll(".xs-worry")].find((x) => x.offsetParent)?.click());
   await p.evaluate(() => document.getElementById("xs-explain-btn")?.click());
   await p.evaluate(() => [...document.querySelectorAll(".xs-qwrap .xs-qchip")][1]?.click());
@@ -727,6 +727,141 @@ for (const w of [1024, 1280, 1440, 1920]) {
   await p.done();
 }
 
+// ─── Hero plan card (components/xservicesx/HeroPlanCard): every path to the done screen, events, accessibility. ───
+const cardTap = (p, title) => p.evaluate((t) => [...document.querySelectorAll(".xs-pb-opt")].find((b) => b.querySelector("b").textContent === t).click(), title);
+const cardState = (p) => p.evaluate(() => ({ pill: document.querySelector(".xs-pb-pill")?.textContent, title: document.querySelector(".xs-pb-title")?.textContent, h: document.querySelector("#pb-heading")?.textContent, tags: [...document.querySelectorAll(".xs-pb-tags span")].map((s) => s.textContent) }));
+const PATHS = [
+  [["I'm planning a new company", "Free zone", "This month"], { situation: "new", base: "free_zone", timing: "this_month" }, "New company in a free zone", 4],
+  [["I'm planning a new company", "Mainland", "In 1 to 3 months"], { situation: "new", base: "mainland", timing: "one_to_three" }, "New company on the mainland", 4],
+  [["I'm planning a new company", "Help me decide", "Just exploring"], { situation: "new", base: "help_decide", timing: "exploring" }, "New company: free zone or mainland?", 4],
+  [["I already have a company", "Monthly books", "This month"], { situation: "existing", need: "books", timing: "this_month" }, "Your company: monthly books", 4],
+  [["I already have a company", "Corporate Tax", "Just exploring"], { situation: "existing", need: "tax", timing: "exploring" }, "Your company: corporate tax", 4],
+  [["I already have a company", "Books and tax together", "In 1 to 3 months"], { situation: "existing", need: "both", timing: "one_to_three" }, "Your company: books and tax together", 4],
+  [["I already have a company", "Changes to my company", "This month"], { situation: "existing", need: "changes", timing: "this_month" }, "Changes to your company", 4],
+  [["Several companies or property", "In the UAE", "Just exploring"], { situation: "several", based: "uae", timing: "exploring" }, "A structure for your companies, UAE based", 4],
+  [["Several companies or property", "Outside the UAE", "This month"], { situation: "several", based: "abroad", timing: "this_month" }, "A structure for your companies, from abroad", 4],
+  [["Not sure yet", "In 1 to 3 months"], { situation: "not_sure", timing: "one_to_three" }, "Where to begin", 3],
+];
+for (const w of [1440, 390]) {
+  const bad = [];
+  for (const [taps, plan, title, total] of PATHS) {
+    const p = await open(w);
+    const first = await cardState(p);
+    const pills = [first.pill];
+    for (const t of taps) {
+      await cardTap(p, t);
+      await wait(420);
+      pills.push((await cardState(p)).pill);
+    }
+    for (const [id, v] of [["#pb-name", NAME], ["#pb-email", EMAIL], ["#pb-phone", PHONE]]) await p.type(id, v);
+    await p.click(".xs-pb button[type=submit]");
+    await wait(900);
+    const done = await cardState(p);
+    const body = p.leads[0] || {};
+    const wantPills = total === 4 ? ["Step 1 of 4", "Step 2 of 4", "Step 3 of 4", "Last step"] : ["Step 1 of 4", "Step 2 of 3", "Last step"];
+    const ok =
+      first.title === "Your answers build it here" && JSON.stringify(first.tags) === '["Each answer adds to your plan"]' &&
+      JSON.stringify(pills) === JSON.stringify(wantPills) && done.pill === "Sent" && done.title === title &&
+      done.h === "Thanks, TEST. Your request is in." && p.leads.length === 1 && body.form_location === "hero" && body.page === "/services" &&
+      JSON.stringify(Object.entries(body.plan || {}).filter(([, v]) => v).sort()) === JSON.stringify(Object.entries(plan).sort());
+    if (!ok) bad.push(`${taps[1]}: ${JSON.stringify({ pills, done, plan: body.plan, loc: body.form_location })}`);
+    await p.done();
+  }
+  check(`hero plan card at ${w}px: all ${PATHS.length} paths reach the done screen with the right steps, title and lead`, !bad.length, bad.slice(0, 2).join(" ;; "));
+}
+
+// One full path in detail (390): focus, live region, back, events and their parameters, no personal data anywhere.
+{
+  const p = await open(390);
+  await p.evaluate(() => document.querySelector(".xs-hcard-wrap").scrollIntoView({ block: "center" }));
+  await cardTap(p, "I'm planning a new company");
+  await cardTap(p, "Not sure yet"); // ignored: a second tap inside the 320 ms pick
+  await wait(450);
+  const s2 = await p.evaluate(() => ({ focus: document.activeElement?.id, live: document.querySelector(".xs-pb [aria-live]")?.textContent, group: document.querySelector('.xs-pb [role="group"]')?.getAttribute("aria-labelledby") }));
+  check("card: after a pick focus moves to the new question, the live region says Step 2 of 4, the step is a labelled group", s2.focus === "pb-heading" && s2.live === "Step 2 of 4" && s2.group === "pb-heading", JSON.stringify(s2));
+  // Keyboard: Tab to an option and press Enter.
+  await p.evaluate(() => [...document.querySelectorAll(".xs-pb-opt")].find((b) => b.textContent.includes("Free zone")).focus());
+  await p.keyboard.press("Enter");
+  await wait(450);
+  await cardTap(p, "This month");
+  await wait(450);
+  // Back from the contact step restores the timing answer, back again restores the base.
+  await p.evaluate(() => document.querySelector(".xs-pb-back").click()); // a DOM click: the card scrolls itself into view, so a mouse click can land mid-scroll
+  await wait(150);
+  const b1 = await p.evaluate(() => ({ h: document.querySelector("#pb-heading").textContent, on: [...document.querySelectorAll('.xs-pb-opt[aria-pressed="true"] b')].map((x) => x.textContent) }));
+  await p.evaluate(() => document.querySelector(".xs-pb-back").click()); // a DOM click: the card scrolls itself into view, so a mouse click can land mid-scroll
+  await wait(150);
+  const b2 = await p.evaluate(() => [...document.querySelectorAll('.xs-pb-opt[aria-pressed="true"] b')].map((x) => x.textContent));
+  check("card: Back restores the previous answers", b1.h === "When are you planning?" && JSON.stringify(b1.on) === '["This month"]' && JSON.stringify(b2) === '["Free zone"]', JSON.stringify({ b1, b2 }));
+  await cardTap(p, "Free zone");
+  await wait(450);
+  await cardTap(p, "This month");
+  await wait(450);
+  // An empty send: form_error with field names only.
+  await p.click(".xs-pb button[type=submit]");
+  await wait(400);
+  for (const [id, v] of [["#pb-name", NAME], ["#pb-email", EMAIL], ["#pb-phone", PHONE]]) await p.type(id, v);
+  await p.click(".xs-pb button[type=submit]");
+  await wait(900);
+  const ev = await p.evaluate(() => (window.dataLayer || []).filter((d) => d && typeof d.event === "string" && !d.event.startsWith("gtm.")));
+  const ts = ev.filter((e) => e.event === "topic_select").map((e) => [e.plan_step, e.plan_question, e.plan_answer]);
+  check("card: topic_select on every tap with plan_step, plan_question, plan_answer (the ignored tap sends nothing)", JSON.stringify(ts) === JSON.stringify([[1, "situation", "new"], [2, "base", "free_zone"], [3, "timing", "this_month"], [2, "base", "free_zone"], [3, "timing", "this_month"]]), JSON.stringify(ts));
+  const fs = ev.filter((e) => e.event === "form_start");
+  const fe = ev.filter((e) => e.event === "form_error");
+  const sub = ev.find((e) => e.event === "form_submit");
+  const gl = ev.find((e) => e.event === "generate_lead");
+  check("card: form_start once, form_error with field names", fs.length === 1 && fs[0].form_data?.form_id === "LP Services Plan" && fe.length >= 1 && /lead_name|mobile_no|email_id/.test(fe[0].form_data?.error_fields || ""), JSON.stringify({ fs: fs.length, fe: fe.map((e) => e.form_data) }));
+  check("card: form_submit with plan_path, lead_conversion_eligible and the evt_ id sent to the ERP; generate_lead from the hero", sub?.plan_path === "new_free_zone_this_month" && sub?.form_data?.lead_conversion_eligible === true && /^evt_/.test(sub?.event_id || "") && sub?.event_id === p.leads[0]?.event_id && gl?.form_location === "hero" && gl?.topic === "new_company", JSON.stringify({ sub: { plan_path: sub?.plan_path, eid: sub?.event_id }, gl }));
+  check("card: every event carries page_path and page_type", ev.every((e) => e.page_path === "/services" && e.page_type === "landing"));
+  const all = JSON.stringify(ev) + (await p.evaluate(() => location.href));
+  check("card: no name, number or email in the dataLayer or the URL", !/TEST AUDIT|test-audit@xerebo\.com|500000000|971500000000/.test(all));
+  await p.done();
+}
+
+// form_abandon from the card says which step was left (pagehide after starting).
+{
+  const p = await open(1440);
+  await cardTap(p, "Several companies or property");
+  await wait(450);
+  await p.evaluate(() => window.dispatchEvent(new Event("pagehide")));
+  await wait(200);
+  const ab = (await events(p, "form_abandon")).find((e) => e.form_data?.form_id === "LP Services Plan");
+  check("card: form_abandon carries plan_last_step", ab?.form_data?.plan_last_step === "2", JSON.stringify(ab?.form_data));
+  await p.done();
+}
+
+// Phones: the card fits 360 and 390 with no sideways scroll; options are 44 px or taller; inputs use 16 px text.
+for (const w of [360, 390]) {
+  const p = await open(w);
+  await cardTap(p, "Not sure yet");
+  await wait(450);
+  const a = await p.evaluate(() => ({ over: document.documentElement.scrollWidth - document.documentElement.clientWidth, cardOver: document.querySelector(".xs-hcard").scrollWidth - document.querySelector(".xs-hcard").clientWidth, minOpt: Math.min(...[...document.querySelectorAll(".xs-pb-opt, .xs-pb-back")].map((b) => b.getBoundingClientRect().height)) }));
+  await cardTap(p, "Just exploring");
+  await wait(450);
+  const fonts = await p.evaluate(() => [...document.querySelectorAll(".xs-pb input:not([tabindex='-1']), .xs-pb select")].map((i) => parseFloat(getComputedStyle(i).fontSize)));
+  const over2 = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  check(`card at ${w}px: no sideways scroll, targets 44 px or more, 16 px inputs`, a.over <= 0 && a.cardOver <= 0 && over2 <= 0 && a.minOpt >= 44 && fonts.every((x) => x >= 16), JSON.stringify({ ...a, over2, fonts }));
+  await p.done();
+}
+
+// The card keeps a fixed minimum height across the question steps (no jump), and step 1 is in the server HTML.
+{
+  const html = await (await fetch(BASE + PATH)).text();
+  check("card: step 1 is server rendered", html.includes("Where are you right now?") && html.includes("I&#x27;m planning a new company"));
+  for (const w of [390, 1440]) {
+    const p = await open(w);
+    const hs = [];
+    for (const t of ["I already have a company", "Monthly books"]) {
+      hs.push(await p.evaluate(() => Math.round(document.querySelector(".xs-pb-form").getBoundingClientRect().height)));
+      await cardTap(p, t);
+      await wait(450);
+    }
+    hs.push(await p.evaluate(() => Math.round(document.querySelector(".xs-pb-form").getBoundingClientRect().height)));
+    check(`card at ${w}px: the same height on every question step (no jump)`, new Set(hs).size === 1, JSON.stringify(hs));
+    await p.done();
+  }
+}
+
 // 8. Every FAQ answer in the server HTML (no JavaScript), plus FAQPage JSON-LD.
 {
   const html = (await (await fetch(BASE + PATH)).text()).replace(/&#x27;|&#39;/g, "'");
@@ -771,15 +906,16 @@ for (const w of [1024, 1280, 1440, 1920]) {
   await p.done();
 }
 
-// Page height at 390 (as laid out, content-visibility off): at least 20% under main's 9,395 px.
+// Page height at 390 (as laid out, content-visibility off). The hero plan card is taller than the card it replaced
+// (276 px), by request, so the rest of the page keeps its budget: page minus the card at most 9,395 x 0.8 - 276 px.
 {
   const p = await open(390, "ok", { warm: false });
   const h = await p.evaluate(async () => {
     document.head.insertAdjacentHTML("beforeend", "<style>.xs *{content-visibility:visible!important}</style>");
     await new Promise((r) => setTimeout(r, 300));
-    return document.documentElement.scrollHeight;
+    return { page: document.documentElement.scrollHeight, card: Math.round(document.querySelector(".xs-hcard-wrap").getBoundingClientRect().height) };
   });
-  check("page height at 390 is 20% or more under main (9,395 px)", h <= 9395 * 0.8, `${h} px`);
+  check("page height at 390: the page outside the hero card stays within its 20% budget", h.page - h.card <= 9395 * 0.8 - 276, `page ${h.page} px, card ${h.card} px, rest ${h.page - h.card} px`);
   await p.done();
 }
 

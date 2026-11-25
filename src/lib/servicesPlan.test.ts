@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { choiceRows, maskPhone, nameOk, planPhoneError } from "./servicesPlan";
 import { checkPlan } from "./servicesPlanCheck";
-import { HERO_PLANS, TOPICS, TOPIC_IDS, TOPIC_SERVICE, isTopic, waLink } from "@/content/xservicesx";
+import { TOPICS, TOPIC_IDS, TOPIC_SERVICE, isTopic, waLink } from "@/content/xservicesx";
 import { XS_CONFIG } from "@/content/xservicesx.config";
 import { cleanState } from "@/components/xservicesx/store";
 
@@ -44,9 +44,8 @@ describe("/xservicesx form rules", () => {
 });
 
 describe("topics and the lead notes", () => {
-  it("maps every topic to a label, a hero plan and an exact ERP Service Enquired option", () => {
+  it("maps every topic to a label and an exact ERP Service Enquired option", () => {
     expect(TOPIC_IDS).toEqual(["new_company", "fz_or_mainland", "holding", "bookkeeping", "corporate_tax", "not_sure"]);
-    for (const t of TOPIC_IDS) expect(HERO_PLANS[t].rows.length).toBe(4);
     expect(TOPIC_SERVICE).toEqual({
       new_company: undefined,
       fz_or_mainland: undefined,
