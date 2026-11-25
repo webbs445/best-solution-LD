@@ -12,7 +12,10 @@ export function XsHero() {
         <div className="xs-hero-copy">
           <span className="xs-pill">Private business advisors · Business Bay, Dubai</span>
           <h1 id="xsTitle">
-            Make the right call on your UAE company, <span className="xs-copper">before you commit your savings.</span>
+            Make the right call on your UAE company, <span className="xs-copper">
+              {/* "before you" never splits (phones broke the line after "before"). */}
+              <span className="xs-nowrap">before you</span> commit your savings.
+            </span>
           </h1>
           <p className="xs-hero-sub">
             Free zone or mainland? What will year two really cost? Tell us your plan, and an advisor sends you a clear answer, in writing.
@@ -25,16 +28,13 @@ export function XsHero() {
           </div>
           <span className="xs-micro">{CTA_NOTE}</span>
           <div className="xs-proof">
-            {C.googleRating && C.googleReviewCount && C.googleReviewsUrl && (
-              <a className="xs-proof-g" href={C.googleReviewsUrl} target="_blank" rel="noopener" data-google-rating>
-                <b className="xs-proof-score">{C.googleRating}</b>
-                <span className="xs-proof-meta">
-                  <Stars label={`Rated ${C.googleRating} out of 5 on Google`} size={14} />
-                  <span>
-                    {C.googleReviewCount} Google reviews <span aria-hidden="true">→</span>
-                  </span>
-                </span>
-              </a>
+            {/* The Google rating as plain text (no box, no link: "Read them all" lives in the Trust section). */}
+            {C.googleRating && C.googleReviewCount && (
+              <p className="xs-proof-line" data-google-rating>
+                <Stars label={`Rated ${C.googleRating} out of 5 from ${C.googleReviewCount} Google reviews`} size={14} />
+                <b>{C.googleRating}</b>
+                <span> · {C.googleReviewCount} Google reviews</span>
+              </p>
             )}
             <ul className="xs-trust">
               {HERO_TRUST.map((t) => (

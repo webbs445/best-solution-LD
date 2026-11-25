@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MODE_NOTE, S5_ADVISOR, S5_CALL, S5_CALL_SHORT, S5_CHIPS, S5_LABELS as LABELS, S5_SUB, S5_TITLE, S5_YOUR_CALL } from "@/content/xservicesx";
+import { MODE_NOTE, S5_ADVISOR, S5_CHIPS, S5_LABELS as LABELS, S5_LINES as LINES, S5_SUB, S5_TITLE, S5_YOUR_CALL } from "@/content/xservicesx";
 import { setXs, useXs, xsTrack } from "./store";
 import { Icon } from "./ui";
 import { XsCta } from "./XsCta";
@@ -34,7 +34,8 @@ export function HowItWorks() {
 
   const picked = S5_CHIPS.find((c) => c.topic === s.topic);
   const mode = s.consultMode ?? "video";
-  const card = (i: number) => `xs-step${i <= step ? " is-done" : ""}${i === step ? " is-on" : ""}`;
+  // The three cards share one style; step 1 is highlighted as the place to begin. The timeline fill (desktop) follows step.
+  const card = (i: number) => `xs-step${i === 0 ? " is-start" : ""}`;
   const go = (i: number) => () => setStep(i);
 
   return (
@@ -46,10 +47,8 @@ export function HowItWorks() {
             <h2 id="xsS5">
               {S5_TITLE.a} <span className="xs-copper-l">{S5_TITLE.b}</span>
             </h2>
-            <span className="xs-s5-note m-only">Example timeline. Times depend on your case.</span>
             <p>{S5_SUB}</p>
           </div>
-          <span className="xs-s5-note d-only">Example timeline. Times depend on your case.</span>
         </div>
 
         <div className="xs-tl d-only" aria-hidden="true">
@@ -70,8 +69,7 @@ export function HowItWorks() {
               <span className="xs-step-lab m-only">{LABELS[0]}</span>
               <h3>Tell us your plan</h3>
               <p>
-                <span className="t-up">Pick what&apos;s on your mind. A few lines is enough.</span>
-                <span className="p-only">Tell us what&apos;s on your mind, in a few lines.</span>
+                {LINES[0]}
               </p>
               <div className="xs-tchips t-up">
                 {S5_CHIPS.map((c) => {
@@ -101,8 +99,7 @@ export function HowItWorks() {
               <span className="xs-step-lab m-only">{LABELS[1]}</span>
               <h3>Talk it through</h3>
               <p>
-                <span className="d-only">{S5_CALL}</span>
-                <span className="m-only">{S5_CALL_SHORT}</span>
+                {LINES[1]}
               </p>
               <div className="xs-step-adv t-up">
                 <span className="xs-adv-dot" aria-hidden="true">
@@ -131,8 +128,7 @@ export function HowItWorks() {
               <span className="xs-step-lab m-only">{LABELS[2]}</span>
               <h3>Get it in writing</h3>
               <p>
-                <span className="d-only">Your plan lands on WhatsApp. Read it, share it, decide in your own time.</span>
-                <span className="m-only">Your plan lands on WhatsApp. Decide in your own time.</span>
+                {LINES[2]}
               </p>
               <div className="xs-msg t-up" aria-hidden="true">
                 <span>Hi, your written plan is ready.</span>
