@@ -844,20 +844,29 @@ for (const w of [360, 390]) {
   await p.done();
 }
 
-// The card keeps a fixed minimum height across the question steps (no jump), and step 1 is in the server HTML.
+// The card fits each step (no fixed height), matches the design sizes (design/xservicesx/plan-builder), shifts nothing
+// on load, and step 1 is in the server HTML.
 {
   const html = await (await fetch(BASE + PATH)).text();
   check("card: step 1 is server rendered", html.includes("Where are you right now?") && html.includes("I&#x27;m planning a new company"));
   for (const w of [390, 1440]) {
     const p = await open(w);
-    const hs = [];
-    for (const t of ["I already have a company", "Monthly books"]) {
-      hs.push(await p.evaluate(() => Math.round(document.querySelector(".xs-pb-form").getBoundingClientRect().height)));
-      await cardTap(p, t);
-      await wait(450);
-    }
-    hs.push(await p.evaluate(() => Math.round(document.querySelector(".xs-pb-form").getBoundingClientRect().height)));
-    check(`card at ${w}px: the same height on every question step (no jump)`, new Set(hs).size === 1, JSON.stringify(hs));
+    const cls = await p.evaluate(() => new Promise((res) => { let v = 0; new PerformanceObserver((l) => l.getEntries().forEach((e) => { if (!e.hadRecentInput) v += e.value; })).observe({ type: "layout-shift", buffered: true }); setTimeout(() => res(Math.round(v * 1000) / 1000), 300); }));
+    const s = await p.evaluate(() => {
+      const cs = (sel, k) => getComputedStyle(document.querySelector(sel))[k];
+      const form = document.querySelector(".xs-pb-form"), card = document.querySelector(".xs-hcard");
+      const kids = [...form.children].filter((e) => getComputedStyle(e).position !== "absolute" && e.getBoundingClientRect().height);
+      const content = kids.reduce((t, e) => t + e.getBoundingClientRect().height, 0) + 14 * (kids.length - 1);
+      return {
+        width: Math.round(card.getBoundingClientRect().width), pad: cs(".xs-hcard", "padding"), minH: cs(".xs-pb-form", "minHeight"), fit: Math.abs(form.getBoundingClientRect().height - content) < 2,
+        before: getComputedStyle(card, "::before").content, back: !!document.querySelector(".xs-hcard-back"), radius: cs(".xs-hcard", "borderRadius"),
+        title: cs(".xs-pb-title", "fontSize"), q: cs("#pb-heading", "fontSize"), opt: cs(".xs-pb-opt", "padding"), ico: cs(".xs-pb-ico", "width"), bar: cs(".xs-pb-bar i", "height"),
+      };
+    });
+    const d = w === 1440;
+    check(`card at ${w}px: design sizes, no fixed height, no copper edge or back card, CLS 0 on load`,
+      cls === 0 && (s.minH === "0px" || s.minH === "auto") && s.fit && s.before === "none" && !s.back && s.radius === "24px" && s.pad === (d ? "28px 30px" : "22px 18px") && s.title === (d ? "22px" : "20px") && s.q === (d ? "27px" : "24px") && s.opt === "14px 16px" && s.ico === "40px" && s.bar === "6px" && (!d || s.width === 520),
+      JSON.stringify({ cls, ...s }));
     await p.done();
   }
 }

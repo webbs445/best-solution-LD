@@ -243,4 +243,4 @@ export const THANKS_PREP = { title: "Before your call, have these ready:", items
 /* Line icons (lucide shapes, stroke 2). */
 export type IconName =
   | "arrowRight" | "arrowLeftRight" | "layers" | "book" | "percent" | "help" | "check" | "lock" | "phone" | "whatsapp" | "pin"
-  | "clock" | "mail" | "send" | "user" | "file" | "plus" | "chevronLeft" | "chevronRight" | "hand" | "star" | "play" | "pause";
+  | "clock" | "mail" | "send" | "user" | "file" | "plus" | "chevronLeft" | "chevronRight" | "hand" | "star" | "play" | "pause" | "briefcase" | "compass";

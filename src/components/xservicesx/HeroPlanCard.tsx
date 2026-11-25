@@ -98,7 +98,7 @@ export function HeroPlanCard() {
   const field = (k: PlanField) => ({
     id: `pb-${k}`,
     "aria-invalid": errors[k] ? true : undefined,
-    "aria-describedby": errors[k] ? `pb-${k}-err` : undefined,
+    "aria-describedby": [k === "email" && "pb-email-hint", errors[k] && `pb-${k}-err`].filter(Boolean).join(" ") || undefined,
   });
   const err = (k: PlanField) =>
     errors[k] ? (
@@ -158,7 +158,6 @@ export function HeroPlanCard() {
 
   return (
     <div className="xs-hcard-wrap" ref={root}>
-      <span className="xs-hcard-back" aria-hidden="true" />
       <div className="xs-hcard xs-pb">
         <form className="xs-pb-form" data-cta="" data-track={SERVICES_PLAN_FORM_ID} data-plan-step={screen === "contact" ? "contact" : q ? String(eventStep(screen as Question)) : undefined} onSubmit={submit} noValidate>
           <div className="xs-pb-head">
@@ -192,13 +191,18 @@ export function HeroPlanCard() {
                     const on = answers[screen as Question] === o.id;
                     return (
                       <button key={o.id} type="button" className={`xs-pb-opt${picked === o.id ? " is-picked" : ""}`} aria-pressed={on || picked === o.id} onClick={() => pick(screen as Question, o.id)}>
-                        <span className="xs-pb-ico" aria-hidden="true">
-                          <Icon name={o.icon} size={18} />
-                        </span>
+                        {screen === "situation" ? (
+                          <span className="xs-pb-ico" aria-hidden="true">
+                            <Icon name={o.icon} size={20} />
+                          </span>
+                        ) : (
+                          <span className="xs-pb-mark" aria-hidden="true" />
+                        )}
                         <span className="xs-pb-txt">
                           <b>{o.title}</b>
                           <small>{o.sub}</small>
                         </span>
+                        <Icon name="arrowRight" size={16} strokeWidth={2.2} className="xs-pb-arr" />
                       </button>
                     );
                   })}
@@ -227,10 +231,11 @@ export function HeroPlanCard() {
                     {err("phone")}
                   </div>
                   <div className="xs-field">
-                    <label htmlFor="pb-email">
-                      Email <span>(for your copy of the plan)</span>
-                    </label>
+                    <label htmlFor="pb-email">Email</label>
                     <input {...field("email")} name="email_id" type="email" inputMode="email" autoComplete="email" placeholder="you@company.com" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} required />
+                    <p className="xs-pb-hint" id="pb-email-hint">
+                      For your copy of the plan.
+                    </p>
                     {err("email")}
                   </div>
                 </div>

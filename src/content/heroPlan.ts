@@ -37,9 +37,9 @@ export const QUESTIONS: { [Q in Question]: { title: string; help: string; option
     help: "Pick the one closest to you.",
     options: [
       { id: "new", title: "I'm planning a new company", sub: "Your first UAE company, or another one", icon: "plus", tag: "New company" },
-      { id: "existing", title: "I already have a company", sub: "Books, Corporate Tax or changes", icon: "book", tag: "Existing company" },
+      { id: "existing", title: "I already have a company", sub: "Books, Corporate Tax or changes", icon: "briefcase", tag: "Existing company" },
       { id: "several", title: "Several companies or property", sub: "A structure that keeps them separate", icon: "layers", tag: "Several companies" },
-      { id: "not_sure", title: "Not sure yet", sub: "We help you work it out", icon: "help", tag: "Not sure yet" },
+      { id: "not_sure", title: "Not sure yet", sub: "We help you work it out", icon: "compass", tag: "Not sure yet" },
     ],
   },
   base: {
@@ -144,9 +144,9 @@ export const answerTags = (a: Answers): string[] =>
 /** "Your plan will cover": three lines for the path. */
 export function coverLines(a: Answers): [string, string, string] {
   if (a.situation === "new") {
-    if (a.base === "mainland") return ["What mainland needs for your activity", "Year one and every year after, in AED", "Your timeline, step by step"];
-    if (a.base === "help_decide") return ["Free zone and mainland, side by side", "The cost of each, in AED", "Our recommendation, with the reasons"];
-    return ["Free zones that allow your activity", "Year one and every year after, in AED", "Your timeline, step by step"];
+    if (a.base === "mainland") return ["What mainland needs for your activity", "What year one and every year after will cost", "Your timeline, step by step"];
+    if (a.base === "help_decide") return ["Free zone and mainland, side by side", "What each option will cost", "Our recommendation, with the reasons"];
+    return ["Free zones that allow your activity", "What year one and every year after will cost", "Your timeline, step by step"];
   }
   if (a.situation === "existing") {
     if (a.need === "books") return ["What a month of books includes", "Software that fits your company", "Our monthly fee, in writing"];
@@ -154,7 +154,7 @@ export function coverLines(a: Answers): [string, string, string] {
     return ["Whether Corporate Tax applies to you", "Your next deadline", "What to prepare, as a checklist"];
   }
   if (a.situation === "several") return ["A structure that fits your assets", "What it keeps separate", "Cost and timeline"];
-  return ["Where to begin, for your situation", "Your first step", "A rough budget, in AED"];
+  return ["Where to begin, for your situation", "Your first step", "A rough budget"];
 }
 
 /* ─── Leads from the card (server side: /api/services-plan) ─── */

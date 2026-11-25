@@ -85,12 +85,12 @@ describe("hero plan card: titles, tags and cover lines", () => {
   it("cover lines follow the table", () => {
     expect(coverLines({ situation: "new", base: "free_zone" })[0]).toBe("Free zones that allow your activity");
     expect(coverLines({ situation: "new", base: "mainland" })[0]).toBe("What mainland needs for your activity");
-    expect(coverLines({ situation: "new", base: "help_decide" })).toEqual(["Free zone and mainland, side by side", "The cost of each, in AED", "Our recommendation, with the reasons"]);
+    expect(coverLines({ situation: "new", base: "help_decide" })).toEqual(["Free zone and mainland, side by side", "What each option will cost", "Our recommendation, with the reasons"]);
     expect(coverLines({ situation: "existing", need: "books" })[2]).toBe("Our monthly fee, in writing");
     expect(coverLines({ situation: "existing", need: "tax" })).toEqual(coverLines({ situation: "existing", need: "both" }));
     expect(coverLines({ situation: "existing", need: "changes" })).toEqual(["What the change involves", "Cost and timeline", "What to prepare"]);
     expect(coverLines({ situation: "several", based: "uae" })[0]).toBe("A structure that fits your assets");
-    expect(coverLines({ situation: "not_sure" })).toEqual(["Where to begin, for your situation", "Your first step", "A rough budget, in AED"]);
+    expect(coverLines({ situation: "not_sure" })).toEqual(["Where to begin, for your situation", "Your first step", "A rough budget"]);
   });
 
   it("every option has a title, a sub line and a tag", () => {
