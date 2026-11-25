@@ -23,6 +23,7 @@ export function Questions() {
   // Opens with three answered questions (phones show the last two); asked marks the one the visitor tapped.
   const [thread, setThread] = useState<number[]>([0, 1, 2]);
   const [asked, setAsked] = useState(false);
+  const [group, setGroup] = useState(0);
   const [typing, setTyping] = useState<number | null>(null);
   const isPhone = useMedia("(max-width: 1023px)");
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -48,7 +49,8 @@ export function Questions() {
     setTyping(i);
     timer.current = setTimeout(() => setTyping(null), 450);
   };
-  const shown = thread.slice(isPhone ? -2 : -3);
+  // Phones and tablets: the latest question and answer (two pairs don't fit the chat without cutting one off).
+  const shown = thread.slice(isPhone ? -1 : -3);
   const [text, setText] = useState("");
   const send = (e: FormEvent) => {
     e.preventDefault();
@@ -92,12 +94,25 @@ export function Questions() {
               </div>
             ))}
           </div>
-          <div className="xs-chiprail m-only" role="group" aria-label="Questions">
-            {FAQS.map((q, i) => (
-              <button key={q.id} type="button" className="xs-qchip" aria-pressed={i === active} onClick={() => ask(i)}>
-                {q.qShort}
-              </button>
-            ))}
+          {/* Phones and tablets: a tab per group and that group's questions wrapped below, every one visible (no sideways scroll). */}
+          <div className="xs-qtabs m-only">
+            <div className="xs-qtab-row" role="group" aria-label="Question topics">
+              {FAQ_GROUPS.map((g, gi) => (
+                <button key={g.label} type="button" className="xs-qtab" aria-pressed={gi === group} onClick={() => setGroup(gi)}>
+                  {g.label.charAt(0) + g.label.slice(1).toLowerCase()}
+                </button>
+              ))}
+            </div>
+            <div className="xs-qwrap" role="group" aria-label={`${FAQ_GROUPS[group].label.toLowerCase()} questions`}>
+              {FAQ_GROUPS[group].qs.map((q) => {
+                const i = idx(q.id);
+                return (
+                  <button key={q.id} type="button" className="xs-qchip" aria-pressed={i === active} onClick={() => ask(i)}>
+                    {q.qShort}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 

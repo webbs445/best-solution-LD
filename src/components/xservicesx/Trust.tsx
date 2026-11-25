@@ -124,6 +124,7 @@ export function Trust({ withOffice }: { withOffice: boolean }) {
             </span>
           )}
           {readAll}
+          {wall && <WallToggle target="xs-pwall" />}
         </div>
       </div>
 
@@ -143,7 +144,14 @@ export function Trust({ withOffice }: { withOffice: boolean }) {
               </div>
             </div>
           )}
-          <div className="xs-wrap m-only">
+          {/* Phones and tablets: with 6 or more reviews, one row that flows (paused by touch or the button); with reduced
+              motion, or fewer reviews, the swipe row below instead. */}
+          {wall && (
+            <div className="xs-pwall m-only" id="xs-pwall" role="region" aria-label="Client reviews">
+              <Row list={reviews} dir="left" />
+            </div>
+          )}
+          <div className={`xs-wrap m-only${wall ? " xs-swipe-alt" : ""}`}>
             <div className="xs-swipe">
               {reviews.map((r, i) => (
                 <Card key={i} r={r} kind="swipe" featured={i === 0} />

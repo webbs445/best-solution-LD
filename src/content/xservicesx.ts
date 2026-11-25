@@ -65,7 +65,6 @@ export const HERO_PLANS: Record<TopicId, { rows: PlanRow[]; cta: string }> = {
   not_sure: { rows: [B("Where to begin", 96), B("First step", 84), B("Rough budget", 80, "AED "), B("Timeline", 44, "", " weeks")], cta: PLAN_CTA },
 };
 export const HERO_PREPARED = { by: `Prepared by ${advisorName ?? "a Best Solution advisor"}`, to: "Sent to your WhatsApp" };
-export const HERO_NOTE = "Example layout. Your plan depends on your activity and team.";
 export const HERO_TRUST = ["Office in Business Bay", "In person or by video", ...(C.feesInWritingConfirmed ? ["Fees in writing first"] : [])];
 
 /* ─── S2 worries: desktop and phone wording ─── */
@@ -88,11 +87,11 @@ export const S3_BIG = {
   points: ["Where to base it: free zone or mainland", "Year one and yearly costs, in writing", "What to prepare, as a simple checklist"],
   pointsShort: ["Where to base it", "Year one and yearly costs, in writing", "What to prepare"],
 };
-export const S3_CARDS: { topic: TopicId; ctaId: string; icon: IconName; title: string; titleShort: string; what: string; page: string; cta: string; ctaShort: string }[] = [
-  { topic: "fz_or_mainland", ctaId: "s3_fz_or_mainland", icon: "arrowLeftRight", title: "Free zone or mainland?", titleShort: "Free zone or mainland?", what: "What each one allows, what each costs, and which fits your activity.", page: "Free zone or mainland", cta: "Compare my options", ctaShort: "Compare" },
-  { topic: "holding", ctaId: "s3_plan_structure", icon: "layers", title: "Own several companies or property?", titleShort: "Several companies?", what: "Whether a holding structure fits, and what it keeps separate.", page: "Holding assets", cta: "Plan my structure", ctaShort: "See options" },
-  { topic: "bookkeeping", ctaId: "s3_bookkeeping", icon: "book", title: "Monthly books", titleShort: "Monthly books", what: "Clean monthly books, matched bank statements, reports you can read.", page: "Monthly books", cta: "Get my written quote", ctaShort: "Get a quote" },
-  { topic: "corporate_tax", ctaId: "s3_corporate_tax", icon: "percent", title: "Corporate Tax questions", titleShort: "Corporate Tax", what: "Whether it applies to you, your deadlines, and help with your return.", page: "Corporate Tax", cta: "Check my position", ctaShort: "Check" },
+export const S3_CARDS: { topic: TopicId; ctaId: string; icon: IconName; title: string; titleShort: string; what: string; whatShort: string; page: string; cta: string; ctaShort: string }[] = [
+  { topic: "fz_or_mainland", ctaId: "s3_fz_or_mainland", icon: "arrowLeftRight", title: "Free zone or mainland?", titleShort: "Free zone or mainland?", what: "What each one allows, what each costs, and which fits your activity.", whatShort: "What each allows, what each costs.", page: "Free zone or mainland", cta: "Compare my options", ctaShort: "Compare options" },
+  { topic: "holding", ctaId: "s3_plan_structure", icon: "layers", title: "Own several companies or property?", titleShort: "Several companies?", what: "Whether a holding structure fits, and what it keeps separate.", whatShort: "Whether a holding structure fits.", page: "Holding assets", cta: "Plan my structure", ctaShort: "See structures" },
+  { topic: "bookkeeping", ctaId: "s3_bookkeeping", icon: "book", title: "Monthly books", titleShort: "Monthly books", what: "Clean monthly books, matched bank statements, reports you can read.", whatShort: "Monthly books and reports you can read.", page: "Monthly books", cta: "Get my written quote", ctaShort: "Get a quote" },
+  { topic: "corporate_tax", ctaId: "s3_corporate_tax", icon: "percent", title: "Corporate Tax questions", titleShort: "Corporate Tax", what: "Whether it applies to you, your deadlines, and help with your return.", whatShort: "If it applies, your deadlines, your return.", page: "Corporate Tax", cta: "Check my position", ctaShort: "Check my position" },
 ];
 
 /* ─── S4 outcomes ─── */

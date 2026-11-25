@@ -5,18 +5,19 @@ import { getXs, goToPlan, setXs } from "./store";
 import { BtnArrow, Icon } from "./ui";
 
 /** Pauses and plays the review wall (#xs-wall). Hover and focus inside the wall pause it too (CSS). */
-export function WallToggle() {
+/** Pause or play a moving review row: the desktop wall (xs-wall) or the phone row (xs-pwall). */
+export function WallToggle({ target = "xs-wall" }: { target?: string }) {
   const [paused, setPaused] = useState(false);
   return (
     <button
       type="button"
       className="xs-round xs-wall-toggle"
-      aria-controls="xs-wall"
+      aria-controls={target}
       aria-label={paused ? "Play reviews" : "Pause reviews"}
       onClick={() => {
         const next = !paused;
         setPaused(next);
-        document.getElementById("xs-wall")?.classList.toggle("is-paused", next);
+        document.getElementById(target)?.classList.toggle("is-paused", next);
       }}
     >
       {paused ? <Icon name="play" size={16} /> : <Icon name="pause" size={16} />}
