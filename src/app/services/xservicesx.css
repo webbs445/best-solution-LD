@@ -1084,7 +1084,7 @@
 /* ─── Hero polish: a proof block (Google rating card + checks) and a cleaner plan card ─── */
 /* Plan card: an "Example" chip in the header, a footer strip for who prepares it, the note inside the card. */
 @media (min-width:1024px) {
-  .xs .xs-hero-grid {align-items:center;row-gap:40px}
+  .xs .xs-hero-grid {align-items:start;row-gap:40px} /* top-aligned: the headline stays put when the plan card changes height */
 }
 
 /* ─── Header: the other landing pages' floating bar. On the hero at the top; a floating rounded card once scrolled. ─── */
@@ -1438,6 +1438,13 @@
 @media (min-width:1024px) {
   .xs .xs-pb-title {font-size:22px}
   .xs .xs-pb-step h3 {font-size:27px}
+}
+/* Phones: a smaller tile and title so each option title fits on one line. */
+@media (max-width:639px) {
+  .xs .xs-pb-opt:has(.xs-pb-ico) {gap:12px}
+  .xs .xs-pb-ico {width:36px;height:36px}
+  .xs .xs-pb-txt b {font-size:15px}
+  .xs .xs-pb-arr {display:none}
 }
 @media (prefers-reduced-motion:reduce) {
   .xs .xs-pb-body {animation:none}

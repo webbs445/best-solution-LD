@@ -865,10 +865,53 @@ for (const w of [360, 390]) {
     });
     const d = w === 1440;
     check(`card at ${w}px: design sizes, no fixed height, no copper edge or back card, CLS 0 on load`,
-      cls === 0 && (s.minH === "0px" || s.minH === "auto") && s.fit && s.before === "none" && !s.back && s.radius === "24px" && s.pad === (d ? "28px 30px" : "22px 18px") && s.title === (d ? "22px" : "20px") && s.q === (d ? "27px" : "24px") && s.opt === "14px 16px" && s.ico === "40px" && s.bar === "6px" && (!d || s.width === 520),
+      cls === 0 && (s.minH === "0px" || s.minH === "auto") && s.fit && s.before === "none" && !s.back && s.radius === "24px" && s.pad === (d ? "28px 30px" : "22px 18px") && s.title === (d ? "22px" : "20px") && s.q === (d ? "27px" : "24px") && s.opt === "14px 16px" && s.ico === (d ? "40px" : "36px") && s.bar === "6px" && (!d || s.width === 520),
       JSON.stringify({ cls, ...s }));
     await p.done();
   }
+}
+
+// The headline stays put on every card step (hero columns top-aligned), at 1440 and 1024.
+for (const w of [1440, 1024]) {
+  const p = await open(w);
+  const top = () => p.evaluate(() => Math.round(document.querySelector("h1").getBoundingClientRect().top + scrollY));
+  const tops = [await top()];
+  for (const t of ["I'm planning a new company", "Free zone", "This month"]) {
+    await cardTap(p, t);
+    await wait(450);
+    tops.push(await top());
+  }
+  check(`hero at ${w}px: the headline stays put on every card step, the contact step too`, new Set(tops).size === 1, JSON.stringify(tops));
+  await p.done();
+}
+
+// Option titles on phones, every option of every question: one line at 390; at 360 two lines at most and nothing
+// spills out of an option (arrows are hidden under 640 px).
+for (const w of [390, 360]) {
+  const p = await open(w);
+  const seen = {};
+  let spill = 0;
+  for (const path of [[], ["I'm planning a new company"], ["I already have a company"], ["Several companies or property"], ["Not sure yet"]]) {
+    await p.reload({ waitUntil: "networkidle2" });
+    await p.waitForSelector(".xs-pb-opt");
+    await wait(800);
+    for (const t of path) {
+      await cardTap(p, t);
+      await wait(450);
+    }
+    const r = await p.evaluate(() =>
+      [...document.querySelectorAll(".xs-pb-opt")].map((o) => {
+        const b = o.querySelector("b");
+        return { t: b.textContent, lines: Math.round(b.getBoundingClientRect().height / parseFloat(getComputedStyle(b).lineHeight)), spill: o.scrollWidth > o.clientWidth || getComputedStyle(o.querySelector(".xs-pb-arr")).display !== "none" };
+      }),
+    );
+    r.forEach((x) => ((seen[x.t] = x.lines), (spill += x.spill ? 1 : 0)));
+  }
+  const max = Math.max(...Object.values(seen));
+  const two = Object.keys(seen).filter((t) => seen[t] > 1);
+  if (w === 390) check("card at 390px: every option title on one line, no arrow, nothing spills", max === 1 && !spill, JSON.stringify({ two, spill }));
+  else check("card at 360px: option titles in two lines at most, no arrow, nothing spills", max <= 2 && !spill, JSON.stringify({ twoLines: two, spill }));
+  await p.done();
 }
 
 // 8. Every FAQ answer in the server HTML (no JavaScript), plus FAQPage JSON-LD.
