@@ -59,9 +59,6 @@ const Tick = ({ s = 11, w = 3.4 }: { s?: number; w?: number }) => (
 const Arrow = ({ s }: { s: number }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
 );
-const Replay = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B9714B" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v5h5" /></svg>
-);
 
 // The six papers of the month: [class, contents].
 const PAPERS: [string, ReactNode][] = [
@@ -137,11 +134,21 @@ const DESK_END: Desk = { n: 6, done: true };
 // Scattered positions [x, y, rotate] before each paper is recorded.
 const DESK_POS = [[0, 6, -6], [186, 34, 5], [170, 140, -7], [6, 128, 7], [186, 250, -4], [0, 262, 5]];
 
-function playDesk(t: Timers, set: (d: Desk) => void, delay: number) {
+/** How long the finished month stays on screen before the loop starts again. */
+const HOLD_MS = 4000;
+/** Lets the papers fly back to the pile before the next run starts. */
+const RESTART_MS = 900;
+
+/* Plays the month, holds the finished page, then starts again, for as long as the band stays on screen. */
+function loopDesk(t: Timers, set: (d: Desk) => void, delay: number, onDone: () => void) {
   t.clear();
   set({ n: 0, done: false });
   for (let i = 1; i <= 6; i++) t.at(delay + i * 520, () => set({ n: i, done: false }));
-  t.at(delay + 7 * 520, () => set(DESK_END));
+  t.at(delay + 7 * 520, () => {
+    set(DESK_END);
+    onDone();
+  });
+  t.at(delay + 7 * 520 + HOLD_MS, () => loopDesk(t, set, RESTART_MS, onDone));
 }
 
 /* ---------- phone band: one stage at a time, 1 · 2 · 3 buttons ---------- */
@@ -153,10 +160,10 @@ const PH_POS = [[0, 6, -6], [178, 30, 5], [172, 136, -7], [4, 120, 7], [178, 240
 const STEPS = ["1 · Your month", "2 · We record it", "3 · One page"];
 const CAPTIONS = ["Your month, as it arrives", "Every line recorded and matched", "September, on one page"];
 
-function playPhone(t: Timers, set: Dispatch<SetStateAction<Ph>>) {
+function loopPhone(t: Timers, set: Dispatch<SetStateAction<Ph>>, start = 1100) {
   t.clear();
   set(PH_START);
-  let ms = 1100;
+  let ms = start;
   for (let i = 1; i <= 6; i++, ms += 380) t.at(ms, () => set((s) => ({ ...s, n: i })));
   ms += 500;
   t.at(ms, () => set((s) => ({ ...s, ph: 1 })));
@@ -164,20 +171,25 @@ function playPhone(t: Timers, set: Dispatch<SetStateAction<Ph>>) {
   for (let i = 1; i <= 6; i++, ms += 300) t.at(ms, () => set((s) => ({ ...s, m: i })));
   ms += 1300;
   t.at(ms, () => set(PH_END));
+  t.at(ms + HOLD_MS, () => loopPhone(t, set, RESTART_MS));
 }
 
 function PhoneBand({ reduced }: { reduced: boolean }) {
-  const [ref, seen] = useInView<HTMLDivElement>(0.3);
+  const [ref, seen, visible] = useInView<HTMLDivElement>(0.3);
   const [state, setS] = useState<Ph>(PH_START);
+  // Once the visitor taps 1, 2 or 3 they are in control: the loop stops for good.
+  const [manual, setManual] = useState(false);
   const t = useTimers();
   // Reduced motion: show the final stage until the visitor picks a stage themselves.
   const s = reduced && state.busy ? PH_END : state;
   useEffect(() => {
-    if (reduced) t.clear();
-    else if (seen) playPhone(t, setS);
-  }, [seen, reduced, t]);
+    if (reduced || manual || !seen || !visible) return t.clear();
+    loopPhone(t, setS);
+    return t.clear;
+  }, [seen, visible, reduced, manual, t]);
 
   const jump = (ph: number) => {
+    setManual(true);
     t.clear();
     setS({ ph, n: 6, m: 6, busy: false });
   };
@@ -215,9 +227,6 @@ function PhoneBand({ reduced }: { reduced: boolean }) {
           <Report />
         </div>
       </div>
-      <button type="button" className="s1-play" disabled={s.busy} onClick={() => (reduced ? jump(2) : playPhone(t, setS))}>
-        <Replay />{s.busy ? "Sorting your month…" : "See it again"}
-      </button>
       <p className="s1-foot">Best Solution is a private consultancy, not the Federal Tax Authority. Figures are examples only.</p>
     </div>
   );
@@ -227,15 +236,19 @@ function PhoneBand({ reduced }: { reduced: boolean }) {
 
 export function AnHero() {
   const reduced = useReducedMotion();
-  const [deskRef, deskSeen] = useInView<HTMLDivElement>(0.3);
+  const [deskRef, deskSeen, deskVisible] = useInView<HTMLDivElement>(0.3);
   const [state, setD] = useState<Desk>({ n: 0, done: false });
+  // The answer line under the h1 appears after the first run and then stays, rather than blinking each loop.
+  const [answered, setAnswered] = useState(false);
   const t = useTimers();
   // Reduced motion: always the final state, no movement.
   const d = reduced ? DESK_END : state;
+  // Loops only while the band is on screen; scrolling back to it starts a fresh run.
   useEffect(() => {
-    if (reduced) t.clear();
-    else if (deskSeen) playDesk(t, setD, 600);
-  }, [deskSeen, reduced, t]);
+    if (reduced || !deskSeen || !deskVisible) return t.clear();
+    loopDesk(t, setD, 600, () => setAnswered(true));
+    return t.clear;
+  }, [deskSeen, deskVisible, reduced, t]);
 
   return (
     <section className="s1" aria-labelledby="s1-title">
@@ -249,7 +262,7 @@ export function AnHero() {
           <h1 id="s1-title" className="an-h s1-h">
             Do you know what your<br className="s1-d" /> business <b>made <span className="s1-cu">last month?</span></b>
           </h1>
-          <p className={`s1-answer an-num${d.done ? " is-on" : ""}`}>
+          <p className={`s1-answer an-num${reduced || answered ? " is-on" : ""}`}>
             <span className="s1-al">In this example, the answer is</span>
             <span className="s1-net">29,530</span>
             <span className="s1-al">net profit. Do you know yours?</span>
@@ -318,9 +331,6 @@ export function AnHero() {
                 <Report />
               </div>
             </div>
-            <button type="button" className="s1-play" disabled={!d.done} onClick={() => !reduced && playDesk(t, setD, 500)}>
-              <Replay />{d.done ? "See it again" : "Sorting your month…"}
-            </button>
           </div>
           <p className="s1-foot">Best Solution is a private consultancy, not the Federal Tax Authority. Example Trading LLC, figures are examples only.</p>
         </div>

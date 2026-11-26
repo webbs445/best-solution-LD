@@ -772,29 +772,6 @@
 .an .s1-mini:hover {
   background: var(--an-btn-hover);
 }
-.an .s1-play {
-  all: unset;
-  box-sizing: border-box;
-  cursor: pointer;
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 14px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid #e2d3c6;
-  color: var(--an-navy);
-  font: 600 13px var(--font-inter), Inter, system-ui, sans-serif;
-}
-.an .s1-play:hover {
-  border-color: var(--an-copper);
-}
-.an .s1-play:disabled {
-  cursor: default;
-  opacity: 0.7;
-}
 /* #6B7280 in the design is just under 4.5:1 on the cream band; the muted token passes AA. */
 .an .s1-foot {
   margin: 0;
