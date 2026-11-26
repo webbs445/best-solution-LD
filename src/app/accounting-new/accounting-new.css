@@ -168,3 +168,10 @@ html:has(.an) {
     padding: 28px 40px 32px;
   }
 }
+
+/* Sections below the hero skip layout and paint until they near the screen; the size estimate is replaced by the
+   real one once rendered (auto), so nothing shifts. Keeps the hero animation's relayouts cheap (Lighthouse TBT). */
+.an main > section:not(:first-child) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
