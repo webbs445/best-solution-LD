@@ -1,0 +1,451 @@
+/* AnSteps (S6): white section. Phone and mid widths run the steps down a vertical line; from 1240px they run across. */
+.an .s6 {
+  background: #fff;
+}
+.an .s6-in {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+.an .s6-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.an .s6-ttl {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.an .s6-eye {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-copper-txt);
+}
+.an .s6-eye::before {
+  content: "";
+  width: 26px;
+  height: 1.5px;
+  background: var(--an-copper);
+}
+.an .s6 .an-h {
+  line-height: 1.06;
+}
+.an .s6-lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--an-body);
+}
+
+/* Track and progress line (vertical layout first). */
+.an .s6-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 26px;
+}
+.an .s6-rail {
+  position: absolute;
+  left: 27px;
+  top: 28px;
+  bottom: 120px;
+  width: 2px;
+  background: #eee3d8;
+  border-radius: 2px;
+}
+.an .s6-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--an-copper);
+  border-radius: 2px;
+  transform-origin: top;
+  transform: scaleY(var(--s6y, 0));
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.an .s6-st {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  column-gap: 14px;
+  row-gap: 8px;
+  opacity: 0.45;
+  transition: opacity 0.5s;
+}
+.an .s6-st.on {
+  opacity: 1;
+}
+.an .s6-st > .s6-dot {
+  grid-row: span 4;
+}
+.an .s6-st > *:not(.s6-dot) {
+  grid-column: 2;
+}
+.an .s6-dot {
+  position: relative;
+  z-index: 1;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1.5px #e4d6c9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: 200 26px var(--an-tight);
+  color: var(--an-copper);
+  transition: box-shadow 0.4s;
+}
+.an .s6-st.on .s6-dot {
+  box-shadow: 0 0 0 1.5px var(--an-copper), 0 0 0 7px rgba(185, 113, 75, 0.12);
+}
+.an .s6-when {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--an-copper-dk);
+}
+.an .s6-sh {
+  margin: 0;
+  font-family: var(--an-tight);
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--an-navy);
+}
+.an .s6-sp {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--an-body);
+}
+.an .s6-scene {
+  border-radius: 12px;
+  background: var(--an-cream);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+}
+.an .s6-chip,
+.an .s6-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  box-shadow: 0 0 0 1px #eee3d8;
+}
+.an .s6-chip {
+  justify-content: space-between;
+  color: var(--an-muted);
+}
+.an .s6-chip b {
+  color: var(--an-navy);
+  font-weight: 600;
+}
+.an .s6-tk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--an-copper-txt);
+}
+.an .s6-opt {
+  color: var(--an-navy);
+  font-weight: 500;
+}
+.an .s6-opt i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--an-copper-lt);
+}
+
+/* Step 4: the navy card with the example year. */
+.an .s6-four {
+  position: relative;
+  min-width: 0;
+  background: var(--an-navy);
+  border-radius: 18px;
+  padding: 0 16px 18px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  opacity: 0.55;
+  transition: opacity 0.5s;
+}
+.an .s6-four.on {
+  opacity: 1;
+}
+.an .s6-four .s6-dot {
+  background: var(--an-navy);
+  color: var(--an-copper-lt);
+  box-shadow: 0 0 0 1.5px #3a4866;
+}
+.an .s6-four.on .s6-dot {
+  box-shadow: 0 0 0 1.5px var(--an-copper-lt), 0 0 0 7px rgba(227, 164, 126, 0.16);
+}
+.an .s6-fhead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.an .s6-ctl {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 6px;
+}
+.an .s6-exy {
+  font-size: 11px;
+  color: #8c95a8;
+}
+.an .s6-again {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--an-copper-lt);
+  text-decoration: underline;
+  text-decoration-color: rgba(227, 164, 126, 0.5);
+  text-underline-offset: 3px;
+}
+.an .s6-ftxt {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.an .s6-ftxt .s6-when {
+  margin-top: 0;
+  color: var(--an-copper-lt);
+}
+.an .s6-four .s6-sh {
+  color: #fff;
+}
+.an .s6-four .s6-sp {
+  color: #c9cfda;
+}
+.an .s6-months {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.an .s6-m {
+  min-width: 0;
+  min-height: 58px;
+  border-radius: 8px;
+  padding: 8px 8px 9px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background 0.35s, box-shadow 0.35s, transform 0.35s;
+}
+.an .s6-m b {
+  font: 700 12px var(--font-inter), Inter, system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  color: #8c95a8;
+}
+.an .s6-m.done {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(227, 164, 126, 0.35);
+}
+.an .s6-m.done b,
+.an .s6-m.now b {
+  color: #fff;
+}
+.an .s6-m.now {
+  /* Button copper, not brand copper: white 10px text needs AA contrast. */
+  background: var(--an-btn);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+.an .s6-r {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--an-copper-lt);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.an .s6-tag {
+  white-space: nowrap;
+  align-self: flex-start;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(227, 164, 126, 0.18);
+  /* A shade lighter than --an-copper-lt so 9px text keeps AA contrast on the tint. */
+  color: #f2c3a3;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.an .s6-m.done .s6-r,
+.an .s6-m.now .s6-r,
+.an .s6-m.done .s6-tag,
+.an .s6-m.now .s6-tag {
+  opacity: 1;
+}
+.an .s6-m.now .s6-r {
+  color: #fff;
+}
+.an .s6-m.now .s6-tag {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+/* What sets your fee */
+.an .s6-fee {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--an-cream);
+}
+.an .s6-fee-t {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.an .s6-fee-h {
+  font-family: var(--an-tight);
+  font-weight: 700;
+  font-size: 20px;
+}
+.an .s6-fee-n {
+  font-size: 13px;
+  color: var(--an-muted);
+}
+.an .s6-fac {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.an .s6-f {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 500;
+  color: var(--an-navy);
+}
+.an .s6-f > span {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--an-copper);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 1px #eee3d8;
+}
+.an .s6-btn {
+  width: 100%;
+  white-space: nowrap;
+}
+
+@media (min-width: 900px) {
+  .an .s6-in {
+    gap: 48px;
+  }
+  .an .s6-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+    gap: 80px;
+    align-items: end;
+  }
+  .an .s6 .an-h {
+    line-height: 1.04;
+  }
+  .an .s6-pbr {
+    display: none;
+  }
+  .an .s6-lead {
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .an .s6-four {
+    padding: 0 22px 20px;
+  }
+  .an .s6-months {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .an .s6-fee {
+    grid-template-columns: 220px minmax(0, 1fr) auto;
+    gap: 32px;
+    padding: 24px 28px;
+  }
+  .an .s6-fac {
+    gap: 10px 24px;
+  }
+  .an .s6-f {
+    font-size: 14px;
+  }
+  .an .s6-btn {
+    width: auto;
+  }
+}
+
+/* Full width: four columns with the line running across the dots. */
+@media (min-width: 1240px) {
+  .an .s6-track {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.55fr);
+    gap: 18px;
+  }
+  .an .s6-rail {
+    left: 28px;
+    right: 28px;
+    top: 27px;
+    bottom: auto;
+    width: auto;
+    height: 2px;
+  }
+  .an .s6-fill {
+    transform-origin: left;
+    transform: scaleX(var(--s6x, 0));
+  }
+  .an .s6-st {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .an .s6-when {
+    margin-top: 0;
+  }
+  .an .s6-ctl {
+    margin-top: 6px;
+  }
+  .an .s6-m {
+    padding: 8px 6px 9px;
+  }
+  .an .s6-tag {
+    font-size: 8px;
+  }
+}

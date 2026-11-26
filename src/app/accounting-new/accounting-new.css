@@ -1,0 +1,170 @@
+/*
+  /accounting-new base: brand tokens, the content width, headline type and the shared buttons.
+  Every rule is scoped under .an. Section styles live next to each section (src/components/accountingNew/an-*.css).
+  Desktop files are 1440 wide with 120px sides (1200 content); phone files are 390 wide with 16px sides.
+  The phone layout applies below 900px.
+*/
+.an {
+  --an-navy: #14213d;
+  --an-copper: #b9714b;
+  --an-copper-dk: #9a5a36;
+  --an-copper-txt: #7a4428;
+  --an-btn: #a8623e;
+  --an-btn-hover: #94532f;
+  --an-cream: #fbf6f1;
+  --an-copper-lt: #e3a47e;
+  --an-body: #3c4659;
+  --an-muted: #5b6375;
+  --an-line: #eadfd4;
+  --an-tight: var(--font-inter-tight), var(--font-inter), "Inter Tight", Inter, system-ui, sans-serif;
+  background: #fff;
+  color: var(--an-navy);
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  overflow-x: clip;
+}
+.an *,
+.an *::before,
+.an *::after {
+  box-sizing: border-box;
+}
+.an .an-wrap {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.an section {
+  padding: 56px 16px 48px;
+  scroll-margin-top: 0;
+}
+@media (min-width: 900px) {
+  .an section {
+    padding: 96px 40px 88px;
+  }
+}
+.an .an-num {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+.an .an-h {
+  margin: 0;
+  font-family: var(--an-tight);
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+.an .an-h b {
+  font-weight: 800;
+}
+@media (min-width: 900px) {
+  .an .an-h {
+    font-size: 56px;
+    line-height: 1.04;
+  }
+}
+.an .an-btn1 {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 22px 0 24px;
+  border-radius: 12px;
+  background: var(--an-btn);
+  color: #fff;
+  font: 600 17px var(--font-inter), Inter, system-ui, sans-serif;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 14px 26px -16px rgba(168, 98, 62, 0.9);
+  transition: background 0.2s;
+}
+.an .an-btn1:hover {
+  background: var(--an-btn-hover);
+}
+.an .an-btn1:focus-visible,
+.an .an-btn2:focus-visible,
+.an button:focus-visible,
+.an a:focus-visible,
+.an [tabindex]:focus-visible {
+  outline: 3px solid var(--an-copper);
+  outline-offset: 3px;
+}
+.an .an-btn2 {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 20px;
+  border-radius: 12px;
+  border: 1.5px solid #e2d3c6;
+  background: #fff;
+  color: var(--an-navy);
+  font: 600 17px var(--font-inter), Inter, system-ui, sans-serif;
+}
+.an .an-btn2:hover {
+  border-color: var(--an-copper);
+}
+.an .an-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .an *,
+  .an *::before,
+  .an *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+  }
+}
+html:has(.an) {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:has(.an) {
+    scroll-behavior: auto;
+  }
+}
+
+/* Footer: the site's standard legal strip. */
+.an .an-foot {
+  background: #0e1830;
+  color: #aab3c5;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 28px 16px 32px;
+}
+.an .an-foot .an-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  align-items: center;
+}
+.an .an-foot a,
+.an .an-foot button {
+  all: unset;
+  cursor: pointer;
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.an .an-foot p {
+  margin: 0;
+  flex-basis: 100%;
+}
+@media (min-width: 900px) {
+  .an .an-foot {
+    padding: 28px 40px 32px;
+  }
+}

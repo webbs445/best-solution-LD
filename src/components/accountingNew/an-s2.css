@@ -1,0 +1,359 @@
+/* Section 2: "A healthy bank balance can hide a bad month" (S2E desktop, S2EPhone). Phone layout below 900px. */
+.an .s2-in {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.an .s2-head,
+.an .s2-hl {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.an .s2-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-copper-txt);
+}
+.an .s2-eyebrow::before {
+  content: "";
+  flex: none;
+  width: 26px;
+  height: 1.5px;
+  background: var(--an-copper);
+}
+.an .an-h.s2-h {
+  font-size: 34px;
+  line-height: 1.08;
+}
+.an .s2-lede {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--an-body);
+}
+
+.an .s2-cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  border-top: 1.5px solid var(--an-navy);
+  border-bottom: 1px solid #e9dfd5;
+}
+.an .s2-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 0 28px;
+  border-top: 1px solid #e9dfd5;
+  transition: background-color 0.3s;
+}
+.an .s2-col:first-child {
+  border-top: none;
+}
+.an .s2-big {
+  font-family: var(--an-tight);
+  font-weight: 200;
+  font-size: 48px;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--an-copper);
+}
+.an .s2-ct {
+  margin: 0;
+  font-family: var(--an-tight);
+  font-weight: 700;
+  font-size: 23px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--an-navy);
+}
+.an .s2-cd {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--an-body);
+}
+
+/* Pictures */
+.an .s2-stage {
+  position: relative;
+  height: 178px;
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: var(--an-cream);
+  background-image: repeating-linear-gradient(to bottom, transparent 0 21px, rgba(20, 33, 61, 0.04) 21px 22px);
+}
+.an .s2-slip {
+  position: absolute;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 1px 0 #e9ded3, 0 18px 28px -18px rgba(20, 33, 61, 0.55);
+  font-size: 12px;
+  color: var(--an-body);
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.an .s2-slip b {
+  color: var(--an-navy);
+  font-weight: 700;
+}
+.an .s2-hd {
+  background: var(--an-navy);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 7px 12px;
+  border-radius: 6px 6px 0 0;
+}
+.an .s2-sbody {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.an .s2-tot,
+.an .s2-brow {
+  display: flex;
+  justify-content: space-between;
+}
+.an .s2-i1 {
+  left: 26px;
+  top: 14px;
+  width: 210px;
+  transform: rotate(-5deg);
+}
+.an .s2-i2 {
+  left: 64px;
+  top: 54px;
+  width: 210px;
+  transform: rotate(2deg);
+  z-index: 2;
+}
+.an .s2-stamp {
+  position: absolute;
+  z-index: 3;
+  white-space: nowrap;
+  border: 2.5px solid var(--an-btn);
+  border-radius: 7px;
+  padding: 4px 9px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--an-btn);
+  font: 800 12px var(--an-tight);
+  letter-spacing: 0.12em;
+  transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.an .s2-st1 {
+  left: 132px;
+  top: 138px;
+  transform: rotate(-4deg);
+}
+.an .s2-st3 {
+  right: 22px;
+  top: 40px;
+  transform: rotate(6deg);
+  font-size: 18px;
+  padding: 4px 10px;
+}
+.an .s2-b {
+  left: 40px;
+  top: 30px;
+  width: 200px;
+  padding: 12px 14px;
+}
+.an .s2-b1 {
+  transform: rotate(-3deg);
+}
+.an .s2-b2 {
+  transform: translate(30px, 62px) rotate(2deg);
+  z-index: 2;
+}
+.an .s2-kind {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--an-copper-dk);
+}
+.an .s2-brow {
+  margin-top: 8px;
+}
+.an .s2-bal {
+  padding: 26px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.an .s2-balrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.an .s2-ball {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--an-muted);
+}
+.an .s2-balv {
+  font-family: var(--an-tight);
+  font-weight: 800;
+  font-size: 26px;
+}
+.an .s2-barx {
+  display: flex;
+  height: 22px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px #e3d6ca;
+}
+.an .s2-own {
+  flex: 1;
+  background: var(--an-navy);
+}
+.an .s2-vseg {
+  width: 18px;
+  background: repeating-linear-gradient(45deg, #b9714b 0 5px, #d59a76 5px 10px);
+  transition: box-shadow 0.3s;
+}
+.an .s2-legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--an-body);
+}
+.an .s2-vat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--an-copper-txt);
+  font-weight: 700;
+}
+.an .s2-sw {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--an-copper);
+}
+@media (hover: hover) {
+  .an .s2-col:hover {
+    background-color: #fffcf9;
+  }
+  .an .s2-col:hover .s2-st1 {
+    transform: rotate(-10deg) scale(1.08);
+  }
+  .an .s2-col:hover .s2-st3 {
+    transform: rotate(-10deg) scale(1.08);
+  }
+  .an .s2-col:hover .s2-b2 {
+    transform: translate(44px, 66px) rotate(4deg);
+  }
+  .an .s2-col:hover .s2-vseg {
+    box-shadow: 0 0 0 4px rgba(185, 113, 75, 0.25);
+  }
+}
+
+/* Closing line and link to the check */
+.an .s2-end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.an .s2-close {
+  font-family: var(--an-tight);
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.an .s2-close b {
+  font-weight: 800;
+}
+.an .s2-go {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--an-navy);
+  text-decoration: none;
+  font: 600 15px var(--font-inter), Inter, system-ui, sans-serif;
+}
+.an .s2-go > span {
+  border-bottom: 1.5px solid var(--an-copper);
+  padding-bottom: 3px;
+}
+.an .s2-go svg {
+  vertical-align: -3px;
+  margin-left: 4px;
+}
+
+@media (min-width: 900px) {
+  .an section.s2 {
+    padding-bottom: 80px;
+  }
+  .an .s2-in {
+    gap: 44px;
+  }
+  .an .an-h.s2-h {
+    font-size: 56px;
+    line-height: 1.04;
+  }
+  .an .s2-lede {
+    max-width: 640px;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .an .s2-cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .an .s2-col {
+    padding: 30px 34px 34px;
+    border-top: none;
+    border-left: 1px solid #e9dfd5;
+  }
+  .an .s2-col:first-child {
+    border-left: none;
+    padding-left: 0;
+  }
+  .an .s2-col:last-child {
+    padding-right: 0;
+  }
+  .an .s2-big {
+    font-size: 64px;
+  }
+  .an .s2-end {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px 24px;
+  }
+  .an .s2-close {
+    font-size: 22px;
+  }
+  .an .s2-go {
+    font-size: 16px;
+  }
+}
+/* Narrow desktop: the pictures are sized for 366px columns, so scale them down to fit. */
+@media (min-width: 900px) and (max-width: 1139px) {
+  .an .s2-col {
+    padding: 30px 20px 34px;
+  }
+  .an .s2-stage {
+    zoom: 0.85;
+  }
+}
+@media (min-width: 1100px) {
+  .an .s2-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 80px;
+    align-items: end;
+  }
+  .an .s2-lede {
+    max-width: none;
+  }
+}

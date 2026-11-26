@@ -1,0 +1,396 @@
+/* AnTeam (section 7): qualified accountants and reviews. Cream background. Phone layout below 900px. */
+.an .s7 {
+  background: var(--an-cream);
+}
+.an .s7-in {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.an .s7-top {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.an .s7-head {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.an .s7-eye {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-copper-txt);
+}
+.an .s7-eye::before {
+  content: "";
+  width: 26px;
+  height: 1.5px;
+  background: var(--an-copper);
+}
+.an .s7-h {
+  font-size: 34px;
+  line-height: 1.08;
+}
+.an .s7-lede {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--an-body);
+}
+
+.an .s7-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.an .s7-hq {
+  position: relative;
+  margin: 0;
+  background: var(--an-navy);
+  border-radius: 20px;
+  padding: 28px 22px 24px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow: hidden;
+}
+.an .s7-hq::after {
+  content: "";
+  position: absolute;
+  right: -60px;
+  top: -60px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  border: 1px solid rgba(227, 164, 126, 0.18);
+  pointer-events: none;
+}
+.an .s7-mark {
+  font: 800 90px/0.6 var(--an-tight);
+  color: var(--an-copper);
+  height: 32px;
+}
+.an .s7-qt {
+  margin: 0;
+  font-family: var(--an-tight);
+  font-weight: 300;
+  font-size: 26px;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+}
+.an .s7-qt b {
+  font-weight: 700;
+  color: var(--an-copper-lt);
+}
+/* Underline: one bar per word, drawn left to right with scaleX once the section is in view. */
+.an .s7-ul {
+  position: relative;
+  padding-bottom: 2px;
+}
+.an .s7-ul::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: -0.27em;
+  bottom: 0;
+  height: 2px;
+  background: var(--an-copper);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s linear calc(0.6s + var(--i) * 0.3s);
+}
+.an .s7-qt b > span:last-child .s7-ul::after {
+  right: 0;
+}
+.an .s7-on .s7-ul::after {
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .an .s7-ul::after {
+    transform: scaleX(1);
+    transition: none;
+  }
+}
+
+.an .s7-cap {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.an .s7-who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.an .s7-av {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--an-copper-lt);
+  color: var(--an-navy);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 18px var(--an-tight);
+}
+.an .s7-who b {
+  color: #fff;
+  display: block;
+  font: 700 16px var(--font-inter), Inter, system-ui, sans-serif;
+}
+.an .s7-who > span:last-child > span {
+  font-size: 13px;
+  color: #aeb6c6;
+}
+.an .s7-rate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.an .s7-stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--an-copper-lt);
+}
+.an .s7-src {
+  font-size: 12px;
+  color: #aeb6c6;
+}
+
+.an .s7-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.an .s7-letter {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 0 0 1px #ede4da, 0 30px 50px -40px rgba(20, 33, 61, 0.45);
+  padding: 20px 18px 6px;
+  display: flex;
+  flex-direction: column;
+}
+.an .s7-lh {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--an-navy);
+}
+.an .s7-lh b {
+  white-space: nowrap;
+  font: 700 13px var(--font-inter), Inter, system-ui, sans-serif;
+  letter-spacing: 0.1em;
+}
+.an .s7-lh span {
+  font-size: 12px;
+  color: var(--an-muted);
+}
+.an .s7-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #efe6dd;
+}
+.an .s7-row:last-child {
+  border-bottom: none;
+}
+.an .s7-ic {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--an-cream);
+  color: var(--an-copper);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.an .s7-row p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--an-body);
+}
+.an .s7-row p b {
+  color: var(--an-navy);
+  font-weight: 600;
+}
+.an .s7-sq {
+  margin: 0;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 0 0 1px #ede4da;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.an .s7-sq p {
+  margin: 0;
+  font-family: var(--an-tight);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+.an .s7-sqcap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.an .s7-sqwho {
+  font-size: 14px;
+  color: var(--an-body);
+}
+.an .s7-sqwho b {
+  color: var(--an-navy);
+}
+.an .s7-sqsrc {
+  font-size: 12px;
+  color: var(--an-copper-txt);
+  font-weight: 600;
+}
+
+.an .s7-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.an .s7-real {
+  font-family: var(--an-tight);
+  font-weight: 500;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+.an .s7-real b {
+  font-weight: 800;
+  white-space: nowrap;
+}
+/* 44px tap target; the copper rule stays under the words as in the design. */
+.an .s7-go {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--an-navy);
+  text-decoration: none;
+  font: 600 16px var(--font-inter), Inter, system-ui, sans-serif;
+}
+.an .s7-go > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1.5px solid var(--an-copper);
+  padding-bottom: 3px;
+}
+
+@media (min-width: 640px) {
+  .an .s7-cap,
+  .an .s7-sqcap {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .an .s7-rate {
+    align-items: flex-end;
+  }
+}
+@media (max-width: 899.98px) {
+  .an .s7-pbr {
+    display: inline;
+  }
+}
+@media (min-width: 900px) {
+  .an .s7-pbr {
+    display: none;
+  }
+  .an .s7-in {
+    gap: 44px;
+  }
+  .an .s7-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+    gap: 48px;
+    align-items: end;
+  }
+  .an .s7-h {
+    font-size: 56px;
+    line-height: 1.04;
+  }
+  .an .s7-lede {
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .an .s7-body {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 24px;
+  }
+  .an .s7-hq {
+    padding: 40px 44px 34px;
+    gap: 26px;
+  }
+  .an .s7-mark {
+    font-size: 120px;
+    height: 44px;
+  }
+  .an .s7-qt {
+    font-size: 36px;
+    line-height: 1.18;
+  }
+  .an .s7-side {
+    gap: 24px;
+  }
+  .an .s7-letter {
+    padding: 26px 28px 10px;
+  }
+  .an .s7-sq {
+    padding: 24px 28px;
+  }
+  .an .s7-sq p {
+    font-size: 19px;
+  }
+  .an .s7-foot {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+  }
+  .an .s7-real {
+    font-size: 22px;
+  }
+}
+@media (min-width: 1200px) {
+  .an .s7-top {
+    gap: 80px;
+  }
+  .an .s7-qt {
+    font-size: 44px;
+  }
+}
+/* 900 to 1199: the headline needs the full width and the small review's caption stacks, as on phone. */
+@media (min-width: 900px) and (max-width: 1199.98px) {
+  .an .s7-top {
+    display: flex;
+    align-items: stretch;
+  }
+  .an .s7-sqcap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}

@@ -1,0 +1,500 @@
+/* AnFlow (S5): cream section. Phone layout first; desktop from 900px; the full five-column flow from 1240px. */
+.an .s5 {
+  background: var(--an-cream);
+}
+.an .s5-in {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.an .s5-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.an .s5-ttl {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.an .s5-eye {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-copper-txt);
+}
+.an .s5-eye::before {
+  content: "";
+  width: 26px;
+  height: 1.5px;
+  background: var(--an-copper);
+}
+.an .s5 .an-h {
+  line-height: 1.06;
+}
+.an .s5-nw {
+  white-space: nowrap;
+}
+.an .s5-lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--an-body);
+}
+
+/* The flow: three panels joined by dashed wires. */
+.an .s5-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 0 0 1px var(--an-line), 0 40px 70px -50px rgba(20, 33, 61, 0.5);
+  padding: 10px;
+}
+.an .s5-pan {
+  min-width: 0;
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.an .s5-ph {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.an .s5-pn {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--an-copper);
+  color: var(--an-copper-dk);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 12px var(--an-tight);
+}
+.an .s5-pt {
+  font-family: var(--an-tight);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--an-navy);
+}
+.an .s5-ex {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--an-muted);
+}
+
+/* 1. You send */
+.an .s5-its {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.an .s5-it {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--an-navy);
+  padding: 9px 8px;
+  margin: 0 -8px;
+  border-radius: 8px;
+  border-bottom: 1px solid #f3ece5;
+  transition: background 0.3s, color 0.3s;
+}
+.an .s5-it.on {
+  background: #fbf1ea;
+}
+.an .s5-ic {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--an-cream);
+  color: var(--an-copper-dk);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, color 0.3s;
+}
+.an .s5-it.on .s5-ic {
+  background: var(--an-copper);
+  color: #fff;
+}
+.an .s5-tagk {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--an-copper-dk);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.an .s5-it.on .s5-tagk {
+  opacity: 1;
+}
+
+/* 2. We sort */
+.an .s5-sort {
+  background: var(--an-navy);
+  color: #fff;
+}
+.an .s5-sort .s5-pn {
+  border-color: var(--an-copper-lt);
+  color: var(--an-copper-lt);
+}
+.an .s5-sort .s5-pt {
+  color: #fff;
+}
+.an .s5-sls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.an .s5-sl {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  margin: 0 -10px;
+  border-radius: 8px;
+  color: #c3cad8;
+  transition: background 0.3s, color 0.3s;
+}
+.an .s5-sl.on {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+.an .s5-d {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(227, 164, 126, 0.6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+.an .s5-sl.on .s5-d {
+  background: var(--an-copper-lt);
+  border-color: var(--an-copper-lt);
+  color: var(--an-navy);
+}
+.an .s5-sw {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 13px;
+  color: #8c96ab;
+}
+
+/* Wires: vertical on phone, horizontal with a travelling packet on desktop. */
+.an .s5-wire {
+  position: relative;
+  height: 44px;
+}
+.an .s5-wire::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  bottom: 6px;
+  border-left: 2px dashed #e2cdbd;
+}
+.an .s5-pk {
+  display: none;
+}
+
+/* 3. You read: the example pack. */
+.an .s5-binder {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  flex: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px #eee5db;
+}
+.an .s5-tabs {
+  position: relative;
+  min-width: 0;
+  background: var(--an-cream);
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.an .s5-tabs::-webkit-scrollbar {
+  display: none;
+}
+.an .s5-tab {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  flex: none;
+  min-height: 46px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  font: 600 13px var(--font-inter), Inter, system-ui, sans-serif;
+  color: var(--an-muted);
+  border-bottom: 3px solid transparent;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.an .s5-tab:hover {
+  color: var(--an-navy);
+}
+.an .s5-tab.on {
+  background: #fff;
+  color: var(--an-navy);
+  border-bottom-color: var(--an-copper);
+}
+.an .s5-tab:focus-visible {
+  outline-offset: -3px;
+}
+/* Every panel sits in one cell, so the tallest one sets the height and switching never shifts the page. */
+.an .s5-page {
+  min-width: 0;
+  background: #fff;
+  display: grid;
+}
+.an .s5-panel {
+  grid-area: 1 / 1;
+  min-width: 0;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.3s, transform 0.3s, visibility 0s 0.3s;
+}
+.an .s5-panel.on {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.an .s5-panel:focus-visible {
+  outline-offset: -3px;
+}
+.an .s5-pq {
+  font-family: var(--an-tight);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--an-navy);
+}
+.an .s5-ln {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3ece5;
+  font-size: 14px;
+  color: var(--an-body);
+}
+.an .s5-ln b {
+  flex: none;
+  color: var(--an-navy);
+  font-weight: 600;
+}
+.an .s5-note {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--an-body);
+  background: #fbf1ea;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+/* Quote strip */
+.an .s5-quote {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--an-line);
+}
+.an .s5-qm {
+  font-family: var(--an-tight);
+  font-weight: 200;
+  font-size: 64px;
+  line-height: 0.6;
+  color: var(--an-copper);
+}
+.an .s5-qt {
+  font-family: var(--an-tight);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+.an .s5-qt b {
+  font-weight: 800;
+}
+
+@media (min-width: 900px) {
+  .an .s5-in {
+    gap: 44px;
+  }
+  .an .s5-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+    gap: 80px;
+    align-items: end;
+  }
+  .an .s5 .an-h {
+    line-height: 1.04;
+  }
+  .an .s5-lead {
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .an .s5-flow {
+    padding: 14px;
+    /* Mid widths: send and sort side by side, the pack full width below. */
+    grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr);
+    grid-template-areas: "send w1 sort" "read read read";
+    row-gap: 14px;
+    align-items: stretch;
+  }
+  .an .s5-send {
+    grid-area: send;
+  }
+  .an .s5-w1 {
+    grid-area: w1;
+  }
+  .an .s5-sort {
+    grid-area: sort;
+  }
+  .an .s5-read {
+    grid-area: read;
+  }
+  .an .s5-w2 {
+    display: none;
+  }
+  .an .s5-pan {
+    padding: 24px;
+  }
+  .an .s5-read {
+    padding: 24px 10px 10px 24px;
+  }
+  .an .s5-wire {
+    height: auto;
+  }
+  .an .s5-wire::before {
+    left: 8px;
+    right: 8px;
+    top: 50%;
+    bottom: auto;
+    border-left: none;
+    border-top: 2px dashed #e2cdbd;
+  }
+  /* The packet spans the wire; translating it by its own width carries the dot from one end to the other. */
+  .an .s5-pk {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    right: 20px;
+    height: 12px;
+    margin-top: -6px;
+    opacity: 0;
+    animation: s5go 1s ease-in-out both;
+  }
+  .an .s5-pk::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--an-copper);
+    box-shadow: 0 0 0 5px rgba(185, 113, 75, 0.18);
+  }
+  .an .s5-pk2 {
+    animation-delay: 0.9s;
+  }
+  .an .s5-binder {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
+  .an .s5-tabs {
+    flex-direction: column;
+    overflow: visible;
+  }
+  .an .s5-tab {
+    min-height: 50px;
+    padding: 0 16px;
+    font-size: 14px;
+    border-bottom: 1px solid #eee5db;
+    border-left: 3px solid transparent;
+  }
+  .an .s5-tab.on {
+    border-bottom-color: #eee5db;
+    border-left-color: var(--an-copper);
+  }
+  .an .s5-pq {
+    font-size: 20px;
+  }
+  .an .s5-quote {
+    align-items: center;
+    gap: 22px;
+    padding: 22px 28px;
+  }
+  .an .s5-qt {
+    font-size: 20px;
+  }
+}
+
+/* Full width: the five-column flow from the design. */
+@media (min-width: 1240px) {
+  .an .s5-flow {
+    grid-template-columns: 268px 52px 292px 52px minmax(0, 1fr);
+    grid-template-areas: "send w1 sort w2 read";
+    row-gap: 0;
+  }
+  .an .s5-w2 {
+    display: block;
+    grid-area: w2;
+  }
+}
+
+@keyframes s5go {
+  from {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .an .s5-pk {
+    display: none;
+  }
+}

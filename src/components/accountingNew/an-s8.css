@@ -1,0 +1,226 @@
+/* AnFaq (section 8): questions owners ask. White background. Below 900px the pills hide and the ask card moves under the list. */
+.an .s8 {
+  background: #fff;
+}
+.an .s8-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "head" "list" "ask";
+}
+.an .s8-head {
+  grid-area: head;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.an .s8-eye {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-copper-txt);
+}
+.an .s8-eye::before {
+  content: "";
+  width: 26px;
+  height: 1.5px;
+  background: var(--an-copper);
+}
+.an .s8-h {
+  line-height: 1.06;
+}
+.an .s8-lede {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--an-body);
+}
+
+.an .s8-list {
+  grid-area: list;
+  margin-top: 14px;
+  border-top: 1.5px solid var(--an-navy);
+}
+.an .s8-q {
+  border-bottom: 1px solid #e9dfd5;
+  transition: background 0.25s;
+}
+.an .s8-q[open] {
+  background: #fffcf9;
+}
+.an .s8-qb {
+  list-style: none;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 30px;
+  gap: 10px;
+  align-items: center;
+  min-height: 44px;
+  padding: 18px 2px;
+}
+.an .s8-qb::-webkit-details-marker {
+  display: none;
+}
+.an .s8-qb:focus-visible {
+  outline: 2px solid var(--an-copper);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.an .s8-n {
+  font: 200 18px var(--an-tight);
+  color: var(--an-copper-dk);
+  letter-spacing: -0.02em;
+}
+.an .s8-qt {
+  font: 600 17px/1.35 var(--an-tight);
+  color: var(--an-navy);
+  letter-spacing: -0.01em;
+}
+.an .s8-pill {
+  display: none;
+  white-space: nowrap;
+  font: 700 12px var(--font-inter), Inter, system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  color: var(--an-copper-txt);
+  background: #fbf1ea;
+  border-radius: 999px;
+  padding: 6px 11px;
+}
+.an .s8-q[open] .s8-pill {
+  background: var(--an-btn);
+  color: #fff;
+}
+.an .s8-pm {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #e4d6c9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--an-navy);
+  transition: transform 0.3s, background 0.3s;
+}
+.an .s8-q[open] .s8-pm {
+  transform: rotate(45deg);
+  background: var(--an-navy);
+  color: #fff;
+  box-shadow: none;
+}
+.an .s8-ans {
+  margin: 0 8px 20px 40px;
+  padding-left: 14px;
+  border-left: 2px solid var(--an-copper);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--an-body);
+}
+.an .s8-ans b {
+  color: var(--an-navy);
+  font-weight: 600;
+}
+/* Fade in only on a visitor's open (the summary takes focus), never for the answer open on load. */
+.an .s8-qb:focus + .s8-ans {
+  animation: s8-op 0.35s ease;
+}
+@keyframes s8-op {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.an .s8-ask {
+  grid-area: ask;
+  margin-top: 8px;
+  background: var(--an-cream);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.an .s8-askt {
+  font-family: var(--an-tight);
+  font-weight: 700;
+  font-size: 18px;
+}
+.an .s8-askb {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--an-body);
+}
+/* 44px tap target; the copper rule stays under the words as in the design. */
+.an .s8-go {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: -8px 0 -10px;
+  color: var(--an-navy);
+  text-decoration: none;
+  font: 600 15px var(--font-inter), Inter, system-ui, sans-serif;
+}
+.an .s8-go > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1.5px solid var(--an-copper);
+  padding-bottom: 3px;
+}
+
+@media (min-width: 900px) {
+  .an .s8-wrap {
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "head list" "ask list";
+    column-gap: 48px;
+    row-gap: 22px;
+    align-items: start;
+  }
+  .an .s8-lede {
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .an .s8-list {
+    margin-top: 0;
+  }
+  .an .s8-qb {
+    grid-template-columns: 44px minmax(0, 1fr) auto 32px;
+    gap: 16px;
+    padding: 22px 8px 22px 4px;
+  }
+  .an .s8-pill {
+    display: inline-block;
+  }
+  .an .s8-n {
+    font-size: 22px;
+  }
+  .an .s8-qt {
+    font-size: 19px;
+  }
+  .an .s8-pm {
+    width: 32px;
+    height: 32px;
+  }
+  .an .s8-ans {
+    margin: 0 40px 24px 64px;
+    padding-left: 18px;
+    font-size: 16px;
+  }
+  .an .s8-ask {
+    margin-top: 0;
+    padding: 22px 24px;
+  }
+}
+@media (min-width: 1200px) {
+  .an .s8-wrap {
+    grid-template-columns: 400px minmax(0, 1fr);
+    column-gap: 80px;
+  }
+}

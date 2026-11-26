@@ -1,0 +1,243 @@
+/* AnAsks (S4 / S4Phone). Phone first, desktop from 900px. */
+.an .s4 {
+  background: #fff;
+}
+.an .s4-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.an .s4-top,
+.an .s4-hcol {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.an .s4-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-copper-txt);
+}
+.an .s4-eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 1.5px;
+  background: var(--an-copper);
+}
+.an .s4-h {
+  font-size: 33px;
+  line-height: 1.08;
+}
+.an .s4-br {
+  display: none;
+}
+.an .s4-lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--an-body);
+}
+.an .s4-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.an .s4-req {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 0 0 1px #ede4da, 0 30px 50px -40px rgba(20, 33, 61, 0.45);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.an .s4-req:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 1px #e2cfbf, 0 36px 56px -38px rgba(20, 33, 61, 0.55);
+}
+.an .s4-from {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.an .s4-av {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--an-navy);
+  color: var(--an-copper-lt);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.an .s4-av.s4-you {
+  background: var(--an-copper);
+  color: #fff;
+}
+.an .s4-who {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.an .s4-who b {
+  font-family: var(--an-tight);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--an-navy);
+}
+.an .s4-who span {
+  font-size: 12px;
+  color: var(--an-muted);
+}
+.an .s4-bubble {
+  background: #f4f1ee;
+  border-radius: 4px 14px 14px 14px;
+  padding: 13px 16px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--an-navy);
+}
+/* Replies hold their space from the start and fade in once the cards are seen. */
+.an .s4-reply {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding-top: 14px;
+  border-top: 1px dashed #e4d6c9;
+  opacity: 0;
+  transform: translateY(6px);
+}
+.an .s4-go .s4-reply {
+  animation: s4-in 0.5s ease forwards;
+}
+.an .s4-paused .s4-reply {
+  animation-play-state: paused;
+}
+.an .s4-ok {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--an-copper);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.an .s4-reply > span:last-child {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--an-body);
+}
+.an .s4-reply b {
+  color: var(--an-navy);
+  font-weight: 600;
+}
+@keyframes s4-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .an .s4-reply,
+  .an .s4-go .s4-reply {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+.an .s4-years {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--an-cream);
+}
+.an .s4-seven {
+  flex: none;
+  font-family: var(--an-tight);
+  font-weight: 200;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--an-copper);
+  letter-spacing: -0.04em;
+}
+.an .s4-seven span {
+  font-size: 22px;
+  font-weight: 500;
+  margin-left: 4px;
+  /* Darker copper: at 22px the brand copper is under AA contrast on white. */
+  color: var(--an-copper-dk);
+}
+.an .s4-rule {
+  width: 1px;
+  align-self: stretch;
+  background: #e7dcd2;
+}
+.an .s4-yt {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--an-body);
+}
+.an .s4-yt b {
+  color: var(--an-navy);
+  font-weight: 600;
+}
+
+@media (min-width: 900px) {
+  .an .s4-wrap {
+    gap: 44px;
+  }
+  .an .s4-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+    gap: 40px 80px;
+    align-items: end;
+  }
+  .an .s4-hcol {
+    gap: 16px;
+  }
+  .an .s4-h {
+    font-size: 54px;
+    line-height: 1.04;
+  }
+  .an .s4-br {
+    display: inline;
+  }
+  .an .s4-lead {
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .an .s4-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .an .s4-req {
+    padding: 22px 24px 20px;
+  }
+  .an .s4-bubble {
+    margin-left: 52px;
+    font-size: 15px;
+  }
+  .an .s4-reply > span:last-child {
+    font-size: 15px;
+  }
+  .an .s4-years {
+    gap: 28px;
+    padding: 22px 28px;
+  }
+  .an .s4-seven {
+    font-size: 58px;
+  }
+  .an .s4-yt {
+    font-size: 17px;
+  }
+}

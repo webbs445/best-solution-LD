@@ -1,0 +1,408 @@
+/* AnCheck (S3Report / S3ReportPhone). Phone first; the line layout widens from 900px, two columns from 1100px. */
+.an .s3 {
+  background: var(--an-cream);
+}
+.an .s3-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.an .s3-intro {
+  display: contents;
+}
+.an .s3-sheet {
+  order: 4;
+}
+.an .s3-next {
+  order: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: s3-rise 0.4s ease both;
+}
+.an .s3-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-copper-txt);
+}
+.an .s3-eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 1.5px;
+  background: var(--an-copper);
+}
+.an .s3-h {
+  font-size: 38px;
+  line-height: 1.05;
+}
+.an .s3-lead {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--an-body);
+}
+.an .s3-points {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--an-body);
+}
+.an .s3-points span {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.an .s3-points svg {
+  flex: none;
+  color: var(--an-copper);
+}
+.an .s3-rtext {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--an-navy);
+}
+.an .s3-btns {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.an .s3-btn1,
+.an .s3-btn2 {
+  width: 100%;
+  justify-content: center;
+}
+.an .s3-btn1 {
+  padding: 0 10px 0 24px;
+}
+.an .s3-arr {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.an .s3-btn2 {
+  gap: 8px;
+}
+.an .s3-lnk {
+  all: unset;
+  cursor: pointer;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--an-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* The report sheet */
+.an .s3-sheet {
+  position: relative;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 1px 0 #e9ded3, 0 50px 80px -46px rgba(20, 33, 61, 0.5), 0 0 0 1px #efe6dc;
+  min-width: 0;
+}
+.an .s3-sheet::before {
+  content: "";
+  position: absolute;
+  left: 30px;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: rgba(185, 113, 75, 0.35);
+}
+.an .s3-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 14px 14px 42px;
+  border-bottom: 2px solid var(--an-navy);
+}
+.an .s3-title {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.an .s3-cap {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--an-muted);
+}
+.an .s3-co {
+  font-family: var(--an-tight);
+  font-weight: 800;
+  font-size: 22px;
+}
+.an .s3-prog {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--an-copper-dk);
+}
+.an .s3-line {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 6px 14px;
+  align-items: center;
+  padding: 12px 12px 12px 6px;
+  border-bottom: 1px solid #f1ebe4;
+  transition: background 0.25s;
+}
+.an .s3-line.no {
+  background: #fff8f3;
+}
+.an .s3-line0 {
+  background: #fffcf9;
+}
+.an .s3-boxes,
+.an .s3-seg {
+  grid-column: 2;
+}
+.an .s3-n {
+  font-family: var(--an-tight);
+  font-weight: 300;
+  font-size: 15px;
+  color: var(--an-copper);
+  text-align: right;
+}
+.an .s3-q {
+  font-size: 15.5px;
+  line-height: 1.4;
+  color: var(--an-navy);
+}
+.an .s3-line0 .s3-q {
+  font-weight: 600;
+}
+.an .s3-boxes {
+  display: flex;
+  gap: 8px;
+}
+.an .s3-bx {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px 0 8px;
+  border-radius: 8px;
+  font: 600 14px var(--font-inter), Inter, system-ui, sans-serif;
+  color: var(--an-body);
+  transition: background 0.15s;
+}
+.an .s3-bx:hover {
+  background: var(--an-cream);
+}
+.an .s3-sq {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #cdbdae;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.an .s3-bx.y .s3-sq {
+  background: var(--an-navy);
+  border-color: var(--an-navy);
+  color: #fff;
+}
+.an .s3-bx.n .s3-sq {
+  background: var(--an-btn);
+  border-color: var(--an-btn);
+  color: #fff;
+}
+.an .s3-seg {
+  display: inline-flex;
+  justify-self: start;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: #f3ede6;
+}
+.an .s3-sg {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font: 600 14px var(--font-inter), Inter, system-ui, sans-serif;
+  color: var(--an-body);
+  display: inline-flex;
+  align-items: center;
+}
+.an .s3-sg.on {
+  background: var(--an-navy);
+  color: #fff;
+}
+.an .s3-day {
+  padding: 20px 14px 22px 42px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--an-body);
+  animation: s3-rise 0.3s ease both;
+}
+.an .s3-result {
+  position: relative;
+  min-height: 150px;
+  padding: 16px 14px 70px 42px;
+}
+.an .s3-wait {
+  margin-top: 10px;
+  font-size: 15px;
+  color: #6b7486;
+  border-bottom: 1.5px dotted #d8c9bb;
+  padding-bottom: 8px;
+  width: 60%;
+}
+.an .s3-fixes {
+  margin-top: 6px;
+  max-width: 360px;
+  animation: s3-rise 0.4s ease both;
+}
+.an .s3-fix {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 15px;
+  color: var(--an-navy);
+  padding: 6px 0;
+}
+.an .s3-ft {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--an-copper);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.an .s3-stamp {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: inline-flex;
+  border: 3px solid currentColor;
+  border-radius: 9px;
+  padding: 6px 14px;
+  font: 800 16px var(--an-tight);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: rotate(-6deg);
+  background: rgba(255, 255, 255, 0.9);
+}
+/* The stamp only lands once the section has been seen. */
+.an .s3-stamp.s3-anim {
+  animation: s3-stampin 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes s3-stampin {
+  from {
+    opacity: 0;
+    transform: rotate(-6deg) scale(1.8);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-6deg) scale(1);
+  }
+}
+@keyframes s3-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .an .s3-stamp.s3-anim,
+  .an .s3-next,
+  .an .s3-day,
+  .an .s3-fixes {
+    animation: none;
+  }
+}
+
+@media (min-width: 900px) {
+  .an .s3 {
+    padding-top: 88px;
+    padding-bottom: 88px;
+  }
+  .an .s3-h {
+    font-size: 54px;
+    line-height: 1.03;
+  }
+  .an .s3-btn1,
+  .an .s3-btn2 {
+    width: auto;
+  }
+  .an .s3-sheet::before {
+    left: 44px;
+  }
+  .an .s3-head {
+    padding: 22px 26px 16px 62px;
+  }
+  .an .s3-line {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    gap: 14px;
+    min-height: 62px;
+    padding: 0 26px 0 14px;
+  }
+  .an .s3-line0 {
+    min-height: 70px;
+  }
+  .an .s3-boxes,
+  .an .s3-seg {
+    grid-column: auto;
+  }
+  .an .s3-day {
+    padding: 26px 26px 30px 62px;
+    font-size: 16px;
+  }
+  .an .s3-result {
+    padding: 18px 26px 22px 62px;
+  }
+  .an .s3-stamp {
+    right: 26px;
+    bottom: 20px;
+    font-size: 20px;
+  }
+}
+@media (min-width: 1100px) {
+  .an .s3-grid {
+    display: grid;
+    grid-template-columns: 440px minmax(0, 1fr);
+    gap: 80px;
+    align-items: start;
+  }
+  .an .s3-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding-top: 20px;
+  }
+  .an .s3-next {
+    margin-top: 18px;
+    padding-top: 22px;
+    border-top: 1px solid #e7dcd2;
+  }
+}

@@ -3,7 +3,8 @@ import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { bodyPhone } from "@/lib/phoneServer";
 import { createErpLead, leadReply } from "@/lib/erp";
-import { BOOK_STATES, SERVICE_NAMES, SOFTWARE, VOLUMES, type ServiceKey } from "@/content/accounting";
+import { SERVICE_NAMES, VOLUMES, type ServiceKey } from "@/content/accounting";
+import { AN_BOOK_STATES, AN_BUTTON, AN_NEEDS, AN_SOFTWARE } from "@/content/accountingNew";
 
 /*
   Receives the /accounting page's quote request and creates a Lead in the ERP.
@@ -40,12 +41,15 @@ export const POST = withLeadLog("accounting", async (request, log) => {
 
   const service = (str(body.service, 20) in SERVICE_NAMES ? str(body.service, 20) : "not_sure") as ServiceKey;
   const volume = oneOf(body.volume, VOLUMES);
-  const software = oneOf(body.software, SOFTWARE);
-  const state = oneOf(body.books_state, BOOK_STATES);
+  // The lists are the old page's plus "Not sure" (sent only by /accounting-new).
+  const software = oneOf(body.software, AN_SOFTWARE);
+  const state = oneOf(body.books_state, AN_BOOK_STATES);
   const health = str(body.health_check, 200);
+  // /accounting-new sends "need" (its step 1) instead of a service key.
+  const need = oneOf(body.need, [...AN_NEEDS]);
 
   const details: [string, string][] = [
-    ["Service", SERVICE_NAMES[service]],
+    need ? ["Need", need] : ["Service", SERVICE_NAMES[service]],
     ...(volume ? ([["Transactions per month", volume]] as [string, string][]) : []),
     ...(software ? ([["Current software", software]] as [string, string][]) : []),
     ...(state ? ([["Books today", state]] as [string, string][]) : []),
@@ -69,7 +73,7 @@ export const POST = withLeadLog("accounting", async (request, log) => {
     form_id: AC_FORM_ID,
     form_name: "Accounting Quote",
     service_enquired: AC_SERVICE_ENQUIRED,
-    button_name: "Send my quote request",
+    button_name: need ? AN_BUTTON : "Send my quote request",
     submission_timestamp: new Date().toISOString(),
     answers: {},
     estimate: null,
