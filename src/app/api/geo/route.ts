@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { OPT_IN_COUNTRIES } from "@/lib/consentRegions";
 
 /*
   Per-visitor geo lookup for the cookie banner and page_data, ported from best-solution.ae.
@@ -7,16 +8,8 @@ import { NextRequest, NextResponse } from "next/server";
 */
 export const dynamic = "force-dynamic";
 
-// GDPR-style consent applies here: EU27 + EEA + UK + Switzerland. These visitors get a banner with a
-// real reject option; everyone else gets the accept-to-enter wall (same as the main site).
-const EU_CONSENT_COUNTRIES = new Set([
-  "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
-  "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK",
-  "SI", "ES", "SE", // EU27
-  "IS", "LI", "NO", // EEA / EFTA
-  "GB", // UK GDPR
-  "CH", // Swiss FADP
-]);
+// GDPR-style consent applies here (EU27 + EEA + UK + Switzerland): the same list as the gtag region default.
+const EU_CONSENT_COUNTRIES = new Set<string>(OPT_IN_COUNTRIES);
 
 export async function GET(req: NextRequest) {
   const country = (req.headers.get("cf-ipcountry") || req.headers.get("x-vercel-ip-country") || "").toUpperCase();

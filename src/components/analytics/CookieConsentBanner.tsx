@@ -2,15 +2,20 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { SITE } from "@/content/site";
-import { setVisitorGeo, type VisitorGeo } from "@/lib/analytics";
-import { ALL_DENIED, ALL_GRANTED, readConsent, setConsent, type ConsentChoices } from "@/lib/consent";
+import { captureClickIds, setVisitorGeo, type VisitorGeo } from "@/lib/analytics";
+import { ALL_DENIED, ALL_GRANTED, applyRegionDefault, readConsent, setConsent, type ConsentChoices } from "@/lib/consent";
 import styles from "./CookieConsentBanner.module.css";
 
 /*
-  Consent Mode v2 Basic: nothing that measures or advertises runs before the visitor chooses (ConsentInit sets every
-  signal to denied; GTM's tags wait for their consent). One bottom banner on every device and for every visitor:
-  Reject all and Accept all side by side, equal in size and style, plus "Manage preferences" for the categories.
+  The cookie banner, shown to every visitor until they choose. In the EEA, UK and Switzerland every signal stays denied
+  until then (ConsentInit's region default); everywhere else measurement and ads are on unless the visitor clicks
+  Reject all, and the banner says so. Reject all and Accept all side by side, equal in size and style, plus "Manage
+  preferences" for the categories and the Privacy Policy link, on every screen size.
 */
+
+const TEXT_OPT_IN = "We use cookies with Google and Meta to measure visits and our ads. Choose Accept all or Reject all.";
+const TEXT_DEFAULT_ON =
+  "We use cookies with Google and Meta to measure visits and our ads. If you continue without choosing, they stay on. You can reject them now, or any time in Cookie Settings.";
 const CATEGORIES: { key: keyof ConsentChoices; label: string; description: string }[] = [
   { key: "analytics", label: "Analytics", description: "Google Analytics and Microsoft Clarity: how visitors use the site, so we can improve it." },
   { key: "marketing", label: "Marketing", description: "Google Ads and Meta: measuring our ad campaigns and showing relevant offers." },
@@ -38,12 +43,22 @@ export function CookieConsentBanner() {
   // The cookie is only readable in the browser: "chosen" while server-rendering, so the banner appears after hydration.
   const chosen = useSyncExternalStore(noSubscribe, () => readConsent() !== null, () => true);
   const visible = open ?? !chosen;
+  // From /api/geo: true in the EEA, UK and Switzerland. null until it answers, and then the opt-in wording shows,
+  // since nothing is assumed on until the region is known.
+  const [optIn, setOptIn] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // The visitor's country goes to analytics (setVisitorGeo); the banner itself no longer depends on it.
+    // The visitor's country goes to analytics (setVisitorGeo) and sets the regional default the page follows
+    // (lib/consent effectiveConsent): outside the opt-in regions Clarity, Meta and click-id capture start without a choice.
     fetch("/api/geo", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject(r)))
-      .then((data: VisitorGeo) => setVisitorGeo(data))
+      .then((data: VisitorGeo & { eu?: boolean }) => {
+        setVisitorGeo(data);
+        const region = data.eu !== false;
+        applyRegionDefault(region);
+        setOptIn(region);
+        captureClickIds();
+      })
       .catch(() => {});
 
     const reopen = () => {
@@ -67,21 +82,20 @@ export function CookieConsentBanner() {
     <div className={styles.banner}>
       <div className={`${styles.card}${showPrefs ? ` ${styles.open}` : ""}`} role="region" aria-labelledby="consent-title">
         <h2 id="consent-title">Your privacy choice</h2>
-        {/* Phones show a slim pill: "We use cookies", a settings button and the two choices. The full sentence and the
-            Privacy Policy link show on wider screens and once the settings are open. */}
+        {/* The full sentence and both links on every screen size: outside the opt-in regions it is the notice that
+            cookies stay on without a choice. */}
         <p className={styles.text}>
-          <span className={styles.long}>We use cookies to measure visits and improve the site. </span>
-          <span className={styles.short}>We use cookies</span>
-          <span className={styles.long}>
+          <span>{optIn === false ? TEXT_DEFAULT_ON : TEXT_OPT_IN} </span>
+          <span>
             <a href={SITE.privacy} target="_blank" rel="noopener">
               Privacy Policy
             </a>
           </span>
           {!showPrefs && (
             <>
-              <span className={styles.long}>{" · "}</span>
+              <span>{" · "}</span>
               <button type="button" className={styles.manage} aria-label="Manage preferences" aria-expanded={false} onClick={() => setShowPrefs(true)}>
-                <span className={styles.long}>Manage preferences</span>
+                <span>Manage preferences</span>
                 <svg className={styles.gear} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="3" />
                   <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />

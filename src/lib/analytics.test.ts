@@ -79,7 +79,10 @@ describe("confirmed lead response", () => {
 
 describe("pushFormSubmit", () => {
   it("pushes the main site's nested form_submit shape", async () => {
-    const { pushFormSubmit } = (await load()).analytics;
+    const { analytics, consent } = await load();
+    const { pushFormSubmit } = analytics;
+    // A UAE visitor with no choice: the regional default grants ad_user_data.
+    consent.applyRegionDefault(false);
     pushFormSubmit({
       formId: "LP Cost Calculator",
       formType: "calculator",
@@ -192,9 +195,68 @@ describe("consent and click ids", () => {
   });
 });
 
+describe("user_data follows ad_user_data", () => {
+  const lead = { formId: "LP Callback", email: "test-audit@xerebo.com", phone: "050 000 0000" };
+  const sent = () => ({ fs: dataLayer.find((e) => e.event === "form_submit"), gl: dataLayer.find((e) => e.event === "generate_lead") });
+  const pushBoth = (a: Awaited<ReturnType<typeof load>>["analytics"]) => {
+    a.pushFormSubmit(lead);
+    a.pushGenerateLead(lead);
+  };
+
+  it("UAE, no choice: email and E.164 phone on form_submit and generate_lead", async () => {
+    const { analytics, consent } = await load();
+    consent.applyRegionDefault(false);
+    pushBoth(analytics);
+    expect(sent().fs?.user_data).toMatchObject({ email: "test-audit@xerebo.com", phone: "+971500000000" });
+    expect(sent().gl?.user_data).toMatchObject({ email: "test-audit@xerebo.com", phone_number: "+971500000000" });
+  });
+
+  it("after Accept all (any region): sent", async () => {
+    const { analytics, consent } = await load();
+    consent.applyRegionDefault(true);
+    consent.saveConsent(consent.ALL_GRANTED);
+    pushBoth(analytics);
+    expect(sent().fs?.user_data).toMatchObject({ email: "test-audit@xerebo.com" });
+  });
+
+  it("after Reject all, even outside Europe: no user_data at all", async () => {
+    const { analytics, consent } = await load();
+    consent.applyRegionDefault(false);
+    consent.saveConsent(consent.ALL_DENIED);
+    pushBoth(analytics);
+    expect(sent().fs).not.toHaveProperty("user_data");
+    expect(sent().gl).not.toHaveProperty("user_data");
+    expect(JSON.stringify(dataLayer)).not.toContain("test-audit@xerebo.com");
+  });
+
+  it("Europe with no choice, or region not known yet: no user_data", async () => {
+    for (const region of [true, null]) {
+      stubBrowser();
+      const { analytics, consent } = await load();
+      if (region !== null) consent.applyRegionDefault(region);
+      pushBoth(analytics);
+      expect(JSON.stringify(dataLayer)).not.toContain("test-audit@xerebo.com");
+    }
+  });
+});
+
+describe("effectiveConsent", () => {
+  it("is the saved choice, else granted outside the opt-in regions, else denied", async () => {
+    const { consent } = await load();
+    expect(consent.effectiveConsent()).toEqual(consent.ALL_DENIED);
+    consent.applyRegionDefault(true);
+    expect(consent.effectiveConsent()).toEqual(consent.ALL_DENIED);
+    consent.applyRegionDefault(false);
+    expect(consent.effectiveConsent()).toEqual(consent.ALL_GRANTED);
+    consent.saveConsent(consent.ALL_DENIED);
+    expect(consent.effectiveConsent()).toEqual(consent.ALL_DENIED);
+  });
+});
+
 describe("lead standard events", () => {
   it("pushes generate_lead with value, AED, E.164 phone and lowercase email, then clears the PII", async () => {
-    const { analytics } = await load();
+    const { analytics, consent } = await load();
+    consent.applyRegionDefault(false);
     analytics.pushGenerateLead({ formId: "LP Callback", service: "free_zone", email: "  Layla@Example.COM ", phone: "050 123 4567" });
     analytics.trackContentView("/");
     const lead = dataLayer.find((e) => e.event === "generate_lead") as Record<string, unknown>;

@@ -2,7 +2,8 @@
 // (success or error, as each check needs), so nothing reaches the ERP or the lead sheet. Test data only.
 // Checks: no sideways scroll at 320 to 1920; page state reaches the plan (hero topic, worries); every plan button
 // scrolls to #plan and focuses the first empty field; field errors; a mocked success (stamp, thank-you, exactly one
-// generate_lead with the right parameters and no name, number or email); a mocked error (message, no success);
+// generate_lead with the right parameters and no name, number or email; the email and number only in form_submit's
+// user_data, for enhanced conversions); a mocked error (message, no success);
 // the sticky bar (hidden in the hero, shown mid-page, hidden at the form); every FAQ answer in the server HTML; the
 // copy policy on the rendered page; axe (WCAG 2.1 AA) with zero violations at 390 and 1440.
 // Usage: node scripts/qa/xservicesx.mjs [base] [fixture]. Fixture runs need a local build made with
@@ -13,6 +14,8 @@ import { BASE, ROUTES, blockTags, launch, wait } from "./common.mjs";
 const PATH = "/services";
 const NAME = "TEST AUDIT - DELETE", PHONE = "500000000", EMAIL = "test-audit@xerebo.com";
 const AXE = readFileSync(new URL("../../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
+/** The dataLayer without form_submit.user_data, the one place enhanced conversions may carry the email and number. */
+const withoutUserData = (list) => (list || []).map((e) => (e && e.event === "form_submit" ? { ...e, user_data: undefined } : e));
 const b = await launch();
 let failed = 0;
 const check = (name, ok, detail = "") => {
@@ -539,8 +542,12 @@ for (const w of [390, 1440]) {
   const gl = await events(p, "generate_lead");
   check("generate_lead exactly once", gl.length === 1, String(gl.length));
   check("generate_lead {topic, contact_pref, form_location: s9, page: /services}", gl[0]?.topic === "bookkeeping" && gl[0]?.contact_pref === "call" && gl[0]?.form_location === "s9" && gl[0]?.page === "/services");
-  const dl = JSON.stringify(await p.evaluate(() => window.dataLayer));
-  check("no name, number or email anywhere in the dataLayer", !dl.includes("TEST AUDIT") && !dl.includes(EMAIL) && !dl.includes("500000000"));
+  const dlRaw = await p.evaluate(() => window.dataLayer);
+  // Enhanced conversions (consent accepted here): the email and E.164 number ride only in form_submit.user_data.
+  const fsUser = dlRaw.find((e) => e && e.event === "form_submit")?.user_data;
+  check("form_submit user_data: email and E.164 phone (enhanced conversions), no name", fsUser?.email === EMAIL && fsUser?.phone === "+971500000000" && !fsUser?.first_name, JSON.stringify(fsUser ? Object.keys(fsUser) : null));
+  const dl = JSON.stringify(withoutUserData(dlRaw));
+  check("no name, number or email anywhere else in the dataLayer", !dl.includes("TEST AUDIT") && !dl.includes(EMAIL) && !dl.includes("500000000"));
   check("one form_submit with lead_conversion_eligible and the evt_ id sent to the ERP", (await events(p, "form_submit")).filter((e) => e.form_data?.lead_conversion_eligible && e.event_id === body.event_id).length === 1);
   await p.done();
 }
@@ -623,7 +630,7 @@ for (const w of [390, 768, 1440]) {
   check("every event carries page_path /services and page_type landing (own, shared and conversion events)", !missing.length && want.every((n) => names.includes(n)), `missing on: ${[...new Set(missing)].join(", ")} | seen: ${names.join(", ")}`);
   const gl = ev.find((e) => e.event === "generate_lead");
   check("generate_lead keeps its parameters", ["form_id", "lead_type", "page", "service", "topic", "contact_pref", "form_location", "value", "currency"].every((k) => k in gl) && gl.page === "/services", JSON.stringify(gl));
-  check("no name, number or email in any event", !/TEST AUDIT|test-audit@xerebo\.com|500000000|971500000000/.test(JSON.stringify(ev)));
+  check("no name, number or email in any event (outside form_submit.user_data)", !/TEST AUDIT|test-audit@xerebo\.com|500000000|971500000000/.test(JSON.stringify(withoutUserData(ev))));
   await p.done();
 }
 
@@ -813,8 +820,8 @@ for (const w of [1440, 390]) {
   check("card: form_start once, form_error with field names", fs.length === 1 && fs[0].form_data?.form_id === "LP Services Plan" && fe.length >= 1 && /lead_name|mobile_no|email_id/.test(fe[0].form_data?.error_fields || ""), JSON.stringify({ fs: fs.length, fe: fe.map((e) => e.form_data) }));
   check("card: form_submit with plan_path, lead_conversion_eligible and the evt_ id sent to the ERP; generate_lead from the hero", sub?.plan_path === "new_free_zone_this_month" && sub?.form_data?.lead_conversion_eligible === true && /^evt_/.test(sub?.event_id || "") && sub?.event_id === p.leads[0]?.event_id && gl?.form_location === "hero" && gl?.topic === "new_company", JSON.stringify({ sub: { plan_path: sub?.plan_path, eid: sub?.event_id }, gl }));
   check("card: every event carries page_path and page_type", ev.every((e) => e.page_path === "/services" && e.page_type === "landing"));
-  const all = JSON.stringify(ev) + (await p.evaluate(() => location.href));
-  check("card: no name, number or email in the dataLayer or the URL", !/TEST AUDIT|test-audit@xerebo\.com|500000000|971500000000/.test(all));
+  const all = JSON.stringify(withoutUserData(ev)) + (await p.evaluate(() => location.href));
+  check("card: no name, number or email in the dataLayer (outside form_submit.user_data) or the URL", !/TEST AUDIT|test-audit@xerebo\.com|500000000|971500000000/.test(all));
   await p.done();
 }
 

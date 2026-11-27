@@ -1,24 +1,42 @@
+import { OPT_IN_COUNTRIES } from "@/lib/consentRegions";
+
 /*
-  Google Consent Mode v2 bootstrap, copied from best-solution.ae so both sites start from the same
-  denied baseline. Rendered as a plain inline script in <head>, so it runs during HTML parsing, before
-  any app code; the GTM loader mounts after hydration. Order: default(denied) -> restore saved
-  choice -> GTM loads.
+  Google Consent Mode v2 bootstrap. The first script in <head> (see the root layout), so it runs during HTML parsing,
+  before any app code, before the page-context push and long before the GTM loader (mounted after hydration).
+  Order: defaults (denied in the EEA, UK and Switzerland; granted everywhere else) -> restore a saved choice -> GTM.
+  A saved "Reject all" therefore keeps a visitor denied on every later visit, wherever they are.
 
   The cookie name, shape and version MUST stay in sync with src/lib/consent.ts (CONSENT_COOKIE =
   "bs_consent", CONSENT_VERSION = 2). Inlined as a string because it must run before any module
   loads.
 */
+// The region list as a JS array literal with single quotes, e.g. ['AT','BE',...].
+const REGIONS = "[" + OPT_IN_COUNTRIES.map((c) => "'" + c + "'").join(",") + "]";
+
 export const CONSENT_INIT_SCRIPT = `
 (function(){
   window.dataLayer = window.dataLayer || [];
   function gtag(){ dataLayer.push(arguments); }
   window.gtag = gtag;
 
+  // EEA, UK and Switzerland: everything denied until the visitor chooses (a region default wins over the general one).
   gtag('consent', 'default', {
     ad_storage: 'denied',
     ad_user_data: 'denied',
     ad_personalization: 'denied',
     analytics_storage: 'denied',
+    functionality_storage: 'denied',
+    personalization_storage: 'denied',
+    security_storage: 'granted',
+    region: ${REGIONS},
+    wait_for_update: 500
+  });
+  // Everywhere else: measurement and ads on until the visitor clicks Reject all.
+  gtag('consent', 'default', {
+    ad_storage: 'granted',
+    ad_user_data: 'granted',
+    ad_personalization: 'granted',
+    analytics_storage: 'granted',
     functionality_storage: 'denied',
     personalization_storage: 'denied',
     security_storage: 'granted',
@@ -28,7 +46,9 @@ export const CONSENT_INIT_SCRIPT = `
   gtag('set', 'url_passthrough', true);
 
   // Microsoft Clarity comes from the GTM container and does not follow Google Consent Mode. Its own
-  // consent API is queued here, before GTM loads it: denied = no _clck/_clsk cookies until the visitor accepts.
+  // consent API is queued here, before GTM loads it: denied = no _clck/_clsk cookies until consent is known. The
+  // region is not known in this script, so outside the EEA, UK and Switzerland the banner grants Clarity once
+  // /api/geo answers (lib/consent applyRegionDefault).
   // The GTM snippet reuses this window.clarity queue, so the signal is applied as soon as Clarity starts.
   window.clarity = window.clarity || function(){ (window.clarity.q = window.clarity.q || []).push(arguments); };
   window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'denied' });

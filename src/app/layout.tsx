@@ -54,8 +54,9 @@ export const viewport: Viewport = {
 };
 
 /*
-  Tracking matches best-solution.ae (shared container GTM-MLFW9XR). Order matters: page context and
-  Consent Mode defaults in <head> first, then the Stape GTM loader after hydration.
+  Tracking matches best-solution.ae (shared container GTM-MLFW9XR). Order matters: the Consent Mode defaults are the
+  first script in <head> (before the page-context push and every other script), then the Stape GTM loader after
+  hydration. Nothing may read consent before ConsentInit has run.
 */
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -63,8 +64,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     // before React hydrates. This applies to this one element only, not to the page inside it.
     <html lang="en" className={inter.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
-        <PageContextInit />
         <ConsentInit />
+        <PageContextInit />
       </head>
       <body>
         <GtmNoScript />

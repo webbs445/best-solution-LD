@@ -143,7 +143,7 @@ export function HeroPlanCard() {
       setFirstName(f.name.trim().split(/\s+/)[0] ?? "");
       setStatus("idle");
       go("done", answers);
-      pushXsLead({ eventId, topic, contactPref: "whatsapp", location: "hero", planPath: planPath(answers) });
+      pushXsLead({ eventId, topic, contactPref: "whatsapp", location: "hero", planPath: planPath(answers), email: f.email, phone: e164 });
     } catch {
       setStatus("error");
     }

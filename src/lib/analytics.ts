@@ -11,10 +11,10 @@
   - pushFormSubmit accepts a pre-generated event_id so the same id reaches the ERP lead.
 
   Consent: behaviour events always push (GTM + Consent Mode decide what is forwarded). Writing the
-  click-id cookies is gated on the saved choice via readConsent().
+  click-id cookies is gated on effectiveConsent() (the saved choice, else the regional default).
 */
 
-import { readConsent } from "./consent";
+import { effectiveConsent } from "./consent";
 import { eventContext } from "./eventContext";
 export { setEventContext } from "./eventContext";
 import { LEAD_CURRENCY, LEAD_VALUES } from "./leadValues";
@@ -106,7 +106,7 @@ const CLICK_ID_KEYS = ["gclid", "fbclid", "li_fat_id"] as const;
 
 /** Persist ad click-ids from the landing URL to 90-day cookies (last click wins), only with marketing consent. */
 export function captureClickIds(): void {
-  if (!readConsent()?.marketing) return;
+  if (!effectiveConsent().marketing) return;
   CLICK_ID_KEYS.forEach((k) => {
     const v = getParam(k);
     if (v) setCookie(k, v, 90);
@@ -240,13 +240,18 @@ export function pushFormSubmit({
       value: value ?? 1,
       currency: "AED",
     },
-    user_data: {
-      email: email?.trim().toLowerCase() || undefined,
-      phone: phone ? toE164(phone) || undefined : undefined,
-      first_name: firstName || undefined,
-      last_name: lastName || undefined,
-      nationality: nationality || undefined,
-    },
+    // Enhanced conversions: only while ad_user_data is granted (Marketing); otherwise no personal data at all.
+    ...(effectiveConsent().marketing
+      ? {
+          user_data: {
+            email: email?.trim().toLowerCase() || undefined,
+            phone: phone ? toE164(phone) || undefined : undefined,
+            first_name: firstName || undefined,
+            last_name: lastName || undefined,
+            nationality: nationality || undefined,
+          },
+        }
+      : {}),
     ...marketingData(),
     ...pageData(),
   });
@@ -356,7 +361,8 @@ export function pushGenerateLead(args: { formId: string; service?: string; email
     service: args.service || undefined,
     value: LEAD_VALUES.form,
     currency: LEAD_CURRENCY,
-    user_data: { email, phone_number: phone },
+    // Only while ad_user_data is granted, as on form_submit.
+    ...(effectiveConsent().marketing ? { user_data: { email, phone_number: phone } } : {}),
   });
   conversionPending = true;
 }

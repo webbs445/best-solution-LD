@@ -93,7 +93,7 @@ async function submit(e: FormEvent<HTMLFormElement>, prefix: string, location: "
     requestAnimationFrame(() => (document.getElementById(`${prefix}-thanks`) as HTMLElement | null)?.focus());
     if (sentOnce) return;
     sentOnce = true;
-    pushXsLead({ eventId, topic, contactPref: s.contactPref, location });
+    pushXsLead({ eventId, topic, contactPref: s.contactPref, location, email, phone: e164 });
   } catch {
     setForm({ status: "error" });
   }

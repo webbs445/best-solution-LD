@@ -2,9 +2,10 @@
   Cookie-consent state + Google Consent Mode v2 plumbing, ported as-is from best-solution.ae
   (webbs445/bestsolution lib/consent.ts) so both sites share one consent contract.
 
-  The visitor's category choices live in one first-party cookie (`bs_consent`). The default state
-  (everything except strictly-necessary denied) is set by <ConsentInit> BEFORE GTM loads; this module
-  handles the update path: saving the choice and pushing it to gtag/dataLayer.
+  The visitor's category choices live in one first-party cookie (`bs_consent`). The defaults are set by <ConsentInit>
+  BEFORE GTM loads: denied in the EEA, UK and Switzerland (lib/consentRegions), granted everywhere else. This module
+  handles the update path (saving the choice and pushing it to gtag, Clarity and Meta) and effectiveConsent(), the
+  page's own view of the same state for code that must follow it (user_data on conversions, click-id capture).
 
   Keep the cookie name, shape and version in sync with the inline restore logic in
   src/components/analytics/ConsentInit.tsx and with the main site.
@@ -65,6 +66,39 @@ export function readConsent(): ConsentChoices | null {
   }
 }
 
+type ConsentWindow = typeof window & {
+  gtag?: (...args: unknown[]) => void;
+  dataLayer?: unknown[];
+  clarity?: (...args: unknown[]) => void;
+  fbq?: (...args: unknown[]) => void;
+  __bsReleaseClarity?: () => void;
+};
+
+// Whether the visitor is in an opt-in region (EEA, UK, Switzerland), from /api/geo. null until it answers.
+let optInRegion: boolean | null = null;
+
+/**
+ * Consent as Google's tags see it: the saved choice, else the regional default (granted outside the EEA, UK and
+ * Switzerland). Until /api/geo answers, an unknown region counts as opt-in, so nothing is assumed granted.
+ */
+export function effectiveConsent(): ConsentChoices {
+  return readConsent() ?? (optInRegion === false ? ALL_GRANTED : ALL_DENIED);
+}
+
+/**
+ * The banner passes /api/geo's answer here. Outside the opt-in regions, with no saved choice, Google's region default
+ * already granted everything; Clarity and Meta (which do not follow Consent Mode) are brought in line. Not a choice:
+ * no consent_update event and nothing saved.
+ */
+export function applyRegionDefault(optIn: boolean): void {
+  optInRegion = optIn;
+  if (optIn || readConsent() || typeof window === "undefined") return;
+  const w = window as ConsentWindow;
+  w.clarity?.("consentv2", { ad_Storage: "granted", analytics_Storage: "granted" });
+  w.__bsReleaseClarity?.();
+  w.fbq?.("consent", "grant");
+}
+
 /** The saved choice as the label every lead carries (lib/lead LEAD_CONSENT). */
 export function consentLabel(): string {
   const c = readConsent();
@@ -87,17 +121,14 @@ export function saveConsent(choices: ConsentChoices): void {
 /** Push the choice to Consent Mode and emit `consent_update` so GTM/Stape triggers react at once. */
 export function applyConsent(choices: ConsentChoices): void {
   if (typeof window === "undefined") return;
-  const w = window as typeof window & {
-    gtag?: (...args: unknown[]) => void;
-    dataLayer?: unknown[];
-    clarity?: (...args: unknown[]) => void;
-    __bsReleaseClarity?: () => void;
-  };
+  const w = window as ConsentWindow;
   // Clarity ignores Consent Mode; its own consent API lifts the cookie block set in ConsentInit.
   const g = (v: boolean) => (v ? "granted" : "denied");
   w.clarity?.("consentv2", { ad_Storage: g(choices.marketing), analytics_Storage: g(choices.analytics) });
   // Let the parked Clarity script load now that analytics is allowed (see ConsentInit).
   if (choices.analytics) w.__bsReleaseClarity?.();
+  // The Meta pixel follows Marketing at once if it is already on the page (its GTM tags also need ad_storage).
+  w.fbq?.("consent", choices.marketing ? "grant" : "revoke");
   w.dataLayer = w.dataLayer || [];
   if (typeof w.gtag === "function") {
     w.gtag("consent", "update", toConsentSignals(choices));
