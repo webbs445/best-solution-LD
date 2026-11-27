@@ -16,6 +16,8 @@ const PATH = "/accounting-new";
 const SHOTS = process.argv[3] || "";
 const ENGINE = process.env.QA_ENGINE || "chrome";
 const PW = ENGINE !== "chrome";
+// The widths the form, section 5, axe and screenshot checks run at.
+const WIDTHS = [360, 390, 1440, 1920];
 const NAME = "TEST AUDIT - DELETE", PHONE = "500000000", EMAIL = "test-audit@xerebo.com";
 const AXE = readFileSync(new URL("../../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
 if (SHOTS) mkdirSync(SHOTS, { recursive: true });
@@ -119,7 +121,7 @@ for (const w of [360, 390, 768, 1024, 1440, 1920]) {
 }
 
 // 2. The quote form: gating, Back, focus, inline errors, mocked success, no personal data in the dataLayer.
-for (const w of [1440, 390]) {
+for (const w of WIDTHS) {
   const p = await open(w);
   await toQuote(p);
   const shot = async (name) => SHOTS && (await (await p.$("#quote")).screenshot({ path: `${SHOTS}/s9-${w}-${name}.png` }));
@@ -282,8 +284,59 @@ for (const w of [1440, 390]) {
   await close(p);
 }
 
+// 4a. "What we do" (#services), the office hours and the footer line; and the section background order.
+for (const w of WIDTHS) {
+  const p = await open(w);
+  const order = await p.$$eval("main > section", (ss) => ss.map((s) => `${s.id || s.className.split(" ")[0]}:${getComputedStyle(s).backgroundColor}`));
+  if (w === 1440) console.log(`INFO section order: ${order.join(" > ")}`);
+  check(`${w}: services is the second section`, order[1]?.startsWith("services:"));
+  check(`${w}: header menu starts with Services`, (await p.$$eval("a[href='#services']", (a) => a.length)) >= 1);
+  const before = await p.$$eval("#services .s1b-row", (rs) => rs.map((r) => getComputedStyle(r).opacity).join(""));
+  await p.$eval("#services .s1b-sheet", (e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
+  await wait(1800);
+  const rows = await p.$$eval("#services .s1b-row", (rs) => rs.map((r) => [r.querySelector("b").innerText.trim(), getComputedStyle(r).opacity]));
+  check(`${w}: services rows hidden before view, all 7 shown after`, /^0+$/.test(before) && rows.length === 7 && rows.every(([, o]) => o === "1"), `${before} -> ${rows.map((r) => r[1]).join("")}`);
+  if (SHOTS) await (await p.$("#services")).screenshot({ path: `${SHOTS}/services-${w}.png` });
+  // Phone order: the list, then the facts, then a full-width button.
+  const pos = await p.evaluate(() => {
+    const y = (s) => document.querySelector(s).getBoundingClientRect().top;
+    const btn = document.querySelector("#services .s1b-btn").getBoundingClientRect();
+    const wrap = document.querySelector("#services .s1b-wrap").getBoundingClientRect();
+    return { sheet: y("#services .s1b-sheet"), facts: y("#services .s1b-facts"), btn: btn.top, full: Math.abs(btn.width - wrap.width) < 2 };
+  });
+  if (w < 900) check(`${w}: services phone order list, facts, full-width button`, pos.sheet < pos.facts && pos.facts < pos.btn && pos.full);
+  await p.$eval("#services .s1b-btn", (a) => {
+    a.addEventListener("click", (e) => e.preventDefault(), { once: true });
+    a.click();
+  });
+  const cta = await p.evaluate(() => (window.dataLayer || []).find((e) => e?.event === "acc_cta_click"));
+  check(`${w}: services button goes to #quote and sends acc_cta_click section "services"`, (await p.$eval("#services .s1b-btn", (a) => a.getAttribute("href"))) === "#quote" && cta?.section === "services");
+  // textContent: the quote section is off screen here, and content-visibility leaves innerText empty for it.
+  const foot = await p.$eval("#quote .s9-foot", (e) => e.textContent.replace(/\s+/g, " ").trim());
+  check(`${w}: office hours in the quote card`, foot.startsWith("Prefer WhatsApp? Monday to Friday, 9AM to 6PM") && foot.includes("Ask an accountant there"), foot.slice(0, 60));
+  // The section clips overflow, so the sideways-scroll check cannot see a link running out of the card.
+  await toQuote(p);
+  const inCard = await p.evaluate(() => {
+    const card = document.querySelector("#quote .s9-card").getBoundingClientRect();
+    const a = document.querySelector("#quote .s9-wa").getBoundingClientRect();
+    return a.left >= card.left && a.right <= card.right + 0.5;
+  });
+  check(`${w}: "Ask an accountant there" stays inside the card`, inCard);
+  if (w < 900) {
+    const hours = await p.evaluate(() => {
+      const a = document.querySelector("#quote .s9-foot > span").getClientRects();
+      const h = document.querySelector("#quote .s9-hours").getBoundingClientRect();
+      const first = document.querySelector("#quote .s9-foot > span").getBoundingClientRect();
+      return h.top > first.top + 5 && a.length >= 1;
+    });
+    check(`${w}: hours on their own line under "Prefer WhatsApp?"`, hours);
+  }
+  check(`${w}: footer says not affiliated with the Federal Tax Authority`, (await text(p, ".an-foot")).includes("We are not a government entity") && (await text(p, ".an-foot")).includes("We are not affiliated with the Federal Tax Authority."));
+  await close(p);
+}
+
 // 4b. Section 5: the send items and sort lines pick their report too, not only the tabs.
-for (const w of [1440, 390]) {
+for (const w of WIDTHS) {
   const p = await open(w);
   await p.$eval("#reports", (e) => e.scrollIntoView({ block: "start", behavior: "instant" }));
   await wait(300);
@@ -304,7 +357,7 @@ for (const w of [1440, 390]) {
 }
 
 // 5. axe at 390 and 1440, and screenshots of every section (reduced motion = final states).
-for (const w of [390, 1440]) {
+for (const w of WIDTHS) {
   const p = await open(w, { reduced: true });
   await p.evaluate(async () => {
     for (let y = 0; y < document.body.scrollHeight; y += 400) {

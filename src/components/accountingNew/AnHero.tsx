@@ -14,6 +14,7 @@ import "./an-s1.css";
 */
 
 const NAV = [
+  ["Services", "#services"],
   ["How it works", "#how"],
   ["Reports", "#reports"],
   ["Reviews", "#reviews"],

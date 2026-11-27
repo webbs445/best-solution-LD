@@ -1,0 +1,294 @@
+/* "What we do" (designs S1B / S1BPhone). Cream. Phone layout below 900px. */
+.an .s1b {
+  background: var(--an-cream);
+}
+.an .s1b-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.an .s1b-eye {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-copper-txt);
+}
+.an .s1b-eye::before {
+  content: "";
+  width: 26px;
+  height: 1.5px;
+  background: var(--an-copper);
+}
+.an .s1b-h {
+  font-size: 36px;
+  line-height: 1.06;
+}
+.an .s1b-lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--an-body);
+}
+
+/* The sheet: a ruled page with a margin line. */
+.an .s1b-sheet {
+  position: relative;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px #ede4da, 7px 7px 0 -1px #f1e8df, 0 40px 60px -40px rgba(20, 33, 61, 0.45);
+  padding: 18px 16px 8px;
+  min-width: 0;
+}
+.an .s1b-sheet::before {
+  content: "";
+  position: absolute;
+  left: 58px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-left: 1px solid rgba(185, 113, 75, 0.28);
+  border-right: 1px solid rgba(185, 113, 75, 0.14);
+}
+.an .s1b-sh {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--an-navy);
+  font: 700 11px var(--font-inter), Inter, system-ui, sans-serif;
+  letter-spacing: 0.12em;
+}
+.an .s1b-sh span:last-child {
+  display: none;
+  color: var(--an-muted);
+  letter-spacing: 0.08em;
+}
+.an .s1b-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.an .s1b-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 14px 0;
+  border-bottom: 1px dashed #e6d8ca;
+  transition: background 0.2s;
+}
+.an .s1b-row:last-child {
+  border-bottom: none;
+}
+/* Rows wait, then tick in one by one once the sheet is seen (transform and opacity only). */
+.an .s1b-sheet:not(.seen) .s1b-row {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.an .s1b-sheet.seen .s1b-row {
+  animation: s1b-in 0.5s ease both;
+  animation-delay: var(--d);
+}
+@keyframes s1b-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .an .s1b-sheet .s1b-row,
+  .an .s1b-sheet:not(.seen) .s1b-row {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+.an .s1b-no {
+  justify-self: start;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px #e3cfbf;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: 300 13px var(--an-tight);
+  color: var(--an-copper-dk);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+@media (hover: hover) {
+  .an .s1b-row:hover {
+    background: linear-gradient(90deg, #fff8f2, rgba(255, 248, 242, 0));
+  }
+  .an .s1b-row:hover .s1b-no {
+    color: #fff;
+    background: var(--an-copper);
+    box-shadow: none;
+  }
+}
+.an .s1b-nm {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.an .s1b-nm b {
+  font-family: var(--an-tight);
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.an .s1b-nm span {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #4a5468;
+}
+.an .s1b-fq {
+  grid-column: 2;
+  justify-self: start;
+  white-space: nowrap;
+  margin-top: -4px;
+  font: 700 10px var(--font-inter), Inter, system-ui, sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--an-copper-txt);
+  background: #fbf1ea;
+  border-radius: 999px;
+  padding: 5px 9px;
+}
+.an .s1b-fq.m {
+  background: var(--an-navy);
+  color: #fff;
+}
+
+/* The three facts and the button. */
+.an .s1b-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 0;
+  border-top: 1px solid #e7dcd2;
+  border-bottom: 1px solid #e7dcd2;
+}
+.an .s1b-ft {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--an-body);
+}
+.an .s1b-ft b {
+  font-weight: 600;
+  color: var(--an-navy);
+}
+.an .s1b-ft i {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 0 0 1px #ede4da;
+  color: var(--an-copper);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+}
+.an .s1b-wrap > .s1b-btn {
+  justify-self: stretch;
+  white-space: nowrap;
+}
+
+@media (min-width: 900px) {
+  .an .s1b {
+    padding-top: 88px;
+    padding-bottom: 80px;
+  }
+  /* Text column beside the sheet; the sheet spans every row and the last row takes the slack. */
+  .an .s1b-wrap {
+    grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto 1fr;
+    gap: 22px 72px;
+  }
+  .an .s1b-wrap > :not(.s1b-sheet) {
+    grid-column: 1;
+  }
+  .an .s1b-sheet {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    padding: 26px 34px 14px;
+  }
+  .an .s1b-eye {
+    grid-row: 1;
+  }
+  .an .s1b-h {
+    grid-row: 2;
+    font-size: 52px;
+    line-height: 1.04;
+  }
+  .an .s1b-lead {
+    grid-row: 3;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .an .s1b-facts {
+    grid-row: 4;
+  }
+  /* More specific than .an .an-btn1, whose all: unset would reset justify-self. */
+  .an .s1b-wrap > .s1b-btn {
+    grid-row: 5;
+    justify-self: start;
+  }
+  .an .s1b-sheet::before {
+    left: 96px;
+  }
+  .an .s1b-sh,
+  .an .s1b-row {
+    grid-template-columns: 62px minmax(0, 1fr) auto;
+    gap: 20px;
+  }
+  .an .s1b-sh span:last-child {
+    display: inline;
+  }
+  .an .s1b-row {
+    align-items: center;
+    padding: 15px 0;
+  }
+  .an .s1b-no {
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+  }
+  .an .s1b-nm b {
+    font-size: 21px;
+  }
+  .an .s1b-nm span {
+    font-size: 14px;
+  }
+  .an .s1b-fq {
+    grid-column: 3;
+    margin-top: 0;
+    font-size: 11px;
+    padding: 6px 11px;
+  }
+}
+/* Between 900 and 1100 the 400px text column leaves the sheet too narrow for the tags beside the text. */
+@media (min-width: 900px) and (max-width: 1099px) {
+  .an .s1b-wrap {
+    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    column-gap: 48px;
+  }
+  .an .s1b-h {
+    font-size: 44px;
+  }
+}

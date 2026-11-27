@@ -12,7 +12,8 @@ export function AnFooter() {
         <a href={C.privacyUrl}>Privacy</a>
         <a href={C.termsUrl}>Terms</a>
         <CookieSettingsButton />
-        <p>{DISCLAIMER}</p>
+        {/* Same wording as the live /accounting footer. */}
+        <p>{DISCLAIMER} We are not affiliated with the Federal Tax Authority.</p>
       </div>
     </footer>
   );

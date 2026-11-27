@@ -448,7 +448,8 @@
   flex: 1;
   display: none;
 }
-.an .s9-next {
+/* More specific than .an .an-btn1, whose all: unset would reset flex. Phone: full width, as in S9Phone. */
+.an .s9-nav > .s9-next {
   flex: 1;
 }
 .an .s9-next:disabled {
@@ -507,8 +508,19 @@
 }
 .an .s9-foot > span {
   font-size: 14px;
+  line-height: 1.45;
   color: var(--an-muted);
+}
+/* Phone: the hours sit on their own line under "Prefer WhatsApp?", so the link keeps its room. Wider: same line,
+   and they move down as one piece if the card is narrow. */
+.an .s9-hours {
+  display: block;
   white-space: nowrap;
+}
+@media (min-width: 900px) {
+  .an .s9-hours {
+    display: inline;
+  }
 }
 .an .s9-wa {
   white-space: nowrap;
@@ -526,7 +538,8 @@
   text-decoration-thickness: 1.5px;
   text-underline-offset: 5px;
 }
-@media (max-width: 380px) {
+/* Phone: the link moves under the hours when the row is too narrow for both, instead of running out of the card. */
+@media (max-width: 899px) {
   .an .s9-foot {
     flex-wrap: wrap;
   }
@@ -620,7 +633,7 @@
   .an .s9-gap {
     display: block;
   }
-  .an .s9-next {
+  .an .s9-nav > .s9-next {
     flex: none;
   }
 }

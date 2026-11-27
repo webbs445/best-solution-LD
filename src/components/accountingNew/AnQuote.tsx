@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { AC_WHATSAPP } from "@/content/accounting";
-import { AN_BOOK_STATES, AN_NEEDS, AN_SOFTWARE, AN_VOLUMES } from "@/content/accountingNew";
+import { AN_BOOK_STATES, AN_NEED_SERVICE, AN_NEEDS, AN_SOFTWARE, AN_VOLUMES } from "@/content/accountingNew";
 import { SITE } from "@/content/site";
 import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
@@ -123,6 +123,8 @@ export function AnQuote() {
             email_id: contact.email.trim(),
             mobile_no: contactPhone(contact.phone),
             country: "AE",
+            // The service the old /accounting form would send (the server applies the same map), and the answer itself.
+            service: AN_NEED_SERVICE[answers.need as (typeof AN_NEEDS)[number]],
             need: answers.need,
             volume: answers.volume,
             software: answers.software,
@@ -382,7 +384,9 @@ export function AnQuote() {
             )}
 
             <div className="s9-foot">
-              <span>Prefer WhatsApp?</span>
+              <span>
+                Prefer WhatsApp? <span className="s9-hours">Monday to Friday, 9AM to 6PM</span>
+              </span>
               <a className="s9-wa" href={AC_WHATSAPP.question} target="_blank" rel="noopener noreferrer" onClick={() => accTrack("acc_whatsapp_click", { section: 9 })}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9714B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z" />

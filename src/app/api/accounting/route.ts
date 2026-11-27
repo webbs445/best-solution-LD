@@ -7,7 +7,7 @@ import { clientIp, rateLimit } from "@/lib/rateLimit";
 
 const HOUR = 60 * 60 * 1000;
 import { SERVICE_NAMES, VOLUMES, type ServiceKey } from "@/content/accounting";
-import { AN_BOOK_STATES, AN_BUTTON, AN_NEEDS, AN_SOFTWARE } from "@/content/accountingNew";
+import { AN_BOOK_STATES, AN_BUTTON, AN_NEED_SERVICE, AN_NEEDS, AN_SOFTWARE } from "@/content/accountingNew";
 
 /*
   Receives the /accounting page's quote request and creates a Lead in the ERP.
@@ -45,17 +45,21 @@ export const POST = withLeadLog("accounting", async (request, log) => {
   // Same limit as /api/services-plan: five leads per IP per hour.
   if (!rateLimit(`accounting:${clientIp(request)}`, 5, HOUR)) return Response.json({ error: "rate_limited" }, { status: 429 });
 
-  const service = (str(body.service, 20) in SERVICE_NAMES ? str(body.service, 20) : "not_sure") as ServiceKey;
+  // /accounting-new sends "need" (its step 1). It is filed as the old form's service (AN_NEED_SERVICE), so leads sort
+  // the same way, and on its own "Need" line.
+  const need = oneOf(body.need, [...AN_NEEDS]) as (typeof AN_NEEDS)[number] | "";
+  const service = need
+    ? AN_NEED_SERVICE[need]
+    : ((str(body.service, 20) in SERVICE_NAMES ? str(body.service, 20) : "not_sure") as ServiceKey);
   const volume = oneOf(body.volume, VOLUMES);
   // The lists are the old page's plus "Not sure" (sent only by /accounting-new).
   const software = oneOf(body.software, AN_SOFTWARE);
   const state = oneOf(body.books_state, AN_BOOK_STATES);
   const health = str(body.health_check, 200);
-  // /accounting-new sends "need" (its step 1) instead of a service key.
-  const need = oneOf(body.need, [...AN_NEEDS]);
 
   const details: [string, string][] = [
-    need ? ["Need", need] : ["Service", SERVICE_NAMES[service]],
+    ["Service", SERVICE_NAMES[service]],
+    ...(need ? ([["Need", need]] as [string, string][]) : []),
     ...(volume ? ([["Transactions per month", volume]] as [string, string][]) : []),
     ...(software ? ([["Current software", software]] as [string, string][]) : []),
     ...(state ? ([["Books today", state]] as [string, string][]) : []),

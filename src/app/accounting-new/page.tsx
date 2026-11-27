@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import { SITE } from "@/content/site";
 import { AnHeader, AnHero } from "@/components/accountingNew/AnHero";
+import { AnServices } from "@/components/accountingNew/AnServices";
 import { AnBalance } from "@/components/accountingNew/AnBalance";
 import { AnCheck } from "@/components/accountingNew/AnCheck";
 import { AnAsks } from "@/components/accountingNew/AnAsks";
@@ -47,6 +48,7 @@ export default function AccountingNewPage() {
       <AnHeader />
       <main>
         <AnHero />
+        <AnServices />
         <AnBalance />
         <AnCheck />
         <AnAsks />

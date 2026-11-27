@@ -33,8 +33,27 @@ describe("POST /api/accounting", () => {
     const res = await post({ ...contact, need: "Catch up on past months", volume: "50 to 200", software: "Not sure", books_state: "Not sure" });
     expect(await res.json()).toMatchObject({ ok: true, created: true });
     expect(sent[0]).toMatchObject({ custom_form_name: "Accounting Quote", custom_button_name: "Get my quote today", custom_service_enquired: "Accounting & Bookkeeping Services" });
-    for (const line of ["Need: Catch up on past months", "Transactions per month: 50 to 200", "Current software: Not sure", "Books today: Not sure"]) expect(notes()).toContain(line);
-    expect(notes()).not.toContain("Service:");
+    for (const line of ["Service: Monthly bookkeeping", "Need: Catch up on past months", "Transactions per month: 50 to 200", "Current software: Not sure", "Books today: Not sure"])
+      expect(notes()).toContain(line);
+  });
+
+  it("files every new-form answer under the service the old form uses, with the answer on its own line", async () => {
+    const map: [string, string][] = [
+      ["Keep my books every month", "Complete accounting package"],
+      ["Catch up on past months", "Monthly bookkeeping"],
+      ["File my VAT or Corporate Tax", "Complete accounting package"],
+      ["Statements for my bank or auditor", "Financial statements"],
+      ["My company is new", "Monthly bookkeeping"],
+      ["Not sure yet", "Advice on the right service"],
+    ];
+    for (const [need, service] of map) {
+      sent = [];
+      // A wrong service from the browser does not change the filing: the server applies the map.
+      await post({ ...contact, need, service: "reconciliation" });
+      expect(sent[0].custom_service_enquired).toBe("Accounting & Bookkeeping Services");
+      expect(notes()).toContain(`Service: ${service}`);
+      expect(notes()).toContain(`Need: ${need}`);
+    }
   });
 
   it("keeps the old /accounting payload exactly as before", async () => {
