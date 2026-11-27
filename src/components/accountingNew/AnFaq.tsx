@@ -49,10 +49,11 @@ export function AnFaq() {
         <div className="s8-ask">
           <span className="s8-askt">Your question isn&apos;t here?</span>
           <span className="s8-askb">Add it when you ask for your quote. An accountant answers it with your quote, the same working day.</span>
-          <AnCta section={8} className="s8-go">
+          <AnCta section={8} className="s8-go" topic="question">
             <span>
               Ask with my quote
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9714B" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 5v14" /><path d="m6 13 6 6 6-6" /></svg>
+              {/* Right arrow: it opens the quote pop-up rather than scrolling down. */}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9714B" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </span>
           </AnCta>
         </div>

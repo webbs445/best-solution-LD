@@ -1,0 +1,124 @@
+/* The quote pop-up (AnQuoteDialog): the quote section's navy panel and white card. Phones: a full-screen sheet. */
+html.an-locked,
+html.an-locked body {
+  overflow: hidden;
+}
+.an .an-dlg {
+  border: 0;
+  padding: 0;
+  color: #fff;
+  background: var(--an-navy);
+  /* Phone sheet: the whole visible viewport (shrinks with the iPhone keyboard; see AnQuoteDialog). */
+  position: fixed;
+  inset: var(--an-vvt, 0px) 0 auto 0;
+  width: 100%;
+  max-width: none;
+  height: var(--an-vvh, 100dvh);
+  max-height: none;
+  margin: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.an .an-dlg::backdrop {
+  background: rgba(10, 17, 33, 0.62);
+}
+.an .an-dlg[open] {
+  animation: an-dlg-up 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes an-dlg-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+.an .an-dlg-in {
+  min-height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 12px calc(16px + env(safe-area-inset-bottom));
+}
+.an .an-dlg-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 4px 0;
+}
+.an .an-dlg-eye {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-copper-lt);
+}
+.an .an-dlg-h {
+  margin: 6px 0 0;
+  font: 300 26px/1.1 var(--an-tight);
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.an .an-dlg-h span {
+  font-weight: 800;
+  color: var(--an-copper-lt);
+}
+.an .an-dlg-x {
+  all: unset;
+  box-sizing: border-box;
+  flex: none;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+.an .an-dlg-x:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.an .an-dlg-x:focus-visible {
+  outline: 3px solid var(--an-copper-lt);
+  outline-offset: 2px;
+}
+.an .an-dlg-svc {
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #c9cfda;
+}
+.an .an-dlg-svc b {
+  color: #fff;
+  font-weight: 600;
+}
+.an .an-dlg .s9-card {
+  flex: 1;
+}
+
+/* Desktop and tablet: a centred panel. */
+@media (min-width: 900px) {
+  .an .an-dlg {
+    inset: 0;
+    margin: auto;
+    width: min(560px, calc(100vw - 48px));
+    /* fit-content: with inset 0 an auto height would stretch to the whole screen. */
+    height: fit-content;
+    max-height: calc(100dvh - 48px);
+    border-radius: 24px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 60px 90px -30px rgba(0, 0, 0, 0.6);
+  }
+  .an .an-dlg-in {
+    min-height: 0;
+    padding: 24px;
+    gap: 18px;
+  }
+  .an .an-dlg-h {
+    font-size: 32px;
+  }
+  .an .an-dlg .s9-card {
+    flex: none;
+  }
+}

@@ -77,7 +77,12 @@ async function open(width, { api = "ok", reduced = false, consent = true } = {})
   }
   p.leads = leads;
   await p.goto(`${BASE}${PATH}?utm_source=google&utm_campaign=TEST-AUDIT-DELETE`, { waitUntil: PW ? "networkidle" : "networkidle2", timeout: 180000 });
-  if (consent) await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept all")?.click());
+  // Accept cookies: wait for the banner (it renders after hydration, later in WebKit), then retry until it is gone.
+  if (consent) await p.waitForSelector("#consent-title", { timeout: 8000 }).catch(() => {});
+  for (let i = 0; consent && i < 20 && (await p.$("#consent-title")); i++) {
+    await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept all")?.click());
+    await wait(250);
+  }
   await wait(400);
   return p;
 }
@@ -295,7 +300,7 @@ for (const w of WIDTHS) {
   const before = await p.$$eval("#services .s1b-row", (rs) => rs.map((r) => getComputedStyle(r).opacity).join(""));
   await p.$eval("#services .s1b-sheet", (e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
   await wait(1800);
-  const rows = await p.$$eval("#services .s1b-row", (rs) => rs.map((r) => [r.querySelector("b").innerText.trim(), getComputedStyle(r).opacity]));
+  const rows = await p.$$eval("#services .s1b-row", (rs) => rs.map((r) => [r.querySelector(".s1b-pick").textContent.trim(), getComputedStyle(r).opacity]));
   check(`${w}: services rows hidden before view, all 7 shown after`, /^0+$/.test(before) && rows.length === 7 && rows.every(([, o]) => o === "1"), `${before} -> ${rows.map((r) => r[1]).join("")}`);
   if (SHOTS) await (await p.$("#services")).screenshot({ path: `${SHOTS}/services-${w}.png` });
   const hl = await p.evaluate(() => {
@@ -331,6 +336,10 @@ for (const w of WIDTHS) {
   });
   const cta = await p.evaluate(() => (window.dataLayer || []).find((e) => e?.event === "acc_cta_click"));
   check(`${w}: services button goes to #quote and sends acc_cta_click section "services"`, (await p.$eval("#services .s1b-btn", (a) => a.getAttribute("href"))) === "#quote" && cta?.section === "services");
+  // The pop-up's code loads on the first click: wait for it before closing.
+  await p.waitForSelector("dialog.an-dlg[open]", { timeout: 15000 }).catch(() => {});
+  await p.keyboard.press("Escape");
+  await wait(400);
   // textContent: the quote section is off screen here, and content-visibility leaves innerText empty for it.
   const foot = await p.$eval("#quote .s9-foot", (e) => e.textContent.replace(/\s+/g, " ").trim());
   check(`${w}: office hours in the quote card`, foot.startsWith("Prefer WhatsApp? Monday to Friday, 9AM to 6PM") && foot.includes("Ask an accountant there"), foot.slice(0, 60));
@@ -369,7 +378,8 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
     return {
       tags,
       labels: scenes.filter((s) => s.querySelector(".s6-ex")?.textContent === "Example").length,
-      plain: scenes.every((s) => getComputedStyle(s).cursor === "default" && getComputedStyle(s).borderTopStyle === "dashed"),
+      plain: scenes.filter((s) => !s.classList.contains("s6-live")).every((s) => getComputedStyle(s).cursor === "default" && getComputedStyle(s).borderTopStyle === "dashed"),
+      live: document.querySelectorAll("#how .s6-scene.s6-live").length,
       tileH: Math.round(document.querySelector("#how .s6-m").getBoundingClientRect().height),
       link: document.querySelector("#how .s6-link")?.getAttribute("href"),
       linkText: document.querySelector("#how .s6-link")?.textContent.trim(),
@@ -378,6 +388,8 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
       key: document.querySelector("#how .s6-key")?.textContent,
       keyStyle: [document.querySelector("#how .s6-key"), document.querySelector("#how .s6-exy")].map((e) => e && getComputedStyle(e).color + " " + getComputedStyle(e).fontSize),
       cols: getComputedStyle(document.querySelector("#how .s6-months")).gridTemplateColumns.split(" ").length,
+      // Empty navy under the key line (the card stretches to the steps' height when side by side).
+      blank: Math.round(document.querySelector("#how .s6-four").getBoundingClientRect().bottom - document.querySelector("#how .s6-key").getBoundingClientRect().bottom - parseFloat(getComputedStyle(document.querySelector("#how .s6-four")).paddingBottom)),
       // Side by side (1240 and up): how far the navy card's bottom is from the steps' bottom; -1 when stacked.
       gap: (() => {
         const f = document.querySelector("#how .s6-four").getBoundingClientRect(), st = document.querySelector("#how .s6-st").getBoundingClientRect();
@@ -386,11 +398,12 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
     };
   });
   check(`${w}: section 6 tags 11px, one line, inside their tiles`, s6.tags.length === 5 && s6.tags.every((t) => t.one && t.inside && t.size === "11px"), JSON.stringify(s6.tags.filter((t) => !(t.one && t.inside))));
-  check(`${w}: section 6 example boxes: dashed, no pointer, 3 "Example" labels`, s6.labels === 3 && s6.plain);
+  check(`${w}: section 6: step 2 stays a dashed "Example"; steps 1 and 3 are real`, s6.labels === 1 && s6.plain && s6.live === 2, JSON.stringify({ labels: s6.labels, live: s6.live }));
   check(`${w}: tags read VAT and CT`, s6.tagText === "VAT,VAT,VAT,CT,VAT", s6.tagText);
   check(`${w}: key line under the grid, same muted style as "Example year"`, s6.key === "VAT: VAT return filed · CT: Corporate Tax return filed" && s6.keyStyle[0] === s6.keyStyle[1], s6.keyStyle.join(" / "));
   check(`${w}: ${w < 900 ? 4 : 6} months a row`, s6.cols === (w < 900 ? 4 : 6), String(s6.cols));
   if (s6.gap >= 0) check(`${w}: navy card ends level with steps 1 to 3`, s6.gap <= 24, `${s6.gap}px`);
+  if (s6.gap >= 0) check(`${w}: no big empty space inside the navy card`, s6.blank <= 48, `${s6.blank}px`);
   const spill = await p.$$eval("#how .s6-m > *", (cs) => cs.filter((c) => c.scrollWidth > c.clientWidth + 1 || c.getBoundingClientRect().right > c.parentElement.getBoundingClientRect().right + 0.5).length);
   check(`${w}: nothing spills out of a month tile`, spill === 0, String(spill));
   check(`${w}: month tiles taller (70px+)`, s6.tileH >= 70, `${s6.tileH}px`);
@@ -401,11 +414,17 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
   });
   const cta = await p.evaluate(() => (window.dataLayer || []).filter((e) => e?.event === "acc_cta_click").at(-1));
   check(`${w}: "Tell us about your books →" goes to #quote with acc_cta_click section 6`, s6.link === "#quote" && s6.linkText === "Tell us about your books →" && cta?.section === 6);
+  // The pop-up's code loads on the first click: wait for it before closing.
+  await p.waitForSelector("dialog.an-dlg[open]", { timeout: 15000 }).catch(() => {});
+  await p.keyboard.press("Escape");
+  await wait(400);
   if (SHOTS && [390, 1024, 1440].includes(w)) {
     // Let the year fill in (steps, then twelve months) so the tags show.
     await p.$eval("#how .s6-four", (e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
     await wait(10000);
     await (await p.$("#how")).screenshot({ path: `${SHOTS}/s6-${w}.png` });
+    const dec = await p.$eval("#how .s6-m:last-child", (m) => m.className);
+    check(`${w}: December settles to the finished-month look`, dec === "s6-m done", dec);
   }
   if (SHOTS && [390, 1440].includes(w)) {
     // The hero-to-services join: the bottom of the hero band and the top of the services section.
@@ -457,24 +476,32 @@ for (const w of WIDTHS) {
   await close(p);
 }
 
-// 4d. Sticky header (900px and up) and phone bottom bar: shown after the hero, hidden over the quote section,
-// while the cookie banner shows and while a field has focus; no layout shift; menu links land below the header.
+// 4d. Header (the /services style: sticky, floating once scrolled) and the phone bottom bar: the bar shows after the
+// hero and hides over the quote section, while the cookie banner shows and while a field has focus; the header button
+// hides over the quote section; no layout shift; menu links land below the header.
 const to = (p, top) => p.evaluate((t) => window.scrollTo({ top: t, behavior: "instant" }), top);
 const sticky = (p) =>
   p.evaluate(() => {
-    const h = document.querySelector(".s1-head"), btn = document.querySelector(".s1-hcta"), bar = document.querySelector(".s1-bar-m");
-    const hs = getComputedStyle(h), br = bar.getBoundingClientRect();
+    const h = document.querySelector(".an-hd"), hb = document.querySelector(".an-hd-bar"), btn = document.querySelector(".an-hd-cta"), bar = document.querySelector(".an-bar");
+    const br = bar.getBoundingClientRect();
     return {
-      fixed: hs.position === "fixed" && Math.round(h.getBoundingClientRect().top) === 0,
-      line: hs.borderBottom,
+      floating: h.classList.contains("is-scrolled") && Math.round(hb.getBoundingClientRect().top) <= 12 && getComputedStyle(h).position === "sticky",
       btn: getComputedStyle(btn).display !== "none" && getComputedStyle(btn).visibility === "visible",
       btnH: Math.round(btn.getBoundingClientRect().height),
       bar: getComputedStyle(bar).display !== "none" && getComputedStyle(bar).visibility === "visible" && br.bottom <= innerHeight + 0.5 && br.top < innerHeight,
       heroTop: document.querySelector(".an section.s1").getBoundingClientRect().top + window.scrollY,
+      logo: !!document.querySelector(".an-hd-logo img[alt='Best Solution']"),
       sw: document.documentElement.scrollWidth - innerWidth,
     };
   });
 const lastCta = (p) => p.evaluate(() => (window.dataLayer || []).filter((e) => e?.event === "acc_cta_click").at(-1)?.section);
+const dlgOpen = (p) => p.evaluate(() => !!document.querySelector("dialog.an-dlg")?.open);
+const escape = async (p) => {
+  // The pop-up's code loads on the first click: wait for it before closing.
+  await p.waitForSelector("dialog.an-dlg[open]", { timeout: 15000 }).catch(() => {});
+  await p.keyboard.press("Escape");
+  await wait(400);
+};
 const clickNoNav = (p, sel) =>
   p.$eval(sel, (a) => {
     a.addEventListener("click", (e) => e.preventDefault(), { once: true });
@@ -486,44 +513,51 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
   const top = await sticky(p);
   const heroBottom = await p.$eval(".an section.s1", (e) => e.getBoundingClientRect().bottom + window.scrollY);
   const how = await p.$eval("#how", (e) => e.getBoundingClientRect().top + window.scrollY);
-  check(`${w}: at the top, header not fixed and no bottom bar`, !top.fixed && !top.bar);
-  if (desk) check(`${w}: header quote button shown, 44px high`, top.btn && top.btnH === 44, `${top.btnH}px`);
+  check(`${w}: at the top, header on the hero (not floating), logo image, no bottom bar`, !top.floating && top.logo && !top.bar);
+  if (desk) check(`${w}: header quote button shown (44px+)`, top.btn && top.btnH >= 44, `${top.btnH}px`);
   await to(p, heroBottom + 200);
   await wait(500);
   const past = await sticky(p);
+  check(`${w}: after scrolling, the header floats at the top`, past.floating);
   if (desk) {
-    check(`${w}: after the hero, header fixed with a 1px #E9DFD5 line`, past.fixed && past.line.startsWith("1px solid rgb(233, 223, 213)"), past.line);
     check(`${w}: after the hero, header quote button shown`, past.btn);
-    check(`${w}: no bottom bar on desktop`, !past.bar);
+    check(`${w}: no bottom bar from 900px`, !past.bar);
   } else {
-    check(`${w}: after the hero, bottom bar shown; header not fixed`, past.bar && !past.fixed);
+    check(`${w}: after the hero, bottom bar shown`, past.bar);
     const parts = await p.evaluate(() => {
-      const q = document.querySelector(".s1-bar-q"), wa = document.querySelector(".s1-bar-w"), r = wa.getBoundingClientRect();
+      const q = document.querySelector(".an-bar-q"), wa = document.querySelector(".an-bar-w"), r = wa.getBoundingClientRect();
       return { qHref: q.getAttribute("href"), qText: q.textContent.trim(), wa: [Math.round(r.width), Math.round(r.height)].join("x"), label: wa.getAttribute("aria-label"), waHref: wa.getAttribute("href"), qLeft: q.getBoundingClientRect().right <= r.left };
     });
-    check(`${w}: bar = "Get my quote" (#quote) left, 52px WhatsApp square right`, parts.qHref === "#quote" && parts.qText === "Get my quote" && parts.wa === "52x52" && parts.label === "WhatsApp" && /^https:\/\/wa\.me\//.test(parts.waHref) && parts.qLeft, JSON.stringify({ ...parts, waHref: parts.waHref?.slice(0, 16) }));
+    check(`${w}: bar = "Get my quote" left, 52px WhatsApp square right`, parts.qHref === "#quote" && parts.qText === "Get my quote" && parts.wa === "52x52" && parts.label === "WhatsApp" && /^https:\/\/wa\.me\//.test(parts.waHref) && parts.qLeft, JSON.stringify({ ...parts, waHref: parts.waHref?.slice(0, 16) }));
     const foot = await p.$eval(".an-foot", (e) => parseFloat(getComputedStyle(e).paddingBottom));
     check(`${w}: footer bottom padding clears the bar`, foot >= 32 + 72, `${foot}px`);
   }
-  check(`${w}: no layout shift when the header/bar appears (hero stays put)`, Math.abs(past.heroTop - top.heroTop) < 0.5, `${top.heroTop} -> ${past.heroTop}`);
+  check(`${w}: no layout shift when the header floats or the bar appears (hero stays put)`, Math.abs(past.heroTop - top.heroTop) < 0.5, `${top.heroTop} -> ${past.heroTop}`);
   check(`${w}: no sideways scroll with the header/bar showing`, past.sw <= 0, `${past.sw}px`);
   if (!PW) {
     const cls = await p.evaluate(() => window.__cls);
     check(`${w}: CLS after scrolling past the hero under 0.05`, cls < 0.05, cls.toFixed(4));
   }
-  // Tracking: fixed values only.
+  // Tracking: fixed values only. These buttons open the quote pop-up; Escape closes it again.
   if (desk) {
-    await clickNoNav(p, ".s1-hcta");
-    check(`${w}: header button sends acc_cta_click section "header"`, (await lastCta(p)) === "header");
+    await clickNoNav(p, ".an-hd-cta");
+    await wait(600);
+    check(`${w}: header button opens the pop-up and sends acc_cta_click "header"`, (await lastCta(p)) === "header" && (await dlgOpen(p)));
+    await escape(p);
   } else {
-    await clickNoNav(p, ".s1-bar-q");
+    await clickNoNav(p, ".an-bar-q");
+    await wait(600);
     const a = await lastCta(p);
-    await clickNoNav(p, ".s1-bar-w");
-    check(`${w}: bar sends acc_cta_click "sticky_quote" and "sticky_whatsapp"`, a === "sticky_quote" && (await lastCta(p)) === "sticky_whatsapp");
+    const opened = await dlgOpen(p);
+    await escape(p);
+    await clickNoNav(p, ".an-bar-w");
+    check(`${w}: bar opens the pop-up; sends "sticky_quote" and "sticky_whatsapp"`, opened && a === "sticky_quote" && (await lastCta(p)) === "sticky_whatsapp");
   }
   // A field with focus hides the bar. The quote fields sit inside the quote section (which hides the bar
   // anyway), so a stand-in field outside it tests the focus rule on its own.
   if (!desk) {
+    await to(p, how);
+    await wait(400);
     await p.evaluate(() => {
       const i = Object.assign(document.createElement("input"), { id: "qa-field" });
       i.setAttribute("aria-label", "QA");
@@ -540,7 +574,7 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
   await toQuote(p);
   await wait(400);
   const q = await sticky(p);
-  if (desk) check(`${w}: header button hidden while the quote section is on screen`, !q.btn && q.fixed);
+  if (desk) check(`${w}: header button hidden while the quote section is on screen`, !q.btn && q.floating);
   else check(`${w}: bar hidden while the quote section is on screen`, !q.bar);
   await to(p, how);
   await wait(400);
@@ -549,21 +583,24 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
     await to(p, how - 40);
     await wait(2000);
     await p.screenshot({ path: `${SHOTS}/sticky-${w}.png` });
+    await to(p, 0);
+    await wait(600);
+    await p.screenshot({ path: `${SHOTS}/header-top-${w}.png`, clip: { x: 0, y: 0, width: w, height: 120 } });
   }
-  // Menu links: each heading lands below the fixed header.
+  // Menu links: each heading lands below the header.
   const land = [];
   for (const id of ["services", "how", "reports", "reviews", "questions"]) {
     await to(p, 0);
     await wait(200);
-    if (await p.$eval(".s1-menu", (e) => getComputedStyle(e).display !== "none")) {
-      await p.$eval(".s1-menu", (d) => d.setAttribute("open", ""));
-      await p.$eval(`.s1-menu-panel a[href="#${id}"]`, (a) => a.click());
-    } else await p.$eval(`.s1-nav a[href="#${id}"]`, (a) => a.click());
+    if (await p.$eval(".an-hd-menu", (e) => getComputedStyle(e).display !== "none")) {
+      await p.$eval(".an-hd-menu", (d) => d.setAttribute("open", ""));
+      await p.$eval(`.an-hd-panel a[href="#${id}"]`, (a) => a.click());
+    } else await p.$eval(`.an-hd-nav a[href="#${id}"]`, (a) => a.click());
     await wait(1800);
     land.push(
       await p.evaluate((i) => {
-        const h = document.querySelector(`#${i} h2`).getBoundingClientRect(), head = document.querySelector(".s1-head");
-        const cover = getComputedStyle(head).position === "fixed" ? head.getBoundingClientRect().bottom : 0;
+        const h = document.querySelector(`#${i} h2`).getBoundingClientRect();
+        const cover = document.querySelector(".an-hd-bar").getBoundingClientRect().bottom;
         return { i, ok: h.top >= cover - 1 && h.top < innerHeight / 2, top: Math.round(h.top), cover: Math.round(cover) };
       }, id),
     );
@@ -584,6 +621,202 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
     check(`${w}: bar shown once the banner is closed`, (await sticky(c)).bar);
     await close(c);
   }
+}
+
+// 4e. The quote pop-up: opened only by a click, its code loaded on first open, filled with what each section's
+// answers prove, starting at the first open question; phone sheet behaviour; one conversion per lead.
+const dlg = (p) =>
+  p.evaluate(() => {
+    const d = document.querySelector("dialog.an-dlg");
+    if (!d?.open) return { open: false };
+    const r = d.getBoundingClientRect();
+    return {
+      open: true,
+      head: d.querySelector(".s9-lab")?.textContent.trim(),
+      step: d.querySelector(".s9-sl b")?.textContent,
+      focusIn: d.contains(document.activeElement),
+      focus: document.activeElement?.textContent?.trim().slice(0, 40),
+      picked: [...d.querySelectorAll(".s9-c[aria-pressed='true'], .s9-c[aria-checked='true']")].map((b) => b.textContent.trim()),
+      svc: d.querySelector(".an-dlg-svc")?.textContent.trim() || "",
+      title: d.querySelector("#an-d-title")?.textContent.replace(/\s+/g, " ").trim(),
+      full: Math.abs(r.width - innerWidth) < 1 && Math.abs(r.height - (window.visualViewport?.height ?? innerHeight)) < 2,
+      locked: getComputedStyle(document.documentElement).overflow === "hidden",
+    };
+  });
+const openFrom = async (p, sel, scroll = sel) => {
+  await p.$eval(scroll, (e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
+  await wait(300);
+  await p.$eval(sel, (e) => e.click());
+  await p.waitForSelector("dialog.an-dlg[open]", { timeout: 15000 }).catch(() => {});
+  await wait(500);
+  return dlg(p);
+};
+for (const w of [360, 390, 1024, 1440, 1920]) {
+  const shots = SHOTS && (w === 390 || w === 1440);
+  const p = await open(w);
+  // Never on its own: walk the whole page and wait; no pop-up, and its code is not loaded.
+  await p.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 600) {
+      window.scrollTo({ top: y, behavior: "instant" });
+      await new Promise((r) => setTimeout(r, 80));
+    }
+  });
+  await p.mouse.move(w / 2, 5);
+  await wait(3000);
+  const early = await p.evaluate(() => ({ dlg: !!document.querySelector("dialog.an-dlg"), css: [...document.styleSheets].some((s) => { try { return [...s.cssRules].some((r) => r.selectorText?.includes(".an-dlg")); } catch { return false; } }) }));
+  check(`${w}: no pop-up and no pop-up code before a click (scroll, wait, mouse to the top)`, !early.dlg && !early.css, JSON.stringify(early));
+
+  // Hero: step 1, focus on its heading; Escape closes and focus returns to the button.
+  let d = await openFrom(p, ".s1-btn1");
+  check(`${w}: hero opens the pop-up at step 1 with focus on its heading`, d.title === "Next month, know your numbers." && d.open && d.head === "What do you need most?" && d.focus === "What do you need most?", JSON.stringify(d));
+  if (w < 900) check(`${w}: phone pop-up is a full-screen sheet and locks the page scroll`, d.full && d.locked, JSON.stringify({ full: d.full, locked: d.locked }));
+  // Focus stays inside.
+  let inside = true;
+  for (let i = 0; i < 25; i++) {
+    await p.keyboard.press("Tab");
+    inside = inside && (await p.evaluate(() => document.querySelector("dialog.an-dlg").contains(document.activeElement)));
+  }
+  check(`${w}: Tab stays inside the pop-up`, inside);
+  if (shots) await p.screenshot({ path: `${SHOTS}/pop-hero-${w}.png` });
+  await escape(p);
+  check(`${w}: Escape closes it and focus returns to the hero button`, !(await dlgOpen(p)) && (await p.evaluate(() => document.activeElement?.classList.contains("s1-btn1"))) && !(await p.evaluate(() => getComputedStyle(document.documentElement).overflow === "hidden")));
+  const opens = await p.evaluate(() => (window.dataLayer || []).filter((e) => e?.event === "acc_quote_open").map((e) => e.source));
+  check(`${w}: acc_quote_open source "1"`, opens.join() === "1", opens.join());
+
+  // What we do: VAT returns + Corporate Tax return settle the need, so it starts at step 2 and lists them.
+  await p.$eval("#services .s1b-sheet", (e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
+  await wait(1500);
+  for (const s of ["VAT returns", "Corporate Tax return"]) await p.$$eval("#services .s1b-pick", (bs, l) => bs.find((b) => b.textContent.trim() === l).click(), s);
+  await wait(200);
+  const ticks = await p.$$eval("#services .s1b-pick[aria-pressed='true']", (bs) => bs.map((b) => b.textContent.trim()).join());
+  check(`${w}: services rows tick (aria-pressed)`, ticks === "VAT returns,Corporate Tax return", ticks);
+  d = await openFrom(p, "#services .s1b-btn");
+  check(`${w}: What we do opens at step 2 with the need settled and the services listed`, d.step === "2" && d.svc === "VAT returns · Corporate Tax return" && d.title === "Your quote for these 2 services.", JSON.stringify(d));
+  if (shots) await p.screenshot({ path: `${SHOTS}/pop-services-${w}.png` });
+  await p.$eval("dialog.an-dlg .s9-back", (b) => b.click());
+  await wait(300);
+  check(`${w}: Back shows the need it settled`, (await dlg(p)).picked.join() === "File my VAT or Corporate Tax", (await dlg(p)).picked.join());
+  await escape(p);
+  // Close and reopen keeps the answers and the step.
+  d = await openFrom(p, "#services .s1b-btn");
+  check(`${w}: reopening keeps the answers`, d.picked.join() === "File my VAT or Corporate Tax" || d.step === "2", JSON.stringify(d));
+  await escape(p);
+  await close(p);
+
+  // Books check: "updated every month: Yes" fills "Up to date" only; "No" fills nothing.
+  for (const first of ["Yes", "No"]) {
+    const c = await open(w);
+    await c.$eval("#check", (e) => e.scrollIntoView({ block: "start", behavior: "instant" }));
+    await wait(600);
+    // Answer lines 01 to 05 one at a time (each click re-renders): the first as given, the rest No.
+    for (let k = 0; k < 5; k++) {
+      await c.$$eval("#check .s3-bx", (bs, a) => bs.filter((x) => x.getAttribute("aria-label").endsWith(": " + a.v))[a.k].click(), { k, v: k === 0 ? first : "No" });
+      await wait(120);
+    }
+    await wait(500);
+    const has = await c.$("#check .s3-btn1");
+    d = has ? await openFrom(c, "#check .s3-btn1") : { open: false };
+    if (first === "Yes") {
+      check(`${w}: books check Yes opens at step 1 (need unknown), header shows the result`, d.title === "Your result: At risk." && d.open && d.step === "1", JSON.stringify(d));
+      await c.$$eval("dialog.an-dlg .s9-c", (bs) => bs.find((b) => b.textContent.trim() === "Not sure yet").click());
+      await c.$eval("dialog.an-dlg .s9-next", (b) => b.click());
+      await wait(400);
+      const p2 = await dlg(c);
+      check(`${w}: ...and step 2 shows "Up to date" picked, nothing else`, p2.step === "2" && p2.picked.join() === "Up to date", p2.picked.join());
+      if (shots) await c.screenshot({ path: `${SHOTS}/pop-check-${w}.png` });
+    } else {
+      await c.$$eval("dialog.an-dlg .s9-c", (bs) => bs.find((b) => b.textContent.trim() === "Not sure yet").click());
+      await c.$eval("dialog.an-dlg .s9-next", (b) => b.click());
+      await wait(400);
+      const p2 = await dlg(c);
+      check(`${w}: books check No fills nothing (step 2 asks every row)`, d.open && p2.step === "2" && p2.picked.length === 0, JSON.stringify({ d: d.step, picked: p2.picked }));
+    }
+    await close(c);
+  }
+
+  // Section 6: the step 1 pickers, then the link opens at step 1; after the need it goes straight to the details.
+  const s = await open(w);
+  await s.$eval("#how", (e) => e.scrollIntoView({ block: "start", behavior: "instant" }));
+  await wait(600);
+  const opts = await s.$$eval("#how .s6-pick select", (ss) => ss.map((x) => [...x.options].slice(1).map((o) => o.value)));
+  check(
+    `${w}: section 6 pickers use the quote form's exact options`,
+    JSON.stringify(opts) === JSON.stringify([["Under 50", "50 to 200", "200 to 500", "500+", "Not sure"], ["Up to date", "1 to 3 months behind", "3+ months behind", "No books yet", "Not sure"], ["Zoho Books", "QuickBooks", "Tally", "Excel", "None yet", "Not sure"]]),
+    JSON.stringify(opts),
+  );
+  const sel = (i, v) => s.evaluate(({ i, v }) => {
+    const x = document.querySelectorAll("#how .s6-pick select")[i];
+    x.value = v;
+    x.dispatchEvent(new Event("change", { bubbles: true }));
+  }, { i, v });
+  await sel(0, "50 to 200");
+  await sel(1, "1 to 3 months behind");
+  await sel(2, "Zoho Books");
+  await wait(200);
+  d = await openFrom(s, "#how .s6-link");
+  check(`${w}: section 6 link opens at step 1 (the need is still open)`, d.title === "Tell us about your books." && d.step === "1", JSON.stringify(d));
+  await s.$$eval("dialog.an-dlg .s9-c", (bs) => bs.find((b) => b.textContent.trim() === "Keep my books every month").click());
+  await s.$eval("dialog.an-dlg .s9-next", (b) => b.click());
+  await wait(400);
+  check(`${w}: ...then straight to the contact step (book rows already answered)`, (await dlg(s)).step === "3");
+  if (shots) await s.screenshot({ path: `${SHOTS}/pop-s6-${w}.png` });
+  await escape(s);
+  d = await openFrom(s, "#how .s6-opt[data-need='Catch up on past months']");
+  check(`${w}: section 6 "A catch-up on past months" fills that need and opens at the contact step`, d.title === "We take over: a catch-up on past months." && d.step === "3", JSON.stringify(d));
+  await s.$eval("dialog.an-dlg .s9-back", (b) => b.click());
+  await wait(300);
+  await s.$eval("dialog.an-dlg .s9-back", (b) => b.click());
+  await wait(300);
+  check(`${w}: ...and its need is "Catch up on past months"`, (await dlg(s)).picked.join() === "Catch up on past months", (await dlg(s)).picked.join());
+  // Phone: the back gesture closes the sheet and stays on the page.
+  if (w < 900) {
+    await (PW ? s.goBack({ waitUntil: "commit" }).catch(() => {}) : s.goBack({ timeout: 3000 }).catch(() => {}));
+    await wait(600);
+    check(`${w}: back gesture closes the sheet, not the page`, !(await dlgOpen(s)) && s.url().includes("/accounting-new"), s.url());
+  }
+  await close(s);
+
+  // Conversions: open from two places, submit once (double-click), one lead, one form_submit, one generate_lead,
+  // form_submit's event_id = the lead's event_id; the source only on the acc_* events.
+  const c = await open(w);
+  await openFrom(c, ".s1-btn1");
+  await escape(c);
+  await openFrom(c, "#services .s1b-btn");
+  await c.$$eval("dialog.an-dlg .s9-c", (bs) => bs.find((b) => b.textContent.trim() === "Catch up on past months")?.click());
+  await c.$eval("dialog.an-dlg .s9-next", (b) => b.click());
+  await wait(300);
+  for (const [row, label] of [[0, "50 to 200"], [1, "Excel"], [2, "1 to 3 months behind"]])
+    await c.$$eval("dialog.an-dlg .s9-chips.s", (rows, a) => [...rows[a.row].querySelectorAll("button")].find((x) => x.textContent.trim() === a.label).click(), { row, label });
+  await c.$eval("dialog.an-dlg .s9-next", (b) => b.click());
+  await wait(300);
+  await c.type("#an-d-name", NAME);
+  await c.type("#an-d-phone", PHONE);
+  await c.type("#an-d-email", EMAIL);
+  await c.$eval("dialog.an-dlg .s9-next", (b) => {
+    b.click();
+    b.click();
+  });
+  await c.waitForSelector("dialog.an-dlg .s9-done", { timeout: 10000 }).catch(() => {});
+  await wait(800);
+  const conv = await c.evaluate(() => {
+    const dl = window.dataLayer || [];
+    const fsx = dl.filter((e) => e?.event === "form_submit"), gl = dl.filter((e) => e?.event === "generate_lead"), sub = dl.filter((e) => e?.event === "acc_quote_submit");
+    return { fs: fsx.length, gl: gl.length, eid: fsx[0]?.event_id, sub: sub.map((e) => e.source).join(), srcOnConv: [...fsx, ...gl].some((e) => "source" in e) };
+  });
+  const lead = c.leads[0] || {};
+  check(`${w}: CONVERSION opened from 2 places, submitted once: 1 lead, 1 form_submit, 1 generate_lead`, c.leads.length === 1 && conv.fs === 1 && conv.gl === 1, JSON.stringify({ leads: c.leads.length, ...conv }));
+  check(`${w}: CONVERSION form_submit event_id = the ERP lead's event_id`, !!conv.eid && conv.eid === lead.event_id);
+  check(`${w}: CONVERSION source only on acc_quote_submit ("services"), not on the conversions`, conv.sub === "services" && !conv.srcOnConv, JSON.stringify(conv));
+  // The quote section shows the same sent state: no second lead from there.
+  check(`${w}: the quote section shows "Request received." too (one shared lead)`, (await c.$eval("#quote", (e) => e.textContent)).includes("Request received."));
+  if (w === 390 || w === 1440) {
+    await c.addScriptTag({ content: AXE });
+    await escape(c);
+    await openFrom(c, ".s1-btn1");
+    const v = await c.evaluate(async () => (await window.axe.run(document.querySelector("dialog.an-dlg"), { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] })).violations.map((x) => `${x.id} x${x.nodes.length}: ${x.nodes[0]?.target}`));
+    check(`${w}: axe on the open pop-up`, v.length === 0, v.join(" | "));
+  }
+  await close(c);
 }
 
 // 5. axe at 390 and 1440, and screenshots of every section (reduced motion = final states).

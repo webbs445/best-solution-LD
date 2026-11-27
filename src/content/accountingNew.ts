@@ -27,5 +27,15 @@ export const AN_NEED_SERVICE: Record<(typeof AN_NEEDS)[number], ServiceKey> = {
 export const AN_VOLUMES = VOLUMES;
 export const AN_SOFTWARE = [...SOFTWARE, "Not sure"];
 export const AN_BOOK_STATES = [...BOOK_STATES, "Not sure"];
+/** The seven services in "What we do". Ticked ones are sent as "services" and filed on the lead's notes. */
+export const AN_SERVICES = [
+  "Bookkeeping",
+  "Bank reconciliation",
+  "Financial statements",
+  "VAT returns",
+  "Corporate Tax return",
+  "Catch-up bookkeeping",
+  "Audit-ready records",
+];
 /** The new form's submit button, filed as the lead's button name. */
 export const AN_BUTTON = "Get my quote today";

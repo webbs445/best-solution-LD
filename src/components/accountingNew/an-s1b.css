@@ -145,6 +145,41 @@
   gap: 3px;
   min-width: 0;
 }
+/* Each row is a tick box: the service name is a button stretched over the whole row. */
+.an .s1b-pick {
+  all: unset;
+  cursor: pointer;
+  font-family: var(--an-tight);
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--an-navy);
+}
+.an .s1b-pick::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+}
+.an .s1b-pick:focus-visible::after {
+  outline: 3px solid var(--an-copper);
+  outline-offset: -2px;
+}
+.an .s1b-row.on {
+  background: linear-gradient(90deg, #fff3ea, rgba(255, 243, 234, 0));
+}
+.an .s1b-row.on .s1b-no {
+  color: #fff;
+  background: var(--an-btn);
+  box-shadow: none;
+  font-weight: 700;
+}
+.an .s1b-hint {
+  margin: -8px 0 0;
+  font-size: 14px;
+  color: var(--an-muted);
+}
 .an .s1b-nm b {
   font-family: var(--an-tight);
   font-weight: 800;
@@ -221,7 +256,7 @@
   /* Text column beside the sheet; the sheet spans every row and the last row takes the slack. */
   .an .s1b-wrap {
     grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto auto 1fr;
+    grid-template-rows: auto auto auto auto auto auto 1fr;
     gap: 22px 72px;
   }
   .an .s1b-wrap > :not(.s1b-sheet) {
@@ -253,8 +288,11 @@
     grid-row: 4;
   }
   /* More specific than .an .an-btn1, whose all: unset would reset justify-self. */
-  .an .s1b-wrap > .s1b-btn {
+  .an .s1b-hint {
     grid-row: 5;
+  }
+  .an .s1b-wrap > .s1b-btn {
+    grid-row: 6;
     justify-self: start;
   }
   .an .s1b-sheet::before {
@@ -277,7 +315,8 @@
     height: 38px;
     font-size: 15px;
   }
-  .an .s1b-nm b {
+  .an .s1b-nm b,
+  .an .s1b-pick {
     font-size: 21px;
   }
   .an .s1b-nm span {

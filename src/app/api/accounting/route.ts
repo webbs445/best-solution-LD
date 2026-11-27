@@ -7,7 +7,7 @@ import { clientIp, rateLimit } from "@/lib/rateLimit";
 
 const HOUR = 60 * 60 * 1000;
 import { SERVICE_NAMES, VOLUMES, type ServiceKey } from "@/content/accounting";
-import { AN_BOOK_STATES, AN_BUTTON, AN_NEED_SERVICE, AN_NEEDS, AN_SOFTWARE } from "@/content/accountingNew";
+import { AN_BOOK_STATES, AN_BUTTON, AN_NEED_SERVICE, AN_NEEDS, AN_SERVICES, AN_SOFTWARE } from "@/content/accountingNew";
 
 /*
   Receives the /accounting page's quote request and creates a Lead in the ERP.
@@ -56,10 +56,13 @@ export const POST = withLeadLog("accounting", async (request, log) => {
   const software = oneOf(body.software, AN_SOFTWARE);
   const state = oneOf(body.books_state, AN_BOOK_STATES);
   const health = str(body.health_check, 200);
+  // The services ticked in "What we do" (/accounting-new): known names only, each once, in the page's order.
+  const picked = Array.isArray(body.services) ? AN_SERVICES.filter((s) => (body.services as unknown[]).includes(s)) : [];
 
   const details: [string, string][] = [
     ["Service", SERVICE_NAMES[service]],
     ...(need ? ([["Need", need]] as [string, string][]) : []),
+    ...(picked.length ? ([["Services picked", picked.join(", ")]] as [string, string][]) : []),
     ...(volume ? ([["Transactions per month", volume]] as [string, string][]) : []),
     ...(software ? ([["Current software", software]] as [string, string][]) : []),
     ...(state ? ([["Books today", state]] as [string, string][]) : []),

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AnCta, AnWhatsApp } from "./AnLinks";
 import { EMPTY, QUESTIONS, answerLine, answeredCount, getResult, reset, setTrading, type CheckState } from "./checkLogic";
 import { useInView } from "./motion";
+import { prefillFromCheck } from "./quoteLogic";
 import { accTrack } from "./track";
 import "./an-s3.css";
 
@@ -53,7 +54,8 @@ export function AnCheck() {
             <div className="s3-next">
               <span className="s3-rtext">{r.text}</span>
               <span className="s3-btns">
-                <AnCta section={3} className="an-btn1 s3-btn1">
+                {/* Opens the quote pop-up with only what the ticks prove (prefillFromCheck). */}
+                <AnCta section={3} className="an-btn1 s3-btn1" prefill={prefillFromCheck(s.trading, s.a[0])} topic="check" note={r.title}>
                   {r.cta}{" "}
                   <span className="s3-arr">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

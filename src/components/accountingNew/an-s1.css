@@ -13,240 +13,6 @@
   }
 }
 
-/* ---------- header ---------- */
-/* Holds the header height in the flow (58px phone, 82px from 900px), so the fixed header shifts nothing. */
-.an .s1-headbox {
-  min-height: 58px;
-}
-.an .s1-head {
-  position: relative;
-  z-index: 30;
-  background: #fff;
-}
-.an .s1-head-in {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 7px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-.an .s1-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  font-size: 16px;
-}
-.an .s1-mark {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: var(--an-copper);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 15px;
-}
-.an .s1-nav,
-.an .s1-tel {
-  display: none;
-}
-.an .s1-nav a,
-.an .s1-tel {
-  color: var(--an-navy);
-  text-decoration: none;
-}
-.an .s1-nav a:hover,
-.an .s1-tel:hover {
-  color: var(--an-copper-txt);
-}
-.an .s1-menu {
-  position: relative;
-}
-.an .s1-menu summary {
-  list-style: none;
-  width: 44px;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border-radius: 10px;
-}
-.an .s1-menu summary::-webkit-details-marker {
-  display: none;
-}
-.an .s1-menu summary:focus-visible {
-  outline: 3px solid var(--an-copper);
-  outline-offset: 2px;
-}
-.an .s1-menu-panel {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 6px);
-  width: min(280px, calc(100vw - 32px));
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-  background: #fff;
-  border: 1px solid var(--an-line);
-  border-radius: 12px;
-  box-shadow: 0 24px 40px -24px rgba(20, 33, 61, 0.45);
-}
-.an .s1-menu-panel a {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 12px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--an-navy);
-  text-decoration: none;
-}
-.an .s1-menu-panel a:hover {
-  background: var(--an-cream);
-}
-.an .s1-menu-panel .s1-menu-tel {
-  font-weight: 600;
-  border-top: 1px solid var(--an-line);
-  border-radius: 0 0 8px 8px;
-  margin-top: 4px;
-}
-/* Header quote button: the main button, 44px high. Hidden (space kept) while the quote section is on screen. */
-.an .s1-head-in > .s1-hcta {
-  display: none;
-  min-height: 44px;
-  height: 44px;
-  padding: 0 18px;
-  border-radius: 10px;
-  font-size: 15px;
-  white-space: nowrap;
-  transition: opacity 0.2s, visibility 0s;
-}
-.an .s1-head-in > .s1-hcta.off {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s, visibility 0s 0.2s;
-}
-
-/* Phone bottom bar: shown once the hero is gone, hidden over the quote, the cookie banner and while typing. */
-.an .s1-bar-m {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 40;
-  display: flex;
-  gap: 10px;
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-  background: #fff;
-  border-top: 1px solid #e9dfd5;
-  transform: translateY(110%);
-  visibility: hidden;
-  transition: transform 0.25s ease, visibility 0s 0.25s;
-}
-.an .s1-bar-m.on {
-  transform: none;
-  visibility: visible;
-  transition: transform 0.25s ease;
-}
-.an .s1-bar-m > .s1-bar-q {
-  flex: 1;
-  min-height: 52px;
-  font-size: 16px;
-}
-.an .s1-bar-m > .s1-bar-w {
-  flex: none;
-  width: 52px;
-  height: 52px;
-  min-height: 52px;
-  padding: 0;
-}
-@media (min-width: 900px) {
-  .an .s1-headbox {
-    min-height: 82px;
-  }
-  .an .s1-head-in {
-    height: 82px;
-    padding: 0 40px;
-  }
-  .an .s1-head-in > .s1-hcta {
-    display: inline-flex;
-  }
-  .an .s1-bar-m {
-    display: none;
-  }
-  /* Once the hero has scrolled off: fixed at the top, a 1px line, a shadow lighter than the cards. */
-  .an .s1-head.stuck {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    border-bottom: 1px solid #e9dfd5;
-    box-shadow: 0 10px 24px -22px rgba(20, 33, 61, 0.45);
-    animation: s1-drop 0.25s ease;
-  }
-  .an .s1-head.stuck .s1-head-in {
-    height: 68px;
-  }
-  /* Menu links land each heading below the fixed header. */
-  .an main section[id] {
-    scroll-margin-top: 84px;
-  }
-  .an .s1-logo {
-    gap: 10px;
-    font-size: 17px;
-  }
-  .an .s1-mark {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    font-size: 17px;
-  }
-  /* 900 to 1099 has no room for the links beside the button, so the menu stays. */
-  .an .s1-nav {
-    display: none;
-    gap: 34px;
-    font-size: 15px;
-    font-weight: 500;
-  }
-  .an .s1-tel {
-    display: inline;
-    font-size: 15px;
-    font-weight: 600;
-  }
-  .an .s1-tel {
-    margin-left: auto;
-  }
-}
-@keyframes s1-drop {
-  from {
-    transform: translateY(-100%);
-  }
-}
-@media (min-width: 1100px) {
-  .an .s1-nav {
-    display: flex;
-    margin: 0 auto;
-  }
-  .an .s1-tel {
-    margin-left: 0;
-  }
-  .an .s1-menu {
-    display: none;
-  }
-}
-@media (min-width: 1100px) and (max-width: 1239.98px) {
-  .an .s1-nav {
-    gap: 22px;
-  }
-}
-
 /* ---------- hero top ---------- */
 .an section.s1 {
   padding: 0;
@@ -991,6 +757,238 @@
 
 @media (min-width: 900px) {
   .an .s1-phone {
+    display: none;
+  }
+}
+
+/* Header (AnHeader), matched to /services: on the hero at the top, a floating rounded bar once the page scrolls. */
+.an .an-hd {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  padding: 8px 8px 0;
+  pointer-events: none;
+}
+.an .an-hd-bar {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1440px;
+  min-height: 64px;
+  margin-inline: auto;
+  padding: 0 8px 0 14px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: transparent;
+  transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.an .an-hd.is-scrolled .an-hd-bar {
+  background: linear-gradient(#fff, #f5e8e2);
+  border-color: rgba(204, 134, 103, 0.14);
+  box-shadow: 0 10px 24px rgba(20, 37, 62, 0.12);
+}
+.an .an-hd-logo {
+  display: inline-flex;
+}
+.an .an-hd-logo img {
+  width: auto;
+  height: 38px;
+}
+.an .an-hd-nav,
+.an .an-hd-phone,
+.an .an-hd-cta {
+  display: none;
+}
+.an .an-hd-act {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.an .an-hd-icons {
+  display: flex;
+  gap: 8px;
+}
+.an .an-hd-ic,
+.an .an-hd-menu summary {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid #e2d3c6;
+  background: #fff;
+  color: var(--an-navy);
+  cursor: pointer;
+}
+.an .an-hd-ic svg {
+  width: 20px;
+  height: 20px;
+}
+.an .an-hd-wa {
+  color: #1f8f4e;
+}
+.an .an-hd-menu {
+  position: relative;
+}
+.an .an-hd-menu summary {
+  list-style: none;
+}
+.an .an-hd-menu summary::-webkit-details-marker {
+  display: none;
+}
+.an .an-hd-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(260px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid var(--an-line);
+  border-radius: 12px;
+  box-shadow: 0 24px 40px -24px rgba(20, 33, 61, 0.45);
+}
+.an .an-hd-panel a,
+.an .an-hd-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font: 600 15px/1 var(--font-inter), Inter, system-ui, sans-serif;
+  color: var(--an-navy);
+  text-decoration: none;
+  transition: background-color 0.15s, color 0.15s;
+}
+.an .an-hd-panel a:hover,
+.an .an-hd-nav a:hover {
+  background: rgba(204, 134, 103, 0.1);
+  color: var(--an-copper-txt);
+}
+/* Desktop quote button: the /services header button. Hidden (space kept) while the quote section is on screen. */
+.an .an-hd-cta {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  align-items: center;
+  min-height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  white-space: nowrap;
+  font: 600 15px var(--font-inter), Inter, system-ui, sans-serif;
+  color: #fff;
+  background: linear-gradient(to right bottom, #a8623e, #8f4f2c);
+  box-shadow: 0 8px 20px rgba(168, 98, 62, 0.32);
+  transition: opacity 0.2s, visibility 0s, transform 0.15s;
+}
+.an .an-hd-cta:hover {
+  background: linear-gradient(to right bottom, #94532f, #7e4426);
+  transform: translateY(-1px);
+}
+.an .an-hd-cta.off {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0s 0.2s;
+}
+/* Headings land below the sticky header. */
+.an main section[id] {
+  scroll-margin-top: 84px;
+}
+
+/* 900px and up: the quote button sits in the header (phones have the bottom bar instead). */
+@media (min-width: 900px) {
+  .an .an-hd-cta {
+    display: inline-flex;
+  }
+}
+@media (min-width: 1024px) {
+  .an .an-hd {
+    padding: 12px 24px 0;
+  }
+  .an .an-hd-bar {
+    min-height: 72px;
+    padding: 0 12px 0 28px;
+  }
+  .an .an-hd-logo img {
+    height: 44px;
+  }
+  .an .an-hd-act {
+    gap: 12px;
+  }
+  .an .an-hd-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--an-navy);
+    text-decoration: none;
+  }
+  .an .an-hd-phone svg {
+    width: 16px;
+    height: 16px;
+    color: var(--an-copper-txt);
+  }
+  .an .an-hd-icons {
+    display: none;
+  }
+  .an main section[id] {
+    scroll-margin-top: 100px;
+  }
+}
+/* The five section links need the full width; below that they sit in the menu. */
+@media (min-width: 1240px) {
+  .an .an-hd-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .an .an-hd-menu {
+    display: none;
+  }
+}
+
+/* Phone bottom bar: shown once the hero is gone, hidden over the quote, the cookie banner and while typing. */
+.an .an-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  gap: 10px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid #e9dfd5;
+  transform: translateY(110%);
+  visibility: hidden;
+  transition: transform 0.25s ease, visibility 0s 0.25s;
+}
+.an .an-bar.on {
+  transform: none;
+  visibility: visible;
+  transition: transform 0.25s ease;
+}
+.an .an-bar > .an-bar-q {
+  flex: 1;
+  min-height: 52px;
+  font-size: 16px;
+}
+.an .an-bar > .an-bar-w {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  padding: 0;
+}
+@media (min-width: 900px) {
+  .an .an-bar {
     display: none;
   }
 }

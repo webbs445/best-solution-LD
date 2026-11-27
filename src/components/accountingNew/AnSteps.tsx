@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { useInView, useReducedMotion } from "./motion";
+import { AN_BOOK_STATES, AN_SOFTWARE, AN_VOLUMES } from "@/content/accountingNew";
 import { AnCta } from "./AnLinks";
+import type { QuoteAnswers } from "./quoteLogic";
+import { openQuote, pick, useQuote } from "./quoteStore";
+import { accTrack } from "./track";
 import "./an-s6.css";
 
 /* S6 "Four steps. Then it runs every month.": the steps light up along a progress line, then an example year fills in. */
@@ -18,13 +22,7 @@ const STEPS = [
     when: "TODAY · 2 MINUTES",
     h: "Tell us about your books.",
     p: "Online or on WhatsApp.",
-    scene: (
-      <>
-        <span className="s6-chip">Payments a month <b>50 to 200</b></span>
-        <span className="s6-chip">Books <b>2 months behind</b></span>
-        <span className="s6-chip">Software <b>Zoho Books</b></span>
-      </>
-    ),
+    scene: null,
   },
   {
     when: "SAME DAY",
@@ -42,15 +40,81 @@ const STEPS = [
     when: "FIRST MONTH",
     h: "We take over.",
     p: "Whatever state the books are in.",
-    scene: (
-      <>
-        <span className="s6-opt"><i />New books</span>
-        <span className="s6-opt"><i />A catch-up on past months</span>
-        <span className="s6-opt"><i />Your file from your old accountant</span>
-      </>
-    ),
+    scene: null,
   },
 ];
+
+// Step 3: each starting point opens the quote with the need it means.
+const TAKE_OVER = [
+  ["New books", "My company is new"],
+  ["A catch-up on past months", "Catch up on past months"],
+  ["Your file from your old accountant", "Keep my books every month"],
+] as const;
+
+/**
+ * Step 1: the quote form's three book questions (its exact options), answered in place and shared with the quote form
+ * and pop-up. One line each: icon, the design's short label, the picker. The button opens the pop-up.
+ */
+function BooksPick() {
+  const { answers } = useQuote();
+  const row = (k: keyof QuoteAnswers, label: string, full: string, list: readonly string[], icon: ReactNode) => (
+    <label className="s6-pick">
+      <span className="s6-pi" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {icon}
+        </svg>
+      </span>
+      {/* The visible field; the native picker sits over it (transparent), so phones get their own picker. */}
+      <span className="s6-pv" aria-hidden="true">
+        <small>{label}</small>
+        <b className={answers[k] ? "" : "s6-pv-none"}>{answers[k] || "Choose"}</b>
+      </span>
+      <select value={answers[k]} aria-label={full} onChange={(e) => pick(k, e.target.value)}>
+        <option value="">Choose</option>
+        {list.map((v) => (
+          <option key={v} value={v}>
+            {v}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+  return (
+    <div className="s6-scene s6-live">
+      <span className="s6-ex s6-ex-live">Your answers</span>
+      {row("volume", "Payments a month", "payments and invoices per month", AN_VOLUMES, <><path d="M6 3h9l3 3v15H6z" /><path d="M9 10h6M9 14h6M9 18h3" /></>)}
+      {row("books", "Books", "how up to date are your books", AN_BOOK_STATES, <><circle cx="12" cy="12" r="8" /><path d="M12 8v4l-3 2" /></>)}
+      {row("software", "Software", "software you use, if any", AN_SOFTWARE, <><rect x="3" y="4" width="18" height="14" rx="2" /><path d="M8 21h8M12 18v3" /></>)}
+      <AnCta section={6} className="an-btn1 s6-link" topic="books">
+        Tell us about your books →
+      </AnCta>
+    </div>
+  );
+}
+
+/** Step 3: pick where the books start; it opens the quote pop-up with that need. */
+function TakeOver() {
+  return (
+    <div className="s6-scene s6-live">
+      <span className="s6-ex s6-ex-live">Pick one</span>
+      {TAKE_OVER.map(([label, need]) => (
+        <button
+          key={label}
+          type="button"
+          className="s6-opt"
+          data-need={need}
+          onClick={(e) => {
+            accTrack("acc_cta_click", { section: 6 });
+            openQuote(6, { need }, e.currentTarget, "start", label);
+          }}
+        >
+          <i aria-hidden="true" />
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 const FACTORS = [
   { t: "Payments and invoices each month", icon: <><path d="M6 3h9l3 3v15H6z" /><path d="M9 10h6M9 14h6M9 18h3" /></> },
@@ -110,14 +174,15 @@ export function AnSteps() {
               <span className="s6-when">{st.when}</span>
               <h3 className="s6-sh">{st.h}</h3>
               <p className="s6-sp">{st.p}</p>
-              <div className="s6-scene" aria-hidden="true">
-                <span className="s6-ex">Example</span>
-                {st.scene}
-              </div>
-              {i === 0 && (
-                <AnCta section={6} className="s6-link">
-                  Tell us about your books →
-                </AnCta>
+              {i === 0 ? (
+                <BooksPick />
+              ) : i === 2 ? (
+                <TakeOver />
+              ) : (
+                <div className="s6-scene" aria-hidden="true">
+                  <span className="s6-ex">Example</span>
+                  {st.scene}
+                </div>
               )}
             </div>
           ))}
@@ -139,7 +204,8 @@ export function AnSteps() {
             </div>
             <div className="s6-months an-num" role="img" aria-label="Twelve monthly reports, with VAT and Corporate Tax returns filed">
               {MONTHS.map((n, i) => (
-                <div key={n} className={i < M - 1 ? "s6-m done" : i === M - 1 ? "s6-m now" : "s6-m"}>
+                // December settles to the finished look once the year is complete.
+                <div key={n} className={i < M - 1 || M === 12 ? "s6-m done" : i === M - 1 ? "s6-m now" : "s6-m"}>
                   <b>{n}</b>
                   <span className="s6-r">✓ Report</span>
                   {TAGS[i] && <span className="s6-tag">{TAGS[i]}</span>}

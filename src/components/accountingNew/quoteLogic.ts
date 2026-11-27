@@ -37,3 +37,36 @@ export function contactErrors(c: Contact): Partial<Record<ContactField, string>>
 
 /** The server's field names (422 response) mapped back to the form's fields. */
 export const SERVER_FIELD: Record<string, ContactField> = { lead_name: "name", mobile_no: "phone", email_id: "email" };
+
+/** Next from a step: past step 2 when its rows were already answered elsewhere (section 6, the books check). */
+export function nextStep(step: QuoteStep, a: QuoteAnswers): QuoteStep {
+  return step === 1 && stepComplete(2, a) ? 3 : ((step + 1) as QuoteStep);
+}
+
+/** The first step with a question still open: the need, then the three book rows, then the contact details. */
+export function firstOpenStep(a: QuoteAnswers): QuoteStep {
+  if (!stepComplete(1, a)) return 1;
+  return stepComplete(2, a) ? 3 : 2;
+}
+
+/**
+ * The step 1 need that the services ticked in "What we do" prove, or "" when they don't settle it
+ * (nothing ticked, or a mix that spans more than one need): the pop-up then asks.
+ */
+export function needFromServices(services: string[]): string {
+  if (!services.length) return "";
+  const only = (set: string[]) => services.every((s) => set.includes(s));
+  if (services.some((s) => s === "Bookkeeping" || s === "Bank reconciliation")) return "Keep my books every month";
+  if (only(["Catch-up bookkeeping"])) return "Catch up on past months";
+  if (only(["VAT returns", "Corporate Tax return"])) return "File my VAT or Corporate Tax";
+  if (only(["Financial statements", "Audit-ready records"])) return "Statements for my bank or auditor";
+  return "";
+}
+
+/**
+ * What the books check proves, and nothing more: "My books are updated every month: Yes" means "Up to date";
+ * "Is your company trading yet? Not yet" means "My company is new". A "No" proves no answer, so it fills nothing.
+ */
+export function prefillFromCheck(trading: boolean | null, booksMonthly: boolean | null): Partial<QuoteAnswers> {
+  return { ...(booksMonthly === true ? { books: "Up to date" } : {}), ...(trading === false ? { need: "My company is new" } : {}) };
+}

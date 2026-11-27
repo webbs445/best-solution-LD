@@ -4,16 +4,18 @@ import { pushEvent } from "@/lib/analytics";
   /accounting-new dataLayer events. Each event's parameters are typed to fixed values (numbers and option
   labels the page itself offers), so no name, number, email or typed text can reach the dataLayer.
 */
-export type AnSection = number | "services" | "header" | "sticky_quote" | "sticky_whatsapp";
+export type AnSection = number | "services" | "header" | "header_whatsapp" | "sticky_quote" | "sticky_whatsapp";
 
 export type AccEvents = {
   acc_check_answer: { line: number; answer: "Yes" | "No" };
   acc_check_result: { result: string };
-  acc_quote_step: { step: 1 | 2 | 3 };
-  acc_quote_submit: { need: string };
+  // source: where the quote pop-up was opened (9 = the quote section itself, without the pop-up).
+  acc_quote_open: { source: AnSection };
+  acc_quote_step: { step: 1 | 2 | 3; source: AnSection };
+  acc_quote_submit: { need: string; source: AnSection };
   acc_whatsapp_click: { section: number };
   // "services" is the What we do section (between the hero and section 2), so the old numbers keep their meaning.
-  // "header" is the fixed header button; "sticky_quote" and "sticky_whatsapp" are the phone bottom bar.
+  // "header" and "header_whatsapp" are the header; "sticky_quote" and "sticky_whatsapp" are the phone bottom bar.
   acc_cta_click: { section: AnSection };
 };
 

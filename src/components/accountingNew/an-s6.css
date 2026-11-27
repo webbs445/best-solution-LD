@@ -209,6 +209,142 @@
   background: var(--an-copper-lt);
 }
 
+/* Steps 1 and 3 are real: a solid white card (not the dashed example frame) with the quote form's questions. */
+.an .s6-scene.s6-live {
+  border: 1px solid #e7dcd2;
+  background: #fff;
+  padding: 6px 12px;
+  box-shadow: 0 12px 24px -22px rgba(20, 33, 61, 0.5);
+}
+/* Step 1 fields: icon, small label, the answer; the transparent native select covers the field. */
+.an .s6-pick {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  margin: 3px 0;
+  padding: 0 12px 0 8px;
+  border: 1.5px solid #e2d3c6;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+.an .s6-pick::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2714%27 height=%2714%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%237A4428%27 stroke-width=%272.4%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m6 9 6 6 6-6%27/%3E%3C/svg%3E") no-repeat center;
+}
+.an .s6-pick:hover {
+  border-color: var(--an-copper);
+}
+.an .s6-pick:focus-within {
+  outline: 3px solid var(--an-copper);
+  outline-offset: 1px;
+}
+.an .s6-pi {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--an-cream);
+  color: var(--an-copper);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.an .s6-pv {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.an .s6-pv small {
+  font-size: 11px;
+  color: var(--an-muted);
+}
+.an .s6-pv b {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--an-navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.an .s6-pv b.s6-pv-none {
+  color: var(--an-copper-txt);
+}
+.an .s6-pick select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+/* The copper tag marks the boxes you can use (steps 1 and 3), against step 2's grey "Example". */
+.an .s6-ex.s6-ex-live {
+  color: #fff;
+  background: var(--an-btn);
+  border-radius: 4px;
+}
+.an .s6-scene.s6-live {
+  padding-top: 14px;
+}
+.an .s6-live > .s6-link {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin: 8px 0 4px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--an-btn);
+  color: #fff;
+  font: 600 14px var(--font-inter), Inter, system-ui, sans-serif;
+}
+.an .s6-live > .s6-link:hover {
+  background: var(--an-btn-hover);
+}
+.an .s6-live > .s6-link:focus-visible {
+  outline: 3px solid var(--an-copper);
+  outline-offset: 2px;
+}
+.an button.s6-opt {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--an-navy);
+  border-bottom: 1px solid #efe4d9;
+  cursor: pointer;
+}
+.an button.s6-opt:last-child {
+  border-bottom: none;
+}
+.an button.s6-opt::after {
+  content: "→";
+  margin-left: auto;
+  color: var(--an-copper-txt);
+}
+.an button.s6-opt:hover {
+  background: #fff8f2;
+}
+.an button.s6-opt:focus-visible {
+  outline: 3px solid var(--an-copper);
+  outline-offset: 0;
+}
+
 /* Step 4: the navy card with the example year. */
 .an .s6-four {
   position: relative;
@@ -486,5 +622,10 @@
   }
   .an .s6-m {
     padding: 8px 6px 9px;
+  }
+  /* Beside the steps the card is as tall as they are: the months share that height, like calendar cells. */
+  .an .s6-months {
+    flex: 1;
+    grid-auto-rows: 1fr;
   }
 }

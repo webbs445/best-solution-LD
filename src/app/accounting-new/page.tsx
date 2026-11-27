@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import { SITE } from "@/content/site";
-import { AnHeader, AnHero } from "@/components/accountingNew/AnHero";
+import { AnHero } from "@/components/accountingNew/AnHero";
+import { AnHeader } from "@/components/accountingNew/AnHeader";
+import { AnQuoteHost } from "@/components/accountingNew/AnQuoteHost";
 import { AnServices } from "@/components/accountingNew/AnServices";
 import { AnBalance } from "@/components/accountingNew/AnBalance";
 import { AnCheck } from "@/components/accountingNew/AnCheck";
@@ -59,6 +61,8 @@ export default function AccountingNewPage() {
         <AnQuote />
       </main>
       <AnFooter />
+      {/* The quote pop-up: nothing renders (or loads) until a quote button is clicked. */}
+      <AnQuoteHost />
     </div>
   );
 }

@@ -56,6 +56,18 @@ describe("POST /api/accounting", () => {
     }
   });
 
+  it("files the services ticked in What we do, known names only, once each, in the page order", async () => {
+    await post({ ...contact, need: "Keep my books every month", services: ["VAT returns", "Bookkeeping", "Hacked <b>", "Bookkeeping", 7] });
+    expect(notes()).toContain("Services picked: Bookkeeping, VAT returns");
+    expect(notes()).not.toContain("Hacked");
+    sent = [];
+    await post({ ...contact, need: "Not sure yet", services: "Bookkeeping" });
+    expect(notes()).not.toContain("Services picked");
+    sent = [];
+    await post({ ...contact, need: "Not sure yet", services: [] });
+    expect(notes()).not.toContain("Services picked");
+  });
+
   it("keeps the old /accounting payload exactly as before", async () => {
     await post({ ...contact, service: "bookkeeping", volume: "Under 50", software: "Zoho Books", books_state: "Up to date" });
     expect(sent[0].custom_button_name).toBe("Send my quote request");
