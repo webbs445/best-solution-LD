@@ -155,7 +155,8 @@ export function AnQuote() {
         const [firstName, ...rest] = contact.name.trim().split(/\s+/);
         const phone = contactPhone(contact.phone) ?? contact.phone;
         pushFormSubmit({ formId: AC_FORM_ID, formType: "quote", serviceInterest: "accounting", email: contact.email, phone, firstName, lastName: rest.join(" "), eventId });
-        pushGenerateLead({ formId: AC_FORM_ID, service: answers.need, email: contact.email, phone });
+        // service: the mapped CRM key, the same kind of value the old form sent; the need label rides on acc_quote_submit.
+        pushGenerateLead({ formId: AC_FORM_ID, service: AN_NEED_SERVICE[answers.need as (typeof AN_NEEDS)[number]], email: contact.email, phone });
         accTrack("acc_quote_submit", { need: answers.need });
       }
       setPhase("sent");

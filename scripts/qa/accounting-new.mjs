@@ -189,7 +189,7 @@ for (const w of WIDTHS) {
   // Enhanced conversions, as on the old /accounting: form_submit and generate_lead carry user_data.
   const ud = await p.evaluate(() => {
     const dlx = window.dataLayer || [];
-    return { fs: dlx.find((e) => e?.event === "form_submit")?.user_data, gl: dlx.find((e) => e?.event === "generate_lead")?.user_data };
+    return { fs: dlx.find((e) => e?.event === "form_submit")?.user_data, gl: dlx.find((e) => e?.event === "generate_lead")?.user_data, svc: dlx.find((e) => e?.event === "generate_lead")?.service, need: dlx.find((e) => e?.event === "acc_quote_submit")?.need };
   });
   check(
     `${w}: form_submit carries user_data (email, E.164 phone, names)`,
@@ -197,6 +197,7 @@ for (const w of WIDTHS) {
     JSON.stringify(ud.fs ? Object.keys(ud.fs) : null),
   );
   check(`${w}: generate_lead carries user_data (email, phone)`, ud.gl?.email === EMAIL && ud.gl?.phone_number === "+971500000000");
+  check(`${w}: generate_lead service is the mapped CRM key; the need label is on acc_quote_submit`, ud.svc === "bookkeeping" && ud.need === "Catch up on past months", `${ud.svc} / ${ud.need}`);
   await close(p);
 }
 
@@ -332,6 +333,53 @@ for (const w of WIDTHS) {
     check(`${w}: hours on their own line under "Prefer WhatsApp?"`, hours);
   }
   check(`${w}: footer says not affiliated with the Federal Tax Authority`, (await text(p, ".an-foot")).includes("We are not a government entity") && (await text(p, ".an-foot")).includes("We are not affiliated with the Federal Tax Authority."));
+  await close(p);
+}
+
+// 4c. Section 6: example boxes, the step 1 link, and month tags on one line inside their tiles; the services top line.
+for (const w of [360, 390, 1024, 1440, 1920]) {
+  const p = await open(w);
+  await p.$eval("#how", (e) => e.scrollIntoView({ block: "start", behavior: "instant" }));
+  await wait(400);
+  const s6 = await p.evaluate(() => {
+    const tags = [...document.querySelectorAll("#how .s6-tag")].map((t) => {
+      const r = t.getBoundingClientRect(), tile = t.closest(".s6-m").getBoundingClientRect();
+      return { one: t.getClientRects().length === 1 && r.height < parseFloat(getComputedStyle(t).fontSize) * 2, inside: r.left >= tile.left && r.right <= tile.right + 0.5, size: getComputedStyle(t).fontSize };
+    });
+    const scenes = [...document.querySelectorAll("#how .s6-scene")];
+    return {
+      tags,
+      labels: scenes.filter((s) => s.querySelector(".s6-ex")?.textContent === "Example").length,
+      plain: scenes.every((s) => getComputedStyle(s).cursor === "default" && getComputedStyle(s).borderTopStyle === "dashed"),
+      tileH: Math.round(document.querySelector("#how .s6-m").getBoundingClientRect().height),
+      link: document.querySelector("#how .s6-link")?.getAttribute("href"),
+      linkText: document.querySelector("#how .s6-link")?.textContent.trim(),
+      line: getComputedStyle(document.querySelector("#services")).borderTop,
+    };
+  });
+  check(`${w}: section 6 tags 11px, one line, inside their tiles`, s6.tags.length === 5 && s6.tags.every((t) => t.one && t.inside && t.size === "11px"), JSON.stringify(s6.tags.filter((t) => !(t.one && t.inside))));
+  check(`${w}: section 6 example boxes: dashed, no pointer, 3 "Example" labels`, s6.labels === 3 && s6.plain);
+  check(`${w}: month tiles taller (70px+)`, s6.tileH >= 70, `${s6.tileH}px`);
+  check(`${w}: services top line 1px #E9DFD5`, s6.line.startsWith("1px solid rgb(233, 223, 213)"), s6.line);
+  await p.$eval("#how .s6-link", (a) => {
+    a.addEventListener("click", (e) => e.preventDefault(), { once: true });
+    a.click();
+  });
+  const cta = await p.evaluate(() => (window.dataLayer || []).filter((e) => e?.event === "acc_cta_click").at(-1));
+  check(`${w}: "Tell us about your books →" goes to #quote with acc_cta_click section 6`, s6.link === "#quote" && s6.linkText === "Tell us about your books →" && cta?.section === 6);
+  if (SHOTS && [390, 1024, 1440].includes(w)) {
+    // Let the year fill in (steps, then twelve months) so the tags show.
+    await p.$eval("#how .s6-four", (e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
+    await wait(10000);
+    await (await p.$("#how")).screenshot({ path: `${SHOTS}/s6-${w}.png` });
+  }
+  if (SHOTS && [390, 1440].includes(w)) {
+    // The hero-to-services join: the bottom of the hero band and the top of the services section.
+    const y = await p.$eval("#services", (e) => e.getBoundingClientRect().top + window.scrollY);
+    await p.evaluate((top) => window.scrollTo(0, top - 260), y);
+    await wait(400);
+    await p.screenshot({ path: `${SHOTS}/join-${w}.png` });
+  }
   await close(p);
 }
 

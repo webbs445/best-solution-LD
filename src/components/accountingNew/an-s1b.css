@@ -1,6 +1,8 @@
 /* "What we do" (designs S1B / S1BPhone). Cream. Phone layout below 900px. */
 .an .s1b {
   background: var(--an-cream);
+  /* Separates it from the hero's cream band above, so the two read as two parts. */
+  border-top: 1px solid #e9dfd5;
 }
 .an .s1b-wrap {
   display: grid;

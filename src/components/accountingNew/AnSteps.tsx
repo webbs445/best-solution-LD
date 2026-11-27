@@ -111,8 +111,14 @@ export function AnSteps() {
               <h3 className="s6-sh">{st.h}</h3>
               <p className="s6-sp">{st.p}</p>
               <div className="s6-scene" aria-hidden="true">
+                <span className="s6-ex">Example</span>
                 {st.scene}
               </div>
+              {i === 0 && (
+                <AnCta section={6} className="s6-link">
+                  Tell us about your books →
+                </AnCta>
+              )}
             </div>
           ))}
 
