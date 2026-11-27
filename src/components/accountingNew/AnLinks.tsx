@@ -2,10 +2,10 @@
 
 import type { ReactNode } from "react";
 import { AC_WHATSAPP } from "@/content/accounting";
-import { accTrack } from "./track";
+import { accTrack, type AnSection } from "./track";
 
 /* A call-to-action link (to #quote unless told otherwise) that reports acc_cta_click with its section number. */
-export function AnCta({ section, href = "#quote", className = "an-btn1", children }: { section: number | "services"; href?: string; className?: string; children: ReactNode }) {
+export function AnCta({ section, href = "#quote", className = "an-btn1", children }: { section: AnSection; href?: string; className?: string; children: ReactNode }) {
   return (
     <a className={className} href={href} data-cta-location={`AN S${section}`} onClick={() => accTrack("acc_cta_click", { section })}>
       {children}

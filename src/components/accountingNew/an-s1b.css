@@ -24,9 +24,11 @@
   height: 1.5px;
   background: var(--an-copper);
 }
-.an .s1b-h {
+/* .s1b-wrap > raises it above the shared .an .an-h size. Phones may wrap, but never leave one word alone. */
+.an .s1b-wrap > .s1b-h {
   font-size: 36px;
   line-height: 1.06;
+  text-wrap: balance;
 }
 .an .s1b-lead {
   margin: 0;
@@ -233,10 +235,14 @@
   .an .s1b-eye {
     grid-row: 1;
   }
-  .an .s1b-h {
+  /* "or let us run it all." is about 7.2em wide: sized to stay on one line in the 400px column. */
+  .an .s1b-wrap > .s1b-h {
     grid-row: 2;
-    font-size: 52px;
+    font-size: clamp(44px, 4.6vw, 52px);
     line-height: 1.04;
+  }
+  .an .s1b-h b {
+    white-space: nowrap;
   }
   .an .s1b-lead {
     grid-row: 3;
@@ -290,7 +296,7 @@
     grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
     column-gap: 48px;
   }
-  .an .s1b-h {
-    font-size: 44px;
+  .an .s1b-wrap > .s1b-h {
+    font-size: clamp(36px, 4.1vw, 42px);
   }
 }

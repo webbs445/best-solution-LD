@@ -17,7 +17,7 @@ const SHOTS = process.argv[3] || "";
 const ENGINE = process.env.QA_ENGINE || "chrome";
 const PW = ENGINE !== "chrome";
 // The widths the form, section 5, axe and screenshot checks run at.
-const WIDTHS = [360, 390, 1440, 1920];
+const WIDTHS = [360, 390, 1024, 1440, 1920];
 const NAME = "TEST AUDIT - DELETE", PHONE = "500000000", EMAIL = "test-audit@xerebo.com";
 const AXE = readFileSync(new URL("../../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
 if (SHOTS) mkdirSync(SHOTS, { recursive: true });
@@ -30,7 +30,7 @@ const check = (name, ok, detail = "") => {
 };
 
 /** A fresh page at this width. api: "ok" | "422"; lead bodies land in page.leads. */
-async function open(width, { api = "ok", reduced = false } = {}) {
+async function open(width, { api = "ok", reduced = false, consent = true } = {}) {
   const height = width < 768 ? 844 : 900, touch = width < 768;
   const leads = [];
   /** One answer for every request: abort, fake response, or pass through. */
@@ -77,7 +77,7 @@ async function open(width, { api = "ok", reduced = false } = {}) {
   }
   p.leads = leads;
   await p.goto(`${BASE}${PATH}?utm_source=google&utm_campaign=TEST-AUDIT-DELETE`, { waitUntil: PW ? "networkidle" : "networkidle2", timeout: 180000 });
-  await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept all")?.click());
+  if (consent) await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept all")?.click());
   await wait(400);
   return p;
 }
@@ -298,6 +298,25 @@ for (const w of WIDTHS) {
   const rows = await p.$$eval("#services .s1b-row", (rs) => rs.map((r) => [r.querySelector("b").innerText.trim(), getComputedStyle(r).opacity]));
   check(`${w}: services rows hidden before view, all 7 shown after`, /^0+$/.test(before) && rows.length === 7 && rows.every(([, o]) => o === "1"), `${before} -> ${rows.map((r) => r[1]).join("")}`);
   if (SHOTS) await (await p.$("#services")).screenshot({ path: `${SHOTS}/services-${w}.png` });
+  const hl = await p.evaluate(() => {
+    const h = document.querySelector("#s1b-h"), r = document.createRange();
+    r.selectNodeContents(h.querySelector("b"));
+    const bLines = new Set([...r.getClientRects()].map((x) => Math.round(x.top))).size;
+    // Words per line across the whole heading, to catch a word left alone.
+    const lines = {};
+    const walk = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+    for (let n; (n = walk.nextNode()); )
+      for (const m of n.textContent.matchAll(/\S+/g)) {
+        const wr = document.createRange();
+        wr.setStart(n, m.index);
+        wr.setEnd(n, m.index + m[0].length);
+        const t = Math.round(wr.getBoundingClientRect().top);
+        lines[t] = (lines[t] || 0) + 1;
+      }
+    return { bLines, alone: Object.values(lines).filter((c) => c === 1).length, fs: getComputedStyle(h).fontSize };
+  });
+  if (w >= 1024) check(`${w}: "or let us run it all." on one line`, hl.bLines === 1, `${hl.bLines} lines at ${hl.fs}`);
+  check(`${w}: What we do headline leaves no word alone on a line`, hl.alone === 0, `${hl.alone} at ${hl.fs}`);
   // Phone order: the list, then the facts, then a full-width button.
   const pos = await p.evaluate(() => {
     const y = (s) => document.querySelector(s).getBoundingClientRect().top;
@@ -355,10 +374,25 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
       link: document.querySelector("#how .s6-link")?.getAttribute("href"),
       linkText: document.querySelector("#how .s6-link")?.textContent.trim(),
       line: getComputedStyle(document.querySelector("#services")).borderTop,
+      tagText: [...document.querySelectorAll("#how .s6-tag")].map((t) => t.textContent).join(),
+      key: document.querySelector("#how .s6-key")?.textContent,
+      keyStyle: [document.querySelector("#how .s6-key"), document.querySelector("#how .s6-exy")].map((e) => e && getComputedStyle(e).color + " " + getComputedStyle(e).fontSize),
+      cols: getComputedStyle(document.querySelector("#how .s6-months")).gridTemplateColumns.split(" ").length,
+      // Side by side (1240 and up): how far the navy card's bottom is from the steps' bottom; -1 when stacked.
+      gap: (() => {
+        const f = document.querySelector("#how .s6-four").getBoundingClientRect(), st = document.querySelector("#how .s6-st").getBoundingClientRect();
+        return st.top < f.bottom && f.top < st.bottom ? Math.round(Math.abs(f.bottom - st.bottom)) : -1;
+      })(),
     };
   });
   check(`${w}: section 6 tags 11px, one line, inside their tiles`, s6.tags.length === 5 && s6.tags.every((t) => t.one && t.inside && t.size === "11px"), JSON.stringify(s6.tags.filter((t) => !(t.one && t.inside))));
   check(`${w}: section 6 example boxes: dashed, no pointer, 3 "Example" labels`, s6.labels === 3 && s6.plain);
+  check(`${w}: tags read VAT and CT`, s6.tagText === "VAT,VAT,VAT,CT,VAT", s6.tagText);
+  check(`${w}: key line under the grid, same muted style as "Example year"`, s6.key === "VAT: VAT return filed · CT: Corporate Tax return filed" && s6.keyStyle[0] === s6.keyStyle[1], s6.keyStyle.join(" / "));
+  check(`${w}: ${w < 900 ? 4 : 6} months a row`, s6.cols === (w < 900 ? 4 : 6), String(s6.cols));
+  if (s6.gap >= 0) check(`${w}: navy card ends level with steps 1 to 3`, s6.gap <= 24, `${s6.gap}px`);
+  const spill = await p.$$eval("#how .s6-m > *", (cs) => cs.filter((c) => c.scrollWidth > c.clientWidth + 1 || c.getBoundingClientRect().right > c.parentElement.getBoundingClientRect().right + 0.5).length);
+  check(`${w}: nothing spills out of a month tile`, spill === 0, String(spill));
   check(`${w}: month tiles taller (70px+)`, s6.tileH >= 70, `${s6.tileH}px`);
   check(`${w}: services top line 1px #E9DFD5`, s6.line.startsWith("1px solid rgb(233, 223, 213)"), s6.line);
   await p.$eval("#how .s6-link", (a) => {
@@ -401,7 +435,155 @@ for (const w of WIDTHS) {
   check(`${w}: section 5 shared sort line moves between its two reports`, first === "Profit and loss" && (await tab()) === "Cash flow", `${first} then ${await tab()}`);
   await wait(3200);
   check(`${w}: section 5 auto cycle stays stopped after a click`, (await tab()) === "Cash flow");
+  await p.$eval("#s5-tab-1", (x) => x.click());
+  await wait(300);
+  const bank = await p.$$eval("#s5-panel-1 .s5-ln", (ls) => ls.map((l) => [...l.children].map((c) => c.textContent.trim()).join(": ")).join(" | "));
+  check(`${w}: bank page shows its 4 rows`, bank === "Bank accounts: 3 | Bank lines this month: 142 | Matched to a record: 142 | Closing difference: 0.00", bank);
+  if (SHOTS && (w === 390 || w === 1440)) await (await p.$("#reports")).screenshot({ path: `${SHOTS}/s5-bank-${w}.png` });
+  await p.$eval("#reviews", (e) => e.scrollIntoView({ block: "start", behavior: "instant" }));
+  await wait(1500);
+  const s7 = await p.evaluate(() => {
+    const el = (s) => document.querySelector(s), R = (s) => el(s).getBoundingClientRect();
+    const cs = getComputedStyle(el("#reviews .s7-hq")), hq = R("#reviews .s7-hq");
+    return {
+      above: Math.round(R("#reviews .s7-mark").top - hq.top - parseFloat(cs.paddingTop)),
+      below: Math.round(R("#reviews .s7-cap").top - R("#reviews .s7-qt").bottom - parseFloat(cs.rowGap)),
+      h: Math.round(hq.height),
+      side: Math.round(R("#reviews .s7-side").height),
+    };
+  });
+  if (w >= 900) check(`${w}: Hadi card as tall as the right column, quote centred above the name row`, s7.h === s7.side && Math.abs(s7.above - s7.below) <= 4, JSON.stringify(s7));
+  if (SHOTS && (w === 390 || w === 1440)) await (await p.$("#reviews")).screenshot({ path: `${SHOTS}/s7-${w}.png` });
   await close(p);
+}
+
+// 4d. Sticky header (900px and up) and phone bottom bar: shown after the hero, hidden over the quote section,
+// while the cookie banner shows and while a field has focus; no layout shift; menu links land below the header.
+const to = (p, top) => p.evaluate((t) => window.scrollTo({ top: t, behavior: "instant" }), top);
+const sticky = (p) =>
+  p.evaluate(() => {
+    const h = document.querySelector(".s1-head"), btn = document.querySelector(".s1-hcta"), bar = document.querySelector(".s1-bar-m");
+    const hs = getComputedStyle(h), br = bar.getBoundingClientRect();
+    return {
+      fixed: hs.position === "fixed" && Math.round(h.getBoundingClientRect().top) === 0,
+      line: hs.borderBottom,
+      btn: getComputedStyle(btn).display !== "none" && getComputedStyle(btn).visibility === "visible",
+      btnH: Math.round(btn.getBoundingClientRect().height),
+      bar: getComputedStyle(bar).display !== "none" && getComputedStyle(bar).visibility === "visible" && br.bottom <= innerHeight + 0.5 && br.top < innerHeight,
+      heroTop: document.querySelector(".an section.s1").getBoundingClientRect().top + window.scrollY,
+      sw: document.documentElement.scrollWidth - innerWidth,
+    };
+  });
+const lastCta = (p) => p.evaluate(() => (window.dataLayer || []).filter((e) => e?.event === "acc_cta_click").at(-1)?.section);
+const clickNoNav = (p, sel) =>
+  p.$eval(sel, (a) => {
+    a.addEventListener("click", (e) => e.preventDefault(), { once: true });
+    a.click();
+  });
+for (const w of [360, 390, 1024, 1440, 1920]) {
+  const desk = w >= 900;
+  const p = await open(w);
+  const top = await sticky(p);
+  const heroBottom = await p.$eval(".an section.s1", (e) => e.getBoundingClientRect().bottom + window.scrollY);
+  const how = await p.$eval("#how", (e) => e.getBoundingClientRect().top + window.scrollY);
+  check(`${w}: at the top, header not fixed and no bottom bar`, !top.fixed && !top.bar);
+  if (desk) check(`${w}: header quote button shown, 44px high`, top.btn && top.btnH === 44, `${top.btnH}px`);
+  await to(p, heroBottom + 200);
+  await wait(500);
+  const past = await sticky(p);
+  if (desk) {
+    check(`${w}: after the hero, header fixed with a 1px #E9DFD5 line`, past.fixed && past.line.startsWith("1px solid rgb(233, 223, 213)"), past.line);
+    check(`${w}: after the hero, header quote button shown`, past.btn);
+    check(`${w}: no bottom bar on desktop`, !past.bar);
+  } else {
+    check(`${w}: after the hero, bottom bar shown; header not fixed`, past.bar && !past.fixed);
+    const parts = await p.evaluate(() => {
+      const q = document.querySelector(".s1-bar-q"), wa = document.querySelector(".s1-bar-w"), r = wa.getBoundingClientRect();
+      return { qHref: q.getAttribute("href"), qText: q.textContent.trim(), wa: [Math.round(r.width), Math.round(r.height)].join("x"), label: wa.getAttribute("aria-label"), waHref: wa.getAttribute("href"), qLeft: q.getBoundingClientRect().right <= r.left };
+    });
+    check(`${w}: bar = "Get my quote" (#quote) left, 52px WhatsApp square right`, parts.qHref === "#quote" && parts.qText === "Get my quote" && parts.wa === "52x52" && parts.label === "WhatsApp" && /^https:\/\/wa\.me\//.test(parts.waHref) && parts.qLeft, JSON.stringify({ ...parts, waHref: parts.waHref?.slice(0, 16) }));
+    const foot = await p.$eval(".an-foot", (e) => parseFloat(getComputedStyle(e).paddingBottom));
+    check(`${w}: footer bottom padding clears the bar`, foot >= 32 + 72, `${foot}px`);
+  }
+  check(`${w}: no layout shift when the header/bar appears (hero stays put)`, Math.abs(past.heroTop - top.heroTop) < 0.5, `${top.heroTop} -> ${past.heroTop}`);
+  check(`${w}: no sideways scroll with the header/bar showing`, past.sw <= 0, `${past.sw}px`);
+  if (!PW) {
+    const cls = await p.evaluate(() => window.__cls);
+    check(`${w}: CLS after scrolling past the hero under 0.05`, cls < 0.05, cls.toFixed(4));
+  }
+  // Tracking: fixed values only.
+  if (desk) {
+    await clickNoNav(p, ".s1-hcta");
+    check(`${w}: header button sends acc_cta_click section "header"`, (await lastCta(p)) === "header");
+  } else {
+    await clickNoNav(p, ".s1-bar-q");
+    const a = await lastCta(p);
+    await clickNoNav(p, ".s1-bar-w");
+    check(`${w}: bar sends acc_cta_click "sticky_quote" and "sticky_whatsapp"`, a === "sticky_quote" && (await lastCta(p)) === "sticky_whatsapp");
+  }
+  // A field with focus hides the bar. The quote fields sit inside the quote section (which hides the bar
+  // anyway), so a stand-in field outside it tests the focus rule on its own.
+  if (!desk) {
+    await p.evaluate(() => {
+      const i = Object.assign(document.createElement("input"), { id: "qa-field" });
+      i.setAttribute("aria-label", "QA");
+      document.querySelector("#how").append(i);
+      i.focus({ preventScroll: true });
+    });
+    await wait(400);
+    check(`${w}: bar hidden while a field has focus`, !(await sticky(p)).bar);
+    await p.evaluate(() => document.getElementById("qa-field").remove());
+    await wait(400);
+    check(`${w}: bar back after the field loses focus`, (await sticky(p)).bar);
+  }
+  // Over the quote section.
+  await toQuote(p);
+  await wait(400);
+  const q = await sticky(p);
+  if (desk) check(`${w}: header button hidden while the quote section is on screen`, !q.btn && q.fixed);
+  else check(`${w}: bar hidden while the quote section is on screen`, !q.bar);
+  await to(p, how);
+  await wait(400);
+  check(`${w}: shown again after leaving the quote section`, desk ? (await sticky(p)).btn : (await sticky(p)).bar);
+  if (SHOTS && (w === 390 || w === 1440)) {
+    await to(p, how - 40);
+    await wait(2000);
+    await p.screenshot({ path: `${SHOTS}/sticky-${w}.png` });
+  }
+  // Menu links: each heading lands below the fixed header.
+  const land = [];
+  for (const id of ["services", "how", "reports", "reviews", "questions"]) {
+    await to(p, 0);
+    await wait(200);
+    if (await p.$eval(".s1-menu", (e) => getComputedStyle(e).display !== "none")) {
+      await p.$eval(".s1-menu", (d) => d.setAttribute("open", ""));
+      await p.$eval(`.s1-menu-panel a[href="#${id}"]`, (a) => a.click());
+    } else await p.$eval(`.s1-nav a[href="#${id}"]`, (a) => a.click());
+    await wait(1800);
+    land.push(
+      await p.evaluate((i) => {
+        const h = document.querySelector(`#${i} h2`).getBoundingClientRect(), head = document.querySelector(".s1-head");
+        const cover = getComputedStyle(head).position === "fixed" ? head.getBoundingClientRect().bottom : 0;
+        return { i, ok: h.top >= cover - 1 && h.top < innerHeight / 2, top: Math.round(h.top), cover: Math.round(cover) };
+      }, id),
+    );
+  }
+  check(`${w}: menu links land each heading below the header`, land.every((l) => l.ok), JSON.stringify(land.filter((l) => !l.ok)));
+  await close(p);
+
+  // The cookie banner hides the bar while it shows.
+  if (!desk) {
+    const c = await open(w, { consent: false });
+    const hb = await c.$eval(".an section.s1", (e) => e.getBoundingClientRect().bottom + window.scrollY);
+    await to(c, hb + 200);
+    await wait(500);
+    const shown = await c.evaluate(() => !!document.getElementById("consent-title"));
+    check(`${w}: bar hidden while the cookie banner shows`, shown && !(await sticky(c)).bar, `banner ${shown}`);
+    await c.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept all")?.click());
+    await wait(500);
+    check(`${w}: bar shown once the banner is closed`, (await sticky(c)).bar);
+    await close(c);
+  }
 }
 
 // 5. axe at 390 and 1440, and screenshots of every section (reduced motion = final states).

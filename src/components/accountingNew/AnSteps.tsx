@@ -8,7 +8,7 @@ import "./an-s6.css";
 /* S6 "Four steps. Then it runs every month.": the steps light up along a progress line, then an example year fills in. */
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const TAGS: Record<number, string> = { 0: "VAT FILED", 3: "VAT FILED", 6: "VAT FILED", 8: "CT FILED", 9: "VAT FILED" };
+const TAGS: Record<number, string> = { 0: "VAT", 3: "VAT", 6: "VAT", 8: "CT", 9: "VAT" };
 // Share of the progress line filled at each step count (desktop runs across, phone runs down).
 const FILL_X = [0, 0, 0.29, 0.58, 1];
 const FILL_Y = [0, 0, 0.3, 0.56, 1];
@@ -146,6 +146,7 @@ export function AnSteps() {
                 </div>
               ))}
             </div>
+            <span className="s6-exy s6-key">VAT: VAT return filed · CT: Corporate Tax return filed</span>
           </div>
         </div>
 

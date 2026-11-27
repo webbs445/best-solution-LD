@@ -14,6 +14,10 @@
 }
 
 /* ---------- header ---------- */
+/* Holds the header height in the flow (58px phone, 82px from 900px), so the fixed header shifts nothing. */
+.an .s1-headbox {
+  min-height: 58px;
+}
 .an .s1-head {
   position: relative;
   z-index: 30;
@@ -113,9 +117,86 @@
   border-radius: 0 0 8px 8px;
   margin-top: 4px;
 }
+/* Header quote button: the main button, 44px high. Hidden (space kept) while the quote section is on screen. */
+.an .s1-head-in > .s1-hcta {
+  display: none;
+  min-height: 44px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  white-space: nowrap;
+  transition: opacity 0.2s, visibility 0s;
+}
+.an .s1-head-in > .s1-hcta.off {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0s 0.2s;
+}
+
+/* Phone bottom bar: shown once the hero is gone, hidden over the quote, the cookie banner and while typing. */
+.an .s1-bar-m {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  gap: 10px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid #e9dfd5;
+  transform: translateY(110%);
+  visibility: hidden;
+  transition: transform 0.25s ease, visibility 0s 0.25s;
+}
+.an .s1-bar-m.on {
+  transform: none;
+  visibility: visible;
+  transition: transform 0.25s ease;
+}
+.an .s1-bar-m > .s1-bar-q {
+  flex: 1;
+  min-height: 52px;
+  font-size: 16px;
+}
+.an .s1-bar-m > .s1-bar-w {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  padding: 0;
+}
 @media (min-width: 900px) {
+  .an .s1-headbox {
+    min-height: 82px;
+  }
   .an .s1-head-in {
-    padding: 24px 40px;
+    height: 82px;
+    padding: 0 40px;
+  }
+  .an .s1-head-in > .s1-hcta {
+    display: inline-flex;
+  }
+  .an .s1-bar-m {
+    display: none;
+  }
+  /* Once the hero has scrolled off: fixed at the top, a 1px line, a shadow lighter than the cards. */
+  .an .s1-head.stuck {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    border-bottom: 1px solid #e9dfd5;
+    box-shadow: 0 10px 24px -22px rgba(20, 33, 61, 0.45);
+    animation: s1-drop 0.25s ease;
+  }
+  .an .s1-head.stuck .s1-head-in {
+    height: 68px;
+  }
+  /* Menu links land each heading below the fixed header. */
+  .an main section[id] {
+    scroll-margin-top: 84px;
   }
   .an .s1-logo {
     gap: 10px;
@@ -127,8 +208,9 @@
     border-radius: 9px;
     font-size: 17px;
   }
+  /* 900 to 1099 has no room for the links beside the button, so the menu stays. */
   .an .s1-nav {
-    display: flex;
+    display: none;
     gap: 34px;
     font-size: 15px;
     font-weight: 500;
@@ -138,8 +220,30 @@
     font-size: 15px;
     font-weight: 600;
   }
+  .an .s1-tel {
+    margin-left: auto;
+  }
+}
+@keyframes s1-drop {
+  from {
+    transform: translateY(-100%);
+  }
+}
+@media (min-width: 1100px) {
+  .an .s1-nav {
+    display: flex;
+    margin: 0 auto;
+  }
+  .an .s1-tel {
+    margin-left: 0;
+  }
   .an .s1-menu {
     display: none;
+  }
+}
+@media (min-width: 1100px) and (max-width: 1239.98px) {
+  .an .s1-nav {
+    gap: 22px;
   }
 }
 

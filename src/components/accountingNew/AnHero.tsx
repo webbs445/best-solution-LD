@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { SITE } from "@/content/site";
+import { AC_WHATSAPP } from "@/content/accounting";
 import { AnCta, AnWhatsApp } from "./AnLinks";
+import { accTrack } from "./track";
 import { useInView, useReducedMotion } from "./motion";
 import "./an-s1.css";
 
@@ -21,11 +23,61 @@ const NAV = [
   ["Questions", "#questions"],
 ] as const;
 
+/** Sticky state: past = the hero has scrolled off the top, quote = the quote section is on screen, banner = the cookie banner shows, typing = a form field has focus. */
+function useSticky() {
+  const [st, setSt] = useState({ past: false, quote: false, banner: false, typing: false });
+  useEffect(() => {
+    const set = (k: keyof typeof st, v: boolean) => setSt((o) => (o[k] === v ? o : { ...o, [k]: v }));
+    const hero = document.querySelector(".an section.s1");
+    const quote = document.getElementById("quote");
+    const io = new IntersectionObserver((es) => {
+      for (const e of es) {
+        if (e.target === hero) set("past", !e.isIntersecting && e.boundingClientRect.top < 0);
+        else set("quote", e.isIntersecting);
+      }
+    });
+    if (hero) io.observe(hero);
+    if (quote) io.observe(quote);
+    const isField = (el: Element | null) => !!el?.matches?.("input, select, textarea");
+    // The site cookie banner (rendered by the layout) is the region labelled by #consent-title while it shows.
+    // Focus is re-read on DOM changes too: Safari sends no focusout when a focused field is removed.
+    const check = () => {
+      set("banner", !!document.getElementById("consent-title"));
+      set("typing", isField(document.activeElement));
+    };
+    const mo = new MutationObserver(check);
+    mo.observe(document.body, { childList: true, subtree: true });
+    check();
+    const field = (e: FocusEvent) => set("typing", e.type === "focusin" && isField(e.target as Element));
+    document.addEventListener("focusin", field);
+    document.addEventListener("focusout", field);
+    // In-page links: render every section first, so a skipped (content-visibility) section cannot change size
+    // during the jump. Safari has no scroll anchoring to correct for that.
+    const jump = (e: MouseEvent) => {
+      if ((e.target as Element).closest?.("a[href^='#']")) document.querySelector(".an")?.classList.add("an-cv-off");
+    };
+    document.addEventListener("click", jump, true);
+    return () => {
+      document.removeEventListener("click", jump, true);
+      io.disconnect();
+      mo.disconnect();
+      document.removeEventListener("focusin", field);
+      document.removeEventListener("focusout", field);
+    };
+  }, []);
+  return st;
+}
+
 export function AnHeader() {
   const menu = useRef<HTMLDetailsElement>(null);
   const close = () => menu.current?.removeAttribute("open");
+  const { past, quote, banner, typing } = useSticky();
+  const bar = past && !quote && !banner && !typing;
   return (
-    <header className="s1-head">
+    <>
+    {/* The box keeps the header height in the flow, so fixing the header (900px and up) moves nothing. */}
+    <div className="s1-headbox">
+    <header className={past ? "s1-head stuck" : "s1-head"}>
       <div className="s1-head-in">
         <span className="s1-logo">
           <span className="s1-mark" aria-hidden="true">b</span>best solution
@@ -36,6 +88,9 @@ export function AnHeader() {
           ))}
         </nav>
         <a className="s1-tel an-num" href={SITE.phone.href}>{SITE.phone.display}</a>
+        <AnCta section="header" className={quote ? "an-btn1 s1-hcta off" : "an-btn1 s1-hcta"}>
+          Get my quote today
+        </AnCta>
         <details className="s1-menu" ref={menu}>
           <summary aria-label="Menu">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14213D" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
@@ -49,6 +104,16 @@ export function AnHeader() {
         </details>
       </div>
     </header>
+    </div>
+    <div className={bar ? "s1-bar-m on" : "s1-bar-m"}>
+      <AnCta section="sticky_quote" className="an-btn1 s1-bar-q">
+        Get my quote
+      </AnCta>
+      <a className="an-btn2 s1-bar-w" href={AC_WHATSAPP.question} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" onClick={() => accTrack("acc_cta_click", { section: "sticky_whatsapp" })}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1F8F4E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6L3 21z" /></svg>
+      </a>
+    </div>
+    </>
   );
 }
 

@@ -250,6 +250,10 @@
   font-size: 11px;
   color: #8c95a8;
 }
+.an .s6-key {
+  margin-top: -4px;
+  line-height: 1.5;
+}
 .an .s6-again {
   all: unset;
   cursor: pointer;
@@ -278,10 +282,10 @@
 .an .s6-four .s6-sp {
   color: #c9cfda;
 }
-/* Phone: 3 columns, so the 11px FILED tags fit on one line (6 columns from 900px, 4 from 1240px). */
+/* 4 months a row on phones, 6 from 900px. */
 .an .s6-months {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
 }
 .an .s6-m {
@@ -454,7 +458,7 @@
 /* Full width: four columns with the line running across the dots. */
 @media (min-width: 1240px) {
   .an .s6-track {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.55fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 2fr);
     gap: 18px;
   }
   .an .s6-rail {
@@ -479,10 +483,6 @@
   }
   .an .s6-ctl {
     margin-top: 6px;
-  }
-  /* The year card is narrow beside three steps: 4 columns keep the 11px tags on one line. */
-  .an .s6-months {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .an .s6-m {
     padding: 8px 6px 9px;

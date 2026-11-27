@@ -145,6 +145,12 @@ html:has(.an) {
   line-height: 1.6;
   padding: 28px 16px 32px;
 }
+/* Phones: the footer ends above the fixed quote bar (52px button + 20px padding + the iPhone safe area). */
+@media (max-width: 899.98px) {
+  .an .an-foot {
+    padding-bottom: calc(32px + 72px + env(safe-area-inset-bottom));
+  }
+}
 .an .an-foot .an-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -174,4 +180,8 @@ html:has(.an) {
 .an main > section:not(:first-child) {
   content-visibility: auto;
   contain-intrinsic-size: auto 900px;
+}
+/* After an in-page link is clicked: render everything, so the jump lands on its heading in every browser. */
+.an.an-cv-off main > section {
+  content-visibility: visible;
 }

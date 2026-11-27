@@ -71,6 +71,8 @@
   pointer-events: none;
 }
 .an .s7-mark {
+  /* With .s7-cap margin-top auto, the spare height splits evenly above the mark and above the name row. */
+  margin-top: auto;
   font: 800 90px/0.6 var(--an-tight);
   color: var(--an-copper);
   height: 32px;

@@ -18,7 +18,7 @@ const SORT = ["Every invoice and bill recorded", "Every bank line matched", "Any
 
 const PACK = [
   { label: "Profit and loss", q: "Did you make money this month?", rows: [["Revenue", "148,200"], ["Expenses", "(118,670)"], ["Net profit", "29,530"]], src: 0, mid: 0 },
-  { label: "Bank reconciliation", q: "Every bank payment matched to a record.", rows: [["Bank lines matched", "142 of 142"], ["Closing difference", "0.00"]], src: 2, mid: 1 },
+  { label: "Bank reconciliation", q: "Every bank payment matched to a record.", rows: [["Bank accounts", "3"], ["Bank lines this month", "142"], ["Matched to a record", "142"], ["Closing difference", "0.00"]], src: 2, mid: 1 },
   { label: "Balance sheet", q: "What the company owns and owes.", rows: [["Cash and money owed to you", "276,940"], ["Owed to suppliers and VAT", "(49,190)"], ["Net assets", "227,750"]], src: 1, mid: 3 },
   { label: "Cash flow", q: "Where the cash came from and where it went.", rows: [["Opening", "186,910"], ["Cash in", "139,600"], ["Cash out", "(113,870)"], ["Closing", "212,640"]], src: 4, mid: 0 },
   {
