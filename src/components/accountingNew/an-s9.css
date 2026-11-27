@@ -416,6 +416,20 @@
   outline: none;
   width: 100%;
 }
+.an .s9-field textarea {
+  min-height: 84px;
+  border-radius: 10px;
+  border: 1.5px solid #e7dcd2;
+  padding: 12px 14px;
+  font: 400 16px/1.45 var(--font-inter), Inter, sans-serif;
+  color: var(--an-navy);
+  background: #fff;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+.an .s9-field textarea:focus,
 .an .s9-field input:focus {
   border-color: var(--an-copper);
   box-shadow: 0 0 0 3px rgba(185, 113, 75, 0.2);
@@ -428,6 +442,10 @@
   font-size: 13px;
   line-height: 1.45;
   color: #b3261e;
+}
+.an .s9-opt {
+  font-weight: 400;
+  color: var(--an-muted);
 }
 .an .s9-hp {
   position: absolute;

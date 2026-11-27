@@ -96,7 +96,7 @@ export function AnQuote() {
         </div>
 
         <div className="s9-bezel">
-          <QuoteForm prefix="an-q" active={!open} titleId="an-q-title" />
+          <QuoteForm prefix="an-q" active={!open} titleId="an-q-title" showQuestion />
         </div>
       </div>
     </section>

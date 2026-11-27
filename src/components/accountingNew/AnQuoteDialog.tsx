@@ -134,7 +134,7 @@ export default function AnQuoteDialog() {
             </svg>
           </button>
         </div>
-        <QuoteForm prefix="an-d" active={q.open} titleId="an-d-title" inPopup />
+        <QuoteForm prefix="an-d" active={q.open} titleId="an-d-title" inPopup showQuestion={q.topic === "question"} />
       </div>
     </dialog>
   );

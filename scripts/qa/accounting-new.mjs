@@ -174,6 +174,7 @@ for (const w of WIDTHS) {
   await p.type("#an-q-email", EMAIL);
   check(`${w}: errors clear as fields are fixed`, (await p.$$eval(".s9-field .s9-err", (e) => e.length)) === 0);
   await shot("4-step3");
+  check(`${w}: bottom form step 3 has the optional "Your question" box`, (await p.$eval("label[for=an-q-question]", (l) => l.textContent.replace(/\s+/g, " ").trim()).catch(() => "")) === "Your question (optional)");
   await p.click(".s9-next");
   await p.waitForSelector(".s9-done", { timeout: 10000 }).catch(() => {});
   await wait(600);
@@ -763,6 +764,7 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
   await escape(s);
   d = await openFrom(s, "#how .s6-opt[data-need='Catch up on past months']");
   check(`${w}: section 6 "A catch-up on past months" fills that need and opens at the contact step`, d.title === "We take over: a catch-up on past months." && d.step === "3", JSON.stringify(d));
+  check(`${w}: no question box in a pop-up not opened from the FAQ`, !(await s.$("#an-d-question")));
   await s.$eval("dialog.an-dlg .s9-back", (b) => b.click());
   await wait(300);
   await s.$eval("dialog.an-dlg .s9-back", (b) => b.click());
@@ -817,6 +819,37 @@ for (const w of [360, 390, 1024, 1440, 1920]) {
     check(`${w}: axe on the open pop-up`, v.length === 0, v.join(" | "));
   }
   await close(c);
+}
+
+// 4f. "Your question" from the FAQ: in the lead notes only, never in tracking.
+for (const w of [390, 1440]) {
+  const QUESTION = "TEST AUDIT question about VAT for a free zone company";
+  const p = await open(w);
+  await p.$eval("#questions .s8-go", (e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
+  await wait(300);
+  await p.$eval("#questions .s8-go", (e) => e.click());
+  await p.waitForSelector("dialog.an-dlg[open]", { timeout: 15000 }).catch(() => {});
+  await wait(500);
+  await p.$$eval("dialog.an-dlg .s9-c", (bs) => bs.find((b) => b.textContent.trim() === "Not sure yet").click());
+  await p.$eval("dialog.an-dlg .s9-next", (b) => b.click());
+  await wait(300);
+  for (const [row, label] of [[0, "Under 50"], [1, "Excel"], [2, "Up to date"]])
+    await p.$$eval("dialog.an-dlg .s9-chips.s", (rows, a) => [...rows[a.row].querySelectorAll("button")].find((x) => x.textContent.trim() === a.label).click(), { row, label });
+  await p.$eval("dialog.an-dlg .s9-next", (b) => b.click());
+  await wait(300);
+  check(`${w}: FAQ pop-up step 3 shows "Your question (optional)"`, (await p.$eval("label[for=an-d-question]", (l) => l.textContent.replace(/\s+/g, " ").trim()).catch(() => "")) === "Your question (optional)");
+  await p.type("#an-d-name", NAME);
+  await p.type("#an-d-phone", PHONE);
+  await p.type("#an-d-email", EMAIL);
+  await p.type("#an-d-question", QUESTION);
+  await p.$eval("dialog.an-dlg .s9-next", (b) => b.click());
+  await p.waitForSelector("dialog.an-dlg .s9-done", { timeout: 10000 }).catch(() => {});
+  await wait(800);
+  const dl = await p.evaluate(() => JSON.stringify(window.dataLayer || []));
+  check(`${w}: the question reaches the lead request`, p.leads.length === 1 && p.leads[0].question === QUESTION, String(p.leads[0]?.question));
+  check(`${w}: the question is in no dataLayer event`, !dl.includes("question about VAT") && !dl.includes("TEST AUDIT question"));
+  if (SHOTS) await p.screenshot({ path: `${SHOTS}/pop-question-${w}.png` });
+  await close(p);
 }
 
 // 5. axe at 390 and 1440, and screenshots of every section (reduced motion = final states).

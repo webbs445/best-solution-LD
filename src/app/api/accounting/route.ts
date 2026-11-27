@@ -56,6 +56,8 @@ export const POST = withLeadLog("accounting", async (request, log) => {
   const software = oneOf(body.software, AN_SOFTWARE);
   const state = oneOf(body.books_state, AN_BOOK_STATES);
   const health = str(body.health_check, 200);
+  // /accounting-new's optional "Your question": filed on the lead notes only.
+  const question = str(body.question, 1000);
   // The services ticked in "What we do" (/accounting-new): known names only, each once, in the page's order.
   const picked = Array.isArray(body.services) ? AN_SERVICES.filter((s) => (body.services as unknown[]).includes(s)) : [];
 
@@ -67,6 +69,7 @@ export const POST = withLeadLog("accounting", async (request, log) => {
     ...(software ? ([["Current software", software]] as [string, string][]) : []),
     ...(state ? ([["Books today", state]] as [string, string][]) : []),
     ...(health ? ([["Health check", health]] as [string, string][]) : []),
+    ...(question ? ([["Question", question]] as [string, string][]) : []),
     ...clickIdRows(body),
   ];
 

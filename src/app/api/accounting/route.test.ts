@@ -68,6 +68,18 @@ describe("POST /api/accounting", () => {
     expect(notes()).not.toContain("Services picked");
   });
 
+  it("files the optional question on the notes, trimmed and capped at 1000 characters", async () => {
+    await post({ ...contact, need: "Not sure yet", question: "  Do you handle VAT for a free zone company?  " });
+    expect(notes()).toContain("Question: Do you handle VAT for a free zone company?");
+    sent = [];
+    await post({ ...contact, need: "Not sure yet", question: "x".repeat(1500) });
+    expect(notes()).toContain("Question: " + "x".repeat(1000));
+    expect(notes()).not.toContain("x".repeat(1001));
+    sent = [];
+    await post({ ...contact, need: "Not sure yet", question: "   " });
+    expect(notes()).not.toContain("Question");
+  });
+
   it("keeps the old /accounting payload exactly as before", async () => {
     await post({ ...contact, service: "bookkeeping", volume: "Under 50", software: "Zoho Books", books_state: "Up to date" });
     expect(sent[0].custom_button_name).toBe("Send my quote request");

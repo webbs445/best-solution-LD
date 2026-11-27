@@ -23,6 +23,8 @@ export type QuoteState = {
   answers: QuoteAnswers;
   services: string[];
   contact: Contact;
+  /** The optional "Your question" (bottom form, and the pop-up opened from the FAQ). Lead notes only: never tracked. */
+  question: string;
   errors: Partial<Record<ContactField, string>>;
   failure: string;
   phase: Phase;
@@ -43,6 +45,7 @@ const INITIAL: QuoteState = {
   answers: EMPTY_ANSWERS,
   services: [],
   contact: { name: "", phone: "", email: "" },
+  question: "",
   errors: {},
   failure: "",
   phase: "ready",
@@ -92,6 +95,10 @@ export function go(n: QuoteStep) {
   set({ step: n });
 }
 
+export function setQuestion(v: string) {
+  set({ question: v });
+}
+
 export function setField(k: ContactField, v: string) {
   set({ contact: { ...state.contact, [k]: v }, errors: state.errors[k] ? { ...state.errors, [k]: undefined } : state.errors });
 }
@@ -119,6 +126,7 @@ export function closeQuote() {
 export async function submitQuote(honeypot: string, source: AnSection): Promise<ContactField | undefined> {
   if (state.phase !== "ready") return;
   const { contact, answers, services } = state;
+  const question = state.question.trim();
   const bad = contactErrors(contact);
   set({ errors: bad, failure: "" });
   const first = (["name", "phone", "email"] as ContactField[]).find((k) => bad[k]);
@@ -144,6 +152,8 @@ export async function submitQuote(honeypot: string, source: AnSection): Promise<
           books_state: answers.books,
           // The services ticked in "What we do", if any.
           ...(services.length ? { services } : {}),
+          // Lead notes only: the question is never put in any dataLayer event.
+          ...(question ? { question } : {}),
           // First-touch UTMs and Google click IDs for the visit, as on every other form (lib/attribution).
           ...attributionFields(),
           event_id: eventId,

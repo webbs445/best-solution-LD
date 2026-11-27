@@ -6,7 +6,7 @@ import { AN_BOOK_STATES, AN_NEEDS, AN_SOFTWARE, AN_VOLUMES } from "@/content/acc
 import { TRAP_FIELD } from "@/lib/lead";
 import { accTrack } from "./track";
 import { nextStep, stepComplete, type ContactField, type QuoteAnswers, type QuoteStep } from "./quoteLogic";
-import { getQuote, go, pick, setField, submitQuote, useQuote } from "./quoteStore";
+import { getQuote, go, pick, setField, setQuestion, submitQuote, useQuote } from "./quoteStore";
 
 /*
   The quote form, used by the quote section (AnQuote) and the pop-up (AnQuoteDialog). No stylesheet import on purpose:
@@ -26,8 +26,8 @@ export const Tick = ({ size = 12, width = 3 }: { size?: number; width?: number }
 
 /** The three-step form on the shared quote state. prefix keeps ids unique (the section and the pop-up both render
  * it); only the active copy moves focus. */
-export function QuoteForm({ prefix, active, titleId, inPopup = false }: { prefix: string; active: boolean; titleId: string; inPopup?: boolean }) {
-  const { step, answers, contact, errors, failure, phase } = useQuote();
+export function QuoteForm({ prefix, active, titleId, inPopup = false, showQuestion = false }: { prefix: string; active: boolean; titleId: string; inPopup?: boolean; showQuestion?: boolean }) {
+  const { step, answers, contact, errors, failure, phase, question } = useQuote();
   const heading = useRef<HTMLHeadingElement>(null);
   const doneHeading = useRef<HTMLHeadingElement>(null);
   const inputs = useRef<Partial<Record<ContactField, HTMLInputElement | null>>>({});
@@ -172,6 +172,15 @@ export function QuoteForm({ prefix, active, titleId, inPopup = false }: { prefix
               {field("name", "Name", "text", "name")}
               {field("phone", "WhatsApp", "tel", "tel", "+971")}
               {field("email", "Email", "email", "email")}
+              {showQuestion && (
+                <div className="s9-field">
+                  <label htmlFor={`${prefix}-question`}>
+                    Your question <span className="s9-opt">(optional)</span>
+                  </label>
+                  {/* Goes to the lead notes only; never into tracking. */}
+                  <textarea id={`${prefix}-question`} name="question" rows={3} maxLength={1000} value={question} onChange={(e) => setQuestion(e.target.value)} />
+                </div>
+              )}
               <div className="s9-hp" aria-hidden="true">
                 <label htmlFor={`${prefix}-hp`}>Leave this field empty</label>
                 <input ref={honeypot} id={`${prefix}-hp`} name={TRAP_FIELD} type="text" tabIndex={-1} autoComplete="off" />
