@@ -76,6 +76,24 @@ type ConsentWindow = typeof window & {
 
 // Whether the visitor is in an opt-in region (EEA, UK, Switzerland), from /api/geo. null until it answers.
 let optInRegion: boolean | null = null;
+// Conversion pushes waiting for the region (whenConsentKnown).
+const regionWaiters: (() => void)[] = [];
+
+/**
+ * Runs fn once consent is known: at once if a choice is saved or the region is known, else when /api/geo answers, but
+ * at most `ms` later (then the region counts as opt-in, so nothing is assumed granted). Callbacks keep their order.
+ */
+export function whenConsentKnown(fn: () => void, ms = 1000): void {
+  if (readConsent() || optInRegion !== null) return fn();
+  let done = false;
+  const run = () => {
+    if (done) return;
+    done = true;
+    fn();
+  };
+  regionWaiters.push(run);
+  setTimeout(run, ms);
+}
 
 /**
  * Consent as Google's tags see it: the saved choice, else the regional default (granted outside the EEA, UK and
@@ -92,6 +110,7 @@ export function effectiveConsent(): ConsentChoices {
  */
 export function applyRegionDefault(optIn: boolean): void {
   optInRegion = optIn;
+  regionWaiters.splice(0).forEach((run) => run());
   if (optIn || readConsent() || typeof window === "undefined") return;
   const w = window as ConsentWindow;
   w.clarity?.("consentv2", { ad_Storage: "granted", analytics_Storage: "granted" });

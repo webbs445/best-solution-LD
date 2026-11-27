@@ -1,4 +1,5 @@
 import { pushEvent, pushFormSubmit } from "@/lib/analytics";
+import { whenConsentKnown } from "@/lib/consent";
 import { LEAD_CURRENCY, LEAD_VALUES } from "@/lib/leadValues";
 import { SERVICES_PLAN_FORM_ID } from "@/lib/lead";
 
@@ -10,7 +11,8 @@ import { SERVICES_PLAN_FORM_ID } from "@/lib/lead";
 */
 export function pushXsLead(args: { eventId: string; topic: string; contactPref: "whatsapp" | "call"; location?: "s9" | "popup" | "hero"; planPath?: string; email?: string; phone?: string }): void {
   pushFormSubmit({ formId: SERVICES_PLAN_FORM_ID, formName: "Services Plan", formType: "consultation", serviceInterest: args.topic, email: args.email, phone: args.phone, eventId: args.eventId, extra: args.planPath ? { plan_path: args.planPath } : undefined });
-  pushEvent("generate_lead", {
+  // Queued behind form_submit, which may wait for the region (whenConsentKnown), so the two keep their order.
+  whenConsentKnown(() => pushEvent("generate_lead", {
     form_id: SERVICES_PLAN_FORM_ID,
     lead_type: "form",
     page: "/services",
@@ -20,5 +22,5 @@ export function pushXsLead(args: { eventId: string; topic: string; contactPref: 
     form_location: args.location ?? "s9",
     value: LEAD_VALUES.form,
     currency: LEAD_CURRENCY,
-  });
+  }));
 }

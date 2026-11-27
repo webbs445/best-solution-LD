@@ -29,10 +29,13 @@ function stubBrowser(search = "") {
   });
 }
 
-// Fresh module state (the pending-conversion flag, visitor geo) for every test.
-async function load() {
+// Fresh module state (the pending-conversion flag, visitor geo) for every test. The visitor's region is known (UAE,
+// not an opt-in region) unless a test passes null, so conversion pushes run at once.
+async function load(optInRegion: boolean | null = false) {
   vi.resetModules();
-  return { analytics: await import("./analytics"), consent: await import("./consent") };
+  const mods = { analytics: await import("./analytics"), consent: await import("./consent") };
+  if (optInRegion !== null) mods.consent.applyRegionDefault(optInRegion);
+  return mods;
 }
 
 beforeEach(() => stubBrowser());
@@ -183,15 +186,27 @@ describe("consent and click ids", () => {
     expect(dataLayer).toContainEqual({ event: "consent_update", consent: { analytics: true, marketing: true } });
   });
 
-  it("stores click ids only after marketing consent", async () => {
+  it("Europe: stores click ids only after marketing consent", async () => {
     stubBrowser("?gclid=abc123&fbclid=fb9");
-    const { analytics, consent } = await load();
+    const { analytics, consent } = await load(true);
     analytics.captureClickIds();
     expect(analytics.getClid()).toBe("");
     consent.setConsent({ analytics: true, marketing: true });
     analytics.captureClickIds();
     expect(analytics.getClid()).toBe("abc123");
     expect(analytics.getClickIds()).toEqual({ gclid: "abc123", fbclid: "fb9", li_fat_id: "" });
+  });
+
+  it("UAE with no choice: stores click ids at once; after Reject all, not", async () => {
+    stubBrowser("?gclid=abc123");
+    const a = await load(false);
+    a.analytics.captureClickIds();
+    expect(a.analytics.getClid()).toBe("abc123");
+    stubBrowser("?gclid=abc123");
+    const b = await load(false);
+    b.consent.saveConsent(b.consent.ALL_DENIED);
+    b.analytics.captureClickIds();
+    expect(b.analytics.getClid()).toBe("");
   });
 });
 
@@ -229,20 +244,57 @@ describe("user_data follows ad_user_data", () => {
     expect(JSON.stringify(dataLayer)).not.toContain("test-audit@xerebo.com");
   });
 
-  it("Europe with no choice, or region not known yet: no user_data", async () => {
-    for (const region of [true, null]) {
-      stubBrowser();
-      const { analytics, consent } = await load();
-      if (region !== null) consent.applyRegionDefault(region);
+  it("Europe with no choice: no user_data", async () => {
+    const { analytics } = await load(true);
+    pushBoth(analytics);
+    expect(sent().fs).toBeDefined();
+    expect(JSON.stringify(dataLayer)).not.toContain("test-audit@xerebo.com");
+  });
+
+  it("region not known yet: waits for /api/geo, then follows it (UAE: user_data sent)", async () => {
+    vi.useFakeTimers();
+    try {
+      const { analytics, consent } = await load(null);
       pushBoth(analytics);
-      expect(JSON.stringify(dataLayer)).not.toContain("test-audit@xerebo.com");
+      expect(sent().fs).toBeUndefined();
+      vi.advanceTimersByTime(400);
+      consent.applyRegionDefault(false);
+      expect(dataLayer.filter((e) => e.event).map((e) => e.event)).toEqual(["form_submit", "generate_lead"]);
+      expect(sent().fs?.user_data).toMatchObject({ email: "test-audit@xerebo.com" });
+      vi.advanceTimersByTime(2000);
+      expect(dataLayer.filter((e) => e.event === "form_submit")).toHaveLength(1);
+    } finally {
+      vi.useRealTimers();
     }
+  });
+
+  it("region still unknown after 1 second: pushes without user_data", async () => {
+    vi.useFakeTimers();
+    try {
+      const { analytics } = await load(null);
+      pushBoth(analytics);
+      vi.advanceTimersByTime(999);
+      expect(sent().fs).toBeUndefined();
+      vi.advanceTimersByTime(1);
+      expect(sent().fs).toBeDefined();
+      expect(sent().gl).toBeDefined();
+      expect(JSON.stringify(dataLayer)).not.toContain("test-audit@xerebo.com");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("a saved choice needs no wait", async () => {
+    const { analytics, consent } = await load(null);
+    consent.saveConsent(consent.ALL_GRANTED);
+    pushBoth(analytics);
+    expect(sent().fs?.user_data).toMatchObject({ email: "test-audit@xerebo.com" });
   });
 });
 
 describe("effectiveConsent", () => {
   it("is the saved choice, else granted outside the opt-in regions, else denied", async () => {
-    const { consent } = await load();
+    const { consent } = await load(null);
     expect(consent.effectiveConsent()).toEqual(consent.ALL_DENIED);
     consent.applyRegionDefault(true);
     expect(consent.effectiveConsent()).toEqual(consent.ALL_DENIED);

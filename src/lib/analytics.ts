@@ -14,7 +14,7 @@
   click-id cookies is gated on effectiveConsent() (the saved choice, else the regional default).
 */
 
-import { effectiveConsent } from "./consent";
+import { effectiveConsent, whenConsentKnown } from "./consent";
 import { eventContext } from "./eventContext";
 export { setEventContext } from "./eventContext";
 import { LEAD_CURRENCY, LEAD_VALUES } from "./leadValues";
@@ -209,7 +209,8 @@ export interface FormSubmitArgs {
 
 /**
  * Emit the `form_submit` conversion. Call once, only after the lead is confirmed saved.
- * PII lives only under `user_data` (hashed server-side; must never reach GA4).
+ * PII lives only under `user_data` (hashed server-side; must never reach GA4). If the visitor's region is not known
+ * yet (no saved choice, /api/geo still out), the push waits up to 1 s for it, so user_data follows the real consent.
  */
 export function pushFormSubmit({
   formId,
@@ -225,9 +226,15 @@ export function pushFormSubmit({
   eventId,
   extra,
 }: FormSubmitArgs): void {
+  // Generated now, not when the push runs, so a caller that sent this id to the ERP still matches.
+  const id = eventId ?? genEventId();
+  whenConsentKnown(() => pushFormSubmitNow({ formId, formName, formType, serviceInterest, email, phone, firstName, lastName, nationality, value, eventId: id, extra }));
+}
+
+function pushFormSubmitNow({ formId, formName, formType, serviceInterest, email, phone, firstName, lastName, nationality, value, eventId, extra }: FormSubmitArgs): void {
   pushEvent("form_submit", {
     ...extra,
-    event_id: eventId ?? genEventId(),
+    event_id: eventId,
     form_data: {
       form_id: formId,
       form_name: formName ?? formId,
@@ -352,6 +359,11 @@ export function trackPlannerComplete(plannerId: string, args: { zone?: string; a
  * phone normalised to E.164; nothing is hashed here (GTM does that). PII is cleared before the next event.
  */
 export function pushGenerateLead(args: { formId: string; service?: string; email?: string; phone?: string }): void {
+  // Waits with form_submit (same queue, same order) when the region is not known yet.
+  whenConsentKnown(() => pushGenerateLeadNow(args));
+}
+
+function pushGenerateLeadNow(args: { formId: string; service?: string; email?: string; phone?: string }): void {
   const email = args.email?.trim().toLowerCase() || undefined;
   const phone = args.phone ? toE164(args.phone) || undefined : undefined;
   pushEvent("generate_lead", {

@@ -2,6 +2,8 @@
   Copied unchanged from https://www.best-solution.ae/privacy-policy/ and /terms-conditions/ on 6 Nov 2026, so pages on
   this host link to local legal pages and never out to www. Only the www site's closing marketing banner and its menu,
   header and footer were left out. Any change to the wording is a legal decision: update it on www first.
+  Exception, 27 Nov 2026 (owner's wording, for the consent change): the privacy policy's "07. Cookies" section, the
+  processors line (analytics and advertising) and Withdraw Consent differ from www, and its last-updated date moved.
 */
 export type LegalBlock = [tag: "h1" | "h2" | "h3" | "h4" | "p" | "li", text: string];
 
@@ -25,7 +27,7 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "May 6, 2026"
+        "November 27, 2026"
       ],
       [
         "p",
@@ -205,7 +207,7 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "Vetted vendors that help us run the business — e.g. cloud hosting (Vercel, AWS), CRM (ERPNext), email/SMS (transactional), analytics (privacy-aware), and document storage. Each is bound by a written Data Processing Agreement."
+        "Vetted vendors that help us run the business — e.g. cloud hosting (Vercel, AWS), CRM (ERPNext), email/SMS (transactional), analytics and advertising (Google, Meta, Microsoft Clarity), and document storage. Each is bound by a written Data Processing Agreement."
       ],
       [
         "p",
@@ -341,7 +343,7 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "Pull consent at any time where we relied on it (newsletters, optional cookies, etc.)."
+        "Pull consent at any time where we relied on it (newsletters, optional cookies, etc.), including analytics and marketing cookies, via Cookie Settings."
       ],
       [
         "p",
@@ -353,47 +355,27 @@ export const LEGAL: Record<"privacy" | "terms", { blocks: LegalBlock[]; contactT
       ],
       [
         "p",
-        "Cookies are small files saved on your device that help websites remember things between visits. We use them sparingly:"
+        "Cookies are small files saved on your device that help websites remember things between visits."
       ],
       [
         "p",
-        "Strictly necessary"
+        "Strictly necessary: session, security and your cookie choice. These can't be turned off."
       ],
       [
         "p",
-        "Session, security, and consent state. These can’t be turned off."
+        "Functional: remember your preferences, such as language and region. Off unless you accept."
       ],
       [
         "p",
-        "Functional"
+        "Analytics: Google Analytics and Microsoft Clarity help us understand how visitors use the site."
       ],
       [
         "p",
-        "Remember your preferences — language, region, and chat state — for a smoother visit. Optional."
+        "Marketing: Google Ads and Meta help us measure which ads bring enquiries. If you arrived from an ad, we record the ad click. When you send a form, your email address and phone number may be shared with Google in a scrambled (hashed) form, only to match your enquiry to the ad you clicked."
       ],
       [
         "p",
-        "Analytics"
-      ],
-      [
-        "p",
-        "Anonymous traffic counts and page-performance data. Optional."
-      ],
-      [
-        "p",
-        "Marketing"
-      ],
-      [
-        "p",
-        "Conversion tracking from ad campaigns. Optional, opt-in only."
-      ],
-      [
-        "p",
-        "We manage tags through Google Tag Manager and use Google Consent Mode, which keeps functional, analytics, and marketing cookies switched off until you opt in. Your choice is stored on your device and respected on every page."
-      ],
-      [
-        "p",
-        "You can change your choice any time via the Cookie Settings link in the footer, or via your browser settings. Disabling strictly-necessary cookies may break some site features."
+        "Your choice: for visitors in the UAE and most other countries, analytics and marketing cookies are on unless you reject them. Visitors in the European Economic Area, the UK and Switzerland are asked first, and these cookies stay off until they accept. You can reject or change your choice at any time with the cookie banner or the Cookie Settings link at the bottom of every page. Your choice is stored on your device and respected on every page."
       ],
       [
         "h2",
