@@ -69,6 +69,20 @@ export function AnFlow() {
     setStopped(true);
     setK(i);
   };
+  // The send items and sort lines are linked to the pack too, so clicking any lit item shows its report.
+  // On phones the pack sits below the lists, so it is brought into view when it is off screen.
+  const pickLinked = (i: number) => {
+    pick(i);
+    const pack = listRef.current?.parentElement;
+    const r = pack?.getBoundingClientRect();
+    if (pack && r && (r.top < 0 || r.bottom > window.innerHeight)) pack.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
+  };
+  const pickSend = (i: number) => pickLinked(PACK.findIndex((p) => p.src === i));
+  // Two reports share a sort line: clicking it again moves to the next one.
+  const pickSort = (i: number) => {
+    const all = PACK.flatMap((p, j) => (p.mid === i ? [j] : []));
+    pickLinked(all[(all.indexOf(k) + 1) % all.length]);
+  };
 
   const onKey = (e: KeyboardEvent, i: number) => {
     const n = PACK.length;
@@ -102,7 +116,14 @@ export function AnFlow() {
             </div>
             <div className="s5-its">
               {SEND.map((s, i) => (
-                <div key={s.label} className={i === cur.src ? "s5-it on" : "s5-it"}>
+                <button
+                  key={s.label}
+                  type="button"
+                  className={i === cur.src ? "s5-it on" : "s5-it"}
+                  aria-pressed={i === cur.src}
+                  aria-controls={`s5-panel-${PACK.findIndex((p) => p.src === i)}`}
+                  onClick={() => pickSend(i)}
+                >
                   <span className="s5-ic">
                     <Icon>{s.icon}</Icon>
                   </span>
@@ -110,7 +131,7 @@ export function AnFlow() {
                   <span className="s5-tagk" aria-hidden="true">
                     SENT
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -126,14 +147,21 @@ export function AnFlow() {
             </div>
             <div className="s5-sls">
               {SORT.map((t, i) => (
-                <div key={t} className={i === cur.mid ? "s5-sl on" : "s5-sl"}>
+                <button
+                  key={t}
+                  type="button"
+                  className={i === cur.mid ? "s5-sl on" : "s5-sl"}
+                  aria-pressed={i === cur.mid}
+                  aria-controls={`s5-panel-${PACK.findIndex((p) => p.mid === i)}`}
+                  onClick={() => pickSort(i)}
+                >
                   <span className="s5-d">
                     <Icon size={10} sw={3.6}>
                       <path d="m5 12 5 5 9-10" />
                     </Icon>
                   </span>
                   <span>{t}</span>
-                </div>
+                </button>
               ))}
             </div>
             <span className="s5-sw">Zoho Books, QuickBooks, Tally, or ours</span>

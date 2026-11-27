@@ -2,18 +2,25 @@
 // (success or a 422), so nothing reaches the ERP. Test data only.
 // Checks: no sideways scroll at 360 to 1920; CLS on load; quote form gating, Back keeping answers, focus on the step
 // heading, inline errors, a mocked success (stamp, "Request received.", the lead body) and a mocked 422; no name,
-// number or email in any dataLayer event; the books check and the whole form by keyboard; axe (WCAG 2.1 AA) at 390
-// and 1440; screenshots of every section at 390 and 1440 and of the form at each step.
+// number or email in any acc_* event, and user_data on form_submit / generate_lead (enhanced conversions); the books
+// check and the whole form by keyboard; axe (WCAG 2.1 AA) at 390 and 1440; screenshots of every section at 390 and
+// 1440 and of the form at each step.
 // Usage: node scripts/qa/accounting-new.mjs [base] [shots dir]. Exit 1 on any failure.
+// Other engines: QA_ENGINE=webkit|firefox runs the same checks in Playwright (QA_PLAYWRIGHT = path to the playwright
+// module, which is not a dependency of this repo). CLS is Chromium-only (no layout-shift entries elsewhere).
 import { mkdirSync, readFileSync } from "node:fs";
-import { BASE, blockTags, launch, wait } from "./common.mjs";
+import { pathToFileURL } from "node:url";
+import { BASE, BLOCKED_HOSTS, blockTags, launch, wait } from "./common.mjs";
 
 const PATH = "/accounting-new";
 const SHOTS = process.argv[3] || "";
+const ENGINE = process.env.QA_ENGINE || "chrome";
+const PW = ENGINE !== "chrome";
 const NAME = "TEST AUDIT - DELETE", PHONE = "500000000", EMAIL = "test-audit@xerebo.com";
 const AXE = readFileSync(new URL("../../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
 if (SHOTS) mkdirSync(SHOTS, { recursive: true });
-const b = await launch();
+const b = PW ? await (await import(pathToFileURL(process.env.QA_PLAYWRIGHT).href))[ENGINE].launch() : await launch();
+console.log(`engine: ${ENGINE}`);
 let failed = 0;
 const check = (name, ok, detail = "") => {
   if (!ok) failed++;
@@ -22,31 +29,57 @@ const check = (name, ok, detail = "") => {
 
 /** A fresh page at this width. api: "ok" | "422"; lead bodies land in page.leads. */
 async function open(width, { api = "ok", reduced = false } = {}) {
-  const ctx = await b.createBrowserContext();
-  const p = await ctx.newPage();
-  await p.setViewport({ width, height: width < 768 ? 844 : 900, isMobile: width < 768, hasTouch: width < 768 });
-  if (reduced) await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
-  p.leads = [];
-  await blockTags(p, (r) => {
-    if (!r.url().startsWith(BASE) && !/^(data|blob):/.test(r.url())) return r.abort(), true;
-    if (r.url().includes("/api/ad-landing")) return r.respond({ status: 204 }), true;
-    if (r.method() === "POST" && r.url().includes("/api/accounting")) {
-      p.leads.push(JSON.parse(r.postData() || "{}"));
-      const res = api === "ok" ? { status: 200, body: '{"ok":true,"created":true}' } : { status: 422, body: '{"error":"invalid_fields","fields":["email_id"]}' };
-      return r.respond({ ...res, contentType: "application/json" }), true;
+  const height = width < 768 ? 844 : 900, touch = width < 768;
+  const leads = [];
+  /** One answer for every request: abort, fake response, or pass through. */
+  const decide = (url, method, body) => {
+    if (BLOCKED_HOSTS.test(url) || (!url.startsWith(BASE) && !/^(data|blob):/.test(url))) return "abort";
+    if (url.includes("/api/ad-landing")) return { status: 204, body: "" };
+    if (method === "POST" && url.includes("/api/accounting")) {
+      leads.push(JSON.parse(body || "{}"));
+      return api === "ok" ? { status: 200, body: '{"ok":true,"created":true}' } : { status: 422, body: '{"error":"invalid_fields","fields":["email_id"]}' };
     }
-    return false;
-  });
-  await p.evaluateOnNewDocument(() => {
+    return null;
+  };
+  const clsInit = () => {
     window.__cls = 0;
-    new PerformanceObserver((l) => l.getEntries().forEach((e) => !e.hadRecentInput && (window.__cls += e.value))).observe({ type: "layout-shift", buffered: true });
-  });
-  await p.goto(`${BASE}${PATH}?utm_source=google&utm_campaign=TEST-AUDIT-DELETE`, { waitUntil: "networkidle2", timeout: 180000 });
+    try {
+      new PerformanceObserver((l) => l.getEntries().forEach((e) => !e.hadRecentInput && (window.__cls += e.value))).observe({ type: "layout-shift", buffered: true });
+    } catch {}
+  };
+  let p;
+  if (PW) {
+    // Firefox has no isMobile; touch and the viewport are enough there.
+    const ctx = await b.newContext({ viewport: { width, height }, hasTouch: touch, ...(ENGINE === "webkit" ? { isMobile: touch } : {}), reducedMotion: reduced ? "reduce" : "no-preference" });
+    await ctx.route("**/*", (route) => {
+      const q = route.request();
+      const d = decide(q.url(), q.method(), q.postData());
+      if (d === "abort") return route.abort();
+      if (d) return route.fulfill({ ...d, contentType: "application/json" });
+      return route.continue();
+    });
+    p = await ctx.newPage();
+    await p.addInitScript(clsInit);
+  } else {
+    const ctx = await b.createBrowserContext();
+    p = await ctx.newPage();
+    await p.setViewport({ width, height, isMobile: touch, hasTouch: touch });
+    if (reduced) await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+    await blockTags(p, (r) => {
+      const d = decide(r.url(), r.method(), r.postData());
+      if (d === "abort") return r.abort(), true;
+      if (d) return r.respond({ ...d, contentType: "application/json" }), true;
+      return false;
+    });
+    await p.evaluateOnNewDocument(clsInit);
+  }
+  p.leads = leads;
+  await p.goto(`${BASE}${PATH}?utm_source=google&utm_campaign=TEST-AUDIT-DELETE`, { waitUntil: PW ? "networkidle" : "networkidle2", timeout: 180000 });
   await p.$$eval("button", (bs) => bs.find((x) => x.innerText.trim() === "Accept all")?.click());
   await wait(400);
   return p;
 }
-const close = (p) => p.browserContext().close();
+const close = (p) => (PW ? p.context() : p.browserContext()).close();
 const text = (p, sel) => p.$eval(sel, (e) => e.innerText.trim()).catch(() => "");
 const nextOff = (p) => p.$eval(".s9-next", (e) => e.disabled);
 const focusedText = (p) => p.evaluate(() => document.activeElement?.innerText?.trim() || document.activeElement?.id || "");
@@ -55,7 +88,8 @@ async function toQuote(p) {
   await wait(300);
 }
 async function clickRow(p, row, label) {
-  await p.$$eval(".s9-chips.s", (rows, r, l) => [...rows[r].querySelectorAll("button")].find((x) => x.innerText.trim() === l)?.click(), row, label);
+  // One argument object: Playwright passes a single argument to the page function.
+  await p.$$eval(".s9-chips.s", (rows, a) => [...rows[a.row].querySelectorAll("button")].find((x) => x.innerText.trim() === a.label)?.click(), { row, label });
   await wait(60);
 }
 async function clickChip(p, label) {
@@ -75,7 +109,7 @@ for (const w of [360, 390, 768, 1024, 1440, 1920]) {
     return { sw: document.documentElement.scrollWidth, iw: window.innerWidth };
   });
   check(`no sideways scroll at ${w}`, r.sw <= r.iw, `${r.sw} vs ${r.iw}`);
-  if (w === 390 || w === 1440) {
+  if (!PW && (w === 390 || w === 1440)) {
     const p2 = await open(w);
     const cls = await p2.evaluate(() => window.__cls);
     check(`CLS on load at ${w} under 0.05`, cls < 0.05, cls.toFixed(4));
@@ -146,8 +180,21 @@ for (const w of [1440, 390]) {
   const dl = await p.evaluate(() => JSON.stringify(window.dataLayer || []));
   check(`${w}: acc_quote_submit and form_submit pushed`, dl.includes('"acc_quote_submit"') && dl.includes('"form_submit"'));
   check(`${w}: acc_quote_step 1, 2 and 3 pushed`, [1, 2, 3].every((n) => dl.includes(`"event":"acc_quote_step","step":${n}`)));
-  const leaks = [NAME, EMAIL, "500000000", "+971500000000", "TEST AUDIT"].filter((s) => dl.includes(s));
-  check(`${w}: no name, number or email in any dataLayer event`, leaks.length === 0, leaks.join(", "));
+  // The page's own acc_* events never carry contact details.
+  const acc = await p.evaluate(() => JSON.stringify((window.dataLayer || []).filter((e) => typeof e?.event === "string" && e.event.startsWith("acc_"))));
+  const leaks = [NAME, EMAIL, "500000000", "+971500000000", "TEST AUDIT"].filter((s) => acc.includes(s));
+  check(`${w}: no name, number or email in any acc_* event`, leaks.length === 0, leaks.join(", "));
+  // Enhanced conversions, as on the old /accounting: form_submit and generate_lead carry user_data.
+  const ud = await p.evaluate(() => {
+    const dlx = window.dataLayer || [];
+    return { fs: dlx.find((e) => e?.event === "form_submit")?.user_data, gl: dlx.find((e) => e?.event === "generate_lead")?.user_data };
+  });
+  check(
+    `${w}: form_submit carries user_data (email, E.164 phone, names)`,
+    ud.fs?.email === EMAIL && ud.fs?.phone === "+971500000000" && ud.fs?.first_name === "TEST" && ud.fs?.last_name === "AUDIT - DELETE",
+    JSON.stringify(ud.fs ? Object.keys(ud.fs) : null),
+  );
+  check(`${w}: generate_lead carries user_data (email, phone)`, ud.gl?.email === EMAIL && ud.gl?.phone_number === "+971500000000");
   await close(p);
 }
 
@@ -232,6 +279,27 @@ for (const w of [1440, 390]) {
   await p.keyboard.press("Enter");
   await p.waitForSelector(".s9-done", { timeout: 10000 }).catch(() => {});
   check("keyboard: whole form sent by keyboard", !!(await p.$(".s9-done")) && p.leads.length === 1);
+  await close(p);
+}
+
+// 4b. Section 5: the send items and sort lines pick their report too, not only the tabs.
+for (const w of [1440, 390]) {
+  const p = await open(w);
+  await p.$eval("#reports", (e) => e.scrollIntoView({ block: "start", behavior: "instant" }));
+  await wait(300);
+  const tab = () => p.$eval("#reports [role=tab][aria-selected=true]", (e) => e.innerText.trim());
+  const clickIn = (sel, label) => p.$$eval(sel, (bs, l) => bs.find((x) => x.innerText.trim().startsWith(l))?.click(), label);
+  await clickIn("#reports button.s5-it", "Supplier bills");
+  await wait(200);
+  check(`${w}: section 5 "Supplier bills" shows Balance sheet`, (await tab()) === "Balance sheet");
+  await clickIn("#reports button.s5-sl", "Every invoice and bill recorded");
+  await wait(200);
+  const first = await tab();
+  await clickIn("#reports button.s5-sl", "Every invoice and bill recorded");
+  await wait(200);
+  check(`${w}: section 5 shared sort line moves between its two reports`, first === "Profit and loss" && (await tab()) === "Cash flow", `${first} then ${await tab()}`);
+  await wait(3200);
+  check(`${w}: section 5 auto cycle stays stopped after a click`, (await tab()) === "Cash flow");
   await close(p);
 }
 

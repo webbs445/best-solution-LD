@@ -7,8 +7,9 @@ vi.mock("@/lib/emailCheck", () => ({ emailIsReal: async (e: string) => /^[^@\s]+
 const { POST } = await import("./route");
 
 let sent: Record<string, unknown>[] = [];
-const post = (body: Record<string, unknown>) =>
-  POST(new Request("http://localhost/api/accounting", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
+let ip = 0;
+const post = (body: Record<string, unknown>, from = `203.0.113.${++ip}`) =>
+  POST(new Request("http://localhost/api/accounting", { method: "POST", headers: { "Content-Type": "application/json", "x-forwarded-for": from }, body: JSON.stringify(body) }));
 const contact = { lead_name: "TEST AUDIT - DELETE", mobile_no: "+971500000000", country: "AE", email_id: "test-audit@xerebo.com" };
 const notes = () => String(sent[0].custom_client_profile_and_requirement);
 
@@ -49,6 +50,15 @@ describe("POST /api/accounting", () => {
     expect(notes()).toContain("Service: Advice on the right service");
     expect(notes()).not.toContain("anything");
     expect(notes()).not.toContain("Sage");
+  });
+
+  it("stops a sixth lead from one IP within the hour, and sends nothing for it", async () => {
+    const lead = { ...contact, need: "Not sure yet" };
+    for (let i = 0; i < 5; i++) expect((await post(lead, "198.51.100.9")).status).toBe(200);
+    const res = await post(lead, "198.51.100.9");
+    expect(res.status).toBe(429);
+    expect(sent).toHaveLength(5);
+    expect((await post(lead, "198.51.100.10")).status).toBe(200);
   });
 
   it("refuses a bad name, number and email, and sends nothing", async () => {

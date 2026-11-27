@@ -332,7 +332,7 @@ export function AnHero() {
               </div>
             </div>
           </div>
-          <p className="s1-foot">Best Solution is a private consultancy, not the Federal Tax Authority. Example Trading LLC, figures are examples only.</p>
+          <p className="s1-foot">Best Solution is a private consultancy, not the Federal Tax Authority. Example Trading LLC. Figures are examples only.</p>
         </div>
       </div>
 

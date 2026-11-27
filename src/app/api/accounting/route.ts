@@ -3,6 +3,9 @@ import { emailIsReal } from "@/lib/emailCheck";
 import { withLeadLog } from "@/lib/leadLog";
 import { bodyPhone } from "@/lib/phoneServer";
 import { createErpLead, leadReply } from "@/lib/erp";
+import { clientIp, rateLimit } from "@/lib/rateLimit";
+
+const HOUR = 60 * 60 * 1000;
 import { SERVICE_NAMES, VOLUMES, type ServiceKey } from "@/content/accounting";
 import { AN_BOOK_STATES, AN_BUTTON, AN_NEEDS, AN_SOFTWARE } from "@/content/accountingNew";
 
@@ -38,6 +41,9 @@ export const POST = withLeadLog("accounting", async (request, log) => {
     ...(mobile_no ? [] : ["mobile_no"]),
   ];
   if (invalid.length) return Response.json({ error: "invalid_fields", fields: invalid }, { status: 422 });
+
+  // Same limit as /api/services-plan: five leads per IP per hour.
+  if (!rateLimit(`accounting:${clientIp(request)}`, 5, HOUR)) return Response.json({ error: "rate_limited" }, { status: 429 });
 
   const service = (str(body.service, 20) in SERVICE_NAMES ? str(body.service, 20) : "not_sure") as ServiceKey;
   const volume = oneOf(body.volume, VOLUMES);

@@ -142,6 +142,39 @@
   opacity: 1;
 }
 
+/* Send items and sort lines are buttons: each shows its report in the pack. Native button chrome removed;
+   the width makes up for the negative side margins the rows use. */
+.an button.s5-it,
+.an button.s5-sl {
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.an button.s5-it {
+  width: calc(100% + 16px);
+  border-bottom: 1px solid #f3ece5;
+}
+.an button.s5-sl {
+  width: calc(100% + 20px);
+  min-height: 44px;
+  font-size: inherit;
+}
+@media (hover: hover) {
+  .an button.s5-it:not(.on):hover {
+    background: #fdf6f0;
+  }
+  .an button.s5-it:not(.on):hover .s5-ic {
+    color: var(--an-copper);
+  }
+  .an button.s5-sl:not(.on):hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+  }
+}
+
 /* 2. We sort */
 .an .s5-sort {
   background: var(--an-navy);

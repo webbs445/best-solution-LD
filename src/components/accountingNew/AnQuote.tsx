@@ -4,10 +4,9 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 import { AC_WHATSAPP } from "@/content/accounting";
 import { AN_BOOK_STATES, AN_NEEDS, AN_SOFTWARE, AN_VOLUMES } from "@/content/accountingNew";
 import { SITE } from "@/content/site";
-import { genEventId, isConfirmedLeadResponse, pushEvent, pushFormSubmit } from "@/lib/analytics";
+import { genEventId, isConfirmedLeadResponse, pushFormSubmit, pushGenerateLead } from "@/lib/analytics";
 import { attributionFields } from "@/lib/attribution";
 import { AC_FORM_ID, TRAP_FIELD } from "@/lib/lead";
-import { LEAD_CURRENCY, LEAD_VALUES } from "@/lib/leadValues";
 import { useInView } from "./motion";
 import { accTrack } from "./track";
 import {
@@ -28,7 +27,8 @@ import "./an-s9.css";
   Section 9, "Next month, know your numbers": a three-step quote form beside a quote paper that fills in as answers
   are picked. Posts to /api/accounting (the accounting lead route: same validation, honeypot and click IDs as the
   other forms). After a confirmed lead the paper gets its "QUOTE TODAY" stamp and the card shows "Request received."
-  Events carry only step numbers and the fixed option labels, never contact details.
+  The acc_* events carry only step numbers and the fixed option labels, never contact details; the confirmed lead's
+  form_submit and generate_lead carry user_data for enhanced conversions, exactly as the old /accounting form did.
 */
 
 const STEP_NAMES = ["", "What you need", "Your books", "Your details"];
@@ -148,9 +148,12 @@ export function AnQuote() {
       if (!res.ok) throw new Error("Request failed");
       const body = await res.json().catch(() => ({}));
       if (isConfirmedLeadResponse(body)) {
-        // The Google Ads lead tag fires on form_submit (evt_ id shared with the ERP lead). No user_data on this page.
-        pushFormSubmit({ formId: AC_FORM_ID, formName: "Accounting Quote", formType: "quote", serviceInterest: "accounting", eventId });
-        pushEvent("generate_lead", { form_id: AC_FORM_ID, lead_type: "form", service: "accounting", value: LEAD_VALUES.form, currency: LEAD_CURRENCY });
+        // Same conversion pushes as the old /accounting quote form (enhanced conversions: user_data via the shared
+        // helpers, which normalise it; GTM hashes it under the page's consent state). The acc_* events stay free of it.
+        const [firstName, ...rest] = contact.name.trim().split(/\s+/);
+        const phone = contactPhone(contact.phone) ?? contact.phone;
+        pushFormSubmit({ formId: AC_FORM_ID, formType: "quote", serviceInterest: "accounting", email: contact.email, phone, firstName, lastName: rest.join(" "), eventId });
+        pushGenerateLead({ formId: AC_FORM_ID, service: answers.need, email: contact.email, phone });
         accTrack("acc_quote_submit", { need: answers.need });
       }
       setPhase("sent");

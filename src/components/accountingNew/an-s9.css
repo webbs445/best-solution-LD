@@ -198,6 +198,8 @@
 }
 .an .s9-pl.last {
   border-bottom: none;
+  /* Room for the QUOTE TODAY stamp from the start, so it never covers the answer and nothing moves when it lands. */
+  padding-right: 112px;
 }
 .an .s9-pl span {
   color: var(--an-muted);
